@@ -1,9 +1,38 @@
 import { Link } from "react-router-dom";
+import { useLanguageTestProgress } from "../../application/controllers/useLanguageTestProgress";
 import { currentCycle } from "../../infrastructure/data/gks-2026";
 import { useI18n } from "../../application/i18n/I18nContext";
 
 export function ProfilePage({ score }: { score: number }) {
   const { copy } = useI18n();
+  const { progress, totals } = useLanguageTestProgress();
+
+  const averageBestScore = (language: "en" | "ko") => {
+    const attempts = Object.values(progress[language]);
+    if (attempts.length === 0) return null;
+    return Math.round(attempts.reduce((total, stage) => total + stage.bestScore, 0) / attempts.length);
+  };
+
+  const englishScore = averageBestScore("en");
+  const koreanScore = averageBestScore("ko");
+  const englishLevel = englishScore === null
+    ? copy.profile.cefrPending
+    : englishScore < 50
+      ? copy.profile.levels.english.foundation
+      : englishScore < 70
+        ? copy.profile.levels.english.developing
+        : englishScore < 90
+          ? copy.profile.levels.english.strong
+          : copy.profile.levels.english.advanced;
+  const koreanLevel = koreanScore === null
+    ? copy.profile.topikPending
+    : koreanScore < 50
+      ? copy.profile.levels.korean.foundation
+      : koreanScore < 70
+        ? copy.profile.levels.korean.level3
+        : koreanScore < 90
+          ? copy.profile.levels.korean.level4
+          : copy.profile.levels.korean.level5;
 
   return (
     <div className="page profile-page">
@@ -19,10 +48,10 @@ export function ProfilePage({ score }: { score: number }) {
       </section>
 
       <section className="profile-fields">
-        <div><small>{copy.profile.nationality}</small><strong>{copy.profile.pending}</strong><span>→</span></div>
-        <div><small>{copy.profile.major}</small><strong>{copy.profile.pending}</strong><span>→</span></div>
-        <div><small>{copy.profile.korean}</small><strong>{copy.profile.topikPending}</strong><span>→</span></div>
-        <div><small>{copy.profile.english}</small><strong>{copy.profile.cefrPending}</strong><span>→</span></div>
+        <div><small>{copy.profile.nationality}</small><strong>{copy.profile.nationalityValue}</strong><span>✓</span></div>
+        <div><small>{copy.profile.major}</small><strong>{copy.profile.majorValue}</strong><span>✓</span></div>
+        <div><small>{copy.profile.korean}</small><strong>{koreanLevel}{koreanScore !== null && <em> · {totals.ko}/5 {copy.profile.testsCompleted}</em>}</strong><span>{koreanScore === null ? "→" : "↻"}</span></div>
+        <div><small>{copy.profile.english}</small><strong>{englishLevel}{englishScore !== null && <em> · {totals.en}/5 {copy.profile.testsCompleted}</em>}</strong><span>{englishScore === null ? "→" : "↻"}</span></div>
       </section>
 
       <section className="profile-cycle">

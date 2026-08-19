@@ -55,10 +55,6 @@ export function ChecklistPage({ progress, toggleDocument }: Props) {
         })}
       </section>
 
-      <aside className="privacy-note">
-        <span aria-hidden="true">⌁</span>
-        <div><strong>{copy.checklist.privacy}</strong><p>{copy.checklist.privacyText}</p></div>
-      </aside>
     </div>
   );
 }

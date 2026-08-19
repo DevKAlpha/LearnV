@@ -168,16 +168,6 @@ export function StudyPage() {
         </details>
       </section>
 
-      <section className="skill-path">
-        <div className="section-heading"><div><span className="eyebrow">{copy.study.method}</span><h2>{copy.study.methodTitle}</h2></div></div>
-        <div className="path-line">
-          <div><span>01</span><strong>{copy.study.diagnose}</strong><small>{copy.study.diagnoseText}</small></div>
-          <div><span>02</span><strong>{copy.study.evidence}</strong><small>{copy.study.evidenceText}</small></div>
-          <div><span>03</span><strong>{copy.study.feedback}</strong><small>{copy.study.feedbackText}</small></div>
-          <div><span>04</span><strong>{copy.study.review}</strong><small>{copy.study.reviewText}</small></div>
-        </div>
-        <p className="external-notice">{copy.study.externalNotice}</p>
-      </section>
     </div>
   );
 }
