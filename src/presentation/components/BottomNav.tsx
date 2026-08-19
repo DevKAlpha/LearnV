@@ -1,14 +1,16 @@
 import { NavLink } from "react-router-dom";
-
-const items = [
-  { to: "/", symbol: "⌂", label: "Inicio", end: true },
-  { to: "/gks", symbol: "◎", label: "Beca" },
-  { to: "/study", symbol: "文", label: "Estudiar" },
-  { to: "/checklist", symbol: "✓", label: "Documentos" },
-  { to: "/profile", symbol: "☺", label: "Perfil" },
-];
+import { useI18n } from "../../application/i18n/I18nContext";
 
 export function BottomNav() {
+  const { copy } = useI18n();
+  const items = [
+    { to: "/", symbol: "⌂", label: copy.nav.home, end: true },
+    { to: "/gks", symbol: "◎", label: copy.nav.gks },
+    { to: "/study", symbol: "文", label: copy.nav.study },
+    { to: "/checklist", symbol: "✓", label: copy.nav.documents },
+    { to: "/profile", symbol: "☺", label: copy.nav.profile },
+  ];
+
   return (
     <nav className="bottom-nav" aria-label="Navegación principal">
       {items.map((item) => (

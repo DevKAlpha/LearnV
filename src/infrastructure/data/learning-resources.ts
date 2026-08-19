@@ -1,0 +1,250 @@
+import type { LocalizedText } from "../../domain/models/i18n";
+
+export type ResourceTrack = "gks" | "en" | "ko";
+export type ResourceType = "document" | "book" | "test" | "video" | "advice";
+
+export type LearningResource = {
+  id: string;
+  title: LocalizedText;
+  description: LocalizedText;
+  level: LocalizedText;
+  organization: string;
+  track: ResourceTrack;
+  type: ResourceType;
+  url: string;
+  icon: string;
+  official: boolean;
+  verifiedAt: string;
+};
+
+export const learningResources: LearningResource[] = [
+  {
+    id: "gks-guidelines-en",
+    title: {
+      es: "Guía oficial GKS-U 2026 · English",
+      en: "Official GKS-U 2026 Guidelines · English",
+      ko: "2026 GKS-U 공식 모집 요강 · 영어",
+    },
+    description: {
+      es: "Requisitos, calendario, documentos y proceso. Úsala como referencia histórica hasta que se publique 2027.",
+      en: "Eligibility, timeline, documents and process. Use it as historical reference until the 2027 cycle is published.",
+      ko: "지원 자격, 일정, 제출 서류와 절차를 확인합니다. 2027 요강 발표 전까지 참고용으로 사용하세요.",
+    },
+    level: { es: "Aplicación", en: "Application", ko: "지원 준비" },
+    organization: "Study in Korea · NIIED",
+    track: "gks",
+    type: "document",
+    url: "https://www.studyinkorea.go.kr/ko/notice/scholarshipsRead.do?bbsId=BBSMSTR_000000000461&boardSort=3&nttId=4385",
+    icon: "文",
+    official: true,
+    verifiedAt: "2026-08-18",
+  },
+  {
+    id: "gks-guidelines-ko",
+    title: {
+      es: "Guía oficial GKS-U 2026 · 한국어",
+      en: "Official GKS-U 2026 Guidelines · Korean",
+      ko: "2026 GKS-U 공식 모집 요강 · 한국어",
+    },
+    description: {
+      es: "Versión coreana del mismo ciclo para aprender vocabulario real de convocatoria y contrastar términos.",
+      en: "Korean version of the same cycle for learning authentic application vocabulary and comparing terms.",
+      ko: "같은 모집의 한국어판으로 실제 지원 용어를 익히고 영어판과 비교할 수 있습니다.",
+    },
+    level: { es: "Aplicación · B2+", en: "Application · B2+", ko: "지원 준비 · 중급 이상" },
+    organization: "Study in Korea · NIIED",
+    track: "gks",
+    type: "document",
+    url: "https://www.studyinkorea.go.kr/ko/notice/scholarshipsRead.do?bbsId=BBSMSTR_000000000461&boardSort=3&nttId=4385",
+    icon: "한",
+    official: true,
+    verifiedAt: "2026-08-18",
+  },
+  {
+    id: "gks-forms",
+    title: { es: "Formularios oficiales de solicitud GKS-U", en: "Official GKS-U application forms", ko: "GKS-U 공식 지원 서식" },
+    description: {
+      es: "Incluye el Application Form, Personal Statement, Study Plan y acuerdos del ciclo 2026.",
+      en: "Includes the Application Form, Personal Statement, Study Plan and agreements for the 2026 cycle.",
+      ko: "2026 지원서, 자기소개서, 학업계획서와 동의서 양식이 포함됩니다.",
+    },
+    level: { es: "Aplicación", en: "Application", ko: "지원 준비" },
+    organization: "Study in Korea · NIIED",
+    track: "gks",
+    type: "document",
+    url: "https://www.studyinkorea.go.kr/ko/notice/scholarshipsRead.do?bbsId=BBSMSTR_000000000461&boardSort=3&nttId=4385",
+    icon: "▤",
+    official: true,
+    verifiedAt: "2026-08-18",
+  },
+  {
+    id: "topik-ibt-reading",
+    title: { es: "Simulador oficial TOPIK II · Lectura IBT", en: "Official TOPIK II IBT reading simulator", ko: "TOPIK II IBT 공식 읽기 체험" },
+    description: {
+      es: "Practica en la interfaz oficial con una tarea de ordenar información y familiarízate con el formato digital.",
+      en: "Practise in the official interface with an ordering task and become familiar with the digital format.",
+      ko: "공식 화면에서 문장 순서 배열 문제를 풀며 디지털 시험 형식을 익힙니다.",
+    },
+    level: { es: "TOPIK II", en: "TOPIK II", ko: "TOPIK II" },
+    organization: "TOPIK · NIIED",
+    track: "ko",
+    type: "test",
+    url: "https://www.topik.go.kr/asset/vendor/tutorial/exam2/read_exam.html",
+    icon: "읽",
+    official: true,
+    verifiedAt: "2026-08-18",
+  },
+  {
+    id: "topik-ibt-listening",
+    title: { es: "Simulador oficial TOPIK II · Escucha IBT", en: "Official TOPIK II IBT listening simulator", ko: "TOPIK II IBT 공식 듣기 체험" },
+    description: {
+      es: "Ejercicio oficial de escucha para practicar selección de respuesta y comportamiento del reproductor.",
+      en: "Official listening exercise for practising answer selection and the test audio player.",
+      ko: "공식 듣기 연습으로 답안 선택과 시험 음원 재생 방식을 익힙니다.",
+    },
+    level: { es: "TOPIK II", en: "TOPIK II", ko: "TOPIK II" },
+    organization: "TOPIK · NIIED",
+    track: "ko",
+    type: "test",
+    url: "https://www.topik.go.kr/asset/vendor/tutorial/exam2/listen_exam.html",
+    icon: "듣",
+    official: true,
+    verifiedAt: "2026-08-18",
+  },
+  {
+    id: "topik-writing-rubric",
+    title: { es: "TOPIK II · tipos de pregunta y rúbrica de escritura", en: "TOPIK II writing question types and rubric", ko: "TOPIK II 쓰기 문항 유형과 채점 기준" },
+    description: {
+      es: "Documento oficial con tareas, criterios de contenido, estructura y uso del idioma para la sección escrita.",
+      en: "Official document covering tasks and content, structure and language-use criteria for writing.",
+      ko: "쓰기 영역의 문항과 내용, 전개 구조, 언어 사용 채점 기준을 설명하는 공식 자료입니다.",
+    },
+    level: { es: "TOPIK 3–6", en: "TOPIK 3–6", ko: "TOPIK 3–6급" },
+    organization: "TOPIK · NIIED",
+    track: "ko",
+    type: "advice",
+    url: "https://exam.topik.go.kr/nasdata/webnas/raonkeditordata/uploadId/2024/02/20240227_175504804_07236.pdf",
+    icon: "✎",
+    official: true,
+    verifiedAt: "2026-08-18",
+  },
+  {
+    id: "sejong-workbook-2",
+    title: { es: "Sejong Korean Workbook 2 + audio", en: "Sejong Korean Workbook 2 + audio", ko: "세종한국어 익힘책 2 + 듣기 음원" },
+    description: {
+      es: "Libro gratuito con PDF, ejercicios y audios para consolidar gramática, vocabulario y comprensión.",
+      en: "Free PDF workbook and audio for consolidating grammar, vocabulary and comprehension.",
+      ko: "문법, 어휘와 이해 능력을 복습할 수 있는 무료 PDF 익힘책과 듣기 음원입니다.",
+    },
+    level: { es: "Inicial", en: "Beginner", ko: "초급" },
+    organization: "King Sejong Institute Foundation",
+    track: "ko",
+    type: "book",
+    url: "https://nuri.iksi.or.kr/front/cms/contents/layout2/learningsejong/detail.do?csCmsMastrSeq=4761&menuSn=651",
+    icon: "책",
+    official: true,
+    verifiedAt: "2026-08-18",
+  },
+  {
+    id: "sejong-advanced-writing",
+    title: { es: "Sejong Korean Writing · temas académicos", en: "Sejong Korean Writing · academic topics", ko: "세종학당 한국어 쓰기" },
+    description: {
+      es: "Libro avanzado gratuito con unidades de sociedad, literatura, ciencia, economía e historia.",
+      en: "Free advanced textbook with units on society, literature, science, economics and history.",
+      ko: "사회, 문학, 과학, 경제, 역사 주제로 구성된 무료 중·고급 쓰기 교재입니다.",
+    },
+    level: { es: "Intermedio–avanzado", en: "Intermediate–advanced", ko: "중·고급" },
+    organization: "King Sejong Institute Foundation",
+    track: "ko",
+    type: "book",
+    url: "https://nuri.iksi.or.kr/front/cms/contents/layout2/learningtextbooks/detail.do?csCmsContentsType=CMS_CONTENTS_TYPE%3A%3ACMS_EBOOK&csCmsMastrSeq=15279&language=en&menuSn=645",
+    icon: "가",
+    official: true,
+    verifiedAt: "2026-08-18",
+  },
+  {
+    id: "sejong-roadmap",
+    title: { es: "Ruta de aprendizaje Sejong · cursos y videos", en: "Sejong learning roadmap · courses and videos", ko: "누리 세종학당 학습 로드맵" },
+    description: {
+      es: "Organiza clases, libros, videos, audios y práctica por niveles desde principiante hasta avanzado.",
+      en: "Organises classes, books, videos, audio and practice from beginner to advanced levels.",
+      ko: "초급부터 고급까지 강의, 교재, 영상, 음원과 연습 자료를 수준별로 제공합니다.",
+    },
+    level: { es: "Todos los niveles", en: "All levels", ko: "전 수준" },
+    organization: "King Sejong Institute Foundation",
+    track: "ko",
+    type: "video",
+    url: "https://nuri.iksi.or.kr/front/page/siteguide/learning/roadmap/main.do?language=ko",
+    icon: "▶",
+    official: true,
+    verifiedAt: "2026-08-18",
+  },
+  {
+    id: "ielts-academic-samples",
+    title: { es: "Pruebas oficiales IELTS Academic", en: "Official IELTS Academic sample tests", ko: "IELTS Academic 공식 샘플 테스트" },
+    description: {
+      es: "Reading, Listening, Writing y Speaking con PDF, audio, claves y respuestas comentadas.",
+      en: "Reading, Listening, Writing and Speaking with PDFs, audio, answer keys and scored responses.",
+      ko: "읽기, 듣기, 쓰기, 말하기 샘플과 PDF, 음원, 정답 및 채점 예시를 제공합니다.",
+    },
+    level: { es: "B2–C1", en: "B2–C1", ko: "B2–C1" },
+    organization: "IELTS",
+    track: "en",
+    type: "test",
+    url: "https://www.ielts.org/take-a-test/preparation-resources/sample-test-questions/academic-test",
+    icon: "A+",
+    official: true,
+    verifiedAt: "2026-08-18",
+  },
+  {
+    id: "british-writing",
+    title: { es: "Writing B2–C1 · modelos y ejercicios", en: "B2–C1 writing · models and exercises", ko: "B2–C1 쓰기 · 예시와 연습" },
+    description: {
+      es: "Lecciones gratuitas organizadas por MCER con textos modelo, estructura y actividades interactivas.",
+      en: "Free CEFR-organised lessons with model texts, structure and interactive activities.",
+      ko: "CEFR 수준별 예문, 글 구조와 상호작용 연습을 제공하는 무료 수업입니다.",
+    },
+    level: { es: "B2–C1", en: "B2–C1", ko: "B2–C1" },
+    organization: "British Council · LearnEnglish",
+    track: "en",
+    type: "book",
+    url: "https://learnenglish.britishcouncil.org/free-resources/writing",
+    icon: "✦",
+    official: true,
+    verifiedAt: "2026-08-18",
+  },
+  {
+    id: "british-video-zone",
+    title: { es: "Video Zone B2–C1", en: "B2–C1 Video Zone", ko: "B2–C1 비디오 존" },
+    description: {
+      es: "Videos seleccionados para entrenar acentos, comprensión, vocabulario idiomático y discusión.",
+      en: "Curated videos for practising accents, comprehension, idiomatic vocabulary and discussion.",
+      ko: "다양한 억양, 듣기 이해, 관용 표현과 토론을 연습하는 선별 영상입니다.",
+    },
+    level: { es: "B2–C1", en: "B2–C1", ko: "B2–C1" },
+    organization: "British Council · LearnEnglish",
+    track: "en",
+    type: "video",
+    url: "https://learnenglish.britishcouncil.org/free-resources/general/video-zone",
+    icon: "▶",
+    official: true,
+    verifiedAt: "2026-08-18",
+  },
+  {
+    id: "essay-introductions",
+    title: { es: "Taller en video · introducciones de ensayo", en: "Video workshop · essay introductions", ko: "영상 워크숍 · 에세이 서론" },
+    description: {
+      es: "Grabación de una clase real sobre estructura de introducciones y párrafos, con actividad de comprobación.",
+      en: "Recorded lesson on structuring essay introductions and paragraphs, with a comprehension activity.",
+      ko: "에세이 서론과 문단 구조를 설명하고 확인 활동을 제공하는 녹화 수업입니다.",
+    },
+    level: { es: "B2–C1", en: "B2–C1", ko: "B2–C1" },
+    organization: "British Council · LearnEnglish",
+    track: "en",
+    type: "video",
+    url: "https://learnenglish.britishcouncil.org/free-resources/learning-hub/events/writing-workshop-writing-essays-introductions",
+    icon: "▶",
+    official: true,
+    verifiedAt: "2026-08-18",
+  },
+];

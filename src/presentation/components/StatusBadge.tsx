@@ -1,11 +1,8 @@
 import type { FactStatus } from "../../domain/models/gks";
-
-const labels: Record<FactStatus, string> = {
-  confirmed: "Confirmado",
-  historical: "Referencia 2026",
-  pending: "Pendiente 2027",
-};
+import { useI18n } from "../../application/i18n/I18nContext";
 
 export function StatusBadge({ status }: { status: FactStatus }) {
+  const { copy } = useI18n();
+  const labels: Record<FactStatus, string> = copy.status;
   return <span className={`status-badge status-badge--${status}`}>{labels[status]}</span>;
 }

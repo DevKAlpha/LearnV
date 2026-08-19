@@ -1,0 +1,32 @@
+import type { Locale } from "../../domain/models/i18n";
+import { useI18n } from "../../application/i18n/I18nContext";
+
+const options: Array<{ value: Locale; label: string; short: string }> = [
+  { value: "es", label: "Español", short: "ES" },
+  { value: "en", label: "English", short: "EN" },
+  { value: "ko", label: "한국어", short: "한" },
+];
+
+export function LanguageSwitcher() {
+  const { locale, setLocale, copy } = useI18n();
+
+  return (
+    <div className="app-toolbar">
+      <div className="language-switcher" role="group" aria-label={copy.app.languageLabel}>
+        {options.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            className={locale === option.value ? "language-option language-option--active" : "language-option"}
+            aria-pressed={locale === option.value}
+            aria-label={option.label}
+            onClick={() => setLocale(option.value)}
+          >
+            <span>{option.short}</span>
+            <small>{option.label}</small>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
