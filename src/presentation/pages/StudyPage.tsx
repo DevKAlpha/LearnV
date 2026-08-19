@@ -4,30 +4,27 @@ import { TestTrackCards } from "../components/TestTrackCards";
 import { localize } from "../../domain/models/i18n";
 import {
   learningResources,
-  type ResourceTrack,
+  type MaterialLanguage,
   type ResourceType,
 } from "../../infrastructure/data/learning-resources";
 
-type TrackFilter = "all" | ResourceTrack;
 type TypeFilter = "all" | ResourceType;
 
 export function StudyPage() {
   const { locale, copy } = useI18n();
-  const [track, setTrack] = useState<TrackFilter>("all");
+  const [materialLanguage, setMaterialLanguage] = useState<MaterialLanguage>(() => locale === "ko" ? "ko" : "en");
   const [type, setType] = useState<TypeFilter>("all");
 
   const resources = useMemo(
     () => learningResources.filter((resource) =>
-      (track === "all" || resource.track === track) &&
+      resource.languages.includes(materialLanguage) &&
       (type === "all" || resource.type === type)),
-    [track, type],
+    [materialLanguage, type],
   );
 
-  const trackFilters: Array<{ value: TrackFilter; label: string }> = [
-    { value: "all", label: copy.study.all },
-    { value: "en", label: copy.study.english },
-    { value: "ko", label: copy.study.korean },
-    { value: "gks", label: copy.study.gks },
+  const languageFilters: Array<{ value: MaterialLanguage; label: string; symbol: string }> = [
+    { value: "en", label: copy.study.english, symbol: "A+" },
+    { value: "ko", label: copy.study.korean, symbol: "한" },
   ];
 
   const typeFilters: Array<{ value: TypeFilter; label: string; icon: string }> = [
@@ -84,18 +81,25 @@ export function StudyPage() {
         </div>
         <p className="section-intro">{copy.study.libraryIntro}</p>
 
-        <div className="resource-filters" aria-label={copy.study.resources}>
-          <div className="track-filters" role="group" aria-label={copy.app.languageLabel}>
-            {trackFilters.map((filter) => (
+        <div className="material-language-picker">
+          <div>
+            <span className="eyebrow">{copy.study.chooseMaterialLanguage}</span>
+            <strong>{copy.study.materialLanguageTitle}</strong>
+          </div>
+          <div className="track-filters" role="group" aria-label={copy.study.chooseMaterialLanguage}>
+            {languageFilters.map((filter) => (
               <button
                 key={filter.value}
                 type="button"
-                aria-pressed={track === filter.value}
-                className={track === filter.value ? "filter-chip filter-chip--active" : "filter-chip"}
-                onClick={() => setTrack(filter.value)}
-              >{filter.label}</button>
+                aria-pressed={materialLanguage === filter.value}
+                className={materialLanguage === filter.value ? "filter-chip filter-chip--active" : "filter-chip"}
+                onClick={() => setMaterialLanguage(filter.value)}
+              ><span aria-hidden="true">{filter.symbol}</span>{filter.label}</button>
             ))}
           </div>
+        </div>
+
+        <div className="resource-filters" aria-label={copy.study.resources}>
           <div className="type-filters" role="group" aria-label={copy.study.allTypes}>
             {typeFilters.map((filter) => (
               <button

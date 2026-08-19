@@ -2,9 +2,11 @@ import type { LocalizedText } from "../../domain/models/i18n";
 
 export type ResourceTrack = "gks" | "en" | "ko";
 export type ResourceType = "document" | "book" | "test" | "video" | "advice";
+export type MaterialLanguage = "en" | "ko";
 
 export type LearningResource = {
   id: string;
+  languages: MaterialLanguage[];
   title: LocalizedText;
   description: LocalizedText;
   level: LocalizedText;
@@ -20,6 +22,7 @@ export type LearningResource = {
 export const learningResources: LearningResource[] = [
   {
     id: "gks-guidelines-en",
+    languages: ["en"],
     title: {
       es: "Guía oficial GKS-U 2026 · English",
       en: "Official GKS-U 2026 Guidelines · English",
@@ -41,6 +44,7 @@ export const learningResources: LearningResource[] = [
   },
   {
     id: "gks-guidelines-ko",
+    languages: ["ko"],
     title: {
       es: "Guía oficial GKS-U 2026 · 한국어",
       en: "Official GKS-U 2026 Guidelines · Korean",
@@ -62,6 +66,7 @@ export const learningResources: LearningResource[] = [
   },
   {
     id: "gks-forms",
+    languages: ["en", "ko"],
     title: { es: "Formularios oficiales de solicitud GKS-U", en: "Official GKS-U application forms", ko: "GKS-U 공식 지원 서식" },
     description: {
       es: "Incluye el Application Form, Personal Statement, Study Plan y acuerdos del ciclo 2026.",
@@ -79,6 +84,7 @@ export const learningResources: LearningResource[] = [
   },
   {
     id: "topik-ibt-reading",
+    languages: ["ko"],
     title: { es: "Simulador oficial TOPIK II · Lectura IBT", en: "Official TOPIK II IBT reading simulator", ko: "TOPIK II IBT 공식 읽기 체험" },
     description: {
       es: "Practica en la interfaz oficial con una tarea de ordenar información y familiarízate con el formato digital.",
@@ -96,6 +102,7 @@ export const learningResources: LearningResource[] = [
   },
   {
     id: "topik-ibt-listening",
+    languages: ["ko"],
     title: { es: "Simulador oficial TOPIK II · Escucha IBT", en: "Official TOPIK II IBT listening simulator", ko: "TOPIK II IBT 공식 듣기 체험" },
     description: {
       es: "Ejercicio oficial de escucha para practicar selección de respuesta y comportamiento del reproductor.",
@@ -113,6 +120,7 @@ export const learningResources: LearningResource[] = [
   },
   {
     id: "topik-writing-rubric",
+    languages: ["ko"],
     title: { es: "TOPIK II · tipos de pregunta y rúbrica de escritura", en: "TOPIK II writing question types and rubric", ko: "TOPIK II 쓰기 문항 유형과 채점 기준" },
     description: {
       es: "Documento oficial con tareas, criterios de contenido, estructura y uso del idioma para la sección escrita.",
@@ -130,6 +138,7 @@ export const learningResources: LearningResource[] = [
   },
   {
     id: "sejong-workbook-2",
+    languages: ["ko"],
     title: { es: "Sejong Korean Workbook 2 + audio", en: "Sejong Korean Workbook 2 + audio", ko: "세종한국어 익힘책 2 + 듣기 음원" },
     description: {
       es: "Libro gratuito con PDF, ejercicios y audios para consolidar gramática, vocabulario y comprensión.",
@@ -147,6 +156,7 @@ export const learningResources: LearningResource[] = [
   },
   {
     id: "sejong-advanced-writing",
+    languages: ["ko"],
     title: { es: "Sejong Korean Writing · temas académicos", en: "Sejong Korean Writing · academic topics", ko: "세종학당 한국어 쓰기" },
     description: {
       es: "Libro avanzado gratuito con unidades de sociedad, literatura, ciencia, economía e historia.",
@@ -164,6 +174,7 @@ export const learningResources: LearningResource[] = [
   },
   {
     id: "sejong-roadmap",
+    languages: ["ko"],
     title: { es: "Ruta de aprendizaje Sejong · cursos y videos", en: "Sejong learning roadmap · courses and videos", ko: "누리 세종학당 학습 로드맵" },
     description: {
       es: "Organiza clases, libros, videos, audios y práctica por niveles desde principiante hasta avanzado.",
@@ -181,6 +192,7 @@ export const learningResources: LearningResource[] = [
   },
   {
     id: "ielts-academic-samples",
+    languages: ["en"],
     title: { es: "Pruebas oficiales IELTS Academic", en: "Official IELTS Academic sample tests", ko: "IELTS Academic 공식 샘플 테스트" },
     description: {
       es: "Reading, Listening, Writing y Speaking con PDF, audio, claves y respuestas comentadas.",
@@ -198,6 +210,7 @@ export const learningResources: LearningResource[] = [
   },
   {
     id: "british-writing",
+    languages: ["en"],
     title: { es: "Writing B2–C1 · modelos y ejercicios", en: "B2–C1 writing · models and exercises", ko: "B2–C1 쓰기 · 예시와 연습" },
     description: {
       es: "Lecciones gratuitas organizadas por MCER con textos modelo, estructura y actividades interactivas.",
@@ -215,6 +228,7 @@ export const learningResources: LearningResource[] = [
   },
   {
     id: "british-video-zone",
+    languages: ["en"],
     title: { es: "Video Zone B2–C1", en: "B2–C1 Video Zone", ko: "B2–C1 비디오 존" },
     description: {
       es: "Videos seleccionados para entrenar acentos, comprensión, vocabulario idiomático y discusión.",
@@ -232,6 +246,7 @@ export const learningResources: LearningResource[] = [
   },
   {
     id: "essay-introductions",
+    languages: ["en"],
     title: { es: "Taller en video · introducciones de ensayo", en: "Video workshop · essay introductions", ko: "영상 워크숍 · 에세이 서론" },
     description: {
       es: "Grabación de una clase real sobre estructura de introducciones y párrafos, con actividad de comprobación.",

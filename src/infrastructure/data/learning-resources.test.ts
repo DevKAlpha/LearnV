@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { Locale } from "../../domain/models/i18n";
-import { learningResources, type ResourceTrack, type ResourceType } from "./learning-resources";
+import { learningResources, type MaterialLanguage, type ResourceTrack, type ResourceType } from "./learning-resources";
 
 const locales: Locale[] = ["es", "en", "ko"];
 const tracks: ResourceTrack[] = ["gks", "en", "ko"];
 const types: ResourceType[] = ["document", "book", "test", "video", "advice"];
+const materialLanguages: MaterialLanguage[] = ["en", "ko"];
 
 describe("learning resources", () => {
   it("covers GKS, English and Korean preparation", () => {
@@ -16,6 +17,17 @@ describe("learning resources", () => {
   it("offers every supported material type", () => {
     types.forEach((type) => {
       expect(learningResources.some((resource) => resource.type === type)).toBe(true);
+    });
+  });
+
+  it("allows material to be selected for English or Korean", () => {
+    materialLanguages.forEach((language) => {
+      expect(learningResources.some((resource) => resource.languages.includes(language))).toBe(true);
+    });
+
+    learningResources.forEach((resource) => {
+      expect(resource.languages.length).toBeGreaterThan(0);
+      expect(resource.languages.every((language) => materialLanguages.includes(language))).toBe(true);
     });
   });
 
