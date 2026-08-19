@@ -2,7 +2,7 @@ import type { Locale } from "../../domain/models/i18n";
 
 const es = {
   app: { tagline: "Tu ruta a Corea", languageLabel: "Idioma de la aplicación", skipLink: "Saltar al contenido" },
-  nav: { home: "Inicio", gks: "Beca", study: "Estudiar", documents: "Documentos", profile: "Perfil" },
+  nav: { home: "Inicio", gks: "Beca", study: "Estudiar", documents: "Documentos", profile: "Perfil", mainAria: "Navegación principal" },
   common: {
     officialSource: "Fuente oficial",
     verified: "verificado",
@@ -162,6 +162,15 @@ const es = {
       ],
     },
   },
+  tests: {
+    hubKicker: "Práctica guiada", hubTitle: "Pruebas por idioma", hubIntro: "Elige una ruta. La aplicación cambiará al idioma de la prueba y guardará el progreso en este dispositivo.",
+    englishTitle: "Inglés académico", englishDescription: "Lectura, control del idioma, escucha, escritura y síntesis B2–C1.", englishTarget: "Objetivo · B2 → C1",
+    koreanTitle: "Coreano TOPIK II", koreanDescription: "Vocabulario, lectura, escucha, escritura y razonamiento de nivel intermedio–avanzado.", koreanTarget: "Objetivo · TOPIK 3 → 5",
+    fiveTests: "5 pruebas", openPath: "Abrir recorrido", autoLanguage: "Idioma automático", progress: "progreso",
+    pathKicker: "Recorrido procedural", pathTitle: "Tu ruta de pruebas", pathIntro: "Supera cada prueba para desbloquear la siguiente. Puedes repetir cualquiera que ya esté disponible.", backLibrary: "Volver a Estudiar", completed: "completadas", attempts: "intentos", officialBasis: "Base de diseño", available: "Disponible", locked: "Bloqueada", passed: "Superada", current: "Siguiente", best: "Mejor", firstAttempt: "Primer intento · sin tiempo", retakeAttempt: "Repetición · cronometrada y más compleja", minutes: "min estimados", start: "Comenzar", repeat: "Repetir", unlockHint: "Supera la prueba anterior para desbloquearla.",
+    sessionExit: "Salir de la prueba", question: "Pregunta", of: "de", selectAnswer: "Selecciona una respuesta para continuar.", next: "Siguiente", finish: "Finalizar prueba", playAudio: "Reproducir audio", audioUnavailable: "El audio no está disponible; usa esta transcripción:", untimed: "Sin límite de tiempo", timed: "Intento cronometrado", timeLeft: "Tiempo restante", attempt: "Intento",
+    resultKicker: "Diagnóstico LearnV", resultTitle: "Prueba completada", resultPass: "Has desbloqueado el siguiente paso.", resultRetry: "Revisa la retroalimentación y vuelve a intentarlo.", score: "Nota de práctica", estimate: "Estimación", nonOfficial: "Esta nota es orientativa y no equivale a un resultado oficial de IELTS, TOPIK ni GKS.", correctAnswers: "respuestas correctas", whatWentWell: "Lo que hiciste bien", improveNext: "Cómo mejorarlo", perfect: "Dominaste todas las habilidades evaluadas en este intento.", noCorrect: "Este intento sirve como diagnóstico inicial: revisa cada explicación antes de repetir.", selectedAnswer: "Tu respuesta", correctAnswer: "Respuesta correcta", unanswered: "Sin responder", explanation: "Por qué", repeatTest: "Repetir con reto", backPath: "Volver al recorrido", nextTest: "Ir a la siguiente prueba",
+  },
 };
 
 type DeepWiden<T> = T extends string
@@ -176,7 +185,7 @@ export type TranslationCatalog = DeepWiden<typeof es>;
 
 const en: TranslationCatalog = {
   app: { tagline: "Your path to Korea", languageLabel: "Application language", skipLink: "Skip to content" },
-  nav: { home: "Home", gks: "Scholarship", study: "Study", documents: "Documents", profile: "Profile" },
+  nav: { home: "Home", gks: "Scholarship", study: "Study", documents: "Documents", profile: "Profile", mainAria: "Main navigation" },
   common: { officialSource: "Official source", verified: "verified", required: "Required", optional: "Optional", mark: "Mark", unmark: "Unmark", apostille: "Apostille", certifiedTranslation: "Certified translation", minutes: "min" },
   status: { confirmed: "Confirmed", historical: "2026 reference", pending: "2027 pending" },
   progress: { aria: "Preparation progress", ready: "ready for today" },
@@ -215,11 +224,20 @@ const en: TranslationCatalog = {
     sticker: "Preparation library", title: "Resources that truly prepare you.", intro: "Documents, books, tests and lessons selected for GKS, TOPIK II and academic English.", startHere: "Start here", weekOne: "Starter route · Week 1", weekTitle: "Build your foundation before simulating the exam", weekText: "Read the GKS guidelines, take a short diagnostic in both languages and start an error log.", stepGuide: "1 · GKS guidelines", stepKorean: "2 · TOPIK II", stepEnglish: "3 · English B2–C1", library: "Verified library", resources: "Learning material", libraryIntro: "Open each resource at its original institution. LearnV does not copy or modify official files.", all: "All", english: "English", korean: "Korean", gks: "GKS", allTypes: "All types", document: "Document", book: "Book", test: "Test", video: "Video", advice: "Advice", official: "Official", openResource: "Open resource", noResults: "No resources match these filters.", objectivesKicker: "Always at hand", objectivesTitle: "Language goals", objectivesIntro: "Tap to view TOPIK II and English B2–C1 targets.", koreanGoal: "Korean · TOPIK II", englishGoal: "Academic English · B2 → C1", reference2026: "GKS-U 2026 reference", scoreNote: "Equivalences and scores must be updated when NIIED publishes the 2027 guidelines.", method: "How to use it", methodTitle: "Practise, log, correct", diagnose: "Diagnostic", diagnoseText: "Take a short test without help.", evidence: "Log", evidenceText: "Write the answer, cause and rule.", feedback: "Correction", feedbackText: "Compare with the official key or rubric.", review: "Review", reviewText: "Repeat after 2, 7 and 21 days.", verifiedOn: "Verified", externalNotice: "Links open external sites. Always check the current cycle before submitting documents.",
     bands: { topik: [{ label: "Level 3", score: "80%", note: "+10% in the 2026 evaluation" }, { label: "Level 4", score: "90%", note: "Initial competitive target" }, { label: "Level 5–6", score: "100%", note: "Possible language-year exemption" }], english: [{ label: "IELTS 6.0", score: "70%", note: "Approximate B2" }, { label: "IELTS 7.0", score: "80%", note: "C1 target" }, { label: "IELTS 8.0", score: "90%", note: "Advanced proficiency" }] },
   },
+  tests: {
+    hubKicker: "Guided practice", hubTitle: "Language test paths", hubIntro: "Choose a path. LearnV will switch to the test language and save progress on this device.",
+    englishTitle: "Academic English", englishDescription: "Reading, language control, listening, writing and B2–C1 synthesis.", englishTarget: "Target · B2 → C1",
+    koreanTitle: "Korean TOPIK II", koreanDescription: "Vocabulary, reading, listening, writing and intermediate–advanced reasoning.", koreanTarget: "Target · TOPIK 3 → 5",
+    fiveTests: "5 tests", openPath: "Open path", autoLanguage: "Automatic language", progress: "progress",
+    pathKicker: "Procedural path", pathTitle: "Your test journey", pathIntro: "Pass each test to unlock the next one. You can repeat any available test.", backLibrary: "Back to Study", completed: "completed", attempts: "attempts", officialBasis: "Design basis", available: "Available", locked: "Locked", passed: "Passed", current: "Next", best: "Best", firstAttempt: "First attempt · untimed", retakeAttempt: "Retake · timed and more complex", minutes: "estimated min", start: "Start", repeat: "Retake", unlockHint: "Pass the previous test to unlock this one.",
+    sessionExit: "Exit test", question: "Question", of: "of", selectAnswer: "Select an answer to continue.", next: "Next", finish: "Finish test", playAudio: "Play audio", audioUnavailable: "Audio is unavailable; use this transcript:", untimed: "No time limit", timed: "Timed attempt", timeLeft: "Time left", attempt: "Attempt",
+    resultKicker: "LearnV diagnostic", resultTitle: "Test complete", resultPass: "You unlocked the next step.", resultRetry: "Review the feedback and try again.", score: "Practice score", estimate: "Estimate", nonOfficial: "This estimate is for practice and is not an official IELTS, TOPIK or GKS result.", correctAnswers: "correct answers", whatWentWell: "What you did well", improveNext: "How to improve", perfect: "You mastered every skill assessed in this attempt.", noCorrect: "Use this attempt as your baseline: review every explanation before trying again.", selectedAnswer: "Your answer", correctAnswer: "Correct answer", unanswered: "Unanswered", explanation: "Why", repeatTest: "Retake challenge", backPath: "Back to path", nextTest: "Go to next test",
+  },
 };
 
 const ko: TranslationCatalog = {
   app: { tagline: "한국으로 가는 길", languageLabel: "앱 언어", skipLink: "본문으로 건너뛰기" },
-  nav: { home: "홈", gks: "장학금", study: "학습", documents: "서류", profile: "프로필" },
+  nav: { home: "홈", gks: "장학금", study: "학습", documents: "서류", profile: "프로필", mainAria: "주요 탐색" },
   common: { officialSource: "공식 출처", verified: "확인일", required: "필수", optional: "선택", mark: "체크", unmark: "체크 해제", apostille: "아포스티유", certifiedTranslation: "공인 번역", minutes: "분" },
   status: { confirmed: "확인됨", historical: "2026 참고", pending: "2027 대기" },
   progress: { aria: "준비 진행률", ready: "오늘의 준비도" },
@@ -257,6 +275,15 @@ const ko: TranslationCatalog = {
   study: {
     sticker: "준비 자료실", title: "실제로 도움이 되는 자료.", intro: "GKS, TOPIK II, 학술 영어를 위한 문서, 교재, 모의시험과 수업입니다.", startHere: "여기서 시작", weekOne: "시작 경로 · 1주차", weekTitle: "모의시험 전에 기초를 만드세요", weekText: "GKS 요강을 읽고 두 언어의 짧은 진단을 한 뒤 오답 노트를 시작하세요.", stepGuide: "1 · GKS 요강", stepKorean: "2 · TOPIK II", stepEnglish: "3 · 영어 B2–C1", library: "검증된 자료실", resources: "학습 자료", libraryIntro: "자료는 원 기관 사이트에서 열립니다. LearnV는 공식 파일을 복사하거나 수정하지 않습니다.", all: "전체", english: "영어", korean: "한국어", gks: "GKS", allTypes: "모든 유형", document: "문서", book: "교재", test: "시험", video: "영상", advice: "조언", official: "공식", openResource: "자료 열기", noResults: "선택한 조건에 맞는 자료가 없습니다.", objectivesKicker: "언제든 확인", objectivesTitle: "언어 목표", objectivesIntro: "눌러서 TOPIK II와 영어 B2–C1 목표를 확인하세요.", koreanGoal: "한국어 · TOPIK II", englishGoal: "학술 영어 · B2 → C1", reference2026: "GKS-U 2026 참고", scoreNote: "NIIED가 2027 요강을 발표하면 환산 및 점수를 업데이트해야 합니다.", method: "활용 방법", methodTitle: "연습하고, 기록하고, 교정하기", diagnose: "진단", diagnoseText: "도움 없이 짧은 시험을 풉니다.", evidence: "기록", evidenceText: "답, 원인, 규칙을 적습니다.", feedback: "교정", feedbackText: "공식 정답이나 채점표와 비교합니다.", review: "복습", reviewText: "2일, 7일, 21일 후 다시 풉니다.", verifiedOn: "확인일", externalNotice: "링크는 외부 사이트로 연결됩니다. 서류 제출 전 최신 모집 요강을 확인하세요.",
     bands: { topik: [{ label: "3급", score: "80%", note: "2026 평가에서 추가 10%" }, { label: "4급", score: "90%", note: "초기 경쟁 목표" }, { label: "5–6급", score: "100%", note: "어학연수 면제 가능" }], english: [{ label: "IELTS 6.0", score: "70%", note: "B2 수준 참고" }, { label: "IELTS 7.0", score: "80%", note: "C1 목표" }, { label: "IELTS 8.0", score: "90%", note: "고급 숙련도" }] },
+  },
+  tests: {
+    hubKicker: "단계별 연습", hubTitle: "언어별 모의진단", hubIntro: "경로를 선택하면 시험 언어로 자동 전환되며 진행 상황은 이 기기에 저장됩니다.",
+    englishTitle: "학술 영어", englishDescription: "읽기, 언어 정확성, 듣기, 쓰기와 B2–C1 종합 능력을 연습합니다.", englishTarget: "목표 · B2 → C1",
+    koreanTitle: "한국어 TOPIK II", koreanDescription: "중·고급 어휘, 읽기, 듣기, 쓰기와 추론 능력을 연습합니다.", koreanTarget: "목표 · TOPIK 3 → 5급",
+    fiveTests: "5개 시험", openPath: "경로 열기", autoLanguage: "언어 자동 전환", progress: "진행률",
+    pathKicker: "단계별 경로", pathTitle: "나의 시험 여정", pathIntro: "각 시험을 통과하면 다음 단계가 열립니다. 열린 시험은 언제든 다시 풀 수 있습니다.", backLibrary: "학습으로 돌아가기", completed: "완료", attempts: "응시", officialBasis: "출제 참고", available: "응시 가능", locked: "잠김", passed: "통과", current: "다음 단계", best: "최고", firstAttempt: "첫 응시 · 시간 제한 없음", retakeAttempt: "재응시 · 시간 제한 및 심화 문제", minutes: "예상 소요 시간", start: "시작", repeat: "다시 풀기", unlockHint: "이전 시험을 통과하면 열립니다.",
+    sessionExit: "시험 나가기", question: "문제", of: "/", selectAnswer: "답을 선택하면 계속할 수 있습니다.", next: "다음", finish: "시험 완료", playAudio: "음성 재생", audioUnavailable: "음성을 사용할 수 없어 대본을 표시합니다:", untimed: "시간 제한 없음", timed: "시간 제한 응시", timeLeft: "남은 시간", attempt: "응시",
+    resultKicker: "LearnV 진단", resultTitle: "시험 완료", resultPass: "다음 단계가 열렸습니다.", resultRetry: "해설을 확인한 뒤 다시 도전하세요.", score: "연습 점수", estimate: "예상 수준", nonOfficial: "이 점수는 연습용 추정치이며 IELTS, TOPIK 또는 GKS 공식 결과가 아닙니다.", correctAnswers: "정답", whatWentWell: "잘한 점", improveNext: "개선 방법", perfect: "이번 응시에서 평가한 모든 능력을 정확히 해결했습니다.", noCorrect: "이번 결과를 시작점으로 활용하세요. 다시 풀기 전에 모든 해설을 확인하세요.", selectedAnswer: "선택한 답", correctAnswer: "정답", unanswered: "응답 없음", explanation: "해설", repeatTest: "심화 재도전", backPath: "경로로 돌아가기", nextTest: "다음 시험으로",
   },
 };
 

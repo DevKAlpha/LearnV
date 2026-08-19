@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useI18n } from "../../application/i18n/I18nContext";
+import { TestTrackCards } from "../components/TestTrackCards";
 import { localize } from "../../domain/models/i18n";
 import {
   learningResources,
@@ -70,6 +71,8 @@ export function StudyPage() {
           <span>가</span><i /><b>A+</b>
         </div>
       </section>
+
+      <TestTrackCards />
 
       <section className="resource-library" aria-labelledby="resource-library-title">
         <div className="section-heading resource-heading">
