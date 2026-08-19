@@ -1,4 +1,4 @@
-import { currentCycle, keyFacts, sources, uicPrograms } from "../../infrastructure/data/gks-2026";
+import { currentCycle, keyFacts, sources, targetPrograms } from "../../infrastructure/data/gks-2026";
 import { SourceLink } from "../components/SourceLink";
 import { StatusBadge } from "../components/StatusBadge";
 import { useI18n } from "../../application/i18n/I18nContext";
@@ -59,14 +59,19 @@ export function GksPage() {
         </div>
         <p className="section-intro">{copy.gks.programsIntro}</p>
         <div className="program-grid">
-          {uicPrograms.map((program) => (
-            <article className={`program-card program-card--${program.tone}`} key={program.university}>
-              <span className="program-folder" aria-hidden="true">▰</span>
-              <small>University Track · UIC</small>
-              <strong>{program.university}</strong>
-              <p>{program.field}</p>
-            </article>
-          ))}
+          {targetPrograms.map((program) => {
+            const programCopy = copy.gks.programTargets[program.id];
+
+            return (
+              <article className={`program-card program-card--${program.tone}`} key={program.id}>
+                <span className="program-folder" aria-hidden="true">▰</span>
+                <small>{copy.gks.programStatus}</small>
+                <strong>{programCopy.title}</strong>
+                <p>{programCopy.detail}</p>
+                <span className="program-category">{copy.gks.programCategories[program.category]}</span>
+              </article>
+            );
+          })}
         </div>
       </section>
 

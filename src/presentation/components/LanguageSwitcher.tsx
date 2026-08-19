@@ -1,5 +1,6 @@
 import type { Locale } from "../../domain/models/i18n";
 import { useI18n } from "../../application/i18n/I18nContext";
+import { Link } from "react-router-dom";
 
 const options: Array<{ value: Locale; label: string; short: string }> = [
   { value: "es", label: "Español", short: "ES" },
@@ -12,6 +13,10 @@ export function LanguageSwitcher() {
 
   return (
     <div className="app-toolbar">
+      <Link className="mobile-brand" to="/" aria-label="LearnV">
+        <span className="mobile-brand__mark" aria-hidden="true">V</span>
+        <strong>LearnV</strong>
+      </Link>
       <div className="language-switcher" role="group" aria-label={copy.app.languageLabel}>
         {options.map((option) => (
           <button

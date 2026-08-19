@@ -861,6 +861,18 @@ input:focus-visible + span {
   line-height: 1.35;
 }
 
+.program-category {
+  align-self: flex-start;
+  margin-top: 12px;
+  padding: 5px 8px;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--program-color) 42%, white);
+  font-size: 0.52rem;
+  font-weight: 900;
+  line-height: 1.15;
+}
+
 .source-center {
   position: relative;
   overflow: hidden;
@@ -928,7 +940,38 @@ input:focus-visible + span {
   width: min(100%, 940px);
   margin: 0 auto;
   padding: 16px 18px 0;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mobile-brand {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.mobile-brand__mark {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  place-items: center;
+  border: 1px solid rgba(23, 23, 23, 0.74);
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(255,255,255,0.82), rgba(255,213,38,0.8));
+  box-shadow: var(--glass-highlight), 2px 3px 0 var(--ink);
+  font-family: "Arial Black", sans-serif;
+  font-size: 0.92rem;
+}
+
+.mobile-brand strong {
+  overflow: hidden;
+  font-size: 0.88rem;
+  text-overflow: ellipsis;
 }
 
 .language-switcher {
@@ -2455,7 +2498,8 @@ input:focus-visible + span {
   .desktop-brand strong { font-size: 0.95rem; }
   .desktop-brand span { margin-top: 2px; color: var(--muted); font-size: 0.6rem; font-weight: 750; }
   .main-content { grid-column: 2; min-width: 0; }
-  .app-toolbar { padding: 28px 40px 0; }
+  .app-toolbar { padding: 28px 40px 0; justify-content: flex-end; }
+  .mobile-brand { display: none; }
   .page { width: min(100%, 940px); padding: 38px 40px 70px; }
   .mobile-header { margin-bottom: 34px; }
   .bottom-nav {

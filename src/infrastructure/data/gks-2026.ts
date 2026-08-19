@@ -91,17 +91,14 @@ export const eligibilityRules = [
   "La estudiante y sus padres no deben tener ciudadanía coreana.",
   "Debe haber terminado bachillerato o graduarse dentro del plazo de la convocatoria.",
   "Debe cumplir la edad máxima y el rendimiento académico del ciclo vigente.",
-  "La nacionalidad determina la ruta; residir en España no equivale a ciudadanía española.",
 ];
 
-export const uicPrograms = [
-  { university: "Ajou University", field: "Software and Computer Engineering", tone: "blue" },
-  { university: "Konyang University", field: "Artificial Intelligence · Smart Security", tone: "pink" },
-  { university: "Kookmin University", field: "Software", tone: "yellow" },
-  { university: "Sungshin Women's University", field: "Statistics · Big Data Science", tone: "green" },
-  { university: "Yeungnam University", field: "Environmental Engineering", tone: "purple" },
-  { university: "Inje University", field: "AI · Medical IT · Automotive Engineering", tone: "orange" },
-];
+export const targetPrograms = [
+  { id: "international-business", category: "business", tone: "blue" },
+  { id: "global-business", category: "business", tone: "yellow" },
+  { id: "medical-it", category: "health", tone: "pink" },
+  { id: "health-sciences", category: "health", tone: "green" },
+] as const;
 
 export const dailyTasks: StudyTask[] = [
   {

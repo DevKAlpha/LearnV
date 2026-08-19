@@ -5,7 +5,7 @@ import {
   keyFacts,
   languageBands,
   sources,
-  uicPrograms,
+  targetPrograms,
 } from "./gks-2026";
 
 describe("datos GKS versionados", () => {
@@ -26,7 +26,9 @@ describe("datos GKS versionados", () => {
   });
 
   it("incluye las rutas de preparación solicitadas", () => {
-    expect(uicPrograms.length).toBeGreaterThanOrEqual(6);
+    expect(targetPrograms).toHaveLength(4);
+    expect(targetPrograms.filter((program) => program.category === "business")).toHaveLength(2);
+    expect(targetPrograms.filter((program) => program.category === "health")).toHaveLength(2);
     expect(documents.some((document) => document.needsApostille)).toBe(true);
     expect(languageBands.topik.some((band) => band.label === "Nivel 5–6")).toBe(true);
     expect(languageBands.english.some((band) => band.note.includes("C1"))).toBe(true);
