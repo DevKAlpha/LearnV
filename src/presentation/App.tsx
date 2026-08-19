@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { BottomNav } from "./components/BottomNav";
+import { ScrollToTop } from "./components/ScrollToTop";
 import { useGksProgress } from "../application/controllers/useGksProgress";
 import { ChecklistPage } from "./pages/ChecklistPage";
 import { GksPage } from "./pages/GksPage";
@@ -12,9 +13,10 @@ export function App() {
 
   return (
     <div className="app-shell">
+      <ScrollToTop />
       <a className="skip-link" href="#main-content">Saltar al contenido</a>
       <aside className="desktop-brand" aria-label="LearnV">
-        <div className="brand-mark">G</div>
+        <div className="brand-mark">V</div>
         <div>
           <strong>LearnV</strong>
           <span>Tu ruta a Corea</span>

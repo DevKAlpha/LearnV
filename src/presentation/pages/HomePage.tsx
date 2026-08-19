@@ -18,7 +18,7 @@ export function HomePage({ score, progress, toggleTask }: Props) {
           <span className="eyebrow">Lunes · 17 de agosto</span>
           <h1>안녕, futura scholar!</h1>
         </div>
-        <Link to="/profile" className="avatar-button" aria-label="Abrir perfil">N</Link>
+        <Link to="/profile" className="avatar-button" aria-label="Abrir perfil">V</Link>
       </header>
 
       <section className="hero-grid" aria-labelledby="readiness-title">

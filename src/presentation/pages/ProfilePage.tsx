@@ -5,7 +5,7 @@ export function ProfilePage({ score }: { score: number }) {
   return (
     <div className="page profile-page">
       <header className="profile-hero">
-        <div className="profile-avatar">N<span>✦</span></div>
+        <div className="profile-avatar">V<span>✦</span></div>
         <span className="eyebrow">Perfil local</span>
         <h1>Tu ruta empieza con datos correctos.</h1>
         <p>Completa la información clave cuando construyamos el diagnóstico personalizado.</p>
