@@ -3,6 +3,7 @@ import { dailyTasks, currentCycle } from "../../infrastructure/data/gks-2026";
 import { ProgressOrbit } from "../components/ProgressOrbit";
 import { useI18n } from "../../application/i18n/I18nContext";
 import { LanguageGoals } from "../components/LanguageGoals";
+import { getReminderStage } from "../../domain/models/learning-reminder";
 
 type Props = {
   score: number;
@@ -12,7 +13,9 @@ type Props = {
 
 export function HomePage({ score, progress, toggleTask }: Props) {
   const { locale, copy } = useI18n();
-  const completedToday = progress.completedTasks.length;
+  const completedToday = dailyTasks.filter((task) => progress.completedTasks.includes(task.id)).length;
+  const reminderStage = getReminderStage(score, completedToday, dailyTasks.length);
+  const reminderText = copy.home.reminderStages[reminderStage];
   const dateLocale = { es: "es-ES", en: "en-GB", ko: "ko-KR" }[locale];
   const today = new Intl.DateTimeFormat(dateLocale, { weekday: "long", day: "numeric", month: "long" }).format(new Date());
   const [titleLineOne, titleLineTwo] = copy.home.title.split("\n");
@@ -76,11 +79,11 @@ export function HomePage({ score, progress, toggleTask }: Props) {
 
       <LanguageGoals />
 
-      <section className="quote-card">
+      <section className="quote-card" aria-live="polite">
         <div className="flower-face" aria-hidden="true"><span>☺</span></div>
         <div>
           <span className="eyebrow">{copy.home.reminder}</span>
-          <p>{copy.home.reminderText}</p>
+          <p>{reminderText}</p>
         </div>
       </section>
     </div>

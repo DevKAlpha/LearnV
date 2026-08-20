@@ -955,15 +955,21 @@ input:focus-visible + span {
 }
 
 .app-toolbar {
-  position: relative;
-  z-index: 20;
+  position: sticky;
+  z-index: 70;
+  top: 0;
   display: flex;
   width: min(100%, 940px);
   margin: 0 auto;
-  padding: 16px 18px 0;
+  padding: max(12px, env(safe-area-inset-top)) 18px 10px;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  border-bottom: 1px solid rgba(23,23,23,0.1);
+  background: linear-gradient(180deg, rgba(247,241,229,0.94), rgba(247,241,229,0.76));
+  box-shadow: 0 10px 26px rgba(42,43,43,0.07);
+  -webkit-backdrop-filter: blur(24px) saturate(1.2);
+  backdrop-filter: blur(24px) saturate(1.2);
 }
 
 .app-toolbar__controls {
@@ -1082,6 +1088,12 @@ input:focus-visible + span {
 :root[data-theme="dark"] .bottom-nav {
   border-color: rgba(255,255,255,0.25);
   background: linear-gradient(145deg, rgba(42,54,73,0.92), rgba(20,28,40,0.82));
+}
+
+:root[data-theme="dark"] .app-toolbar {
+  border-color: rgba(255,255,255,0.12);
+  background: linear-gradient(180deg, rgba(16,23,34,0.95), rgba(16,23,34,0.78));
+  box-shadow: 0 10px 28px rgba(0,0,0,0.22);
 }
 
 :root[data-theme="dark"] .language-option { color: var(--muted); }
@@ -1293,6 +1305,28 @@ input:focus-visible + span {
 :root[data-theme="dark"] .coaching-card > span {
   border-color: rgba(255,255,255,0.24);
   background: rgba(20,28,40,0.54);
+}
+
+:root[data-theme="dark"] .count-pill {
+  border: 1px solid rgba(255,255,255,0.26);
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+
+:root[data-theme="dark"] .page--home :is(.eyebrow, .hero-copy p, .alert-card p, .task-content small, .quote-card p) {
+  color: #fff;
+}
+
+:root[data-theme="dark"] .quote-card {
+  border-color: rgba(255,255,255,0.3);
+  background: linear-gradient(145deg, #967a26, #66531d);
+  color: #fff;
+}
+
+:root[data-theme="dark"] .flower-face span {
+  border-color: rgba(255,255,255,0.76);
+  background: #172130;
+  color: #fff;
 }
 
 :root[data-theme="dark"] .cycle-card::before,
@@ -2915,7 +2949,7 @@ input:focus-visible + span {
   .desktop-brand strong { font-size: 0.95rem; }
   .desktop-brand span { margin-top: 2px; color: var(--muted); font-size: 0.6rem; font-weight: 750; }
   .main-content { grid-column: 2; min-width: 0; }
-  .app-toolbar { padding: 28px 40px 0; justify-content: flex-end; }
+  .app-toolbar { padding: 18px 40px 12px; justify-content: flex-end; }
   .mobile-brand { display: none; }
   .page { width: min(100%, 940px); padding: 38px 40px 70px; }
   .mobile-header { margin-bottom: 34px; }
