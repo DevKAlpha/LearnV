@@ -4,7 +4,7 @@ import { learningResources, type MaterialLanguage, type ResourceTrack, type Reso
 
 const locales: Locale[] = ["es", "en", "ko"];
 const tracks: ResourceTrack[] = ["gks", "en", "ko"];
-const types: ResourceType[] = ["document", "book", "test", "video", "advice"];
+const types: ResourceType[] = ["document", "book", "test", "video"];
 const materialLanguages: MaterialLanguage[] = ["en", "ko"];
 
 describe("learning resources", () => {
@@ -18,6 +18,7 @@ describe("learning resources", () => {
     types.forEach((type) => {
       expect(learningResources.some((resource) => resource.type === type)).toBe(true);
     });
+    expect(learningResources.some((resource) => (resource.type as string) === "advice")).toBe(false);
   });
 
   it("allows material to be selected for English or Korean", () => {

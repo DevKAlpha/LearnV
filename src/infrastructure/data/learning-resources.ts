@@ -1,7 +1,7 @@
 import type { LocalizedText } from "../../domain/models/i18n";
 
 export type ResourceTrack = "gks" | "en" | "ko";
-export type ResourceType = "document" | "book" | "test" | "video" | "advice";
+export type ResourceType = "document" | "book" | "test" | "video";
 export type MaterialLanguage = "en" | "ko";
 
 export type LearningResource = {
@@ -130,7 +130,7 @@ export const learningResources: LearningResource[] = [
     level: { es: "TOPIK 3–6", en: "TOPIK 3–6", ko: "TOPIK 3–6급" },
     organization: "TOPIK · NIIED",
     track: "ko",
-    type: "advice",
+    type: "document",
     url: "https://exam.topik.go.kr/nasdata/webnas/raonkeditordata/uploadId/2024/02/20240227_175504804_07236.pdf",
     icon: "✎",
     official: true,

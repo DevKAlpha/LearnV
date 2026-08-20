@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { dailyTasks, currentCycle } from "../../infrastructure/data/gks-2026";
 import { ProgressOrbit } from "../components/ProgressOrbit";
 import { useI18n } from "../../application/i18n/I18nContext";
+import { LanguageGoals } from "../components/LanguageGoals";
 
 type Props = {
   score: number;
@@ -72,6 +73,8 @@ export function HomePage({ score, progress, toggleTask }: Props) {
           })}
         </div>
       </section>
+
+      <LanguageGoals />
 
       <section className="quote-card">
         <div className="flower-face" aria-hidden="true"><span>☺</span></div>

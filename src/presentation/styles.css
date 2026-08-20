@@ -2696,7 +2696,7 @@ input:focus-visible + span {
   .starter-steps { width: 100%; }
   .study-character--library { right: 34px; bottom: 40px; width: 180px; height: 165px; }
   .material-language-picker { grid-template-columns: minmax(0, 1fr) 270px; align-items: center; }
-  .type-filters { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .type-filters { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .resource-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .test-track-grid,
   .result-coaching-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
