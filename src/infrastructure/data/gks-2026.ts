@@ -79,7 +79,7 @@ export const keyFacts: GksFact[] = [
   {
     id: "topik",
     label: "Meta competitiva",
-    value: "TOPIK 4–5",
+    value: "TOPIK 4 / 5",
     detail: "La preparación parte de TOPIK I y avanza primero hacia nivel 3. En 2026, TOPIK 3+ aportó puntuación adicional.",
     icon: "한",
     status: "historical",
@@ -179,11 +179,11 @@ export const languageBands = {
   topik: [
     { label: "TOPIK I", score: "Nivel 1–2", note: "Punto de partida: escucha y lectura básica" },
     { label: "Puente TOPIK II", score: "Nivel 3", note: "Primera meta: escritura y textos intermedios" },
-    { label: "Meta posterior", score: "Nivel 4–5", note: "Objetivo competitivo tras consolidar el puente" },
+    { label: "Meta posterior", score: "Nivel 4 / 5", note: "Objetivo competitivo tras consolidar el puente" },
   ],
   english: [
-    { label: "IELTS 6.0", score: "70%", note: "Aproximación B2" },
-    { label: "IELTS 7.0", score: "80%", note: "Objetivo C1" },
-    { label: "IELTS 8.0", score: "90%", note: "Dominio avanzado" },
+    { label: "Punto de partida", score: "B1 / B2", note: "Consolidar precisión, fluidez y vocabulario" },
+    { label: "Meta intermedia", score: "B2", note: "Producción académica independiente" },
+    { label: "Meta principal", score: "C1", note: "Comunicación académica avanzada" },
   ],
 };

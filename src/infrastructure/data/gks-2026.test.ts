@@ -32,6 +32,7 @@ describe("datos GKS versionados", () => {
     expect(documents.some((document) => document.needsApostille)).toBe(true);
     expect(languageBands.topik.some((band) => band.score === "Nivel 1–2")).toBe(true);
     expect(languageBands.topik.some((band) => band.score === "Nivel 3")).toBe(true);
-    expect(languageBands.english.some((band) => band.note.includes("C1"))).toBe(true);
+    expect(languageBands.english.some((band) => band.score === "B1 / B2")).toBe(true);
+    expect(languageBands.english.some((band) => band.score === "C1")).toBe(true);
   });
 });
