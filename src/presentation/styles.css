@@ -2054,6 +2054,71 @@ input:focus-visible + span {
   font-weight: 800;
 }
 
+html[data-theme="dark"] .material-language-picker {
+  border-color: rgba(255,255,255,0.26);
+  background:
+    radial-gradient(circle at 10% 0%, rgba(148,177,219,0.12), transparent 40%),
+    linear-gradient(145deg, rgba(37,50,68,0.96), rgba(20,28,40,0.96));
+  box-shadow: var(--glass-highlight), 4px 5px 0 #070b11, 0 16px 30px rgba(0,0,0,0.2);
+  color: #fff;
+}
+
+html[data-theme="dark"] .material-language-picker :is(.eyebrow, strong) {
+  color: #fff;
+}
+
+html[data-theme="dark"] .material-language-picker :is(.filter-chip, .type-chip) {
+  border-color: rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+  color: #fff;
+}
+
+html[data-theme="dark"] .material-language-picker :is(.filter-chip--active, .type-chip--active) {
+  border-color: rgba(255,255,255,0.48);
+  background: #0a0f17;
+  box-shadow: 3px 4px 0 rgba(255,204,38,0.76);
+  color: #fff;
+}
+
+html[data-theme="dark"] .document-card {
+  border-color: rgba(255,255,255,0.24);
+  background:
+    radial-gradient(circle at 92% 0%, rgba(109,142,187,0.12), transparent 38%),
+    linear-gradient(145deg, rgba(36,49,67,0.94), rgba(23,32,45,0.94));
+  box-shadow: var(--glass-highlight), 0 12px 24px rgba(0,0,0,0.2);
+  color: #fff;
+}
+
+html[data-theme="dark"] .document-card p {
+  color: rgba(255,255,255,0.9);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+html[data-theme="dark"] .document-check {
+  border-color: rgba(255,255,255,0.34);
+  background: linear-gradient(145deg, rgba(255,255,255,0.16), rgba(255,255,255,0.05));
+  box-shadow: var(--glass-highlight), 3px 3px 0 #070b11;
+  color: #fff;
+}
+
+html[data-theme="dark"] .document-card--done {
+  background: linear-gradient(145deg, rgba(48,77,62,0.92), rgba(25,42,34,0.94));
+  opacity: 0.88;
+}
+
+html[data-theme="dark"] .document-card--done .document-check {
+  background: #52784d;
+}
+
+html[data-theme="dark"] .document-tags span {
+  border-color: rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  font-size: 0.56rem;
+}
+
 .profile-page {
   text-align: center;
 }
