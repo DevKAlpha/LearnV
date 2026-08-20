@@ -28,7 +28,7 @@
   background: #101722;
   --cream: #101722;
   --paper: #1a2431;
-  --muted: #b8bdc7;
+  --muted: #f4dc8b;
   --line: rgba(238, 242, 248, 0.17);
   --glass-border: rgba(219, 231, 247, 0.22);
   --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
@@ -247,9 +247,9 @@ input:focus-visible + span {
 .page-header p {
   max-width: 36rem;
   margin: 0;
-  color: #55524c;
+  color: var(--muted);
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.55;
 }
 
@@ -1093,7 +1093,6 @@ input:focus-visible + span {
 :root[data-theme="dark"] .resource-card,
 :root[data-theme="dark"] .objectives-drawer,
 :root[data-theme="dark"] .document-card,
-:root[data-theme="dark"] .profile-hero,
 :root[data-theme="dark"] .profile-fields,
 :root[data-theme="dark"] .profile-cycle,
 :root[data-theme="dark"] .test-path-header,
@@ -1137,9 +1136,29 @@ input:focus-visible + span {
   color: #171717;
 }
 
+:root[data-theme="dark"] .profile-hero {
+  background: transparent;
+  box-shadow: none;
+}
+
+:root[data-theme="dark"] .language-card {
+  --muted: #554d42;
+}
+
+:root[data-theme="dark"] .source-list a {
+  border-color: rgba(255,255,255,0.22);
+  background: linear-gradient(145deg, rgba(49,65,86,0.92), rgba(27,37,51,0.88));
+  color: #f6f1e8;
+}
+
+:root[data-theme="dark"] .cycle-status {
+  border-color: rgba(255,255,255,0.3);
+  background: linear-gradient(145deg, rgba(49,65,86,0.9), rgba(20,28,40,0.9));
+  color: #f4dc8b;
+}
+
 :root[data-theme="dark"] .skip-link { background: var(--paper); color: #f6f1e8; }
 :root[data-theme="dark"] .mobile-brand { color: #f6f1e8; }
-:root[data-theme="dark"] .source-list a { border-color: rgba(255,255,255,0.18); }
 
 .study-feature {
   position: relative;
