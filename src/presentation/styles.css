@@ -19,6 +19,7 @@
   --line: rgba(23, 23, 23, 0.16);
   --glass-border: rgba(255, 255, 255, 0.72);
   --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.92), inset 0 -1px 0 rgba(255, 255, 255, 0.22);
+  --theme-glass-filter: blur(24px) saturate(1.35);
   --radius: 28px;
   --hard-shadow: 7px 8px 0 #171717;
 }
@@ -32,6 +33,7 @@
   --line: rgba(238, 242, 248, 0.17);
   --glass-border: rgba(219, 231, 247, 0.22);
   --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+  --theme-glass-filter: blur(20px) saturate(0.78) contrast(1.02);
   --hard-shadow: 7px 8px 0 #070b11;
 }
 
@@ -1155,6 +1157,149 @@ input:focus-visible + span {
   border-color: rgba(255,255,255,0.3);
   background: linear-gradient(145deg, rgba(49,65,86,0.9), rgba(20,28,40,0.9));
   color: #f4dc8b;
+}
+
+:root[data-theme="dark"] :is(
+  .hero-grid,
+  .alert-card,
+  .cycle-card,
+  .fact-card,
+  .source-center,
+  .study-feature,
+  .study-start-card,
+  .language-card,
+  .checklist-progress,
+  .document-card,
+  .profile-score,
+  .profile-fields,
+  .profile-cycle,
+  .test-track-card,
+  .test-path-header,
+  .question-stage,
+  .result-hero
+) {
+  -webkit-backdrop-filter: var(--theme-glass-filter);
+  backdrop-filter: var(--theme-glass-filter);
+}
+
+:root[data-theme="dark"] :is(.checklist-progress, .profile-score) {
+  border-color: rgba(255,255,255,0.24);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255, 232, 151, 0.13), transparent 40%),
+    linear-gradient(145deg, rgba(91, 82, 47, 0.78), rgba(43, 41, 32, 0.84));
+  box-shadow: var(--glass-highlight), 5px 6px 0 #070b11, 0 18px 36px rgba(0,0,0,0.24);
+  color: #f6f1e8;
+}
+
+:root[data-theme="dark"] .profile-score > span { color: #f4dc8b; }
+:root[data-theme="dark"] .profile-score > div {
+  border-color: rgba(255,255,255,0.42);
+  background: rgba(5,9,14,0.58);
+}
+:root[data-theme="dark"] .profile-score i {
+  border-color: rgba(255,255,255,0.28);
+  background: #c977a3;
+}
+
+:root[data-theme="dark"] .mini-progress {
+  border-color: rgba(255,255,255,0.34);
+  background: conic-gradient(#d2a858 var(--progress), rgba(255,255,255,0.13) 0);
+}
+:root[data-theme="dark"] .mini-progress span {
+  border-color: rgba(255,255,255,0.24);
+  background: rgba(18,26,38,0.94);
+  color: #f6f1e8;
+}
+
+:root[data-theme="dark"] :is(.study-feature, .study-start-card) {
+  border-color: rgba(255,255,255,0.22);
+  background:
+    radial-gradient(circle at 82% 8%, rgba(173, 199, 236, 0.12), transparent 34%),
+    linear-gradient(145deg, rgba(42, 72, 117, 0.88), rgba(25, 38, 64, 0.9));
+  box-shadow: var(--glass-highlight), var(--hard-shadow), 0 22px 42px rgba(0,0,0,0.24);
+}
+
+:root[data-theme="dark"] .alert-card {
+  border-color: rgba(255,255,255,0.22);
+  background:
+    radial-gradient(circle at 8% 5%, rgba(255,222,237,0.1), transparent 38%),
+    linear-gradient(145deg, rgba(100,53,76,0.8), rgba(49,34,48,0.86));
+  box-shadow: var(--glass-highlight), 0 16px 34px rgba(0,0,0,0.22);
+}
+:root[data-theme="dark"] .alert-card p { color: #f4dc8b; }
+:root[data-theme="dark"] .alert-card > a {
+  border-color: rgba(255,255,255,0.24);
+  background: rgba(20,28,40,0.58);
+}
+
+:root[data-theme="dark"] .language-card {
+  border-color: rgba(255,255,255,0.24);
+  box-shadow: var(--glass-highlight), 5px 6px 0 #070b11, 0 16px 30px rgba(0,0,0,0.22);
+  color: #f6f1e8;
+  --muted: #f4dc8b;
+}
+:root[data-theme="dark"] .language-card--korean {
+  background: linear-gradient(145deg, rgba(102,54,80,0.82), rgba(51,36,55,0.86));
+}
+:root[data-theme="dark"] .language-card--english {
+  background: linear-gradient(145deg, rgba(48,68,100,0.84), rgba(29,39,57,0.88));
+}
+:root[data-theme="dark"] .language-title > span {
+  border-color: rgba(255,255,255,0.26);
+  background: linear-gradient(145deg, rgba(255,255,255,0.14), rgba(255,255,255,0.05));
+}
+:root[data-theme="dark"] .band-row { border-color: rgba(255,255,255,0.16); }
+:root[data-theme="dark"] .band-row span { color: #f4dc8b; }
+
+:root[data-theme="dark"] .test-track-card--en {
+  background:
+    radial-gradient(circle at 90% 8%, rgba(244,220,139,0.1), transparent 27%),
+    linear-gradient(145deg, rgba(39,76,132,0.92), rgba(35,45,82,0.92));
+}
+:root[data-theme="dark"] .test-track-card--ko {
+  background:
+    radial-gradient(circle at 90% 8%, rgba(244,220,139,0.1), transparent 27%),
+    linear-gradient(145deg, rgba(121,50,82,0.92), rgba(70,47,96,0.92));
+}
+
+:root[data-theme="dark"] .material-language-picker {
+  border-color: rgba(255,255,255,0.22);
+  background: linear-gradient(145deg, rgba(39,52,70,0.88), rgba(22,30,42,0.88));
+  box-shadow: var(--glass-highlight), 4px 5px 0 #070b11;
+}
+:root[data-theme="dark"] :is(.filter-chip, .type-chip) {
+  border-color: rgba(255,255,255,0.24);
+  background: rgba(43,57,76,0.82);
+  color: #f6f1e8;
+}
+:root[data-theme="dark"] :is(.filter-chip--active, .type-chip--active) {
+  background: #0a0f17;
+  color: #f6f1e8;
+}
+
+:root[data-theme="dark"] .coaching-card {
+  border-color: rgba(255,255,255,0.22);
+  box-shadow: var(--glass-highlight), 5px 6px 0 #070b11;
+  color: #f6f1e8;
+  -webkit-backdrop-filter: var(--theme-glass-filter);
+  backdrop-filter: var(--theme-glass-filter);
+}
+:root[data-theme="dark"] .coaching-card--success {
+  background: linear-gradient(145deg, rgba(52,87,69,0.82), rgba(29,44,38,0.88));
+}
+:root[data-theme="dark"] .coaching-card--improve {
+  background: linear-gradient(145deg, rgba(91,78,45,0.82), rgba(45,40,31,0.88));
+}
+:root[data-theme="dark"] .coaching-card > span {
+  border-color: rgba(255,255,255,0.24);
+  background: rgba(20,28,40,0.54);
+}
+
+:root[data-theme="dark"] .cycle-card::before,
+:root[data-theme="dark"] .study-feature::after,
+:root[data-theme="dark"] .study-start-card::after,
+:root[data-theme="dark"] .test-track-card::after {
+  opacity: 0.46;
 }
 
 :root[data-theme="dark"] .skip-link { background: var(--paper); color: #f6f1e8; }
