@@ -58,6 +58,9 @@ export function TestPathPage() {
               </span>
               <span className="test-node-copy">
                 <small>{String(index + 1).padStart(2, "0")} · {stateLabel}</small>
+                <span className={`test-mode-pill test-mode-pill--${stage.productionTask.mode}`}>
+                  {stage.productionTask.mode === "speaking" ? copy.tests.speaking : copy.tests.writing}
+                </span>
                 <strong>{stage.title}</strong>
                 <span>{stage.focus}</span>
                 {unlocked ? (

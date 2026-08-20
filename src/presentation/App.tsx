@@ -11,6 +11,7 @@ import { ProfilePage } from "./pages/ProfilePage";
 import { StudyPage } from "./pages/StudyPage";
 import { TestPathPage } from "./pages/TestPathPage";
 import { TestSessionPage } from "./pages/TestSessionPage";
+import { ThemeToggle } from "./components/ThemeToggle";
 
 export function App() {
   const progress = useGksProgress();
@@ -31,7 +32,9 @@ export function App() {
       </aside>
 
       <main id="main-content" className="main-content">
-        {!isTestExperience && <LanguageSwitcher />}
+        {!isTestExperience ? <LanguageSwitcher /> : (
+          <div className="test-theme-toolbar"><ThemeToggle compact /></div>
+        )}
         <Routes>
           <Route path="/" element={<HomePage {...progress} />} />
           <Route path="/gks" element={<GksPage />} />

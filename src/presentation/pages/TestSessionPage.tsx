@@ -36,10 +36,25 @@ export function TestSessionPage() {
   const [result, setResult] = useState<TestResult | null>(null);
   const [secondsLeft, setSecondsLeft] = useState(stage.estimatedMinutes * 60);
   const [audioFallback, setAudioFallback] = useState(false);
+  const [productionDone, setProductionDone] = useState(false);
+  const [writtenResponse, setWrittenResponse] = useState("");
+  const [recordingUrl, setRecordingUrl] = useState<string | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [microphoneError, setMicrophoneError] = useState(false);
+  const [speakingPractised, setSpeakingPractised] = useState(false);
   const finishedRef = useRef(false);
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const recordingChunksRef = useRef<Blob[]>([]);
   const timed = runNumber > 1;
   const question = questions[questionIndex];
   const selectedAnswer = answers[question.id];
+  const minimumCharacters = stage.productionTask.minimumCharacters ?? 0;
+  const canContinueProduction = stage.productionTask.mode === "writing"
+    ? writtenResponse.trim().length >= minimumCharacters
+    : Boolean(recordingUrl || speakingPractised);
+  const totalSteps = questions.length + 1;
+  const currentStep = productionDone ? questionIndex + 2 : 1;
 
   useEffect(() => {
     setLocale(language);
@@ -52,11 +67,30 @@ export function TestSessionPage() {
     setResult(null);
     setSecondsLeft(stage.estimatedMinutes * 60);
     setAudioFallback(false);
+    setProductionDone(false);
+    setWrittenResponse("");
+    setSpeakingPractised(false);
+    setMicrophoneError(false);
+    setIsRecording(false);
+    setRecordingUrl((current) => {
+      if (current) URL.revokeObjectURL(current);
+      return null;
+    });
+    if (recorderRef.current?.state === "recording") recorderRef.current.stop();
+    streamRef.current?.getTracks().forEach((track) => track.stop());
     finishedRef.current = false;
     window.speechSynthesis?.cancel();
   }, [stage.id]);
 
-  useEffect(() => () => window.speechSynthesis?.cancel(), []);
+  useEffect(() => () => {
+    window.speechSynthesis?.cancel();
+    if (recorderRef.current?.state === "recording") recorderRef.current.stop();
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+  }, []);
+
+  useEffect(() => () => {
+    if (recordingUrl) URL.revokeObjectURL(recordingUrl);
+  }, [recordingUrl]);
 
   const finishTest = useCallback(() => {
     if (finishedRef.current) return;
@@ -109,6 +143,50 @@ export function TestSessionPage() {
     window.speechSynthesis.speak(utterance);
   };
 
+  const startRecording = async () => {
+    setMicrophoneError(false);
+    if (!("MediaRecorder" in window) || !navigator.mediaDevices?.getUserMedia) {
+      setMicrophoneError(true);
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      recordingChunksRef.current = [];
+      if (recordingUrl) URL.revokeObjectURL(recordingUrl);
+      setRecordingUrl(null);
+      const recorder = new MediaRecorder(stream);
+      recorderRef.current = recorder;
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) recordingChunksRef.current.push(event.data);
+      };
+      recorder.onstop = () => {
+        const recording = new Blob(recordingChunksRef.current, { type: recorder.mimeType || "audio/webm" });
+        setRecordingUrl(URL.createObjectURL(recording));
+        setIsRecording(false);
+        stream.getTracks().forEach((track) => track.stop());
+      };
+      recorder.start();
+      setSpeakingPractised(false);
+      setIsRecording(true);
+    } catch {
+      setMicrophoneError(true);
+      setIsRecording(false);
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+    }
+  };
+
+  const stopRecording = () => {
+    if (recorderRef.current?.state === "recording") recorderRef.current.stop();
+  };
+
+  const continueFromProduction = () => {
+    if (!canContinueProduction) return;
+    setProductionDone(true);
+    document.getElementById("test-session-top")?.scrollIntoView({ behavior: "smooth" });
+  };
+
   const restartTest = () => {
     setRunNumber((current) => current + 1);
     setQuestionIndex(0);
@@ -116,6 +194,17 @@ export function TestSessionPage() {
     setResult(null);
     setSecondsLeft(stage.estimatedMinutes * 60);
     setAudioFallback(false);
+    setProductionDone(false);
+    setWrittenResponse("");
+    setSpeakingPractised(false);
+    setMicrophoneError(false);
+    setIsRecording(false);
+    if (recorderRef.current?.state === "recording") recorderRef.current.stop();
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    setRecordingUrl((current) => {
+      if (current) URL.revokeObjectURL(current);
+      return null;
+    });
     finishedRef.current = false;
     document.getElementById("test-session-top")?.scrollIntoView({ behavior: "smooth" });
   };
@@ -150,6 +239,21 @@ export function TestSessionPage() {
           </article>
         </section>
 
+        <section className="production-review" aria-labelledby="production-review-title">
+          <span className="eyebrow">{copy.tests.productiveTask}</span>
+          <h2 id="production-review-title">{stage.productionTask.mode === "speaking" ? copy.tests.speaking : copy.tests.writing}</h2>
+          <p>{stage.productionTask.prompt}</p>
+          {stage.productionTask.mode === "writing" && writtenResponse && (
+            <blockquote><small>{copy.tests.yourDraft}</small>{writtenResponse}</blockquote>
+          )}
+          {stage.productionTask.mode === "speaking" && recordingUrl && (
+            <div className="production-recording"><small>{copy.tests.recordingReady}</small><audio controls src={recordingUrl} /></div>
+          )}
+          <h3>{copy.tests.productionChecklist}</h3>
+          <ul>{stage.productionTask.checklist.map((item) => <li key={item}>{item}</li>)}</ul>
+          <small className="production-privacy">{copy.tests.productionNotice}</small>
+        </section>
+
         <section className="answer-review" aria-labelledby="answer-review-title">
           <div className="section-heading"><div><span className="eyebrow">Feedback</span><h2 id="answer-review-title">{stage.title}</h2></div></div>
           {result.questions.map((item, index) => (
@@ -182,13 +286,62 @@ export function TestSessionPage() {
     <div className={`page test-session-page test-session-page--${language}`} id="test-session-top">
       <header className="session-topbar">
         <Link to={`/tests/${language}`} aria-label={copy.tests.sessionExit}>×</Link>
-        <div className="session-progress" aria-label={`${copy.tests.question} ${questionIndex + 1} ${copy.tests.of} ${questions.length}`}><span style={{ width: `${((questionIndex + 1) / questions.length) * 100}%` }} /></div>
+        <div className="session-progress" aria-label={`${currentStep} ${copy.tests.of} ${totalSteps}`}><span style={{ width: `${(currentStep / totalSteps) * 100}%` }} /></div>
         <span className={timed ? "session-timer session-timer--active" : "session-timer"}>
           <small>{timed ? copy.tests.timeLeft : copy.tests.untimed}</small>
           <strong>{timed ? formatTime(secondsLeft) : `#${runNumber}`}</strong>
         </span>
       </header>
 
+      {!productionDone ? (
+      <main className="question-stage production-stage">
+        <div className="question-meta">
+          <span>{copy.tests.productiveTask} · {stage.productionTask.mode === "speaking" ? copy.tests.speaking : copy.tests.writing}</span>
+          <span>{copy.tests.attempt} {runNumber}</span>
+        </div>
+        <span className={`production-mode-icon production-mode-icon--${stage.productionTask.mode}`} aria-hidden="true">
+          {stage.productionTask.mode === "speaking" ? "🎙" : "✎"}
+        </span>
+        <h1>{stage.productionTask.prompt}</h1>
+        <p className="production-instructions">{stage.productionTask.instructions}</p>
+
+        {stage.productionTask.mode === "writing" ? (
+          <div className="writing-response">
+            <textarea
+              value={writtenResponse}
+              placeholder={copy.tests.writingPlaceholder}
+              aria-label={copy.tests.productiveTask}
+              onChange={(event) => setWrittenResponse(event.target.value)}
+            />
+            <div><span>{writtenResponse.trim().length} {copy.tests.characters}</span><strong>{copy.tests.minimum} · {minimumCharacters}</strong></div>
+          </div>
+        ) : (
+          <div className="speaking-recorder">
+            <div className={isRecording ? "recording-status recording-status--active" : "recording-status"}>
+              <span aria-hidden="true" />
+              <strong>{isRecording ? copy.tests.recording : `${stage.productionTask.targetSeconds ?? 60}s`}</strong>
+            </div>
+            {isRecording ? (
+              <button type="button" className="record-button record-button--stop" onClick={stopRecording}>{copy.tests.stopRecording}</button>
+            ) : (
+              <button type="button" className="record-button" onClick={startRecording}>{recordingUrl ? copy.tests.recordAgain : copy.tests.startRecording}</button>
+            )}
+            {recordingUrl && <audio controls src={recordingUrl} aria-label={copy.tests.playRecording} />}
+            {microphoneError && <p role="alert">{copy.tests.microphoneUnavailable}</p>}
+            <label className="practice-without-recording">
+              <input type="checkbox" checked={speakingPractised} onChange={(event) => setSpeakingPractised(event.target.checked)} />
+              <span>{copy.tests.practiceWithoutRecording}</span>
+            </label>
+          </div>
+        )}
+
+        <aside className="production-checklist">
+          <strong>{copy.tests.productionChecklist}</strong>
+          <ul>{stage.productionTask.checklist.map((item) => <li key={item}>{item}</li>)}</ul>
+        </aside>
+        <p className="production-privacy">{copy.tests.productionNotice}</p>
+      </main>
+      ) : (
       <main className="question-stage">
         <div className="question-meta">
           <span>{copy.tests.question} {questionIndex + 1} {copy.tests.of} {questions.length}</span>
@@ -212,11 +365,12 @@ export function TestSessionPage() {
           ))}
         </div>
       </main>
+      )}
 
       <footer className="session-action-bar">
-        <p aria-live="polite">{selectedAnswer === undefined ? copy.tests.selectAnswer : ""}</p>
-        <button type="button" disabled={selectedAnswer === undefined} onClick={continueTest}>
-          {questionIndex === questions.length - 1 ? copy.tests.finish : copy.tests.next}<span aria-hidden="true">→</span>
+        <p aria-live="polite">{productionDone && selectedAnswer === undefined ? copy.tests.selectAnswer : ""}</p>
+        <button type="button" disabled={productionDone ? selectedAnswer === undefined : !canContinueProduction} onClick={productionDone ? continueTest : continueFromProduction}>
+          {productionDone ? (questionIndex === questions.length - 1 ? copy.tests.finish : copy.tests.next) : copy.tests.continueRubric}<span aria-hidden="true">→</span>
         </button>
       </footer>
     </div>

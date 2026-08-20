@@ -12,6 +12,18 @@ describe("language test paths", () => {
     Object.values(languageTestTracks).forEach((track) => {
       expect(track.stages).toHaveLength(5);
       expect(track.stages.map((stage) => stage.order)).toEqual([1, 2, 3, 4, 5]);
+      expect(track.stages.some((stage) => stage.productionTask.mode === "speaking")).toBe(true);
+      expect(track.stages.some((stage) => stage.productionTask.mode === "writing")).toBe(true);
+      track.stages.forEach((stage) => {
+        expect(stage.productionTask.prompt.trim()).not.toBe("");
+        expect(stage.productionTask.instructions.trim()).not.toBe("");
+        expect(stage.productionTask.checklist).toHaveLength(3);
+        if (stage.productionTask.mode === "speaking") {
+          expect(stage.productionTask.targetSeconds).toBeGreaterThanOrEqual(60);
+        } else {
+          expect(stage.productionTask.minimumCharacters).toBeGreaterThanOrEqual(100);
+        }
+      });
     });
   });
 

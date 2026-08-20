@@ -1,6 +1,7 @@
 import type { Locale } from "../../domain/models/i18n";
 import { useI18n } from "../../application/i18n/I18nContext";
 import { Link } from "react-router-dom";
+import { ThemeToggle } from "./ThemeToggle";
 
 const options: Array<{ value: Locale; label: string; short: string }> = [
   { value: "es", label: "Español", short: "ES" },
@@ -17,20 +18,23 @@ export function LanguageSwitcher() {
         <span className="mobile-brand__mark" aria-hidden="true">V</span>
         <strong>LearnV</strong>
       </Link>
-      <div className="language-switcher" role="group" aria-label={copy.app.languageLabel}>
-        {options.map((option) => (
-          <button
-            key={option.value}
-            type="button"
-            className={locale === option.value ? "language-option language-option--active" : "language-option"}
-            aria-pressed={locale === option.value}
-            aria-label={option.label}
-            onClick={() => setLocale(option.value)}
-          >
-            <span>{option.short}</span>
-            <small>{option.label}</small>
-          </button>
-        ))}
+      <div className="app-toolbar__controls">
+        <div className="language-switcher" role="group" aria-label={copy.app.languageLabel}>
+          {options.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              className={locale === option.value ? "language-option language-option--active" : "language-option"}
+              aria-pressed={locale === option.value}
+              aria-label={option.label}
+              onClick={() => setLocale(option.value)}
+            >
+              <span>{option.short}</span>
+              <small>{option.label}</small>
+            </button>
+          ))}
+        </div>
+        <ThemeToggle compact />
       </div>
     </div>
   );

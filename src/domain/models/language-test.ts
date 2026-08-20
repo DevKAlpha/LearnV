@@ -1,4 +1,14 @@
 export type TestLanguage = "en" | "ko";
+export type ProductionMode = "speaking" | "writing";
+
+export type ProductionTask = {
+  mode: ProductionMode;
+  prompt: string;
+  instructions: string;
+  checklist: string[];
+  minimumCharacters?: number;
+  targetSeconds?: number;
+};
 
 export type TestQuestion = {
   id: string;
@@ -21,6 +31,7 @@ export type TestStage = {
   focus: string;
   estimatedMinutes: number;
   passScore: number;
+  productionTask: ProductionTask;
   questions: TestQuestion[];
   challengeQuestions: TestQuestion[];
 };
