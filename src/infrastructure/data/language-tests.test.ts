@@ -19,12 +19,20 @@ describe("language test paths", () => {
         expect(stage.productionTask.instructions.trim()).not.toBe("");
         expect(stage.productionTask.checklist).toHaveLength(3);
         if (stage.productionTask.mode === "speaking") {
-          expect(stage.productionTask.targetSeconds).toBeGreaterThanOrEqual(60);
+          expect(stage.productionTask.targetSeconds).toBeGreaterThanOrEqual(30);
         } else {
-          expect(stage.productionTask.minimumCharacters).toBeGreaterThanOrEqual(100);
+          expect(stage.productionTask.minimumCharacters).toBeGreaterThanOrEqual(40);
         }
       });
     });
+  });
+
+  it("models Korean as a TOPIK I to TOPIK II level 3 bridge", () => {
+    expect(languageTestTracks.ko.label).toContain("TOPIK I → II");
+    expect(languageTestTracks.ko.target).toContain("TOPIK I");
+    expect(languageTestTracks.ko.target).toContain("3급");
+    expect(languageTestTracks.ko.stages[0].title).toContain("TOPIK I");
+    expect(languageTestTracks.ko.stages.at(-1)?.title).toContain("TOPIK II");
   });
 
   it("uses valid original question sets and harder retake questions", () => {
@@ -73,6 +81,6 @@ describe("language test paths", () => {
     expect(result.score).toBe(100);
     expect(result.correctCount).toBe(4);
     expect(result.passed).toBe(true);
-    expect(result.estimate).toContain("5급");
+    expect(result.estimate).toContain("3급");
   });
 });

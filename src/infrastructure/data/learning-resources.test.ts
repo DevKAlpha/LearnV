@@ -42,12 +42,22 @@ describe("learning resources", () => {
 
       expect(resource.url).toMatch(/^https:\/\//);
       expect(resource.official).toBe(true);
-      expect(resource.verifiedAt).toBe("2026-08-18");
+      expect(resource.verifiedAt).toMatch(/^2026-08-(18|19)$/);
     });
   });
 
   it("uses unique stable identifiers", () => {
     const ids = learningResources.map((resource) => resource.id);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("starts the Korean route at TOPIK I before TOPIK II bridge material", () => {
+    const koreanResources = learningResources
+      .filter((resource) => resource.track === "ko")
+      .sort((first, second) => (first.learningOrder ?? 100) - (second.learningOrder ?? 100));
+
+    expect(koreanResources[0].level.es).toContain("TOPIK I");
+    expect(koreanResources.find((resource) => resource.id === "topik-basic-public-test")?.learningOrder).toBe(2);
+    expect(koreanResources.find((resource) => resource.id === "topik-writing-rubric")?.learningOrder).toBeGreaterThan(2);
   });
 });

@@ -80,7 +80,7 @@ export const keyFacts: GksFact[] = [
     id: "topik",
     label: "Meta competitiva",
     value: "TOPIK 4–5",
-    detail: "TOPIK 3+ aportó puntuación adicional; nivel 5 o 6 podía eximir el año de idioma.",
+    detail: "La preparación parte de TOPIK I y avanza primero hacia nivel 3. En 2026, TOPIK 3+ aportó puntuación adicional.",
     icon: "한",
     status: "historical",
     sourceId: "study-in-korea-2026",
@@ -103,8 +103,8 @@ export const targetPrograms = [
 export const dailyTasks: StudyTask[] = [
   {
     id: "topik-reading-01",
-    title: "TOPIK II · lectura inferencial",
-    meta: "5 preguntas con revisión de errores",
+    title: "Puente TOPIK I → II · lectura",
+    meta: "Vocabulario, conectores y 5 preguntas graduadas",
     category: "topik",
     duration: 20,
   },
@@ -177,9 +177,9 @@ export const documents: DocumentItem[] = [
 
 export const languageBands = {
   topik: [
-    { label: "Nivel 3", score: "80%", note: "+10% adicional en evaluación 2026" },
-    { label: "Nivel 4", score: "90%", note: "Meta competitiva inicial" },
-    { label: "Nivel 5–6", score: "100%", note: "Posible exención del año de idioma" },
+    { label: "TOPIK I", score: "Nivel 1–2", note: "Punto de partida: escucha y lectura básica" },
+    { label: "Puente TOPIK II", score: "Nivel 3", note: "Primera meta: escritura y textos intermedios" },
+    { label: "Meta posterior", score: "Nivel 4–5", note: "Objetivo competitivo tras consolidar el puente" },
   ],
   english: [
     { label: "IELTS 6.0", score: "70%", note: "Aproximación B2" },

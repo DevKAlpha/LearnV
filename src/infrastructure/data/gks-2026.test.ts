@@ -30,7 +30,8 @@ describe("datos GKS versionados", () => {
     expect(targetPrograms.filter((program) => program.category === "business")).toHaveLength(2);
     expect(targetPrograms.filter((program) => program.category === "health")).toHaveLength(2);
     expect(documents.some((document) => document.needsApostille)).toBe(true);
-    expect(languageBands.topik.some((band) => band.label === "Nivel 5–6")).toBe(true);
+    expect(languageBands.topik.some((band) => band.score === "Nivel 1–2")).toBe(true);
+    expect(languageBands.topik.some((band) => band.score === "Nivel 3")).toBe(true);
     expect(languageBands.english.some((band) => band.note.includes("C1"))).toBe(true);
   });
 });

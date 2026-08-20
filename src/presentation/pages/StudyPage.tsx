@@ -18,7 +18,8 @@ export function StudyPage() {
   const resources = useMemo(
     () => learningResources.filter((resource) =>
       resource.languages.includes(materialLanguage) &&
-      (type === "all" || resource.type === type)),
+      (type === "all" || resource.type === type))
+      .sort((first, second) => (first.learningOrder ?? 100) - (second.learningOrder ?? 100)),
     [materialLanguage, type],
   );
 

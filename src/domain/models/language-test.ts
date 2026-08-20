@@ -97,10 +97,10 @@ export function estimateLevel(language: TestLanguage, score: number): string {
     return "C1 readiness";
   }
 
-  if (score < 50) return "TOPIK II foundation";
-  if (score < 70) return "3급 준비 단계";
-  if (score < 90) return "4급 준비 단계";
-  return "5급 준비 단계";
+  if (score < 50) return "TOPIK I · 1급 기반";
+  if (score < 70) return "TOPIK I · 2급 준비";
+  if (score < 90) return "TOPIK II · 3급 진입 준비";
+  return "TOPIK II · 3급 준비";
 }
 
 export function gradeAttempt(
