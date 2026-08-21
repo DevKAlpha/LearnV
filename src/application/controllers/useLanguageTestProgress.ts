@@ -5,6 +5,7 @@ import {
   type TestLanguage,
   type TestProgressState,
 } from "../../domain/models/language-test";
+import { practiceTestTracks } from "../../infrastructure/data/practice-tests";
 
 const STORAGE_KEY = "learnv-language-tests-v1";
 
@@ -42,8 +43,8 @@ export function useLanguageTestProgress() {
   }, []);
 
   const totals = useMemo(() => ({
-    en: Object.values(progress.en).filter((stage) => stage.passed).length,
-    ko: Object.values(progress.ko).filter((stage) => stage.passed).length,
+    en: practiceTestTracks.en.stages.filter((stage) => progress.en[stage.id]?.passed).length,
+    ko: practiceTestTracks.ko.stages.filter((stage) => progress.ko[stage.id]?.passed).length,
   }), [progress]);
 
   return { progress, totals, recordAttempt };

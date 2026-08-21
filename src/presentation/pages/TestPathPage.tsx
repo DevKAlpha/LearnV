@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { useLanguageTestProgress } from "../../application/controllers/useLanguageTestProgress";
 import { useI18n } from "../../application/i18n/I18nContext";
-import { isStageUnlocked, type TestLanguage } from "../../domain/models/language-test";
-import { languageTestTracks } from "../../infrastructure/data/language-tests";
+import { isStageUnlocked, type TestLanguage, type TestSkill } from "../../domain/models/language-test";
+import { practiceTestTracks as languageTestTracks, TESTS_PER_LANGUAGE } from "../../infrastructure/data/practice-tests";
 
 export function TestPathPage() {
   const { language: languageParam } = useParams();
@@ -33,7 +33,7 @@ export function TestPathPage() {
             <p>{copy.tests.pathIntro}</p>
           </div>
           <div className="test-path-score" aria-label={`${totals[language]} ${copy.tests.completed}`}>
-            <strong>{totals[language]}/5</strong>
+            <strong>{totals[language]}/{TESTS_PER_LANGUAGE}</strong>
             <small>{copy.tests.completed}</small>
           </div>
         </div>
@@ -43,8 +43,20 @@ export function TestPathPage() {
         </div>
       </header>
 
-      <main className="test-map" aria-label={copy.tests.pathTitle}>
-        {track.stages.map((stage, index) => {
+      <main className="test-skill-sections" aria-label={copy.tests.pathTitle}>
+        {(["writing", "listening", "pronunciation"] as TestSkill[]).map((skill) => {
+          const skillStages = track.stages.filter((stage) => stage.skill === skill);
+          const completed = skillStages.filter((stage) => trackProgress[stage.id]?.passed).length;
+          const labels = { writing: copy.tests.writing, listening: copy.tests.listening, pronunciation: copy.tests.pronunciation };
+          const icons = { writing: "✎", listening: "◖", pronunciation: "🎙" };
+          return <section className={`test-skill-section test-skill-section--${skill}`} key={skill}>
+            <header className="test-skill-header">
+              <span aria-hidden="true">{icons[skill]}</span>
+              <div><small>{completed}/10 {copy.tests.completed}</small><h2>{labels[skill]}</h2><p>{copy.tests.skillDescriptions[skill]}</p></div>
+            </header>
+            <div className="test-map">
+        {skillStages.map((stage, skillIndex) => {
+          const index = track.stages.findIndex((candidate) => candidate.id === stage.id);
           const unlocked = isStageUnlocked(track.stages, index, trackProgress);
           const stageProgress = trackProgress[stage.id];
           const passed = Boolean(stageProgress?.passed);
@@ -57,9 +69,9 @@ export function TestPathPage() {
                 {!unlocked && <i aria-hidden="true">⌕</i>}
               </span>
               <span className="test-node-copy">
-                <small>{String(index + 1).padStart(2, "0")} · {stateLabel}</small>
+                <small>{String(skillIndex + 1).padStart(2, "0")} · {stateLabel}</small>
                 <span className={`test-mode-pill test-mode-pill--${stage.productionTask.mode}`}>
-                  {stage.productionTask.mode === "speaking" ? copy.tests.speaking : copy.tests.writing}
+                  {labels[skill]}
                 </span>
                 <strong>{stage.title}</strong>
                 <span>{stage.focus}</span>
@@ -78,6 +90,9 @@ export function TestPathPage() {
           ) : (
             <div className="test-map-node test-map-node--locked" aria-disabled="true" key={stage.id}>{content}</div>
           );
+        })}
+            </div>
+          </section>;
         })}
       </main>
 

@@ -12,6 +12,7 @@ import { StudyPage } from "./pages/StudyPage";
 import { TestPathPage } from "./pages/TestPathPage";
 import { TestSessionPage } from "./pages/TestSessionPage";
 import { ThemeToggle } from "./components/ThemeToggle";
+import { InterviewPrepPage } from "./pages/InterviewPrepPage";
 
 export function App() {
   const progress = useGksProgress();
@@ -39,6 +40,7 @@ export function App() {
           <Route path="/" element={<HomePage {...progress} />} />
           <Route path="/gks" element={<GksPage />} />
           <Route path="/study" element={<StudyPage />} />
+          <Route path="/study/interviews" element={<InterviewPrepPage />} />
           <Route path="/tests/:language" element={<TestPathPage />} />
           <Route path="/tests/:language/:stageId" element={<TestSessionPage />} />
           <Route path="/checklist" element={<ChecklistPage {...progress} />} />

@@ -2,6 +2,15 @@
 
 Aplicación móvil de preparación para Global Korea Scholarship. La información se separa por convocatoria y enlaza fuentes oficiales para evitar mezclar requisitos históricos con reglas vigentes.
 
+## Aprendizaje
+
+- Laboratorio exclusivo de entrevista GKS con preguntas, repreguntas, rúbrica y fuentes de control.
+- Dos recorridos de idioma con 30 prácticas cada uno: 10 de escritura, 10 de escucha y 10 de pronunciación/entrevista.
+- La escucha usa síntesis de voz del navegador y la pronunciación usa grabaciones locales que no se suben.
+- Los videos se cargan de forma diferida desde `youtube-nocookie.com`; se ofrece un enlace externo como alternativa cuando el reproductor esté bloqueado o no haya conexión.
+
+Las pruebas son material formativo. No emiten resultados oficiales de TOPIK, IELTS ni GKS. TOPIK II no contiene una sección de pronunciación; esa ruta prepara la producción oral necesaria para entrevistas.
+
 ## Desarrollo
 
 ```bash

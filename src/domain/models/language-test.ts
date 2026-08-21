@@ -1,5 +1,6 @@
 export type TestLanguage = "en" | "ko";
-export type ProductionMode = "speaking" | "writing";
+export type TestSkill = "writing" | "listening" | "pronunciation";
+export type ProductionMode = "speaking" | "writing" | "listening";
 
 export type ProductionTask = {
   mode: ProductionMode;
@@ -25,6 +26,7 @@ export type TestQuestion = {
 export type TestStage = {
   id: string;
   order: number;
+  skill: TestSkill;
   icon: string;
   title: string;
   description: string;
@@ -85,8 +87,12 @@ export function isStageUnlocked(
   stageIndex: number,
   progress: Record<string, StageProgress>,
 ): boolean {
-  if (stageIndex === 0) return true;
-  return Boolean(progress[stages[stageIndex - 1].id]?.passed);
+  const stage = stages[stageIndex];
+  if (!stage) return false;
+  const skillStages = stages.filter((candidate) => candidate.skill === stage.skill);
+  const skillIndex = skillStages.findIndex((candidate) => candidate.id === stage.id);
+  if (skillIndex <= 0) return true;
+  return Boolean(progress[skillStages[skillIndex - 1].id]?.passed);
 }
 
 export function estimateLevel(language: TestLanguage, score: number): string {

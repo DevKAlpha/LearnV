@@ -8,7 +8,7 @@ import {
   isStageUnlocked,
   type TestResult,
 } from "../../domain/models/language-test";
-import { languageTestTracks } from "../../infrastructure/data/language-tests";
+import { practiceTestTracks as languageTestTracks } from "../../infrastructure/data/practice-tests";
 
 function formatTime(seconds: number) {
   const minutes = Math.floor(seconds / 60);
@@ -50,7 +50,9 @@ export function TestSessionPage() {
   const question = questions[questionIndex];
   const selectedAnswer = answers[question.id];
   const minimumCharacters = stage.productionTask.minimumCharacters ?? 0;
-  const canContinueProduction = stage.productionTask.mode === "writing"
+  const canContinueProduction = stage.productionTask.mode === "listening"
+    ? true
+    : stage.productionTask.mode === "writing"
     ? writtenResponse.trim().length >= minimumCharacters
     : Boolean(recordingUrl || speakingPractised);
   const totalSteps = questions.length + 1;
@@ -241,7 +243,7 @@ export function TestSessionPage() {
 
         <section className="production-review" aria-labelledby="production-review-title">
           <span className="eyebrow">{copy.tests.productiveTask}</span>
-          <h2 id="production-review-title">{stage.productionTask.mode === "speaking" ? copy.tests.speaking : copy.tests.writing}</h2>
+          <h2 id="production-review-title">{stage.productionTask.mode === "speaking" ? copy.tests.pronunciation : stage.productionTask.mode === "listening" ? copy.tests.listening : copy.tests.writing}</h2>
           <p>{stage.productionTask.prompt}</p>
           {stage.productionTask.mode === "writing" && writtenResponse && (
             <blockquote><small>{copy.tests.yourDraft}</small>{writtenResponse}</blockquote>
@@ -296,11 +298,11 @@ export function TestSessionPage() {
       {!productionDone ? (
       <main className="question-stage production-stage">
         <div className="question-meta">
-          <span>{copy.tests.productiveTask} · {stage.productionTask.mode === "speaking" ? copy.tests.speaking : copy.tests.writing}</span>
+          <span>{copy.tests.productiveTask} · {stage.productionTask.mode === "speaking" ? copy.tests.pronunciation : stage.productionTask.mode === "listening" ? copy.tests.listening : copy.tests.writing}</span>
           <span>{copy.tests.attempt} {runNumber}</span>
         </div>
         <span className={`production-mode-icon production-mode-icon--${stage.productionTask.mode}`} aria-hidden="true">
-          {stage.productionTask.mode === "speaking" ? "🎙" : "✎"}
+          {stage.productionTask.mode === "speaking" ? "🎙" : stage.productionTask.mode === "listening" ? "◖" : "✎"}
         </span>
         <h1>{stage.productionTask.prompt}</h1>
         <p className="production-instructions">{stage.productionTask.instructions}</p>
@@ -314,6 +316,12 @@ export function TestSessionPage() {
               onChange={(event) => setWrittenResponse(event.target.value)}
             />
             <div><span>{writtenResponse.trim().length} {copy.tests.characters}</span><strong>{copy.tests.minimum} · {minimumCharacters}</strong></div>
+          </div>
+        ) : stage.productionTask.mode === "listening" ? (
+          <div className="listening-ready-card">
+            <span aria-hidden="true">◖</span>
+            <strong>{copy.tests.listeningReady}</strong>
+            <p>{copy.tests.listeningReadyText}</p>
           </div>
         ) : (
           <div className="speaking-recorder">

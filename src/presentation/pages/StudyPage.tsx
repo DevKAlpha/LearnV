@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { useI18n } from "../../application/i18n/I18nContext";
 import { TestTrackCards } from "../components/TestTrackCards";
 import { localize } from "../../domain/models/i18n";
@@ -69,6 +70,17 @@ export function StudyPage() {
       </section>
 
       <TestTrackCards />
+
+      <section className="interview-entry" aria-labelledby="interview-entry-title">
+        <div className="interview-entry__icon" aria-hidden="true"><span>Q</span><i /></div>
+        <div>
+          <span className="eyebrow">{copy.interview.entryKicker}</span>
+          <h2 id="interview-entry-title">{copy.interview.entryTitle}</h2>
+          <p>{copy.interview.entryText}</p>
+          <ul>{copy.interview.entryPoints.map((point) => <li key={point}>{point}</li>)}</ul>
+        </div>
+        <Link to="/study/interviews">{copy.interview.entryAction}<span aria-hidden="true">→</span></Link>
+      </section>
 
       <section className="resource-library" aria-labelledby="resource-library-title">
         <div className="section-heading resource-heading">

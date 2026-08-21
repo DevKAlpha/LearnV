@@ -5,22 +5,27 @@ import {
   isStageUnlocked,
   type StageProgress,
 } from "../../domain/models/language-test";
-import { languageTestTracks } from "./language-tests";
+import { practiceTestTracks as languageTestTracks } from "./practice-tests";
 
 describe("language test paths", () => {
-  it("provides five sequential tests for English and Korean", () => {
+  it("provides ten tests for each of the three skills in both languages", () => {
     Object.values(languageTestTracks).forEach((track) => {
-      expect(track.stages).toHaveLength(5);
-      expect(track.stages.map((stage) => stage.order)).toEqual([1, 2, 3, 4, 5]);
+      expect(track.stages).toHaveLength(30);
+      (["writing", "listening", "pronunciation"] as const).forEach((skill) => {
+        const stages = track.stages.filter((stage) => stage.skill === skill);
+        expect(stages).toHaveLength(10);
+        expect(stages.map((stage) => stage.order)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+      });
       expect(track.stages.some((stage) => stage.productionTask.mode === "speaking")).toBe(true);
       expect(track.stages.some((stage) => stage.productionTask.mode === "writing")).toBe(true);
+      expect(track.stages.some((stage) => stage.productionTask.mode === "listening")).toBe(true);
       track.stages.forEach((stage) => {
         expect(stage.productionTask.prompt.trim()).not.toBe("");
         expect(stage.productionTask.instructions.trim()).not.toBe("");
         expect(stage.productionTask.checklist).toHaveLength(3);
         if (stage.productionTask.mode === "speaking") {
           expect(stage.productionTask.targetSeconds).toBeGreaterThanOrEqual(30);
-        } else {
+        } else if (stage.productionTask.mode === "writing") {
           expect(stage.productionTask.minimumCharacters).toBeGreaterThanOrEqual(40);
         }
       });
@@ -32,7 +37,7 @@ describe("language test paths", () => {
     expect(languageTestTracks.ko.target).toContain("TOPIK I");
     expect(languageTestTracks.ko.target).toContain("3급");
     expect(languageTestTracks.ko.stages[0].title).toContain("TOPIK I");
-    expect(languageTestTracks.ko.stages.at(-1)?.title).toContain("TOPIK II");
+    expect(languageTestTracks.ko.stages.at(-1)?.title).toContain("GKS");
   });
 
   it("uses valid original question sets and harder retake questions", () => {
@@ -63,6 +68,8 @@ describe("language test paths", () => {
     const progress: Record<string, StageProgress> = {};
     expect(isStageUnlocked(stages, 0, progress)).toBe(true);
     expect(isStageUnlocked(stages, 1, progress)).toBe(false);
+    expect(isStageUnlocked(stages, 10, progress)).toBe(true);
+    expect(isStageUnlocked(stages, 20, progress)).toBe(true);
 
     progress[stages[0].id] = {
       attempts: 1,

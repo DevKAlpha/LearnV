@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useLanguageTestProgress } from "../../application/controllers/useLanguageTestProgress";
 import { useI18n } from "../../application/i18n/I18nContext";
 import type { TestLanguage } from "../../domain/models/language-test";
+import { TESTS_PER_LANGUAGE } from "../../infrastructure/data/practice-tests";
 
 export function TestTrackCards() {
   const { copy, setLocale } = useI18n();
@@ -38,12 +39,12 @@ export function TestTrackCards() {
             <span className="test-track-target">{track.target}</span>
             <h3>{track.title}</h3>
             <p>{track.description}</p>
-            <div className="test-track-progress" aria-label={`${totals[track.language]} / 5 ${copy.tests.progress}`}>
-              <span><i style={{ width: `${totals[track.language] * 20}%` }} /></span>
-              <strong>{totals[track.language]}/5</strong>
+            <div className="test-track-progress" aria-label={`${totals[track.language]} / ${TESTS_PER_LANGUAGE} ${copy.tests.progress}`}>
+              <span><i style={{ width: `${(totals[track.language] / TESTS_PER_LANGUAGE) * 100}%` }} /></span>
+              <strong>{totals[track.language]}/{TESTS_PER_LANGUAGE}</strong>
             </div>
             <div className="test-track-card__footer">
-              <small>{copy.tests.fiveTests}</small>
+              <small>{copy.tests.thirtyTests}</small>
               <Link to={`/tests/${track.language}`} onClick={() => setLocale(track.language)}>
                 {copy.tests.openPath}<span aria-hidden="true">→</span>
               </Link>
