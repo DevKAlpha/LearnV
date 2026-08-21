@@ -11,6 +11,16 @@ export type ProductionTask = {
   targetSeconds?: number;
 };
 
+export type ListeningMedia = {
+  provider: "youtube";
+  videoId: string;
+  title: string;
+  creator: string;
+  kind: "story" | "song";
+  variety: string;
+  sourceUrl: string;
+};
+
 export type TestQuestion = {
   id: string;
   skill: string;
@@ -33,6 +43,7 @@ export type TestStage = {
   focus: string;
   estimatedMinutes: number;
   passScore: number;
+  media?: ListeningMedia;
   productionTask: ProductionTask;
   questions: TestQuestion[];
   challengeQuestions: TestQuestion[];

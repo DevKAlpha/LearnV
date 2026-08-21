@@ -318,11 +318,34 @@ export function TestSessionPage() {
             <div><span>{writtenResponse.trim().length} {copy.tests.characters}</span><strong>{copy.tests.minimum} · {minimumCharacters}</strong></div>
           </div>
         ) : stage.productionTask.mode === "listening" ? (
-          <div className="listening-ready-card">
-            <span aria-hidden="true">◖</span>
-            <strong>{copy.tests.listeningReady}</strong>
-            <p>{copy.tests.listeningReadyText}</p>
-          </div>
+          stage.media ? (
+            <article className="listening-media-card">
+              <div className="listening-media-card__frame">
+                <iframe
+                  src={`https://www.youtube-nocookie.com/embed/${stage.media.videoId}?rel=0`}
+                  title={stage.media.title}
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              </div>
+              <div className="listening-media-card__body">
+                <div className="listening-media-card__badges">
+                  <span>{stage.media.kind === "story" ? copy.tests.videoStory : copy.tests.videoSong}</span>
+                  <span>{stage.media.variety}</span>
+                </div>
+                <strong>{stage.media.title}</strong>
+                <p>{stage.media.creator}</p>
+                <a href={stage.media.sourceUrl} target="_blank" rel="noreferrer">{copy.tests.openYoutube} ↗</a>
+              </div>
+            </article>
+          ) : (
+            <div className="listening-ready-card">
+              <span aria-hidden="true">◖</span>
+              <strong>{copy.tests.listeningReady}</strong>
+              <p>{copy.tests.listeningReadyText}</p>
+            </div>
+          )
         ) : (
           <div className="speaking-recorder">
             <div className={isRecording ? "recording-status recording-status--active" : "recording-status"}>

@@ -40,6 +40,21 @@ describe("language test paths", () => {
     expect(languageTestTracks.ko.stages.at(-1)?.title).toContain("GKS");
   });
 
+  it("uses a verified YouTube story or song in every listening stage", () => {
+    Object.values(languageTestTracks).forEach((track) => {
+      const listening = track.stages.filter((stage) => stage.skill === "listening");
+      expect(listening.filter((stage) => stage.media?.kind === "story")).toHaveLength(5);
+      expect(listening.filter((stage) => stage.media?.kind === "song")).toHaveLength(5);
+      listening.forEach((stage) => {
+        expect(stage.media?.provider).toBe("youtube");
+        expect(stage.media?.videoId).toMatch(/^[\w-]{11}$/);
+        expect(stage.media?.sourceUrl).toContain(stage.media?.videoId);
+        expect(stage.media?.variety.trim()).not.toBe("");
+        expect(stage.questions.every((question) => !question.audioText)).toBe(true);
+      });
+    });
+  });
+
   it("uses valid original question sets and harder retake questions", () => {
     Object.values(languageTestTracks).forEach((track) => {
       const ids = new Set<string>();
