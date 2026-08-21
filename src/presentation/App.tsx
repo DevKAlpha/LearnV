@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { BottomNav } from "./components/BottomNav";
 import { LanguageSwitcher } from "./components/LanguageSwitcher";
 import { ScrollToTop } from "./components/ScrollToTop";
@@ -34,7 +34,13 @@ export function App() {
 
       <main id="main-content" className="main-content">
         {!isTestExperience ? <LanguageSwitcher /> : (
-          <div className="test-theme-toolbar"><ThemeToggle compact /></div>
+          <div className="test-theme-toolbar">
+            <Link className="mobile-brand" to="/" aria-label="LearnV">
+              <span className="mobile-brand__mark" aria-hidden="true">V</span>
+              <strong>LearnV</strong>
+            </Link>
+            <ThemeToggle compact />
+          </div>
         )}
         <Routes>
           <Route path="/" element={<HomePage {...progress} />} />

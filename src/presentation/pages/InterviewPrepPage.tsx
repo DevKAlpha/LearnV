@@ -25,8 +25,10 @@ export function InterviewPrepPage() {
   return (
     <div className="page interview-page">
       <header className="interview-hero">
-        <Link className="test-back-link" to="/study"><span aria-hidden="true">←</span>{copy.interview.back}</Link>
-        <span className="sticker sticker--yellow">{copy.interview.sticker}</span>
+        <div className="interview-hero__topline">
+          <Link className="test-back-link" to="/study"><span aria-hidden="true">←</span>{copy.interview.back}</Link>
+          <span className="sticker sticker--yellow">{copy.interview.sticker}</span>
+        </div>
         <h1>{copy.interview.title}</h1>
         <p>{copy.interview.intro}</p>
         <div className="interview-hero__facts">
@@ -35,11 +37,6 @@ export function InterviewPrepPage() {
           <span><b>03</b>{copy.interview.factAdaptation}</span>
         </div>
       </header>
-
-      <aside className="interview-reference-note">
-        <span aria-hidden="true">!</span>
-        <p><strong>{copy.interview.referenceTitle}</strong>{copy.interview.referenceText}</p>
-      </aside>
 
       <section className="interview-method" aria-labelledby="interview-method-title">
         <div className="section-heading"><div><span className="eyebrow">{copy.interview.methodKicker}</span><h2 id="interview-method-title">{copy.interview.methodTitle}</h2></div></div>
@@ -86,4 +83,3 @@ export function InterviewPrepPage() {
     </div>
   );
 }
-
