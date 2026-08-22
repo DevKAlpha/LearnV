@@ -24,7 +24,7 @@ export function TestSessionPage() {
   const invalidStage = requestedIndex < 0;
   const stageIndex = invalidStage ? 0 : requestedIndex;
   const stage = track.stages[stageIndex];
-  const { copy, setLocale } = useI18n();
+  const { copy } = useI18n();
   const { progress, recordAttempt } = useLanguageTestProgress();
   const trackProgress = progress[language];
   const stageProgress = trackProgress[stage.id];
@@ -57,10 +57,6 @@ export function TestSessionPage() {
     : Boolean(recordingUrl || speakingPractised);
   const totalSteps = questions.length + 1;
   const currentStep = productionDone ? questionIndex + 2 : 1;
-
-  useEffect(() => {
-    setLocale(language);
-  }, [language, setLocale]);
 
   useEffect(() => {
     setRunNumber((trackProgress[stage.id]?.attempts ?? 0) + 1);

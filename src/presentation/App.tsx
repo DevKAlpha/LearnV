@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { AnimatePresence } from "motion/react";
 import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { BottomNav } from "./components/BottomNav";
@@ -9,6 +9,7 @@ import { useGksProgress } from "../application/controllers/useGksProgress";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { AnimatedRouteView } from "./components/AnimatedRouteView";
 import { RouteLoader } from "./components/RouteLoader";
+import { isImmersiveLearningRoute, resolveLearningLocale } from "../application/i18n/learning-locale";
 
 const HomePage = lazy(() => import("./pages/HomePage").then((module) => ({ default: module.HomePage })));
 const GksPage = lazy(() => import("./pages/GksPage").then((module) => ({ default: module.GksPage })));
@@ -22,9 +23,14 @@ const ProfilePage = lazy(() => import("./pages/ProfilePage").then((module) => ({
 
 export function App() {
   const progress = useGksProgress();
-  const { copy } = useI18n();
+  const { copy, locale, setLocale } = useI18n();
   const location = useLocation();
-  const isTestExperience = location.pathname.startsWith("/tests/");
+  const learningLocale = resolveLearningLocale(location.pathname);
+  const isImmersiveLearningExperience = isImmersiveLearningRoute(location.pathname);
+
+  useEffect(() => {
+    if (learningLocale && learningLocale !== locale) setLocale(learningLocale);
+  }, [learningLocale, locale, setLocale]);
 
   return (
     <div className="app-shell">
@@ -39,7 +45,7 @@ export function App() {
       </aside>
 
       <main id="main-content" className="main-content">
-        {!isTestExperience ? <LanguageSwitcher /> : (
+        {!isImmersiveLearningExperience ? <LanguageSwitcher /> : (
           <div className="test-theme-toolbar">
             <Link className="mobile-brand" to="/" aria-label="LearnV">
               <span className="mobile-brand__mark" aria-hidden="true">V</span>

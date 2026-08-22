@@ -1,23 +1,18 @@
-import { useEffect } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { useLanguageTestProgress } from "../../application/controllers/useLanguageTestProgress";
 import { useI18n } from "../../application/i18n/I18nContext";
-import { isStageUnlocked, type TestLanguage, type TestSkill } from "../../domain/models/language-test";
+import { isStageUnlocked, type TestSkill } from "../../domain/models/language-test";
 import { practiceTestTracks as languageTestTracks, TESTS_PER_LANGUAGE } from "../../infrastructure/data/practice-tests";
 
 export function TestPathPage() {
   const { language: languageParam } = useParams();
   const language = languageParam === "ko" ? "ko" : "en";
   const invalidLanguage = languageParam !== "en" && languageParam !== "ko";
-  const { copy, setLocale } = useI18n();
+  const { copy } = useI18n();
   const { progress, totals } = useLanguageTestProgress();
   const track = languageTestTracks[language];
   const trackProgress = progress[language];
   const attemptCount = Object.values(trackProgress).reduce((total, stage) => total + stage.attempts, 0);
-
-  useEffect(() => {
-    setLocale(language as TestLanguage);
-  }, [language, setLocale]);
 
   if (invalidLanguage) return <Navigate to="/study" replace />;
 
