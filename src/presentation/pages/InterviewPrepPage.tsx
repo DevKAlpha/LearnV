@@ -15,6 +15,7 @@ export function InterviewPrepPage() {
   const visibleQuestions = useMemo(() => interviewQuestions.filter((question) => category === "all" || question.category === category), [category]);
   const practiceQuestion = visibleQuestions[practiceIndex % visibleQuestions.length] ?? interviewQuestions[0];
   const categories: Category[] = ["all", "motivation", "academic", "adaptation", "contribution"];
+  const scrollToSection = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   const nextPractice = () => {
     setPracticeIndex((current) => (current + 1) % visibleQuestions.length);
@@ -32,9 +33,9 @@ export function InterviewPrepPage() {
         <h1>{copy.interview.title}</h1>
         <p>{copy.interview.intro}</p>
         <div className="interview-hero__facts">
-          <span><b>01</b>{copy.interview.factDocuments}</span>
-          <span><b>02</b>{copy.interview.factEvidence}</span>
-          <span><b>03</b>{copy.interview.factAdaptation}</span>
+          <button type="button" onClick={() => scrollToSection("simulator-title")}><b>01</b>{copy.interview.factDocuments}<i aria-hidden="true">↓</i></button>
+          <button type="button" onClick={() => scrollToSection("interview-method-title")}><b>02</b>{copy.interview.factEvidence}<i aria-hidden="true">↓</i></button>
+          <button type="button" onClick={() => scrollToSection("tips-title")}><b>03</b>{copy.interview.factAdaptation}<i aria-hidden="true">↓</i></button>
         </div>
       </header>
 

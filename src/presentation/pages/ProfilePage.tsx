@@ -43,15 +43,15 @@ export function ProfilePage({ score }: { score: number }) {
         <p>{copy.profile.intro}</p>
       </header>
 
-      <section className="profile-score">
+      <Link className="profile-score" to="/study" aria-label={copy.home.start}>
         <span>{copy.profile.readiness}</span><strong>{score}%</strong><div><i style={{ width: `${score}%` }} /></div>
-      </section>
+      </Link>
 
       <section className="profile-fields">
-        <div><small>{copy.profile.nationality}</small><strong>{copy.profile.nationalityValue}</strong><span>✓</span></div>
-        <div><small>{copy.profile.major}</small><strong>{copy.profile.majorValue}</strong><span>✓</span></div>
-        <div><small>{copy.profile.korean}</small><strong>{koreanLevel}{koreanScore !== null && <em> · {totals.ko}/5 {copy.profile.testsCompleted}</em>}</strong><span>{koreanScore === null ? "→" : "↻"}</span></div>
-        <div><small>{copy.profile.english}</small><strong>{englishLevel}{englishScore !== null && <em> · {totals.en}/5 {copy.profile.testsCompleted}</em>}</strong><span>{englishScore === null ? "→" : "↻"}</span></div>
+        <Link to="/gks"><small>{copy.profile.nationality}</small><strong>{copy.profile.nationalityValue}</strong><span>→</span></Link>
+        <Link to="/gks"><small>{copy.profile.major}</small><strong>{copy.profile.majorValue}</strong><span>→</span></Link>
+        <Link to="/study/korean"><small>{copy.profile.korean}</small><strong>{koreanLevel}{koreanScore !== null && <em> · {totals.ko}/5 {copy.profile.testsCompleted}</em>}</strong><span>{koreanScore === null ? "→" : "↻"}</span></Link>
+        <Link to="/study/english"><small>{copy.profile.english}</small><strong>{englishLevel}{englishScore !== null && <em> · {totals.en}/5 {copy.profile.testsCompleted}</em>}</strong><span>{englishScore === null ? "→" : "↻"}</span></Link>
       </section>
 
       <section className="profile-cycle">

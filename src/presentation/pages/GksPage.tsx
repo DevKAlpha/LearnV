@@ -3,6 +3,7 @@ import { useI18n } from "../../application/i18n/I18nContext";
 import { currentCycle, keyFacts, sources, targetPrograms } from "../../infrastructure/data/gks-2026";
 import { SourceLink } from "../components/SourceLink";
 import { StatusBadge } from "../components/StatusBadge";
+import { Link } from "react-router-dom";
 
 const dateLocales = { es: "es-ES", en: "en-GB", ko: "ko-KR" } as const;
 
@@ -20,6 +21,7 @@ export function GksPage() {
     minute: "2-digit",
   }).format(new Date(radar.checkedAt));
   const latestSource = sources.find((source) => source.id === "niied-2027");
+  const spainSource = sources.find((source) => source.id === "spain-embassy-notices");
   const callSourceUrl = radar.sourceChecks.find((source) => source.detectsCall)?.url ?? latestSource?.url;
 
   return (
@@ -61,11 +63,13 @@ export function GksPage() {
             <span>{copy.gks.spainLabel}</span>
             <strong>{copy.gks.spainTitle}</strong>
             <p>{copy.gks.spainText}</p>
+            {spainSource && <a href={spainSource.url} target="_blank" rel="noreferrer">{copy.gks.openOfficial}<span aria-hidden="true">↗</span></a>}
           </article>
           <article className="gks-priority">
             <span>{copy.gks.nextActionLabel}</span>
             <strong>{copy.gks.nextActionTitle}</strong>
             <p>{copy.gks.nextActionText}</p>
+            <Link to="/checklist">{copy.nav.documents}<span aria-hidden="true">→</span></Link>
           </article>
         </div>
 

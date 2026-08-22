@@ -31,14 +31,15 @@ export function ChecklistPage({ progress, toggleDocument }: Props) {
           const checked = progress.completedDocuments.includes(document.id);
           const documentCopy = copy.checklist.items[document.id as keyof typeof copy.checklist.items];
           return (
-            <article className={`document-card${checked ? " document-card--done" : ""}`} key={document.id}>
-              <button
-                type="button"
-                className="document-check"
-                onClick={() => toggleDocument(document.id)}
-                aria-pressed={checked}
-                aria-label={`${checked ? copy.common.unmark : copy.common.mark} ${documentCopy.label}`}
-              >{checked ? "✓" : ""}</button>
+            <button
+              type="button"
+              className={`document-card${checked ? " document-card--done" : ""}`}
+              onClick={() => toggleDocument(document.id)}
+              aria-pressed={checked}
+              aria-label={`${checked ? copy.common.unmark : copy.common.mark} ${documentCopy.label}`}
+              key={document.id}
+            >
+              <span className="document-check" aria-hidden="true">{checked ? "✓" : ""}</span>
               <div>
                 <div className="document-title">
                   <strong>{documentCopy.label}</strong>
@@ -50,7 +51,7 @@ export function ChecklistPage({ progress, toggleDocument }: Props) {
                   {document.needsTranslation && <span>{copy.common.certifiedTranslation}</span>}
                 </div>
               </div>
-            </article>
+            </button>
           );
         })}
       </section>

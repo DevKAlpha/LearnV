@@ -1,4 +1,5 @@
 import { useI18n } from "../../application/i18n/I18nContext";
+import { Link } from "react-router-dom";
 
 export function LanguageGoals() {
   const { copy } = useI18n();
@@ -19,12 +20,14 @@ export function LanguageGoals() {
               {copy.study.bands.topik.map((band) => (
                 <div className="band-row" key={band.label}><strong>{band.label}</strong><span>{band.note}</span><b>{band.score}</b></div>
               ))}
+              <Link className="language-card__action" to="/study/korean">{copy.study.openSpace}<span aria-hidden="true">→</span></Link>
             </article>
             <article className="language-card language-card--english">
               <div className="language-title"><span>A+</span><div><small>{copy.study.english}</small><strong>{copy.study.englishGoal}</strong></div></div>
               {copy.study.bands.english.map((band) => (
                 <div className="band-row" key={band.label}><strong>{band.label}</strong><span>{band.note}</span><b>{band.score}</b></div>
               ))}
+              <Link className="language-card__action" to="/study/english">{copy.study.openSpace}<span aria-hidden="true">→</span></Link>
             </article>
           </div>
           <p className="data-note">{copy.study.scoreNote}</p>

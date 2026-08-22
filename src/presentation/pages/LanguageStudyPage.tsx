@@ -17,6 +17,7 @@ export function LanguageStudyPage({ language }: LanguageStudyPageProps) {
   const isEnglish = language === "en";
   const resourceCount = learningResources.filter((resource) => resource.languages.includes(language)).length;
   const otherLanguage = isEnglish ? "korean" : "english";
+  const scrollToSection = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   return (
     <div className={`page language-study-page language-study-page--${language}`}>
@@ -37,8 +38,8 @@ export function LanguageStudyPage({ language }: LanguageStudyPageProps) {
       </header>
 
       <nav className="language-study-jump-nav" aria-label={copy.study.spaceNavigation}>
-        <a href="#language-tests"><span aria-hidden="true">✓</span>{copy.study.goTests}</a>
-        <a href="#language-materials"><span aria-hidden="true">▤</span>{copy.study.goMaterials}</a>
+        <button type="button" onClick={() => scrollToSection("language-tests")}><span aria-hidden="true">✓</span>{copy.study.goTests}</button>
+        <button type="button" onClick={() => scrollToSection("language-materials")}><span aria-hidden="true">▤</span>{copy.study.goMaterials}</button>
         <Link to={`/study/${otherLanguage}`}><span aria-hidden="true">↔</span>{copy.study.changeLanguage}</Link>
       </nav>
 
