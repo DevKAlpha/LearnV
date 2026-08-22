@@ -1,48 +1,30 @@
-import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useLanguageTestProgress } from "../../application/controllers/useLanguageTestProgress";
 import { useI18n } from "../../application/i18n/I18nContext";
-import { TestTrackCards } from "../components/TestTrackCards";
-import { localize } from "../../domain/models/i18n";
-import {
-  learningResources,
-  type MaterialLanguage,
-  type ResourceType,
-} from "../../infrastructure/data/learning-resources";
-
-type TypeFilter = "all" | ResourceType;
+import { learningResources } from "../../infrastructure/data/learning-resources";
+import { TESTS_PER_LANGUAGE } from "../../infrastructure/data/practice-tests";
 
 export function StudyPage() {
-  const { locale, copy } = useI18n();
-  const [materialLanguage, setMaterialLanguage] = useState<MaterialLanguage>(() => locale === "ko" ? "ko" : "en");
-  const [type, setType] = useState<TypeFilter>("all");
-
-  const resources = useMemo(
-    () => learningResources.filter((resource) =>
-      resource.languages.includes(materialLanguage) &&
-      (type === "all" || resource.type === type))
-      .sort((first, second) => (first.learningOrder ?? 100) - (second.learningOrder ?? 100)),
-    [materialLanguage, type],
-  );
-
-  const languageFilters: Array<{ value: MaterialLanguage; label: string; symbol: string }> = [
-    { value: "en", label: copy.study.english, symbol: "A+" },
-    { value: "ko", label: copy.study.korean, symbol: "한" },
+  const { copy } = useI18n();
+  const { totals } = useLanguageTestProgress();
+  const spaces = [
+    {
+      language: "english",
+      code: "en" as const,
+      symbol: "A+",
+      title: copy.study.englishSpaceTitle,
+      text: copy.study.englishSpaceText,
+      target: copy.study.englishSpaceTarget,
+    },
+    {
+      language: "korean",
+      code: "ko" as const,
+      symbol: "한",
+      title: copy.study.koreanSpaceTitle,
+      text: copy.study.koreanSpaceText,
+      target: copy.study.koreanSpaceTarget,
+    },
   ];
-
-  const typeFilters: Array<{ value: TypeFilter; label: string; icon: string }> = [
-    { value: "all", label: copy.study.allTypes, icon: "✦" },
-    { value: "document", label: copy.study.document, icon: "▤" },
-    { value: "book", label: copy.study.book, icon: "▥" },
-    { value: "test", label: copy.study.test, icon: "✓" },
-    { value: "video", label: copy.study.video, icon: "▶" },
-  ];
-
-  const typeLabels: Record<ResourceType, string> = {
-    document: copy.study.document,
-    book: copy.study.book,
-    test: copy.study.test,
-    video: copy.study.video,
-  };
 
   return (
     <div className="page page--study-library">
@@ -51,6 +33,36 @@ export function StudyPage() {
         <h1>{copy.study.title}</h1>
         <p>{copy.study.intro}</p>
       </header>
+
+      <section className="study-language-spaces" aria-labelledby="language-spaces-title">
+        <div className="section-heading">
+          <div>
+            <span className="eyebrow">{copy.study.spacesKicker}</span>
+            <h2 id="language-spaces-title">{copy.study.spacesTitle}</h2>
+          </div>
+        </div>
+        <p className="section-intro">{copy.study.spacesIntro}</p>
+        <div className="study-language-spaces__grid">
+          {spaces.map((space) => {
+            const resourceCount = learningResources.filter((resource) => resource.languages.includes(space.code)).length;
+            return (
+              <article className={`study-language-space study-language-space--${space.code}`} key={space.code}>
+                <div className="study-language-space__top">
+                  <span aria-hidden="true">{space.symbol}</span>
+                  <small>{space.target}</small>
+                </div>
+                <h3>{space.title}</h3>
+                <p>{space.text}</p>
+                <div className="study-language-space__stats">
+                  <span><b>{totals[space.code]}/{TESTS_PER_LANGUAGE}</b>{copy.study.testsPassed}</span>
+                  <span><b>{resourceCount}</b>{copy.study.resourcesAvailable}</span>
+                </div>
+                <Link to={`/study/${space.language}`}>{copy.study.openSpace}<span aria-hidden="true">→</span></Link>
+              </article>
+            );
+          })}
+        </div>
+      </section>
 
       <section className="study-start-card" aria-labelledby="starter-route-title">
         <div className="study-start-card__copy">
@@ -69,8 +81,6 @@ export function StudyPage() {
         </div>
       </section>
 
-      <TestTrackCards />
-
       <section className="interview-entry" aria-labelledby="interview-entry-title">
         <div className="interview-entry__icon" aria-hidden="true"><span>Q</span><i /></div>
         <div>
@@ -81,76 +91,6 @@ export function StudyPage() {
         </div>
         <Link to="/study/interviews">{copy.interview.entryAction}<span aria-hidden="true">→</span></Link>
       </section>
-
-      <section className="resource-library" aria-labelledby="resource-library-title">
-        <div className="section-heading resource-heading">
-          <div>
-            <span className="eyebrow">{copy.study.library}</span>
-            <h2 id="resource-library-title">{copy.study.resources}</h2>
-          </div>
-          <span className="resource-count">{resources.length}</span>
-        </div>
-        <p className="section-intro">{copy.study.libraryIntro}</p>
-
-        <div className="material-language-picker">
-          <div>
-            <span className="eyebrow">{copy.study.chooseMaterialLanguage}</span>
-            <strong>{copy.study.materialLanguageTitle}</strong>
-          </div>
-          <div className="track-filters" role="group" aria-label={copy.study.chooseMaterialLanguage}>
-            {languageFilters.map((filter) => (
-              <button
-                key={filter.value}
-                type="button"
-                aria-pressed={materialLanguage === filter.value}
-                className={materialLanguage === filter.value ? "filter-chip filter-chip--active" : "filter-chip"}
-                onClick={() => setMaterialLanguage(filter.value)}
-              ><span aria-hidden="true">{filter.symbol}</span>{filter.label}</button>
-            ))}
-          </div>
-        </div>
-
-        <div className="resource-filters" aria-label={copy.study.resources}>
-          <div className="type-filters" role="group" aria-label={copy.study.allTypes}>
-            {typeFilters.map((filter) => (
-              <button
-                key={filter.value}
-                type="button"
-                aria-pressed={type === filter.value}
-                className={type === filter.value ? "type-chip type-chip--active" : "type-chip"}
-                onClick={() => setType(filter.value)}
-              ><span aria-hidden="true">{filter.icon}</span>{filter.label}</button>
-            ))}
-          </div>
-        </div>
-
-        {resources.length > 0 ? (
-          <div className="resource-grid">
-            {resources.map((resource) => (
-              <article className={`resource-card resource-card--${resource.track}`} key={resource.id}>
-                <div className="resource-card__topline">
-                  <span className="resource-icon" aria-hidden="true">{resource.icon}</span>
-                  <div className="resource-badges">
-                    <span>{typeLabels[resource.type]}</span>
-                    {resource.official && <span className="official-badge">{copy.study.official}</span>}
-                  </div>
-                </div>
-                <span className="resource-level">{localize(resource.level, locale)}</span>
-                <h3>{localize(resource.title, locale)}</h3>
-                <p>{localize(resource.description, locale)}</p>
-                <div className="resource-meta">
-                  <strong>{resource.organization}</strong>
-                  <small>{copy.study.verifiedOn} · {resource.verifiedAt}</small>
-                </div>
-                <a href={resource.url} target="_blank" rel="noreferrer">
-                  {copy.study.openResource}<span aria-hidden="true">↗</span>
-                </a>
-              </article>
-            ))}
-          </div>
-        ) : <p className="empty-resources">{copy.study.noResults}</p>}
-      </section>
-
     </div>
   );
 }

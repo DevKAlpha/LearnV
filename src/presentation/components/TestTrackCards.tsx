@@ -4,7 +4,11 @@ import { useI18n } from "../../application/i18n/I18nContext";
 import type { TestLanguage } from "../../domain/models/language-test";
 import { TESTS_PER_LANGUAGE } from "../../infrastructure/data/practice-tests";
 
-export function TestTrackCards() {
+type TestTrackCardsProps = {
+  languages?: TestLanguage[];
+};
+
+export function TestTrackCards({ languages = ["en", "ko"] }: TestTrackCardsProps) {
   const { copy, setLocale } = useI18n();
   const { totals } = useLanguageTestProgress();
 
@@ -30,7 +34,7 @@ export function TestTrackCards() {
       <p className="section-intro">{copy.tests.hubIntro}</p>
 
       <div className="test-track-grid">
-        {tracks.map((track) => (
+        {tracks.filter((track) => languages.includes(track.language)).map((track) => (
           <article className={`test-track-card test-track-card--${track.language}`} key={track.language}>
             <div className="test-track-card__top">
               <span className="test-track-symbol" aria-hidden="true">{track.symbol}</span>

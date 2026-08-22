@@ -24,7 +24,7 @@ export function TestPathPage() {
   return (
     <div className={`page test-path-page test-path-page--${language}`}>
       <header className="test-path-header">
-        <Link className="test-back-link" to="/study"><span aria-hidden="true">←</span>{copy.tests.backLibrary}</Link>
+        <Link className="test-back-link" to={`/study/${language === "en" ? "english" : "korean"}`}><span aria-hidden="true">←</span>{copy.tests.backLibrary}</Link>
         <span className="eyebrow">{copy.tests.pathKicker}</span>
         <div className="test-path-heading">
           <div>
