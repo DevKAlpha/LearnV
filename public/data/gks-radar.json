@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-08-22T01:41:10.815Z",
+  "nextCheckAt": "2026-08-23T01:41:10.815Z",
+  "callDetected": false,
+  "sourceChecks": [
+    {
+      "id": "study-in-korea-notices",
+      "url": "https://www.studyinkorea.go.kr/ko/notice/scholarshipsList.do?boardSort=3",
+      "ok": true,
+      "changed": false,
+      "hash": "f62f1d5f6578cbef2a7a",
+      "detectsCall": false
+    },
+    {
+      "id": "niied-2027",
+      "url": "https://www.niied.go.kr/web/main/nid/niied_board/5745",
+      "ok": true,
+      "changed": false,
+      "hash": "2ef200edef0637216b8e",
+      "detectsCall": false
+    },
+    {
+      "id": "spain-embassy-notices",
+      "url": "https://esp.mofa.go.kr/es-es/brd/m_8065/list.do",
+      "ok": false,
+      "changed": false,
+      "detectsCall": false,
+      "error": "fetch failed"
+    }
+  ]
+}

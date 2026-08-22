@@ -35,4 +35,12 @@ describe("datos GKS versionados", () => {
     expect(languageBands.english.some((band) => band.score === "B1 / B2")).toBe(true);
     expect(languageBands.english.some((band) => band.score === "C1")).toBe(true);
   });
+
+  it("incluye los canales oficiales del radar diario", () => {
+    const sourceIds = new Set(sources.map((source) => source.id));
+
+    expect(sourceIds).toContain("study-in-korea-notices");
+    expect(sourceIds).toContain("niied-2027");
+    expect(sourceIds).toContain("spain-embassy-notices");
+  });
 });

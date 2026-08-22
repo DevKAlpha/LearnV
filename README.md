@@ -31,6 +31,18 @@ La navegación usa `Motion for React` con carga diferida por pantalla. Las trans
 
 Los efectos visuales simples permanecen en CSS para reducir el trabajo de JavaScript y mantener una respuesta fluida en móviles.
 
+## Radar GKS diario
+
+GitHub Actions vuelve a comprobar cada día las páginas oficiales de Study in Korea, NIIED y la Embajada de Corea en España, genera `public/data/gks-radar.json` y publica una nueva versión de Pages. El radar señala disponibilidad y cambios; nunca convierte automáticamente una variación de una web en un requisito confirmado.
+
+Para actualizar el radar manualmente:
+
+```bash
+pnpm gks:update
+```
+
+La interfaz utiliza una paleta de tulipanes basada en rosa pétalo, amarillo polen, verde hoja y ciruela, con variantes específicas para los temas claro y oscuro.
+
 ## Docker
 
 ```bash

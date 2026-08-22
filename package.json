@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "gks:update": "node scripts/update-gks-radar.mjs",
     "preview": "vite preview --host 0.0.0.0",
     "typecheck": "tsc -b",
     "test": "vitest run"

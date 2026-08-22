@@ -4,17 +4,24 @@ export const currentCycle = {
   reference: "GKS-U 2026",
   target: "GKS-U 2027",
   targetStatus: "Convocatoria todavía no publicada",
-  verifiedAt: "2026-08-17",
+  verifiedAt: "2026-08-21",
 };
 
 export const sources: Source[] = [
+  {
+    id: "study-in-korea-notices",
+    title: "GKS Scholarship Notices",
+    organization: "Study in Korea · NIIED",
+    url: "https://www.studyinkorea.go.kr/ko/notice/scholarshipsList.do?boardSort=3",
+    verifiedAt: "2026-08-21",
+  },
   {
     id: "study-in-korea-2026",
     title: "2026 GKS-U Application Guidelines",
     organization: "Study in Korea · NIIED",
     url: "https://www.studyinkorea.go.kr/ko/notice/scholarshipsRead.do?bbsId=BBSMSTR_000000000461&boardSort=3&nttId=4385",
     publishedAt: "2025-09-05",
-    verifiedAt: "2026-08-17",
+    verifiedAt: "2026-08-21",
   },
   {
     id: "niied-2027",
@@ -22,28 +29,35 @@ export const sources: Source[] = [
     organization: "NIIED",
     url: "https://www.niied.go.kr/web/main/nid/niied_board/5745",
     publishedAt: "2026-06-22",
-    verifiedAt: "2026-08-17",
+    verifiedAt: "2026-08-21",
   },
   {
     id: "niied-overview",
     title: "GKS Degree Program",
     organization: "NIIED",
     url: "https://www.niied.go.kr/web/niied/contents/niiedEng/eng_gksDegree",
-    verifiedAt: "2026-08-17",
+    verifiedAt: "2026-08-21",
   },
   {
     id: "topik-official",
     title: "Language Proficiency Requirements & TOPIK",
     organization: "Study in Korea · NIIED",
     url: "https://www.studyinkorea.go.kr/ko/plan/examAndKoreanStudy.do",
-    verifiedAt: "2026-08-17",
+    verifiedAt: "2026-08-21",
   },
   {
     id: "apostille-spain",
     title: "Legalización única o Apostilla de La Haya",
     organization: "Ministerio de Justicia de España",
     url: "https://www.mjusticia.gob.es/es/ciudadania/tramites/legalizacion-unica-apostilla",
-    verifiedAt: "2026-08-17",
+    verifiedAt: "2026-08-21",
+  },
+  {
+    id: "spain-embassy-notices",
+    title: "Avisos oficiales de la Embajada en España",
+    organization: "Embajada de la República de Corea en España",
+    url: "https://esp.mofa.go.kr/es-es/brd/m_8065/list.do",
+    verifiedAt: "2026-08-21",
   },
 ];
 

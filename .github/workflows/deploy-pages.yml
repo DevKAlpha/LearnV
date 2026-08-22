@@ -3,6 +3,8 @@ name: Deploy LearnV to GitHub Pages
 on:
   push:
     branches: [main]
+  schedule:
+    - cron: "17 6 * * *"
   workflow_dispatch:
 
 permissions:
@@ -27,6 +29,8 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Refresh official GKS radar
+        run: pnpm gks:update
       - run: pnpm build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
