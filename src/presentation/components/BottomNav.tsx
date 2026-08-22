@@ -32,6 +32,7 @@ export function BottomNav() {
           to={item.to}
           end={item.end}
           className={`nav-item${active ? " nav-item--active" : ""}`}
+          data-nav={item.icon}
           aria-current={active ? "page" : undefined}
         >
           {active && (
