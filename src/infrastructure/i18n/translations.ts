@@ -13,6 +13,7 @@ const es = {
     apostille: "Apostilla",
     certifiedTranslation: "Traducción certificada",
     minutes: "min",
+    loading: "Cargando pantalla",
   },
   status: { confirmed: "Confirmado", historical: "Referencia 2026", pending: "Pendiente 2027" },
   progress: { aria: "Progreso de preparación", ready: "lista para hoy" },
@@ -231,7 +232,7 @@ export type TranslationCatalog = DeepWiden<typeof es>;
 const en: TranslationCatalog = {
   app: { tagline: "Our Path to Korea", languageLabel: "Application language", skipLink: "Skip to content", lightTheme: "Light", darkTheme: "Dark", switchToLight: "Switch to light theme", switchToDark: "Switch to dark theme" },
   nav: { home: "Home", gks: "Scholarship", study: "Study", documents: "Documents", profile: "Profile", mainAria: "Main navigation" },
-  common: { officialSource: "Official source", verified: "verified", required: "Required", optional: "Optional", mark: "Mark", unmark: "Unmark", apostille: "Apostille", certifiedTranslation: "Certified translation", minutes: "min" },
+  common: { officialSource: "Official source", verified: "verified", required: "Required", optional: "Optional", mark: "Mark", unmark: "Unmark", apostille: "Apostille", certifiedTranslation: "Certified translation", minutes: "min", loading: "Loading screen" },
   status: { confirmed: "Confirmed", historical: "2026 reference", pending: "2027 pending" },
   progress: { aria: "Preparation progress", ready: "ready for today" },
   home: {
@@ -288,7 +289,7 @@ const en: TranslationCatalog = {
 const ko: TranslationCatalog = {
   app: { tagline: "우리의 한국으로 가는 길", languageLabel: "앱 언어", skipLink: "본문으로 건너뛰기", lightTheme: "라이트", darkTheme: "다크", switchToLight: "라이트 테마로 전환", switchToDark: "다크 테마로 전환" },
   nav: { home: "홈", gks: "장학금", study: "학습", documents: "서류", profile: "프로필", mainAria: "주요 탐색" },
-  common: { officialSource: "공식 출처", verified: "확인일", required: "필수", optional: "선택", mark: "체크", unmark: "체크 해제", apostille: "아포스티유", certifiedTranslation: "공인 번역", minutes: "분" },
+  common: { officialSource: "공식 출처", verified: "확인일", required: "필수", optional: "선택", mark: "체크", unmark: "체크 해제", apostille: "아포스티유", certifiedTranslation: "공인 번역", minutes: "분", loading: "화면 불러오는 중" },
   status: { confirmed: "확인됨", historical: "2026 참고", pending: "2027 대기" },
   progress: { aria: "준비 진행률", ready: "오늘의 준비도" },
   home: {

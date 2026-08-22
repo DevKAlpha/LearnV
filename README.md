@@ -25,6 +25,12 @@ pnpm build
 pnpm preview
 ```
 
+## Movimiento y rendimiento
+
+La navegación usa `Motion for React` con carga diferida por pantalla. Las transiciones de ruta, los indicadores activos y el feedback táctil comparten una configuración central en `AppMotionProvider`, y respetan automáticamente la preferencia del sistema `prefers-reduced-motion`.
+
+Los efectos visuales simples permanecen en CSS para reducir el trabajo de JavaScript y mantener una respuesta fluida en móviles.
+
 ## Docker
 
 ```bash
