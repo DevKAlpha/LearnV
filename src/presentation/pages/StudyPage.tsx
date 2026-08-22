@@ -25,6 +25,11 @@ export function StudyPage() {
       target: copy.study.koreanSpaceTarget,
     },
   ];
+  const starterSteps = [
+    { label: copy.study.stepGuide, to: "/gks" },
+    { label: copy.study.stepKorean, to: "/study/korean" },
+    { label: copy.study.stepEnglish, to: "/study/english" },
+  ];
 
   return (
     <div className="page page--study-library">
@@ -33,6 +38,29 @@ export function StudyPage() {
         <h1>{copy.study.title}</h1>
         <p>{copy.study.intro}</p>
       </header>
+
+      <section className="study-start-card" aria-labelledby="starter-route-title">
+        <div className="study-start-card__copy">
+          <span className="eyebrow">{copy.study.startHere}</span>
+          <small>{copy.study.weekOne}</small>
+          <h2 id="starter-route-title">{copy.study.weekTitle}</h2>
+          <p>{copy.study.weekText}</p>
+        </div>
+        <ol className="starter-steps">
+          {starterSteps.map((step, index) => (
+            <li key={step.to}>
+              <Link to={step.to}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <strong>{step.label}</strong>
+                <i aria-hidden="true">→</i>
+              </Link>
+            </li>
+          ))}
+        </ol>
+        <div className="study-character study-character--library" aria-hidden="true">
+          <span>가</span><i /><b>A+</b>
+        </div>
+      </section>
 
       <section className="study-language-spaces" aria-labelledby="language-spaces-title">
         <div className="section-heading">
@@ -61,23 +89,6 @@ export function StudyPage() {
               </article>
             );
           })}
-        </div>
-      </section>
-
-      <section className="study-start-card" aria-labelledby="starter-route-title">
-        <div className="study-start-card__copy">
-          <span className="eyebrow">{copy.study.startHere}</span>
-          <small>{copy.study.weekOne}</small>
-          <h2 id="starter-route-title">{copy.study.weekTitle}</h2>
-          <p>{copy.study.weekText}</p>
-        </div>
-        <ol className="starter-steps">
-          <li><span>01</span><strong>{copy.study.stepGuide}</strong></li>
-          <li><span>02</span><strong>{copy.study.stepKorean}</strong></li>
-          <li><span>03</span><strong>{copy.study.stepEnglish}</strong></li>
-        </ol>
-        <div className="study-character study-character--library" aria-hidden="true">
-          <span>가</span><i /><b>A+</b>
         </div>
       </section>
 

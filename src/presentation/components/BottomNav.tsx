@@ -14,7 +14,13 @@ export function BottomNav() {
   ];
 
   return (
-    <nav className="bottom-nav" aria-label={copy.nav.mainAria}>
+    <m.nav
+      className="bottom-nav"
+      aria-label={copy.nav.mainAria}
+      initial={{ y: 18, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ type: "spring", stiffness: 320, damping: 28 }}
+    >
       {items.map((item) => {
         const active = location.pathname === item.to
           || (item.to !== "/" && location.pathname.startsWith(`${item.to}/`))
@@ -25,6 +31,7 @@ export function BottomNav() {
           to={item.to}
           end={item.end}
           className={`nav-item${active ? " nav-item--active" : ""}`}
+          aria-current={active ? "page" : undefined}
         >
           {active && (
             <m.span
@@ -33,11 +40,23 @@ export function BottomNav() {
               transition={{ type: "spring", stiffness: 430, damping: 36 }}
             />
           )}
-          <span className="nav-symbol" aria-hidden="true">{item.symbol}</span>
-          <span className="nav-label">{item.label}</span>
+          <m.span
+            className="nav-item__motion"
+            animate={active ? { y: -2, scale: 1.06 } : { y: 0, scale: 1 }}
+            whileTap={{ y: 2, scale: 0.88 }}
+            transition={{ type: "spring", stiffness: 500, damping: 30 }}
+          >
+            <m.span
+              className="nav-symbol"
+              aria-hidden="true"
+              animate={active ? { rotate: [0, -8, 7, 0] } : { rotate: 0 }}
+              transition={{ duration: 0.38 }}
+            >{item.symbol}</m.span>
+            <span className="nav-label">{item.label}</span>
+          </m.span>
         </NavLink>
         );
       })}
-    </nav>
+    </m.nav>
   );
 }

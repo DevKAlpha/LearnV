@@ -41,7 +41,7 @@ Para actualizar el radar manualmente:
 pnpm gks:update
 ```
 
-La interfaz utiliza una paleta de tulipanes basada en rosa pétalo, amarillo polen, verde hoja y ciruela, con variantes específicas para los temas claro y oscuro.
+La interfaz utiliza una paleta extraída de las referencias de tulipanes: violeta y lila como familia principal, rojo pétalo, amarillo polen, naranja, verde tallo y crema rosado. Cada color cuenta con una variante de contraste específica para los temas claro y oscuro.
 
 ## Docker
 
