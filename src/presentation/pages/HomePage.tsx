@@ -31,7 +31,12 @@ export function HomePage({ score, progress, toggleTask }: Props) {
       <header className="mobile-header">
         <div>
           <span className="eyebrow">{today}</span>
-          <h1>{copy.home.greeting}</h1>
+          <h1 className="home-route-title" aria-label="우리의 Route to Corea 👉 ❤️ 👈">
+            <span lang="ko">우리의</span>
+            <span lang="en">Route to</span>
+            <span lang="es">Corea</span>
+            <span className="home-route-title__icons" aria-hidden="true">👉 ❤️ 👈</span>
+          </h1>
         </div>
         <Link to="/profile" className="avatar-button" aria-label={copy.home.openProfile}><BrandMark /></Link>
       </header>
