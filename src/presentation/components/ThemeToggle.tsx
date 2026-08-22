@@ -1,6 +1,7 @@
 import { useI18n } from "../../application/i18n/I18nContext";
 import { useTheme } from "../../application/theme/ThemeContext";
 import { m } from "motion/react";
+import { AppIcon } from "./AppIcon";
 
 export function ThemeToggle({ compact = false }: { compact?: boolean }) {
   const { theme, toggleTheme } = useTheme();
@@ -22,7 +23,7 @@ export function ThemeToggle({ compact = false }: { compact?: boolean }) {
         initial={{ opacity: 0, rotate: -35, scale: 0.72 }}
         animate={{ opacity: 1, rotate: 0, scale: 1 }}
       >
-        {isDark ? "☀" : "☾"}
+        <AppIcon name={isDark ? "sun" : "moon"} />
       </m.span>
       {!compact && <small>{isDark ? copy.app.lightTheme : copy.app.darkTheme}</small>}
     </m.button>

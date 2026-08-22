@@ -1,16 +1,17 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { useI18n } from "../../application/i18n/I18nContext";
 import { m } from "motion/react";
+import { AppIcon, type AppIconName } from "./AppIcon";
 
 export function BottomNav() {
   const { copy } = useI18n();
   const location = useLocation();
-  const items = [
-    { to: "/", symbol: "⌂", label: copy.nav.home, end: true },
-    { to: "/gks", symbol: "◎", label: copy.nav.gks },
-    { to: "/study", symbol: "文", label: copy.nav.study },
-    { to: "/checklist", symbol: "✓", label: copy.nav.documents },
-    { to: "/profile", symbol: "☺", label: copy.nav.profile },
+  const items: Array<{ to: string; icon: AppIconName; label: string; end?: boolean }> = [
+    { to: "/", icon: "home", label: copy.nav.home, end: true },
+    { to: "/gks", icon: "scholarship", label: copy.nav.gks },
+    { to: "/study", icon: "study", label: copy.nav.study },
+    { to: "/checklist", icon: "checklist", label: copy.nav.documents },
+    { to: "/profile", icon: "profile", label: copy.nav.profile },
   ];
 
   return (
@@ -51,7 +52,7 @@ export function BottomNav() {
               aria-hidden="true"
               animate={active ? { rotate: [0, -8, 7, 0] } : { rotate: 0 }}
               transition={{ duration: 0.38 }}
-            >{item.symbol}</m.span>
+            ><AppIcon name={item.icon} /></m.span>
             <span className="nav-label">{item.label}</span>
           </m.span>
         </NavLink>

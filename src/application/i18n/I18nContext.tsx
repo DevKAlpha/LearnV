@@ -28,6 +28,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, locale);
     document.documentElement.lang = locale;
+    document.documentElement.dataset.locale = locale;
   }, [locale]);
 
   const value = useMemo(() => ({ locale, setLocale, copy: translations[locale] }), [locale]);

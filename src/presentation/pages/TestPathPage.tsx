@@ -3,6 +3,7 @@ import { useLanguageTestProgress } from "../../application/controllers/useLangua
 import { useI18n } from "../../application/i18n/I18nContext";
 import { isStageUnlocked, type TestSkill } from "../../domain/models/language-test";
 import { practiceTestTracks as languageTestTracks, TESTS_PER_LANGUAGE } from "../../infrastructure/data/practice-tests";
+import { AppIcon, type AppIconName } from "../components/AppIcon";
 
 export function TestPathPage() {
   const { language: languageParam } = useParams();
@@ -43,10 +44,10 @@ export function TestPathPage() {
           const skillStages = track.stages.filter((stage) => stage.skill === skill);
           const completed = skillStages.filter((stage) => trackProgress[stage.id]?.passed).length;
           const labels = { writing: copy.tests.writing, listening: copy.tests.listening, pronunciation: copy.tests.pronunciation };
-          const icons = { writing: "✎", listening: "◖", pronunciation: "🎙" };
+          const icons: Record<TestSkill, AppIconName> = { writing: "writing", listening: "listening", pronunciation: "speaking" };
           return <section className={`test-skill-section test-skill-section--${skill}`} key={skill}>
             <header className="test-skill-header">
-              <span aria-hidden="true">{icons[skill]}</span>
+              <span aria-hidden="true"><AppIcon name={icons[skill]} /></span>
               <div><small>{completed}/10 {copy.tests.completed}</small><h2>{labels[skill]}</h2><p>{copy.tests.skillDescriptions[skill]}</p></div>
             </header>
             <div className="test-map">
@@ -59,9 +60,9 @@ export function TestPathPage() {
           const content = (
             <>
               <span className="test-node-ring">
-                <span className="test-node-core"><b>{stage.icon}</b></span>
+                <span className="test-node-core"><AppIcon name={icons[skill]} /><b>{language === "ko" ? stage.icon : String(skillIndex + 1).padStart(2, "0")}</b></span>
                 {passed && <i aria-hidden="true">✓</i>}
-                {!unlocked && <i aria-hidden="true">⌕</i>}
+                {!unlocked && <i aria-hidden="true"><AppIcon name="lock" /></i>}
               </span>
               <span className="test-node-copy">
                 <small>{String(skillIndex + 1).padStart(2, "0")} · {stateLabel}</small>

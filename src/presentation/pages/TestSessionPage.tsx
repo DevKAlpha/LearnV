@@ -9,6 +9,7 @@ import {
   type TestResult,
 } from "../../domain/models/language-test";
 import { practiceTestTracks as languageTestTracks } from "../../infrastructure/data/practice-tests";
+import { AppIcon } from "../components/AppIcon";
 
 function formatTime(seconds: number) {
   const minutes = Math.floor(seconds / 60);
@@ -216,7 +217,7 @@ export function TestSessionPage() {
       <div className={`page test-result-page test-result-page--${language}`} id="test-session-top">
         <header className="result-hero">
           <span className="eyebrow">{copy.tests.resultKicker}</span>
-          <span className="result-hero__icon" aria-hidden="true">{result.passed ? "✓" : "↻"}</span>
+          <span className="result-hero__icon" aria-hidden="true"><AppIcon name={result.passed ? "test" : "refresh"} /></span>
           <h1>{copy.tests.resultTitle}</h1>
           <p>{result.passed ? copy.tests.resultPass : copy.tests.resultRetry}</p>
           <div className="result-score-row">
@@ -298,7 +299,7 @@ export function TestSessionPage() {
           <span>{copy.tests.attempt} {runNumber}</span>
         </div>
         <span className={`production-mode-icon production-mode-icon--${stage.productionTask.mode}`} aria-hidden="true">
-          {stage.productionTask.mode === "speaking" ? "🎙" : stage.productionTask.mode === "listening" ? "◖" : "✎"}
+          <AppIcon name={stage.productionTask.mode === "speaking" ? "speaking" : stage.productionTask.mode === "listening" ? "listening" : "writing"} />
         </span>
         <h1>{stage.productionTask.prompt}</h1>
         <p className="production-instructions">{stage.productionTask.instructions}</p>
@@ -337,7 +338,7 @@ export function TestSessionPage() {
             </article>
           ) : (
             <div className="listening-ready-card">
-              <span aria-hidden="true">◖</span>
+              <span aria-hidden="true"><AppIcon name="listening" /></span>
               <strong>{copy.tests.listeningReady}</strong>
               <p>{copy.tests.listeningReadyText}</p>
             </div>

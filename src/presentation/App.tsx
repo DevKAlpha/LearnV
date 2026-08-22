@@ -9,6 +9,7 @@ import { useGksProgress } from "../application/controllers/useGksProgress";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { AnimatedRouteView } from "./components/AnimatedRouteView";
 import { RouteLoader } from "./components/RouteLoader";
+import { DynamicFavicon } from "./components/DynamicFavicon";
 import { isImmersiveLearningRoute, resolveLearningLocale } from "../application/i18n/learning-locale";
 
 const HomePage = lazy(() => import("./pages/HomePage").then((module) => ({ default: module.HomePage })));
@@ -35,6 +36,7 @@ export function App() {
   return (
     <div className="app-shell">
       <ScrollToTop />
+      <DynamicFavicon readiness={progress.score} />
       <a className="skip-link" href="#main-content">{copy.app.skipLink}</a>
       <aside className="desktop-brand" aria-label="LearnV">
         <div className="brand-mark">V</div>

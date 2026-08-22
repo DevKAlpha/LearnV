@@ -38,6 +38,7 @@ export function useLanguageTestProgress() {
         [language]: { ...current[language], [stageId]: nextStage },
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      window.dispatchEvent(new CustomEvent("learnv:progress"));
       return next;
     });
   }, []);

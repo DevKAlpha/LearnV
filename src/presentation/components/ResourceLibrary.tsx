@@ -6,6 +6,7 @@ import {
   type MaterialLanguage,
   type ResourceType,
 } from "../../infrastructure/data/learning-resources";
+import { AppIcon, type AppIconName } from "./AppIcon";
 
 type TypeFilter = "all" | ResourceType;
 
@@ -24,12 +25,12 @@ export function ResourceLibrary({ language }: ResourceLibraryProps) {
     [language, type],
   );
 
-  const typeFilters: Array<{ value: TypeFilter; label: string; icon: string }> = [
-    { value: "all", label: copy.study.allTypes, icon: "✦" },
-    { value: "document", label: copy.study.document, icon: "▤" },
-    { value: "book", label: copy.study.book, icon: "▥" },
-    { value: "test", label: copy.study.test, icon: "✓" },
-    { value: "video", label: copy.study.video, icon: "▶" },
+  const typeFilters: Array<{ value: TypeFilter; label: string; icon: AppIconName }> = [
+    { value: "all", label: copy.study.allTypes, icon: "sparkle" },
+    { value: "document", label: copy.study.document, icon: "document" },
+    { value: "book", label: copy.study.book, icon: "book" },
+    { value: "test", label: copy.study.test, icon: "test" },
+    { value: "video", label: copy.study.video, icon: "video" },
   ];
   const typeLabels: Record<ResourceType, string> = {
     document: copy.study.document,
@@ -58,7 +59,7 @@ export function ResourceLibrary({ language }: ResourceLibraryProps) {
               aria-pressed={type === filter.value}
               className={type === filter.value ? "type-chip type-chip--active" : "type-chip"}
               onClick={() => setType(filter.value)}
-            ><span aria-hidden="true">{filter.icon}</span>{filter.label}</button>
+            ><span aria-hidden="true"><AppIcon name={filter.icon} /></span>{filter.label}</button>
           ))}
         </div>
       </div>
@@ -68,7 +69,10 @@ export function ResourceLibrary({ language }: ResourceLibraryProps) {
           {resources.map((resource) => (
             <article className={`resource-card resource-card--${resource.track}`} key={resource.id}>
               <div className="resource-card__topline">
-                <span className="resource-icon" aria-hidden="true">{resource.icon}</span>
+                <span className="resource-icon" aria-hidden="true">
+                  <AppIcon name={resource.type} />
+                  <small>{language === "ko" ? "한" : "A"}</small>
+                </span>
                 <div className="resource-badges">
                   <span>{typeLabels[resource.type]}</span>
                   {resource.official && <span className="official-badge">{copy.study.official}</span>}

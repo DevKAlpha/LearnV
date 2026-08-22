@@ -3,6 +3,7 @@ import { useLanguageTestProgress } from "../../application/controllers/useLangua
 import { useI18n } from "../../application/i18n/I18nContext";
 import type { TestLanguage } from "../../domain/models/language-test";
 import { TESTS_PER_LANGUAGE } from "../../infrastructure/data/practice-tests";
+import { AppIcon } from "./AppIcon";
 
 type TestTrackCardsProps = {
   languages?: TestLanguage[];
@@ -38,7 +39,7 @@ export function TestTrackCards({ languages = ["en", "ko"] }: TestTrackCardsProps
           <article className={`test-track-card test-track-card--${track.language}`} key={track.language}>
             <div className="test-track-card__top">
               <span className="test-track-symbol" aria-hidden="true">{track.symbol}</span>
-              <span className="auto-language-pill">↻ {copy.tests.autoLanguage}</span>
+              <span className="auto-language-pill"><AppIcon name="refresh" /> {copy.tests.autoLanguage}</span>
             </div>
             <span className="test-track-target">{track.target}</span>
             <h3>{track.title}</h3>
