@@ -4,6 +4,7 @@ import { currentCycle, keyFacts, sources, targetPrograms } from "../../infrastru
 import { SourceLink } from "../components/SourceLink";
 import { StatusBadge } from "../components/StatusBadge";
 import { Link } from "react-router-dom";
+import { BrandMark } from "../components/BrandMark";
 
 const dateLocales = { es: "es-ES", en: "en-GB", ko: "ko-KR" } as const;
 
@@ -32,7 +33,7 @@ export function GksPage() {
           <h1>{titleLineOne}<br />{titleLineTwo}</h1>
           <p>{copy.gks.intro}</p>
         </div>
-        <div className="tulip-mark" aria-hidden="true"><i /><i /><i /><span /></div>
+        <div className="tulip-mark" aria-hidden="true"><BrandMark showLetter={false} /></div>
       </header>
 
       <section className="gks-daily-radar" aria-labelledby="daily-radar-title">

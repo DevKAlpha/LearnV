@@ -3,6 +3,7 @@ import { useI18n } from "../../application/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { ThemeToggle } from "./ThemeToggle";
 import { m } from "motion/react";
+import { BrandMark } from "./BrandMark";
 
 const options: Array<{ value: Locale; label: string; short: string }> = [
   { value: "es", label: "Español", short: "ES" },
@@ -16,7 +17,7 @@ export function LanguageSwitcher() {
   return (
     <div className="app-toolbar">
       <Link className="mobile-brand" to="/" aria-label="LearnV">
-        <span className="mobile-brand__mark" aria-hidden="true">V</span>
+        <span className="mobile-brand__mark" aria-hidden="true"><BrandMark /></span>
         <strong>LearnV</strong>
       </Link>
       <div className="app-toolbar__controls">

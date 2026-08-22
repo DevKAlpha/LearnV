@@ -3,6 +3,7 @@ import { useLanguageTestProgress } from "../../application/controllers/useLangua
 import { useI18n } from "../../application/i18n/I18nContext";
 import { learningResources } from "../../infrastructure/data/learning-resources";
 import { TESTS_PER_LANGUAGE } from "../../infrastructure/data/practice-tests";
+import { PageEmblem } from "../components/PageEmblem";
 
 export function StudyPage() {
   const { copy } = useI18n();
@@ -33,7 +34,8 @@ export function StudyPage() {
 
   return (
     <div className="page page--study-library">
-      <header className="page-header page-header--study">
+      <header className="page-header page-header--study page-header--decorated">
+        <PageEmblem icon="study" />
         <span className="sticker sticker--blue">{copy.study.sticker}</span>
         <h1>{copy.study.title}</h1>
         <p>{copy.study.intro}</p>

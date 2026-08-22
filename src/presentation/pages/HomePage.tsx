@@ -4,6 +4,7 @@ import { ProgressOrbit } from "../components/ProgressOrbit";
 import { useI18n } from "../../application/i18n/I18nContext";
 import { LanguageGoals } from "../components/LanguageGoals";
 import { getReminderStage } from "../../domain/models/learning-reminder";
+import { BrandMark } from "../components/BrandMark";
 
 type Props = {
   score: number;
@@ -32,7 +33,7 @@ export function HomePage({ score, progress, toggleTask }: Props) {
           <span className="eyebrow">{today}</span>
           <h1>{copy.home.greeting}</h1>
         </div>
-        <Link to="/profile" className="avatar-button" aria-label={copy.home.openProfile}>V</Link>
+        <Link to="/profile" className="avatar-button" aria-label={copy.home.openProfile}><BrandMark /></Link>
       </header>
 
       <section className="hero-grid" aria-labelledby="readiness-title">
@@ -93,7 +94,7 @@ export function HomePage({ score, progress, toggleTask }: Props) {
       <LanguageGoals />
 
       <section className="quote-card" aria-live="polite">
-        <div className="flower-face" aria-hidden="true"><span>☺</span></div>
+        <div className="flower-face" aria-hidden="true"><BrandMark showLetter={false} /></div>
         <div>
           <span className="eyebrow">{copy.home.reminder}</span>
           <p>{reminderText}</p>

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useLanguageTestProgress } from "../../application/controllers/useLanguageTestProgress";
 import { currentCycle } from "../../infrastructure/data/gks-2026";
 import { useI18n } from "../../application/i18n/I18nContext";
+import { BrandMark } from "../components/BrandMark";
 
 export function ProfilePage({ score }: { score: number }) {
   const { copy } = useI18n();
@@ -37,7 +38,7 @@ export function ProfilePage({ score }: { score: number }) {
   return (
     <div className="page profile-page">
       <header className="profile-hero">
-        <div className="profile-avatar">V<span>✦</span></div>
+        <div className="profile-avatar"><BrandMark /></div>
         <span className="eyebrow">{copy.profile.local}</span>
         <h1>{copy.profile.title}</h1>
         <p>{copy.profile.intro}</p>

@@ -6,6 +6,7 @@ import { learningResources } from "../../infrastructure/data/learning-resources"
 import { TESTS_PER_LANGUAGE } from "../../infrastructure/data/practice-tests";
 import { ResourceLibrary } from "../components/ResourceLibrary";
 import { TestTrackCards } from "../components/TestTrackCards";
+import { AppIcon } from "../components/AppIcon";
 
 type LanguageStudyPageProps = {
   language: TestLanguage;
@@ -38,9 +39,9 @@ export function LanguageStudyPage({ language }: LanguageStudyPageProps) {
       </header>
 
       <nav className="language-study-jump-nav" aria-label={copy.study.spaceNavigation}>
-        <button type="button" onClick={() => scrollToSection("language-tests")}><span aria-hidden="true">✓</span>{copy.study.goTests}</button>
-        <button type="button" onClick={() => scrollToSection("language-materials")}><span aria-hidden="true">▤</span>{copy.study.goMaterials}</button>
-        <Link to={`/study/${otherLanguage}`}><span aria-hidden="true">↔</span>{copy.study.changeLanguage}</Link>
+        <button type="button" onClick={() => scrollToSection("language-tests")}><span aria-hidden="true"><AppIcon name="test" /></span>{copy.study.goTests}</button>
+        <button type="button" onClick={() => scrollToSection("language-materials")}><span aria-hidden="true"><AppIcon name="document" /></span>{copy.study.goMaterials}</button>
+        <Link to={`/study/${otherLanguage}`}><span className="language-swap-icon" aria-hidden="true">EN<small>한</small></span>{copy.study.changeLanguage}</Link>
       </nav>
 
       <div id="language-tests">

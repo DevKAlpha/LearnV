@@ -1,4 +1,5 @@
 import { m, useReducedMotion } from "motion/react";
+import { BrandMark } from "./BrandMark";
 
 export function RouteLoader({ label }: { label: string }) {
   const reduceMotion = useReducedMotion();
@@ -22,12 +23,7 @@ export function RouteLoader({ label }: { label: string }) {
           animate={reduceMotion ? undefined : { rotate: [-2.5, 2.5, -2.5], y: [0, -4, 0] }}
           transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
         >
-          <span className="route-loader__petal route-loader__petal--left" />
-          <span className="route-loader__petal route-loader__petal--center" />
-          <span className="route-loader__petal route-loader__petal--right" />
-          <span className="route-loader__stem" />
-          <span className="route-loader__leaf route-loader__leaf--left" />
-          <span className="route-loader__leaf route-loader__leaf--right" />
+          <BrandMark showLetter={false} />
         </m.div>
         <div className="route-loader__books">
           {[0, 1, 2].map((book) => (

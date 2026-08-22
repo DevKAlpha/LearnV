@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { documents } from "../../infrastructure/data/gks-2026";
 import { useI18n } from "../../application/i18n/I18nContext";
+import { PageEmblem } from "../components/PageEmblem";
 
 type Props = {
   progress: { completedDocuments: string[] };
@@ -15,7 +16,8 @@ export function ChecklistPage({ progress, toggleDocument }: Props) {
 
   return (
     <div className="page">
-      <header className="page-header">
+      <header className="page-header page-header--decorated">
+        <PageEmblem icon="checklist" tone="green" />
         <span className="sticker sticker--green">{copy.checklist.sticker}</span>
         <h1>{titleLineOne}<br />{titleLineTwo}</h1>
         <p>{copy.checklist.intro}</p>

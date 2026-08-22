@@ -10,6 +10,7 @@ import { ThemeToggle } from "./components/ThemeToggle";
 import { AnimatedRouteView } from "./components/AnimatedRouteView";
 import { RouteLoader } from "./components/RouteLoader";
 import { DynamicFavicon } from "./components/DynamicFavicon";
+import { BrandMark } from "./components/BrandMark";
 import { isImmersiveLearningRoute, resolveLearningLocale } from "../application/i18n/learning-locale";
 
 const HomePage = lazy(() => import("./pages/HomePage").then((module) => ({ default: module.HomePage })));
@@ -39,7 +40,7 @@ export function App() {
       <DynamicFavicon readiness={progress.score} />
       <a className="skip-link" href="#main-content">{copy.app.skipLink}</a>
       <aside className="desktop-brand" aria-label="LearnV">
-        <div className="brand-mark">V</div>
+        <div className="brand-mark"><BrandMark /></div>
         <div>
           <strong>LearnV</strong>
           <span>{copy.app.tagline}</span>
@@ -50,7 +51,7 @@ export function App() {
         {!isImmersiveLearningExperience ? <LanguageSwitcher /> : (
           <div className="test-theme-toolbar">
             <Link className="mobile-brand" to="/" aria-label="LearnV">
-              <span className="mobile-brand__mark" aria-hidden="true">V</span>
+              <span className="mobile-brand__mark" aria-hidden="true"><BrandMark /></span>
               <strong>LearnV</strong>
             </Link>
             <ThemeToggle compact />

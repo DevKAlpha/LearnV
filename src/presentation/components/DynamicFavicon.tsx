@@ -21,17 +21,17 @@ function getPassedTests(language: "en" | "ko") {
 function iconContext(pathname: string, readiness: number) {
   if (pathname.includes("/tests/en") || pathname.includes("/study/english")) {
     const passed = getPassedTests("en");
-    return { symbol: "A", progress: Math.round((passed / 30) * 100), surface: "#b6cffc", accent: "#315fd6" };
+    return { progress: Math.round((passed / 30) * 100), surface: "#dce8ff", accent: "#315fd6" };
   }
   if (pathname.includes("/tests/ko") || pathname.includes("/study/korean")) {
     const passed = getPassedTests("ko");
-    return { symbol: "한", progress: Math.round((passed / 30) * 100), surface: "#f6a1b8", accent: "#9b367d" };
+    return { progress: Math.round((passed / 30) * 100), surface: "#f3dbea", accent: "#b7276b" };
   }
-  if (pathname.startsWith("/checklist")) return { symbol: "✓", progress: readiness, surface: "#b9d58a", accent: "#4c7137" };
-  if (pathname.startsWith("/gks")) return { symbol: "G", progress: readiness, surface: "#ff8c73", accent: "#b7273d" };
-  if (pathname.startsWith("/study")) return { symbol: "V", progress: readiness, surface: "#cba5e5", accent: "#78409a" };
-  if (pathname.startsWith("/profile")) return { symbol: "V", progress: readiness, surface: "#d7acd8", accent: "#825078" };
-  return { symbol: "V", progress: readiness, surface: "#ffca45", accent: "#9b367d" };
+  if (pathname.startsWith("/checklist")) return { progress: readiness, surface: "#e5ecd9", accent: "#4c7137" };
+  if (pathname.startsWith("/gks")) return { progress: readiness, surface: "#f1ddeb", accent: "#b7274e" };
+  if (pathname.startsWith("/study")) return { progress: readiness, surface: "#e6d2f0", accent: "#78409a" };
+  if (pathname.startsWith("/profile")) return { progress: readiness, surface: "#ead8f1", accent: "#825078" };
+  return { progress: readiness, surface: "#ead8f1", accent: "#8d42aa" };
 }
 
 function createFaviconSvg(pathname: string, readiness: number, dark: boolean) {
@@ -41,8 +41,8 @@ function createFaviconSvg(pathname: string, readiness: number, dark: boolean) {
   const dashOffset = circumference - (circumference * progress) / 100;
   const ink = dark ? "#fff8f2" : "#241a24";
   const base = dark ? "#211a24" : "#fffaf6";
-  const complete = progress >= 100;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect x="3" y="3" width="58" height="58" rx="18" fill="${base}"/><rect x="9" y="9" width="46" height="46" rx="14" fill="${context.surface}" stroke="${ink}" stroke-width="3"/><path d="M18 48h28" stroke="${context.accent}" stroke-width="4" stroke-linecap="square"/><text x="32" y="39" text-anchor="middle" font-family="Arial Black,Segoe UI,sans-serif" font-size="25" font-weight="900" fill="${ink}">${context.symbol}</text><circle cx="32" cy="32" r="24" fill="none" stroke="${complete ? "#66834d" : context.accent}" stroke-width="4" stroke-dasharray="${circumference}" stroke-dashoffset="${dashOffset}" transform="rotate(-90 32 32)"/>${complete ? `<path d="m45 13 2 4 4 2-4 2-2 4-2-4-4-2 4-2Z" fill="#ffca45" stroke="${ink}" stroke-width="1.5"/>` : ""}</svg>`;
+  const ring = progress >= 100 ? "#66834d" : context.accent;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect x="3" y="3" width="58" height="58" rx="18" fill="${base}"/><rect x="9" y="9" width="46" height="46" rx="14" fill="${context.surface}" stroke="${ink}" stroke-width="2.5"/><path d="M32 39v13" stroke="#557645" stroke-width="4" stroke-linecap="round"/><path d="M31 47c-6-4-10-2-12 2 5 3 9 2 12-2Zm3-3c5-4 9-3 12 0-5 3-9 3-12 0Z" fill="#78965a" stroke="${ink}" stroke-width="1.2"/><path d="M32 40c-10 0-17-7-17-18 6 1 10 4 13 8-1-7 1-13 4-19 3 6 5 12 4 19 3-4 7-7 13-8 0 11-7 18-17 18Z" fill="#b86bd2" stroke="${ink}" stroke-width="2" stroke-linejoin="round"/><path d="m26 22 6 13 6-13" fill="none" stroke="#fffaf6" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="32" cy="32" r="24" fill="none" stroke="${ring}" stroke-width="4" stroke-dasharray="${circumference}" stroke-dashoffset="${dashOffset}" transform="rotate(-90 32 32)"/></svg>`;
 }
 
 export function DynamicFavicon({ readiness }: DynamicFaviconProps) {
