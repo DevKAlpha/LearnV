@@ -4072,14 +4072,7 @@ body :is(
   }
 }
 
-/* Dark-mode icon lighting: crisp white core with the tulip's soft violet halo. */
-:root[data-theme="dark"] .app-icon {
-  filter:
-    drop-shadow(0 0 0.7px var(--icon-glow-core))
-    drop-shadow(0 0 4px var(--icon-glow-mid))
-    drop-shadow(0 0 9px var(--icon-glow-wide));
-}
-
+/* Dark-mode lighting belongs to decorative artwork, never navigation or controls. */
 :root[data-theme="dark"] .brand-tulip {
   filter:
     drop-shadow(0 0 1px var(--icon-glow-core))
@@ -4089,41 +4082,17 @@ body :is(
 }
 
 :root[data-theme="dark"] :is(
-  .alert-icon,
   .flower-face > span,
   .fact-icon,
   .page-header-emblem > span,
-  .resource-icon,
   .language-study-symbol,
-  .language-swap-icon,
-  .study-language-space__top > span,
   .test-track-symbol,
-  .production-mode-icon,
-  .result-hero__icon,
-  .test-node-core,
   .interview-entry__icon,
-  .document-check,
   .orbit-chip
 ) {
   filter:
     drop-shadow(0 0 4px var(--icon-glow-mid))
     drop-shadow(0 0 10px var(--icon-glow-wide));
-}
-
-:root[data-theme="dark"] .nav-item--active .app-icon {
-  filter:
-    drop-shadow(0 0 1px #fff)
-    drop-shadow(0 0 5px rgba(235, 205, 246, 0.96))
-    drop-shadow(0 0 12px rgba(187, 124, 218, 0.7));
-}
-
-@media (hover: hover) and (pointer: fine) {
-  :root[data-theme="dark"] :is(a, button):hover .app-icon {
-    filter:
-      drop-shadow(0 0 1px #fff)
-      drop-shadow(0 0 6px rgba(235, 205, 246, 0.92))
-      drop-shadow(0 0 14px rgba(187, 124, 218, 0.62));
-  }
 }
 
 @media (max-width: 345px) {
