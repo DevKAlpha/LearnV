@@ -43,7 +43,9 @@ export function App() {
         <div className="brand-mark"><BrandMark /></div>
         <div>
           <strong>LearnV</strong>
-          <span>{copy.app.tagline}</span>
+          <span className="desktop-brand__tagline">
+            우리의 Route to Corea <em aria-hidden="true">👉 ❤️ 👈</em>
+          </span>
         </div>
       </aside>
 

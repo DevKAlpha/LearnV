@@ -713,14 +713,27 @@ input:focus-visible + span {
   width: 70px;
   height: 70px;
   place-items: center;
-  border: 0;
-  border-radius: 20px;
-  background: radial-gradient(circle, rgba(255,255,255,0.5), transparent 68%);
-  box-shadow: none;
+  border: 2px solid var(--ink);
+  border-radius: 46% 54% 52% 48%;
+  background: white;
+  box-shadow:
+    0 -9px 0 -2px white,
+    9px 0 0 -2px white,
+    0 9px 0 -2px white,
+    -9px 0 0 -2px white;
   animation: reminder-bloom 4s ease-in-out infinite;
 }
 
-.flower-face .brand-tulip { width: 58px; height: 67px; filter: drop-shadow(3px 4px 0 rgba(43,24,48,0.24)); }
+.flower-face span {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+  background: var(--yellow);
+  font-size: 1.25rem;
+}
 
 @keyframes reminder-bloom {
   0%, 100% { transform: rotate(-2deg) scale(1); }
@@ -1810,6 +1823,12 @@ input:focus-visible + span {
 :root[data-theme="dark"] .quote-card {
   border-color: rgba(255,255,255,0.3);
   background: linear-gradient(145deg, #967a26, #66531d);
+  color: #fff;
+}
+
+:root[data-theme="dark"] .flower-face span {
+  border-color: rgba(255,255,255,0.76);
+  background: #172130;
   color: #fff;
 }
 
@@ -3859,6 +3878,17 @@ html[data-theme="dark"] .document-tags span {
   .desktop-brand span { display: block; }
   .desktop-brand strong { font-size: 0.95rem; }
   .desktop-brand span { margin-top: 2px; color: var(--muted); font-size: 0.6rem; font-weight: 750; }
+  .desktop-brand > div:last-child { min-width: 0; }
+  .desktop-brand .desktop-brand__tagline {
+    max-width: 132px;
+    overflow-wrap: anywhere;
+    line-height: 1.25;
+  }
+  .desktop-brand__tagline em {
+    display: inline-block;
+    font-style: normal;
+    white-space: nowrap;
+  }
   .main-content { grid-column: 2; min-width: 0; }
   .app-toolbar { padding: 18px 40px 12px; justify-content: flex-end; }
   .test-theme-toolbar { padding: 18px 40px 0; justify-content: flex-end; }

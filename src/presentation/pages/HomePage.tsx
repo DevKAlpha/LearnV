@@ -94,7 +94,7 @@ export function HomePage({ score, progress, toggleTask }: Props) {
       <LanguageGoals />
 
       <section className="quote-card" aria-live="polite">
-        <div className="flower-face" aria-hidden="true"><BrandMark showLetter={false} /></div>
+        <div className="flower-face" aria-hidden="true"><span>☺</span></div>
         <div>
           <span className="eyebrow">{copy.home.reminder}</span>
           <p>{reminderText}</p>
