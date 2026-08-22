@@ -52,6 +52,9 @@
   --glass-border: rgba(219, 231, 247, 0.22);
   --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
   --theme-glass-filter: blur(20px) saturate(0.78) contrast(1.02);
+  --icon-glow-core: rgba(255, 250, 246, 0.94);
+  --icon-glow-mid: rgba(217, 167, 229, 0.72);
+  --icon-glow-wide: rgba(166, 99, 194, 0.36);
   --hard-shadow: 7px 8px 0 #070b11;
 }
 
@@ -4066,6 +4069,60 @@ body :is(
   :root[data-locale="ko"] .study-language-space h3,
   :root[data-locale="ko"] .test-track-card h3 {
     font-size: clamp(1.25rem, 6.5vw, 1.55rem);
+  }
+}
+
+/* Dark-mode icon lighting: crisp white core with the tulip's soft violet halo. */
+:root[data-theme="dark"] .app-icon {
+  filter:
+    drop-shadow(0 0 0.7px var(--icon-glow-core))
+    drop-shadow(0 0 4px var(--icon-glow-mid))
+    drop-shadow(0 0 9px var(--icon-glow-wide));
+}
+
+:root[data-theme="dark"] .brand-tulip {
+  filter:
+    drop-shadow(0 0 1px var(--icon-glow-core))
+    drop-shadow(0 0 6px var(--icon-glow-mid))
+    drop-shadow(0 0 13px var(--icon-glow-wide))
+    drop-shadow(0 4px 0 rgba(7, 11, 17, 0.34));
+}
+
+:root[data-theme="dark"] :is(
+  .alert-icon,
+  .flower-face > span,
+  .fact-icon,
+  .page-header-emblem > span,
+  .resource-icon,
+  .language-study-symbol,
+  .language-swap-icon,
+  .study-language-space__top > span,
+  .test-track-symbol,
+  .production-mode-icon,
+  .result-hero__icon,
+  .test-node-core,
+  .interview-entry__icon,
+  .document-check,
+  .orbit-chip
+) {
+  filter:
+    drop-shadow(0 0 4px var(--icon-glow-mid))
+    drop-shadow(0 0 10px var(--icon-glow-wide));
+}
+
+:root[data-theme="dark"] .nav-item--active .app-icon {
+  filter:
+    drop-shadow(0 0 1px #fff)
+    drop-shadow(0 0 5px rgba(235, 205, 246, 0.96))
+    drop-shadow(0 0 12px rgba(187, 124, 218, 0.7));
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :root[data-theme="dark"] :is(a, button):hover .app-icon {
+    filter:
+      drop-shadow(0 0 1px #fff)
+      drop-shadow(0 0 6px rgba(235, 205, 246, 0.92))
+      drop-shadow(0 0 14px rgba(187, 124, 218, 0.62));
   }
 }
 
