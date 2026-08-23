@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { HashRouter } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import "@fontsource-variable/manrope/wght.css";
 import "@fontsource-variable/noto-sans-kr/wght.css";
 import { I18nProvider } from "./application/i18n/I18nContext";
@@ -14,9 +14,9 @@ createRoot(document.getElementById("root")!).render(
     <ThemeProvider>
       <I18nProvider>
         <AppMotionProvider>
-          <HashRouter>
+          <BrowserRouter basename={import.meta.env.BASE_URL}>
             <App />
-          </HashRouter>
+          </BrowserRouter>
         </AppMotionProvider>
       </I18nProvider>
     </ThemeProvider>
