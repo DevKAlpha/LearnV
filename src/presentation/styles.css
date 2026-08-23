@@ -4088,6 +4088,75 @@ html[data-theme="dark"] .document-tags span {
 :root[data-theme="dark"] :is(.app-guide-controls, .app-guide-sections article) { border-color: rgba(255,255,255,0.18); background: rgba(39,52,70,0.82); }
 :root[data-theme="dark"] :is(.app-guide-dialog__intro, .app-guide-sections p) { color: #ead5e7; }
 
+/* Crisp, device-pixel-friendly card outlines */
+:is(
+  [class$="-card"],
+  [class*="-card "],
+  .source-list a,
+  .gks-priority,
+  .gks-disclosure,
+  .study-feature,
+  .study-language-space,
+  .language-study-hero,
+  .material-language-picker,
+  .profile-score,
+  .profile-fields,
+  .profile-cycle,
+  .test-path-header,
+  .test-skill-header,
+  .interview-method-grid article,
+  .interview-tip-list article,
+  .question-stage,
+  .speaking-recorder,
+  .answer-option,
+  .result-hero,
+  .result-score-row > div,
+  .production-review,
+  .answer-review-item,
+  .written-simulator-hero,
+  .written-stage,
+  .written-result,
+  .written-language-options button,
+  .written-question,
+  .written-rubric label,
+  .written-result__breakdown span,
+  .app-guide-controls,
+  .app-guide-sections article
+) {
+  border-width: 2px;
+}
+
+.written-official-note { border-width: 2px 2px 2px 7px; }
+
+:root[data-theme="dark"] :is(
+  [class$="-card"],
+  [class*="-card "],
+  .source-center,
+  .profile-fields,
+  .profile-cycle,
+  .study-feature,
+  .study-language-space,
+  .language-study-hero,
+  .interview-entry,
+  .test-path-header,
+  .test-skill-header,
+  .interview-method-grid article,
+  .interview-tip-list article,
+  .question-stage,
+  .result-hero,
+  .result-score-row > div,
+  .production-review,
+  .answer-review-item,
+  .written-entry,
+  .written-simulator-hero,
+  .written-stage,
+  .written-result,
+  .written-question,
+  .app-guide-sections article
+) {
+  border-color: rgba(255,255,255,0.34);
+}
+
 @media (min-width: 700px) {
   .written-entry,
   .interview-entry { grid-template-columns: 78px minmax(0, 1fr); align-items: start; }
