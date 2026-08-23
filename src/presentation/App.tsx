@@ -12,12 +12,14 @@ import { RouteLoader } from "./components/RouteLoader";
 import { DynamicFavicon } from "./components/DynamicFavicon";
 import { BrandMark } from "./components/BrandMark";
 import { isImmersiveLearningRoute, resolveLearningLocale } from "../application/i18n/learning-locale";
+import { AppGuide } from "./components/AppGuide";
 
 const HomePage = lazy(() => import("./pages/HomePage").then((module) => ({ default: module.HomePage })));
 const GksPage = lazy(() => import("./pages/GksPage").then((module) => ({ default: module.GksPage })));
 const StudyPage = lazy(() => import("./pages/StudyPage").then((module) => ({ default: module.StudyPage })));
 const LanguageStudyPage = lazy(() => import("./pages/LanguageStudyPage").then((module) => ({ default: module.LanguageStudyPage })));
 const InterviewPrepPage = lazy(() => import("./pages/InterviewPrepPage").then((module) => ({ default: module.InterviewPrepPage })));
+const WrittenSimulatorPage = lazy(() => import("./pages/WrittenSimulatorPage").then((module) => ({ default: module.WrittenSimulatorPage })));
 const TestPathPage = lazy(() => import("./pages/TestPathPage").then((module) => ({ default: module.TestPathPage })));
 const TestSessionPage = lazy(() => import("./pages/TestSessionPage").then((module) => ({ default: module.TestSessionPage })));
 const ChecklistPage = lazy(() => import("./pages/ChecklistPage").then((module) => ({ default: module.ChecklistPage })));
@@ -54,7 +56,7 @@ export function App() {
               <span className="mobile-brand__mark" aria-hidden="true"><BrandMark /></span>
               <strong>LearnV</strong>
             </Link>
-            <ThemeToggle compact />
+            <div className="test-theme-toolbar__controls"><ThemeToggle compact /><AppGuide /></div>
           </div>
         )}
         <AnimatePresence mode="wait" initial={false}>
@@ -67,6 +69,7 @@ export function App() {
                 <Route path="/study/english" element={<LanguageStudyPage language="en" />} />
                 <Route path="/study/korean" element={<LanguageStudyPage language="ko" />} />
                 <Route path="/study/interviews" element={<InterviewPrepPage />} />
+                <Route path="/study/written-simulator" element={<WrittenSimulatorPage />} />
                 <Route path="/tests/:language" element={<TestPathPage />} />
                 <Route path="/tests/:language/:stageId" element={<TestSessionPage />} />
                 <Route path="/checklist" element={<ChecklistPage {...progress} />} />

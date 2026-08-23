@@ -94,6 +94,17 @@ export function StudyPage() {
         </div>
       </section>
 
+      <section className="written-entry" aria-labelledby="written-entry-title">
+        <div className="written-entry__symbol" aria-hidden="true"><span>✎</span><i /></div>
+        <div>
+          <span className="eyebrow">{copy.written.entryKicker}</span>
+          <h2 id="written-entry-title">{copy.written.entryTitle}</h2>
+          <p>{copy.written.entryText}</p>
+          <ul>{copy.written.entryPoints.map((point) => <li key={point}>{point}</li>)}</ul>
+        </div>
+        <Link to="/study/written-simulator">{copy.written.entryAction}<span aria-hidden="true">→</span></Link>
+      </section>
+
       <section className="interview-entry" aria-labelledby="interview-entry-title">
         <div className="interview-entry__icon" aria-hidden="true"><span>Q</span><i /></div>
         <div>

@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { ThemeToggle } from "./ThemeToggle";
 import { m } from "motion/react";
 import { BrandMark } from "./BrandMark";
+import { AppGuide } from "./AppGuide";
 
 const options: Array<{ value: Locale; label: string; short: string }> = [
   { value: "es", label: "Español", short: "ES" },
@@ -45,6 +46,7 @@ export function LanguageSwitcher() {
           ))}
         </div>
         <ThemeToggle compact />
+        <AppGuide />
       </div>
     </div>
   );
