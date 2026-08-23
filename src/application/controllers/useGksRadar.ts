@@ -27,7 +27,7 @@ const fallbackSnapshot: GksRadarSnapshot = {
   sourceChecks: [
     { id: "study-in-korea-notices", url: "https://www.studyinkorea.go.kr/ko/notice/scholarshipsList.do?boardSort=3", ok: true, changed: false },
     { id: "niied-2027", url: "https://www.niied.go.kr/web/main/nid/niied_board/5745", ok: true, changed: false },
-    { id: "spain-embassy-notices", url: "https://esp.mofa.go.kr/es-es/brd/m_8065/list.do", ok: false, changed: false },
+    { id: "spain-embassy-notices", url: "https://overseas.mofa.go.kr/es-es/brd/m_8065/list.do", ok: false, changed: false },
   ],
 };
 

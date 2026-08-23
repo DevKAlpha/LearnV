@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { useEffect, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { useWrittenSimulator } from "../../application/controllers/useWrittenSimulator";
 import { useI18n } from "../../application/i18n/I18nContext";
@@ -28,6 +28,12 @@ export function WrittenSimulatorPage() {
     : simulator.score.total >= 65
       ? copy.written.resultDeveloping
       : copy.written.resultRevise;
+
+  useEffect(() => {
+    const reset = () => simulator.reset();
+    window.addEventListener("learnv:written-reset", reset);
+    return () => window.removeEventListener("learnv:written-reset", reset);
+  }, [simulator.reset]);
 
   return (
     <div className="page written-simulator-page">
@@ -182,6 +188,7 @@ export function WrittenSimulatorPage() {
           </div>
         </section>
       )}
+
     </div>
   );
 }

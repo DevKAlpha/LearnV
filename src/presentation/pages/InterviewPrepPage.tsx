@@ -72,8 +72,8 @@ export function InterviewPrepPage() {
 
       <section className="interview-video" aria-labelledby="video-title">
         <div className="section-heading"><div><span className="eyebrow">{copy.interview.videoKicker}</span><h2 id="video-title">{copy.interview.videoTitle}</h2></div></div>
-        <div className="interview-video__frame"><iframe src="https://www.youtube-nocookie.com/embed/vmPwtGfny9Y" title={copy.interview.videoTitle} loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen /></div>
-        <div className="interview-video__copy"><span>{copy.interview.experienceBadge}</span><p>{copy.interview.videoText}</p><a href="https://www.youtube.com/watch?v=vmPwtGfny9Y" target="_blank" rel="noreferrer">{copy.interview.openYoutube} ↗</a></div>
+        <div className="interview-video__frame"><iframe src="https://www.youtube-nocookie.com/embed/VZhCWLIhcnA" title={copy.interview.videoTitle} loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen /></div>
+        <div className="interview-video__copy"><span>{copy.interview.experienceBadge}</span><p>{copy.interview.videoText}</p><a href="https://www.youtube.com/watch?v=VZhCWLIhcnA" target="_blank" rel="noreferrer">{copy.interview.openYoutube} ↗</a></div>
       </section>
 
       <section className="interview-sources">

@@ -15,7 +15,7 @@ const monitoredSources = [
   },
   {
     id: "spain-embassy-notices",
-    url: "https://esp.mofa.go.kr/es-es/brd/m_8065/list.do",
+    url: "https://overseas.mofa.go.kr/es-es/brd/m_8065/list.do",
   },
 ];
 

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useI18n } from "../../application/i18n/I18nContext";
 import { m } from "motion/react";
@@ -6,6 +7,10 @@ import { AppIcon, type AppIconName } from "./AppIcon";
 export function BottomNav() {
   const { copy } = useI18n();
   const location = useLocation();
+  const [confirmReset, setConfirmReset] = useState(false);
+  const isWrittenSimulator = location.pathname === "/study/written-simulator";
+
+  useEffect(() => setConfirmReset(false), [location.pathname]);
   const items: Array<{ to: string; icon: AppIconName; label: string; end?: boolean }> = [
     { to: "/", icon: "home", label: copy.nav.home, end: true },
     { to: "/gks", icon: "scholarship", label: copy.nav.gks },
@@ -22,7 +27,7 @@ export function BottomNav() {
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: "spring", stiffness: 320, damping: 28 }}
     >
-      {items.map((item) => {
+      {items.filter((item) => !(isWrittenSimulator && item.icon === "profile")).map((item) => {
         const active = location.pathname === item.to
           || (item.to !== "/" && location.pathname.startsWith(`${item.to}/`))
           || (item.to === "/study" && location.pathname.startsWith("/tests/"));
@@ -59,6 +64,27 @@ export function BottomNav() {
         </NavLink>
         );
       })}
+      {isWrittenSimulator && (
+        <button
+          className={`nav-item written-nav-reset${confirmReset ? " is-confirming" : ""}`}
+          type="button"
+          aria-label={confirmReset ? copy.written.confirmReset : copy.written.reset}
+          onBlur={() => setConfirmReset(false)}
+          onClick={() => {
+            if (!confirmReset) {
+              setConfirmReset(true);
+              return;
+            }
+            window.dispatchEvent(new CustomEvent("learnv:written-reset"));
+            setConfirmReset(false);
+          }}
+        >
+          <span className="nav-item__motion">
+            <span className="nav-symbol" aria-hidden="true">↻</span>
+            <span className="nav-label" aria-live="polite">{confirmReset ? copy.written.confirmReset : copy.written.reset}</span>
+          </span>
+        </button>
+      )}
     </m.nav>
   );
 }

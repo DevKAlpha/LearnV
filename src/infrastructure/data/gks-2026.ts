@@ -56,8 +56,8 @@ export const sources: Source[] = [
     id: "spain-embassy-notices",
     title: "Avisos oficiales de la Embajada en España",
     organization: "Embajada de la República de Corea en España",
-    url: "https://esp.mofa.go.kr/es-es/brd/m_8065/list.do",
-    verifiedAt: "2026-08-21",
+    url: "https://overseas.mofa.go.kr/es-es/brd/m_8065/list.do",
+    verifiedAt: "2026-08-23",
   },
 ];
 

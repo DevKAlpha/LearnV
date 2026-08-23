@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-08-22T01:41:10.815Z",
-  "nextCheckAt": "2026-08-23T01:41:10.815Z",
+  "checkedAt": "2026-08-23T23:00:58.709Z",
+  "nextCheckAt": "2026-08-24T23:00:58.709Z",
   "callDetected": false,
   "sourceChecks": [
     {
       "id": "study-in-korea-notices",
       "url": "https://www.studyinkorea.go.kr/ko/notice/scholarshipsList.do?boardSort=3",
       "ok": true,
-      "changed": false,
-      "hash": "f62f1d5f6578cbef2a7a",
+      "changed": true,
+      "hash": "fcb53f7c274051b77c00",
       "detectsCall": false
     },
     {
@@ -22,11 +22,11 @@
     },
     {
       "id": "spain-embassy-notices",
-      "url": "https://esp.mofa.go.kr/es-es/brd/m_8065/list.do",
+      "url": "https://overseas.mofa.go.kr/es-es/brd/m_8065/list.do",
       "ok": false,
       "changed": false,
       "detectsCall": false,
-      "error": "fetch failed"
+      "error": "The operation was aborted due to timeout"
     }
   ]
 }
