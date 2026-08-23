@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useI18n } from "../../application/i18n/I18nContext";
 import { m } from "motion/react";
@@ -7,10 +6,7 @@ import { AppIcon, type AppIconName } from "./AppIcon";
 export function BottomNav() {
   const { copy } = useI18n();
   const location = useLocation();
-  const [confirmReset, setConfirmReset] = useState(false);
   const isWrittenSimulator = location.pathname === "/study/written-simulator";
-
-  useEffect(() => setConfirmReset(false), [location.pathname]);
   const items: Array<{ to: string; icon: AppIconName; label: string; end?: boolean }> = [
     { to: "/", icon: "home", label: copy.nav.home, end: true },
     { to: "/gks", icon: "scholarship", label: copy.nav.gks },
@@ -66,22 +62,14 @@ export function BottomNav() {
       })}
       {isWrittenSimulator && (
         <button
-          className={`nav-item written-nav-reset${confirmReset ? " is-confirming" : ""}`}
+          className="nav-item written-nav-reset"
           type="button"
-          aria-label={confirmReset ? copy.written.confirmReset : copy.written.reset}
-          onBlur={() => setConfirmReset(false)}
-          onClick={() => {
-            if (!confirmReset) {
-              setConfirmReset(true);
-              return;
-            }
-            window.dispatchEvent(new CustomEvent("learnv:written-reset"));
-            setConfirmReset(false);
-          }}
+          aria-label={copy.written.reset}
+          onClick={() => window.dispatchEvent(new CustomEvent("learnv:written-reset"))}
         >
           <span className="nav-item__motion">
             <span className="nav-symbol" aria-hidden="true">↻</span>
-            <span className="nav-label" aria-live="polite">{confirmReset ? copy.written.confirmReset : copy.written.reset}</span>
+            <span className="nav-label">{copy.written.reset}</span>
           </span>
         </button>
       )}

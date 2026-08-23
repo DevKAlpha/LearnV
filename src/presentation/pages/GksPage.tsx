@@ -1,6 +1,9 @@
+import { useState } from "react";
+import { AnimatePresence, m } from "motion/react";
 import { useGksRadar } from "../../application/controllers/useGksRadar";
 import { useI18n } from "../../application/i18n/I18nContext";
 import { currentCycle, keyFacts, sources, targetPrograms } from "../../infrastructure/data/gks-2026";
+import { gksFeedbackVideos } from "../../infrastructure/data/gks-feedback-videos";
 import { SourceLink } from "../components/SourceLink";
 import { StatusBadge } from "../components/StatusBadge";
 import { Link } from "react-router-dom";
@@ -11,6 +14,7 @@ const dateLocales = { es: "es-ES", en: "en-GB", ko: "ko-KR" } as const;
 export function GksPage() {
   const { locale, copy } = useI18n();
   const radar = useGksRadar();
+  const [videoIndex, setVideoIndex] = useState(0);
   const [titleLineOne, titleLineTwo] = copy.gks.title.split("\n");
   const onlineSources = radar.sourceChecks.filter((source) => source.ok).length;
   const changedSources = radar.sourceChecks.filter((source) => source.changed);
@@ -24,6 +28,11 @@ export function GksPage() {
   const latestSource = sources.find((source) => source.id === "niied-2027");
   const spainSource = sources.find((source) => source.id === "spain-embassy-notices");
   const callSourceUrl = radar.sourceChecks.find((source) => source.detectsCall)?.url ?? latestSource?.url;
+  const selectedVideo = gksFeedbackVideos[videoIndex];
+  const selectedVideoCopy = copy.gks.videoItems[selectedVideo.id];
+  const moveVideo = (direction: number) => setVideoIndex((current) => (
+    current + direction + gksFeedbackVideos.length
+  ) % gksFeedbackVideos.length);
 
   return (
     <div className="page page--gks-radar">
@@ -86,6 +95,70 @@ export function GksPage() {
           <span><b>24 h</b>{copy.gks.refreshFrequency}</span>
           <span><b>{copy.gks.referenceYear}</b>{copy.gks.referenceOnly}</span>
         </div>
+      </section>
+
+      <section className="gks-video-slider" aria-labelledby="gks-video-title">
+        <div className="gks-video-slider__heading">
+          <div>
+            <span className="eyebrow">{copy.gks.videoKicker}</span>
+            <h2 id="gks-video-title">{copy.gks.videoTitle}</h2>
+            <p>{copy.gks.videoIntro}</p>
+          </div>
+          <span className="gks-video-slider__count" aria-live="polite">{videoIndex + 1} / {gksFeedbackVideos.length}</span>
+        </div>
+
+        <AnimatePresence mode="wait" initial={false}>
+          <m.article
+            className="gks-video-slide"
+            id="gks-video-panel"
+            role="tabpanel"
+            aria-labelledby={`gks-video-tab-${selectedVideo.id}`}
+            key={selectedVideo.id}
+            initial={{ opacity: 0, x: 18 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -18 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="gks-video-slide__frame">
+              <iframe
+                src={`https://www.youtube-nocookie.com/embed/${selectedVideo.videoId}?rel=0`}
+                title={selectedVideoCopy.title}
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+            <div className="gks-video-slide__copy">
+              <span>{selectedVideoCopy.badge}</span>
+              <h3>{selectedVideoCopy.title}</h3>
+              <small>{selectedVideo.creator}</small>
+              <p>{selectedVideoCopy.text}</p>
+              <a href={selectedVideo.sourceUrl} target="_blank" rel="noreferrer">{copy.gks.openVideo}<span aria-hidden="true">↗</span></a>
+            </div>
+          </m.article>
+        </AnimatePresence>
+
+        <div className="gks-video-slider__controls">
+          <button type="button" onClick={() => moveVideo(-1)} aria-label={copy.gks.previousVideo}>←</button>
+          <div className="gks-video-tabs" role="tablist" aria-label={copy.gks.chooseVideo}>
+            {gksFeedbackVideos.map((video, index) => (
+              <button
+                id={`gks-video-tab-${video.id}`}
+                type="button"
+                role="tab"
+                aria-selected={videoIndex === index}
+                aria-controls="gks-video-panel"
+                onClick={() => setVideoIndex(index)}
+                key={video.id}
+              >
+                <span>{String(index + 1).padStart(2, "0")}</span>
+              </button>
+            ))}
+          </div>
+          <button type="button" onClick={() => moveVideo(1)} aria-label={copy.gks.nextVideo}>→</button>
+        </div>
+
+        <p className="gks-video-slider__notice">{copy.gks.videoNotice} {spainSource && <a href={spainSource.url} target="_blank" rel="noreferrer">{copy.gks.verifySpain} ↗</a>}</p>
       </section>
 
       <section className="gks-details" aria-labelledby="gks-details-title">

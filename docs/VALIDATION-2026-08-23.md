@@ -1,7 +1,7 @@
 # LearnV — validación previa a dispositivo real
 
 Fecha: 23 de agosto de 2026  
-Versión auditada: `739805c`  
+Versión auditada: rama `main`, incluida la historia 23
 Entorno publicado: `https://devkalpha.github.io/LearnV/`
 
 ## Resultado ejecutivo
@@ -41,6 +41,7 @@ Entorno publicado: `https://devkalpha.github.io/LearnV/`
 | 19 | Simulador escrito | Flujo, autosave, revisión, referencia oficial, contraste y reinicio desde menú flotante | Correcta |
 | 20 | Explicación de funciones | Guía modal, textos introductorios, etiquetas de fuentes y límites no oficiales | Correcta |
 | 21 | Fuente | Manrope variable + Noto Sans KR variable aplicadas como sistema único | Correcta |
+| 23 | Videos de feedback para la beca | Slider con tres videos verificados, cambio dinámico, enfoque GKS-U y enlace de control para España | Correcta |
 
 ## Contenido y fuentes
 
