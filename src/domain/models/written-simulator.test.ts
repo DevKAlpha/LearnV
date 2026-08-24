@@ -1,7 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { emptyWrittenSimulator, getWrittenCharacterLimit, scoreWrittenSimulator } from "./written-simulator";
+import { emptyWrittenSimulator, getWrittenCharacterLimit, isWrittenSimulatorStarted, scoreWrittenSimulator } from "./written-simulator";
 
 describe("written simulator", () => {
+  it("only becomes active after the simulation starts", () => {
+    expect(isWrittenSimulatorStarted(emptyWrittenSimulator)).toBe(false);
+    expect(isWrittenSimulatorStarted({
+      ...emptyWrittenSimulator,
+      step: "knowledge",
+      startedAt: "2026-08-23T12:00:00.000Z",
+    })).toBe(true);
+  });
+
   it("uses the official reference character limits", () => {
     expect(getWrittenCharacterLimit("ko")).toBe(3000);
     expect(getWrittenCharacterLimit("en")).toBe(5000);

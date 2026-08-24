@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   WRITTEN_FOCUS_MINUTES,
   emptyWrittenSimulator,
+  isWrittenSimulatorStarted,
   scoreWrittenSimulator,
   type WrittenLanguage,
   type WrittenSimulatorState,
@@ -11,12 +12,14 @@ import {
   writtenSimulatorCorrectAnswers,
   writtenSimulatorRubricIds,
 } from "../../infrastructure/data/written-simulator";
-
-const STORAGE_KEY = "learnv-written-simulator-v1";
+import {
+  announceWrittenSimulatorState,
+  WRITTEN_SIMULATOR_STORAGE_KEY,
+} from "./writtenSimulatorStatus";
 
 function readState(): WrittenSimulatorState {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(WRITTEN_SIMULATOR_STORAGE_KEY);
     return stored ? { ...emptyWrittenSimulator, ...JSON.parse(stored) } : emptyWrittenSimulator;
   } catch {
     return emptyWrittenSimulator;
@@ -28,7 +31,8 @@ export function useWrittenSimulator() {
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    localStorage.setItem(WRITTEN_SIMULATOR_STORAGE_KEY, JSON.stringify(state));
+    announceWrittenSimulatorState(isWrittenSimulatorStarted(state));
   }, [state]);
 
   useEffect(() => {

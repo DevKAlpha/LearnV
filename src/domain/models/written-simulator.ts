@@ -47,6 +47,10 @@ export function getWrittenCharacterLimit(language: WrittenLanguage) {
   return language === "ko" ? 3000 : 5000;
 }
 
+export function isWrittenSimulatorStarted(state: WrittenSimulatorState) {
+  return state.step !== "intro" && state.startedAt !== null;
+}
+
 export function scoreWrittenSimulator(
   state: WrittenSimulatorState,
   correctAnswers: Record<string, number>,

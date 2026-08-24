@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { NavLink, useLocation } from "react-router-dom";
+import {
+  hasActiveWrittenSimulator,
+  WRITTEN_SIMULATOR_STATE_EVENT,
+} from "../../application/controllers/writtenSimulatorStatus";
 import { useI18n } from "../../application/i18n/I18nContext";
 import { AnimatePresence, m } from "motion/react";
 import { AppIcon, type AppIconName } from "./AppIcon";
@@ -10,8 +14,23 @@ export function BottomNav() {
   const location = useLocation();
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const isWrittenSimulator = location.pathname === "/study/written-simulator";
+  const [writtenSimulatorStarted, setWrittenSimulatorStarted] = useState(
+    () => isWrittenSimulator && hasActiveWrittenSimulator(),
+  );
 
-  useEffect(() => setResetDialogOpen(false), [location.pathname]);
+  useEffect(() => {
+    setResetDialogOpen(false);
+    setWrittenSimulatorStarted(isWrittenSimulator && hasActiveWrittenSimulator());
+  }, [isWrittenSimulator, location.pathname]);
+
+  useEffect(() => {
+    const syncWrittenSimulator = (event: Event) => {
+      const detail = (event as CustomEvent<{ active: boolean }>).detail;
+      setWrittenSimulatorStarted(isWrittenSimulator && detail.active);
+    };
+    window.addEventListener(WRITTEN_SIMULATOR_STATE_EVENT, syncWrittenSimulator);
+    return () => window.removeEventListener(WRITTEN_SIMULATOR_STATE_EVENT, syncWrittenSimulator);
+  }, [isWrittenSimulator]);
 
   useEffect(() => {
     if (!resetDialogOpen) return;
@@ -42,7 +61,7 @@ export function BottomNav() {
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: "spring", stiffness: 320, damping: 28 }}
     >
-      {items.filter((item) => !(isWrittenSimulator && item.icon === "profile")).map((item) => {
+      {items.filter((item) => !(isWrittenSimulator && writtenSimulatorStarted && item.icon === "profile")).map((item) => {
         const active = location.pathname === item.to
           || (item.to !== "/" && location.pathname.startsWith(`${item.to}/`))
           || (item.to === "/study" && location.pathname.startsWith("/tests/"));
@@ -79,7 +98,7 @@ export function BottomNav() {
         </NavLink>
         );
       })}
-      {isWrittenSimulator && (
+      {isWrittenSimulator && writtenSimulatorStarted && (
         <button
           className="nav-item written-nav-reset"
           type="button"
@@ -129,6 +148,7 @@ export function BottomNav() {
                   type="button"
                   onClick={() => {
                     window.dispatchEvent(new CustomEvent("learnv:written-reset"));
+                    setWrittenSimulatorStarted(false);
                     setResetDialogOpen(false);
                   }}
                 >{copy.written.confirmReset}</button>
