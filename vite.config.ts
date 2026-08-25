@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { fileURLToPath, URL } from "node:url";
 
 function githubPagesBase() {
   if (!process.env.GITHUB_ACTIONS) return "/";
@@ -13,6 +14,11 @@ function githubPagesBase() {
 export default defineConfig({
   plugins: [react()],
   base: githubPagesBase(),
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+  },
   build: {
     target: "es2022",
     cssCodeSplit: true,

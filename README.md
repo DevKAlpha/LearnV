@@ -1,47 +1,128 @@
 # LearnV
 
-Aplicación móvil de preparación para Global Korea Scholarship. La información se separa por convocatoria y enlaza fuentes oficiales para evitar mezclar requisitos históricos con reglas vigentes.
+[![Deploy LearnV to GitHub Pages](https://github.com/DevKAlpha/LearnV/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/DevKAlpha/LearnV/actions/workflows/deploy-pages.yml)
 
-## Aprendizaje
+Aplicación web móvil para preparar una candidatura de pregrado a la **Global Korea Scholarship (GKS-U)** desde España. LearnV reúne seguimiento de preparación, información oficial, recursos de inglés y coreano, prácticas progresivas, preparación de entrevistas y un simulador del expediente escrito.
 
-- Laboratorio exclusivo de entrevista GKS con preguntas, repreguntas, rúbrica y fuentes de control.
-- Dos recorridos de idioma con 30 prácticas cada uno: 10 de escritura, 10 de escucha y 10 de pronunciación/entrevista.
-- La escucha usa síntesis de voz del navegador y la pronunciación usa grabaciones locales que no se suben.
-- Los videos se cargan de forma diferida desde `youtube-nocookie.com`; se ofrece un enlace externo como alternativa cuando el reproductor esté bloqueado o no haya conexión.
+**Producción:** [devkalpha.github.io/LearnV](https://devkalpha.github.io/LearnV/)
 
-Las pruebas son material formativo. No emiten resultados oficiales de TOPIK, IELTS ni GKS. TOPIK II no contiene una sección de pronunciación; esa ruta prepara la producción oral necesaria para entrevistas.
+> LearnV es una herramienta educativa privada. No representa a NIIED, Study in Korea, la Embajada de la República de Corea ni una universidad. Las convocatorias vigentes y sus documentos oficiales siempre prevalecen.
 
-## Desarrollo
+## Qué incluye
+
+| Apartado | Propósito |
+| --- | --- |
+| **Inicio** | Resume el avance, propone tareas diarias y mantiene visibles los objetivos TOPIK I → TOPIK II e inglés B1/B2 → C1. |
+| **Beca** | Presenta el radar GKS-U, datos por convocatoria, programas de referencia, fuentes oficiales y videos relacionados con la preparación desde España. |
+| **Estudiar** | Separa inglés y coreano, organiza recursos y ofrece rutas progresivas de escritura, escucha y pronunciación/entrevista. |
+| **Entrevistas** | Incluye preguntas, repreguntas, estructura de respuesta, temporizador y criterios de autoevaluación. |
+| **Simulador escrito** | Practica decisiones de candidatura, Personal Statement, Study Plan y revisión de coherencia. No simula una prueba nacional inexistente. |
+| **Documentos** | Mantiene una lista local de documentos de candidatura sin subir certificados, pasaportes ni expedientes. |
+| **Perfil** | Conserva los datos base y refleja los niveles obtenidos mediante las prácticas de LearnV. |
+
+La interfaz funciona en español, inglés y coreano, incluye temas claro/oscuro, navegación inferior fija, animaciones con reducción de movimiento y diseño mobile-first desde 320 px.
+
+## Tecnologías
+
+- React 19 y TypeScript estricto.
+- Vite 7 para desarrollo y compilación.
+- React Router 7 con rutas diferidas por pantalla.
+- Motion for React para transiciones y feedback táctil.
+- Vitest para reglas de dominio y validación de datos.
+- CSS propio con variables temáticas y paleta inspirada en tulipanes.
+- Docker + Nginx para ejecución autocontenida.
+- GitHub Actions + GitHub Pages para actualización y despliegue.
+
+## Arquitectura
+
+LearnV usa **MVC modular por funcionalidad**. Las reglas y los datos permanecen separados de React; cada apartado contiene sus vistas, mientras el núcleo de la aplicación se limita a composición, proveedores y enrutamiento.
+
+```mermaid
+flowchart LR
+    UI[features/*/presentation] --> C[application/controllers]
+    UI --> D[domain/models]
+    UI --> I[infrastructure/data]
+    C --> D
+    C --> I
+    I --> D
+    A[app: composición y rutas] --> UI
+    A --> S[shared/ui]
+    S --> C
+```
+
+- **Model:** `src/domain` define tipos, estados y reglas puras; `src/infrastructure` contiene catálogos, fuentes y adaptadores de datos.
+- **Controller:** `src/application` coordina estado, persistencia local, idioma, tema y casos de uso.
+- **View:** `src/features/*/presentation` contiene pantallas específicas; `src/shared/ui` contiene componentes visuales reutilizables.
+- **Composition root:** `src/app` conecta proveedores, layout, navegación, carga diferida y rutas.
+
+### Estructura
+
+```text
+src/
+├── app/
+│   ├── App.tsx                 # shell principal
+│   ├── layout/                 # cabecera, navegación y guía global
+│   ├── providers/              # idioma, tema, router y movimiento
+│   └── routing/                # tabla de rutas, loader y scroll
+├── application/
+│   ├── controllers/            # casos de uso y persistencia local
+│   ├── i18n/                   # selección y reglas de idioma
+│   └── theme/                  # tema claro/oscuro
+├── domain/models/              # lógica pura y tipos del negocio
+├── infrastructure/
+│   ├── data/                   # GKS, recursos y pruebas
+│   └── i18n/                   # catálogo ES/EN/KO
+├── features/
+│   ├── home/presentation/
+│   ├── scholarship/presentation/
+│   ├── study/presentation/
+│   ├── documents/presentation/
+│   └── profile/presentation/
+├── shared/ui/                  # iconos SVG y componentes comunes
+├── styles/app.css              # tokens, temas y estilos mobile-first
+└── main.tsx                    # punto de entrada
+```
+
+Los imports internos pueden usar el alias `@/`, definido en `tsconfig.app.json` y `vite.config.ts`. `pnpm run check:architecture` impide dependencias inversas entre capas y accesos directos entre funcionalidades.
+
+## Flujo de datos y privacidad
+
+LearnV no necesita backend. El progreso, borradores del simulador, preferencias y casillas se guardan en `localStorage` del dispositivo. Las grabaciones de práctica permanecen en el navegador y no se suben.
+
+Los videos usan carga diferida desde `youtube-nocookie.com` y conservan un enlace externo alternativo. La síntesis de voz y las funciones de grabación dependen de las capacidades y permisos del navegador.
+
+No deben añadirse al repositorio certificados, documentos de identidad, expedientes, direcciones, credenciales ni información personal real.
+
+## Instalación local
+
+Requisitos: Node.js 22 y pnpm 11.
 
 ```bash
+corepack enable
 pnpm install
 pnpm dev
 ```
 
-## Producción
+Vite mostrará la dirección local disponible, normalmente `http://localhost:5173`.
+
+## Comandos
+
+| Comando | Función |
+| --- | --- |
+| `pnpm dev` | Servidor de desarrollo. |
+| `pnpm test` | Ejecuta las pruebas automatizadas. |
+| `pnpm run typecheck` | Valida TypeScript estricto. |
+| `pnpm run check:architecture` | Revisa los límites entre módulos y capas. |
+| `pnpm build` | Compila producción y crea el fallback de rutas para Pages. |
+| `pnpm preview` | Sirve localmente la compilación. |
+| `pnpm gks:update` | Actualiza manualmente el radar oficial. |
+| `pnpm validate` | Ejecuta arquitectura, pruebas y compilación completa. |
+
+Antes de integrar cualquier historia debe pasar:
 
 ```bash
-pnpm build
-pnpm preview
+pnpm validate
 ```
-
-## Movimiento y rendimiento
-
-La navegación usa `Motion for React` con carga diferida por pantalla. Las transiciones de ruta, los indicadores activos y el feedback táctil comparten una configuración central en `AppMotionProvider`, y respetan automáticamente la preferencia del sistema `prefers-reduced-motion`.
-
-Los efectos visuales simples permanecen en CSS para reducir el trabajo de JavaScript y mantener una respuesta fluida en móviles.
-
-## Radar GKS diario
-
-GitHub Actions vuelve a comprobar cada día las páginas oficiales de Study in Korea, NIIED y la Embajada de Corea en España, genera `public/data/gks-radar.json` y publica una nueva versión de Pages. El radar señala disponibilidad y cambios; nunca convierte automáticamente una variación de una web en un requisito confirmado.
-
-Para actualizar el radar manualmente:
-
-```bash
-pnpm gks:update
-```
-
-La interfaz utiliza una paleta extraída de las referencias de tulipanes: violeta y lila como familia principal, rojo pétalo, amarillo polen, naranja, verde tallo y crema rosado. Cada color cuenta con una variante de contraste específica para los temas claro y oscuro.
 
 ## Docker
 
@@ -49,14 +130,79 @@ La interfaz utiliza una paleta extraída de las referencias de tulipanes: violet
 docker compose up --build
 ```
 
-La aplicación quedará disponible en `http://localhost:8080`.
+La aplicación quedará disponible en `http://localhost:8080`. Nginx sirve los archivos estáticos y resuelve las rutas de la SPA.
 
-## GitHub Pages
+## GitHub Pages y radar GKS
 
-El workflow incluido compila y publica `dist`. En GitHub, selecciona **Settings → Pages → Source: GitHub Actions**. La ruta pública se calcula automáticamente a partir del nombre real del repositorio y también funciona en repositorios `usuario.github.io`.
+El workflow `.github/workflows/deploy-pages.yml` se ejecuta únicamente desde `main`, además de una comprobación diaria programada. Sus pasos instalan dependencias bloqueadas, consultan el radar oficial, compilan `dist` y publican Pages.
 
-La navegación usa `HashRouter`, por lo que las rutas internas funcionan al recargar directamente desde el dominio por defecto de GitHub Pages sin requerir un servidor con reglas de reescritura.
+La aplicación usa `BrowserRouter` con `basename` calculado por Vite. `scripts/create-spa-fallback.mjs` genera `dist/404.html`, por lo que una ruta interna puede abrirse directamente en el dominio de GitHub Pages.
 
-## Privacidad
+El radar detecta disponibilidad y cambios en fuentes oficiales; no convierte automáticamente una variación web en un requisito confirmado. La convocatoria vigente debe verificarse antes de presentar documentos.
 
-No se deben subir certificados, expedientes, pasaportes ni otra información personal al repositorio. El prototipo solo guarda localmente el estado de tareas y casillas.
+## Estrategia de ramas
+
+`main` es estable, requiere validación y es la única rama que despliega. Cada apartado se trabaja en su rama asignada:
+
+| Rama | Responsabilidad principal |
+| --- | --- |
+| `codex/home` | Inicio, plan diario, recordatorios y objetivos. |
+| `codex/scholarship` | Beca, radar, fuentes, programas y videos GKS. |
+| `codex/study` | Idiomas, recursos, pruebas, entrevistas y simulador escrito. |
+| `codex/documents` | Checklist y preparación documental. |
+| `codex/profile` | Perfil y resumen de niveles/progreso. |
+| `codex/platform` | Arquitectura, navegación global, UI compartida, CI y documentación. |
+
+### Trabajo en un apartado
+
+```bash
+git switch main
+git pull --ff-only origin main
+git switch codex/study        # sustituir por la rama correspondiente
+git merge main
+
+# realizar cambios
+pnpm validate
+git add <archivos-del-apartado>
+git commit -m "feat: descripcion breve"
+git push origin codex/study
+```
+
+Después se abre un **Pull Request hacia `main`** usando la plantilla del repositorio. No se realizan commits funcionales directamente en `main`.
+
+Una vez integrado el PR, la rama del apartado se sincroniza:
+
+```bash
+git switch main
+git pull --ff-only origin main
+git switch codex/study
+git merge main
+git push origin codex/study
+```
+
+Los cambios que afecten más de un apartado se realizan en `codex/platform` o en una rama temporal `codex/<historia>-<descripcion>`, se validan y se integran mediante PR.
+
+## Actualización de contenidos
+
+- Convocatoria, documentos, tareas y fuentes: `src/infrastructure/data/gks-2026.ts`.
+- Videos de orientación GKS: `src/infrastructure/data/gks-feedback-videos.ts`.
+- Recursos educativos: `src/infrastructure/data/learning-resources.ts`.
+- Prácticas de idioma: `src/infrastructure/data/practice-tests.ts`.
+- Entrevistas: `src/infrastructure/data/interview-prep.ts`.
+- Simulador escrito: `src/infrastructure/data/written-simulator.ts`.
+- Traducciones: `src/infrastructure/i18n/translations.ts`.
+
+Todo recurso nuevo debe indicar su fuente, abrir el contenido original y diferenciar claramente entre requisito oficial, referencia histórica y práctica educativa.
+
+## Control de calidad
+
+Además de `pnpm validate`, una historia visual debe revisarse en:
+
+- 320 px y 390 px de ancho.
+- Español, inglés y coreano.
+- Temas claro y oscuro.
+- Navegación táctil, teclado y reducción de movimiento.
+- Apertura directa de rutas bajo `/LearnV/`.
+- Consola sin errores y sin desplazamiento horizontal involuntario.
+
+El informe de la validación integral más reciente está en [`docs/VALIDATION-2026-08-23.md`](docs/VALIDATION-2026-08-23.md).

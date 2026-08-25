@@ -29,9 +29,14 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Validate architecture
+        run: pnpm run check:architecture
+      - name: Run automated tests
+        run: pnpm test
       - name: Refresh official GKS radar
         run: pnpm gks:update
-      - run: pnpm build
+      - name: Build production bundle
+        run: pnpm build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
