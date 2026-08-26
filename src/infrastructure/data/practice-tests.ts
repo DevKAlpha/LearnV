@@ -19,6 +19,21 @@ type LevelSeed = {
   media?: ListeningMedia;
 };
 
+function rotateOptions(question: TestQuestion, offset: number): TestQuestion {
+  const shift = offset % question.options.length;
+  if (shift === 0) return question;
+  const options = [...question.options.slice(shift), ...question.options.slice(0, shift)];
+  return {
+    ...question,
+    options,
+    correctIndex: (question.correctIndex - shift + question.options.length) % question.options.length,
+  };
+}
+
+function varyAnswerPositions(items: TestQuestion[], level: number) {
+  return items.map((item, index) => rotateOptions(item, level + index));
+}
+
 const englishWriting: LevelSeed[] = [
   ["A focused paragraph", "Topic sentence · support", "Write 100–120 words explaining one reason to study International Business in Korea.", "Studying International Business in Korea would let me examine trade decisions within an economy that has built strong links with Europe.", "Korea is great and business is very interesting for many reasons.", "one academic reason supported by a concrete example", ["a list of unrelated interests", "only praise for Korea", "a repeated conclusion"]],
   ["Evidence, not adjectives", "Evidence · measurable result", "Write 120 words about an achievement that demonstrates initiative.", "When our school project lost a supplier, I compared three alternatives and negotiated a replacement within two days.", "I am extremely proactive and always solve every problem.", "an action and its verifiable result", ["three personality adjectives", "a claim without context", "an unrelated ambition"]],
@@ -101,7 +116,7 @@ function questions(language: TestLanguage, skill: TestSkill, level: number, seed
   const id = `${language}-${skill}-${level}`;
   const isKo = language === "ko";
   const common = { passage: skill === "pronunciation" ? seed.model : undefined, audioText: skill === "listening" && !seed.media ? seed.model : undefined };
-  return [
+  return varyAnswerPositions([
     {
       id: `${id}-main`, skill: isKo ? "핵심 이해" : "Core task", ...common,
       prompt: skill === "listening" ? (isKo ? "영상의 중심 내용으로 가장 알맞은 것은 무엇입니까?" : "Which option best captures the video's main idea?") : (isKo ? "이 과제에서 가장 중요한 것은 무엇입니까?" : "What is the most important requirement in this task?"),
@@ -112,7 +127,7 @@ function questions(language: TestLanguage, skill: TestSkill, level: number, seed
     {
       id: `${id}-model`, skill: isKo ? "좋은 모델" : "Effective model",
       prompt: skill === "listening" ? (isKo ? "영상의 내용을 가장 정확하게 요약한 문장을 고르세요." : "Choose the most accurate summary of the video.") : (isKo ? "더 효과적인 표현을 고르세요." : "Choose the more effective response."),
-      options: [seed.weak, seed.model, isKo ? "열심히 하겠습니다." : "I will always do my best.", isKo ? "잘 모르겠습니다." : "There are many possible answers."], correctIndex: 1,
+      options: [seed.weak, seed.model, seed.distractors[0], seed.distractors[1]], correctIndex: 1,
       explanation: isKo ? "구체적인 내용과 논리 관계가 드러납니다." : "It gives specific content and makes the relationship between ideas clear.",
       improvement: isKo ? "일반적인 평가 대신 행동, 이유 또는 결과를 제시하세요." : "Replace general evaluation with an action, reason or result.",
     },
@@ -127,20 +142,20 @@ function questions(language: TestLanguage, skill: TestSkill, level: number, seed
     },
     {
       id: `${id}-official`, skill: isKo ? "시험 인식" : "Assessment awareness",
-      prompt: skill === "listening" ? (isKo ? "이번 영상에서 집중해야 할 발화 유형은 무엇입니까?" : "Which delivery variety should you focus on in this video?") : (isKo ? "이 LearnV 연습에 대한 설명으로 맞는 것은 무엇입니까?" : "Which statement about this LearnV practice is accurate?"),
+      prompt: skill === "listening" ? (isKo ? "이번 영상에서 집중해야 할 발화 유형은 무엇입니까?" : "Which delivery variety should you focus on in this video?") : (isKo ? "이 과제를 검토할 때 기록해야 할 핵심 근거는 무엇입니까?" : "Which evidence belongs in the review log for this task?"),
       options: skill === "listening" && seed.media
         ? [seed.media.variety, isKo ? "무음 자료" : "Silent material", isKo ? "스페인어 공식 연설" : "Formal speech in Spanish", isKo ? "기계음만 사용" : "Synthetic speech only"]
-        : (isKo ? ["학습용 연습이며 공식 성적이 아니다.", "공식 TOPIK 성적을 발급한다.", "GKS 합격을 보장한다.", "녹음을 서버에 제출한다."] : ["It is learning practice, not an official score.", "It issues an official IELTS score.", "It guarantees GKS selection.", "It uploads recordings for admission."]), correctIndex: 0,
-      explanation: skill === "listening" && seed.media ? (isKo ? `이번 자료는 ${seed.media.variety}에 집중합니다.` : `This resource focuses on ${seed.media.variety}.`) : (isKo ? "LearnV 결과는 학습 방향을 위한 참고 자료입니다." : "LearnV results guide study and do not replace official assessment."),
-      improvement: skill === "listening" ? (isKo ? "발음뿐 아니라 속도, 리듬과 감정도 함께 메모하세요." : "Note pace, rhythm and emotion as well as pronunciation.") : (isKo ? "공식 시험 기준과 학습용 피드백을 구분하세요." : "Keep official criteria separate from formative practice feedback."),
+        : [seed.detail, ...seed.distractors], correctIndex: 0,
+      explanation: skill === "listening" && seed.media ? (isKo ? `이번 자료는 ${seed.media.variety}에 집중합니다.` : `This resource focuses on ${seed.media.variety}.`) : (isKo ? `검토 기록은 ${seed.detail}을 확인해야 합니다.` : `The review log must verify ${seed.detail}.`),
+      improvement: skill === "listening" ? (isKo ? "발음뿐 아니라 속도, 리듬과 감정도 함께 메모하세요." : "Note pace, rhythm and emotion as well as pronunciation.") : (isKo ? "과제의 핵심 기준을 실제 초안이나 녹음의 근거와 연결하세요." : "Connect the task criterion to evidence in the actual draft or recording."),
     },
-  ];
+  ], level);
 }
 
 function challenges(language: TestLanguage, skill: TestSkill, level: number, seed: LevelSeed): TestQuestion[] {
   const id = `${language}-${skill}-${level}`;
   const isKo = language === "ko";
-  return [
+  return varyAnswerPositions([
     {
       id: `${id}-challenge-edit`, skill: isKo ? "정교화" : "Refinement",
       prompt: isKo ? "첫 답변을 가장 효과적으로 개선하는 방법은 무엇입니까?" : "Which revision most effectively improves the first response?",
@@ -155,7 +170,7 @@ function challenges(language: TestLanguage, skill: TestSkill, level: number, see
       explanation: isKo ? "재시도는 같은 역량을 더 엄격한 조건에서 확인합니다." : "A retake checks the same skill under stricter conditions.",
       improvement: isKo ? "이전 피드백 중 한 가지를 재시도 목표로 정하세요." : "Choose one previous feedback point as the retake target.",
     },
-  ];
+  ], level + 2);
 }
 
 function buildStages(language: TestLanguage, skill: TestSkill, seeds: LevelSeed[]): TestStage[] {
@@ -170,9 +185,14 @@ function buildStages(language: TestLanguage, skill: TestSkill, seeds: LevelSeed[
     title: seed.title,
     description: seed.detail,
     focus: seed.focus,
-    estimatedMinutes: 5 + Math.floor(index / 3),
+    estimatedMinutes: (skill === "listening" ? 10 : 7) + Math.floor(index / 3),
     passScore: 70,
-    media: seed.media,
+    media: seed.media ? {
+      ...seed.media,
+      startSeconds: seed.media.startSeconds ?? 0,
+      endSeconds: seed.media.endSeconds ?? 180,
+      excerptMinutes: seed.media.excerptMinutes ?? 3,
+    } : undefined,
     productionTask: {
       mode,
       prompt: seed.prompt,
@@ -187,7 +207,14 @@ function buildStages(language: TestLanguage, skill: TestSkill, seeds: LevelSeed[
           ? (isKo ? ["핵심어가 들림", "의미 단위로 자연스럽게 쉼", "녹음을 듣고 한 가지를 수정함"] : ["Key words are audible", "Pauses follow meaning units", "One point is revised after playback"])
           : (isKo ? ["모든 요구 사항에 답함", "구체적인 근거나 예시가 있음", "문어체와 연결을 검토함"] : ["Every part of the task is answered", "Evidence or a concrete example is included", "Register and cohesion are reviewed"]),
       minimumCharacters: skill === "writing" ? (isKo ? 60 + index * 18 : 320 + index * 45) : undefined,
+      minimumWords: skill === "writing" && !isKo ? 100 + Math.min(index * 10, 90) : undefined,
+      maximumWords: skill === "writing" && !isKo ? 120 + Math.min(index * 10, 100) : undefined,
       targetSeconds: skill === "pronunciation" ? 45 + Math.min(index * 8, 75) : undefined,
+      retakeInstruction: skill === "writing"
+        ? (isKo ? "재시도: 같은 주장을 유지하되 반대 관점 한 문장과 구체적인 근거를 추가하세요." : "Retake: preserve your claim, add one counterpoint and one verifiable detail.")
+        : skill === "listening"
+          ? (isKo ? "재시도: 자막 없이 듣고 근거가 나온 시간을 메모하세요." : "Retake: listen without subtitles and note the timestamp supporting your answer.")
+          : (isKo ? "재시도: 첫 녹음보다 천천히 말하고 한 가지 자연스러운 수정 표현을 사용하세요." : "Retake: speak more slowly than before and include one natural self-correction."),
     },
     questions: questions(language, skill, index + 1, seed),
     challengeQuestions: challenges(language, skill, index + 1, seed),

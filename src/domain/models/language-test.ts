@@ -8,7 +8,10 @@ export type ProductionTask = {
   instructions: string;
   checklist: string[];
   minimumCharacters?: number;
+  minimumWords?: number;
+  maximumWords?: number;
   targetSeconds?: number;
+  retakeInstruction?: string;
 };
 
 export type ListeningMedia = {
@@ -19,6 +22,9 @@ export type ListeningMedia = {
   kind: "story" | "song";
   variety: string;
   sourceUrl: string;
+  startSeconds?: number;
+  endSeconds?: number;
+  excerptMinutes?: number;
 };
 
 export type TestQuestion = {
@@ -79,7 +85,7 @@ export type TestResult = {
   score: number;
   correctCount: number;
   passed: boolean;
-  estimate: string;
+  productionVerified: boolean;
   questions: QuestionResult[];
 };
 
@@ -106,25 +112,12 @@ export function isStageUnlocked(
   return Boolean(progress[skillStages[skillIndex - 1].id]?.passed);
 }
 
-export function estimateLevel(language: TestLanguage, score: number): string {
-  if (language === "en") {
-    if (score < 50) return "B1 bridge";
-    if (score < 70) return "B2 developing";
-    if (score < 90) return "B2 strong";
-    return "C1 readiness";
-  }
-
-  if (score < 50) return "TOPIK I · 1급 기반";
-  if (score < 70) return "TOPIK I · 2급 준비";
-  if (score < 90) return "TOPIK II · 3급 진입 준비";
-  return "TOPIK II · 3급 준비";
-}
-
 export function gradeAttempt(
-  language: TestLanguage,
+  _language: TestLanguage,
   stage: TestStage,
   questions: TestQuestion[],
   answers: Record<string, number>,
+  productionVerified = false,
 ): TestResult {
   const results = questions.map((question) => {
     const selectedIndex = answers[question.id] ?? null;
@@ -136,8 +129,8 @@ export function gradeAttempt(
   return {
     score,
     correctCount,
-    passed: score >= stage.passScore,
-    estimate: estimateLevel(language, score),
+    passed: score >= stage.passScore && productionVerified,
+    productionVerified,
     questions: results,
   };
 }

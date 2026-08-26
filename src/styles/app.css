@@ -2434,6 +2434,16 @@ input:focus-visible + span {
 
 .resource-card > a span { color: var(--yellow); font-size: 1rem; }
 
+.resource-task { display: grid; gap: 5px; margin-top: 14px; padding: 11px; border: 1.5px solid rgba(23,23,23,0.42); border-radius: 14px; background: rgba(255,255,255,0.48); }
+.resource-task > strong { font-size: 0.58rem; text-transform: uppercase; }
+.resource-task > p { font-size: 0.61rem; }
+.resource-task > span { color: var(--muted); font-size: 0.52rem; font-weight: 800; }
+.resource-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 7px; }
+.resource-actions :is(a, button) { display: flex; min-height: 43px; align-items: center; justify-content: space-between; gap: 8px; padding: 9px 11px; border: 1.5px solid var(--ink); border-radius: 14px; font-size: 0.62rem; font-weight: 900; text-decoration: none; cursor: pointer; }
+.resource-actions a { background: var(--ink); color: white; }
+.resource-actions button { background: rgba(255,255,255,0.7); color: var(--ink); }
+.resource-actions button[aria-pressed="true"] { background: #bce4ae; }
+
 .empty-resources {
   padding: 28px;
   border: 1.5px dashed var(--ink);
@@ -3152,6 +3162,11 @@ html[data-theme="dark"] .document-tags span {
 .interview-self-check label { display: flex; align-items: center; gap: 9px; font-size: 0.61rem; font-weight: 750; }
 .interview-self-check input { width: 19px; height: 19px; accent-color: var(--hot-pink); }
 .interview-next-button { width: 100%; margin-top: 17px; cursor: pointer; }
+.interview-timer-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin-top: 16px; }
+.interview-timer-controls button { min-height: 40px; padding: 8px; border: 1.5px solid var(--ink); border-radius: 12px; background: rgba(255,255,255,0.62); color: inherit; font-size: 0.58rem; font-weight: 900; cursor: pointer; }
+.interview-question-navigation { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 8px; margin-top: 17px; }
+.interview-question-navigation > button { display: flex; min-height: 54px; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 13px; border: 2px solid var(--ink); border-radius: 17px; background: rgba(255,255,255,0.66); color: var(--ink); font-size: 0.62rem; font-weight: 950; cursor: pointer; }
+.interview-question-navigation .interview-next-button { margin: 0; background: var(--ink); color: white; }
 .interview-tip-list { display: grid; gap: 10px; margin-top: 20px; }
 .interview-tip-list article { display: grid; grid-template-columns: 42px 1fr; align-items: start; gap: 11px; padding: 14px; border: 1.5px solid var(--ink); border-radius: 17px; background: rgba(255,255,255,0.48); box-shadow: 3px 4px 0 var(--ink); }
 .interview-tip-list span { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 12px; background: var(--pink); font-size: 0.58rem; font-weight: 950; }
@@ -3201,6 +3216,14 @@ html[data-theme="dark"] .document-tags span {
   -webkit-backdrop-filter: blur(26px) saturate(1.45);
   backdrop-filter: blur(26px) saturate(1.45);
 }
+
+.test-skill-tabs { position: sticky; z-index: 8; top: 80px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; margin: 27px 0 4px; padding: 7px; border: 1.5px solid var(--ink); border-radius: 22px; background: rgba(255,253,248,0.86); box-shadow: var(--glass-highlight), 0 8px 22px rgba(23,23,23,0.12); backdrop-filter: blur(22px); }
+.test-skill-tabs button { display: grid; min-width: 0; min-height: 62px; place-items: center; gap: 2px; padding: 6px 3px; border: 1.5px solid transparent; border-radius: 16px; background: transparent; color: inherit; cursor: pointer; }
+.test-skill-tabs button[aria-pressed="true"] { border-color: var(--ink); background: var(--test-soft); box-shadow: 2px 3px 0 var(--ink); }
+.test-skill-tabs .app-icon { width: 22px; height: 22px; }
+.test-skill-tabs span { min-width: 0; max-width: 100%; overflow: hidden; font-size: 0.54rem; font-weight: 900; text-overflow: ellipsis; white-space: nowrap; }
+.test-skill-tabs small { font-size: 0.46rem; font-weight: 800; }
+.test-path-expand { width: 100%; min-height: 46px; margin-top: 16px; border: 1.5px solid var(--ink); border-radius: 15px; background: rgba(255,255,255,0.66); color: inherit; font-size: 0.64rem; font-weight: 900; cursor: pointer; }
 
 .test-back-link {
   display: inline-flex;
@@ -3402,7 +3425,8 @@ html[data-theme="dark"] .document-tags span {
   gap: 11px;
 }
 
-.session-topbar > a {
+.session-topbar > a,
+.session-exit-button {
   display: grid;
   width: 44px;
   height: 44px;
@@ -3414,6 +3438,8 @@ html[data-theme="dark"] .document-tags span {
   font-size: 1.5rem;
   font-weight: 700;
   text-decoration: none;
+  color: inherit;
+  cursor: pointer;
 }
 
 .session-progress { height: 13px; overflow: hidden; border: 1.5px solid var(--ink); border-radius: 999px; background: rgba(23,23,23,0.12); }
@@ -3483,6 +3509,7 @@ html[data-theme="dark"] .document-tags span {
   font-weight: 700;
   line-height: 1.55;
 }
+.production-retake-instruction { margin: -8px 0 18px; padding: 11px; border-left: 4px solid var(--yellow); border-radius: 0 12px 12px 0; background: rgba(255,213,38,0.2); font-size: 0.62rem; line-height: 1.5; }
 
 .writing-response { display: grid; gap: 8px; }
 .writing-response textarea {
@@ -3542,6 +3569,7 @@ html[data-theme="dark"] .document-tags span {
   cursor: pointer;
 }
 .practice-without-recording input { width: 20px; height: 20px; accent-color: var(--test-accent); }
+.model-audio-button { min-height: 44px; border: 1.5px solid var(--ink); border-radius: 14px; background: rgba(255,255,255,0.7); color: inherit; font-size: 0.62rem; font-weight: 900; cursor: pointer; }
 
 .production-checklist {
   margin-top: 18px;
@@ -3551,6 +3579,10 @@ html[data-theme="dark"] .document-tags span {
   background: var(--test-soft);
 }
 .production-checklist strong { font-size: 0.65rem; }
+.production-checklist > div { display: grid; gap: 8px; margin-top: 10px; }
+.production-checklist label, .production-evidence-check { display: flex; align-items: flex-start; gap: 9px; font-size: 0.62rem; font-weight: 700; line-height: 1.4; cursor: pointer; }
+.production-checklist input, .production-evidence-check input { flex: 0 0 auto; width: 19px; height: 19px; margin: 0; accent-color: var(--test-accent); }
+.production-evidence-check { margin-top: 12px; padding: 12px; border: 1.5px solid var(--ink); border-radius: 14px; background: rgba(255,255,255,0.5); }
 .production-checklist ul,
 .production-review ul { display: grid; gap: 7px; margin: 10px 0 0; padding-left: 18px; }
 .production-checklist li,
@@ -3668,6 +3700,23 @@ html[data-theme="dark"] .document-tags span {
 
 .test-disclaimer { margin: 24px 0 0; padding: 13px; border-left: 4px solid var(--test-accent); border-radius: 0 13px 13px 0; background: var(--test-soft); color: var(--muted); font-size: 0.59rem; font-weight: 750; line-height: 1.45; }
 .result-actions { display: grid; gap: 11px; margin-top: 22px; }
+.test-exit-modal { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(12,10,17,0.68); backdrop-filter: blur(8px); }
+.test-exit-modal section { width: min(100%, 390px); padding: 22px; border: 2px solid var(--ink); border-radius: 24px; background: var(--paper); box-shadow: 7px 8px 0 var(--ink); }
+.test-exit-modal h2 { margin: 0; font-size: 1.3rem; }
+.test-exit-modal p { color: var(--muted); font-size: 0.7rem; line-height: 1.5; }
+.test-exit-modal section > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 18px; }
+.test-exit-modal :is(button, a) { display: grid; min-height: 46px; place-items: center; padding: 8px; border: 1.5px solid var(--ink); border-radius: 14px; background: rgba(255,255,255,0.72); color: var(--ink); font-size: 0.65rem; font-weight: 900; text-decoration: none; cursor: pointer; }
+.test-exit-modal a { background: var(--hot-pink); }
+
+.written-result__checks { margin-top: 18px; padding: 14px; border: 1.5px solid var(--ink); border-radius: 17px; background: rgba(255,255,255,0.48); }
+.written-result__checks h3 { margin: 0 0 10px; font-size: 0.74rem; }
+.written-result__checks ul { display: grid; gap: 7px; margin: 0; padding: 0; list-style: none; }
+.written-result__checks li { display: flex; gap: 8px; font-size: 0.62rem; font-weight: 750; line-height: 1.4; }
+.written-result__checks li span { display: grid; flex: 0 0 auto; width: 20px; height: 20px; place-items: center; border-radius: 7px; background: #bce4ae; }
+.written-result__checks li.is-missing span { background: #ffb5b1; }
+.written-result__checks small { display: block; margin-top: 11px; color: var(--muted); font-size: 0.54rem; line-height: 1.45; }
+
+:root[data-theme="dark"] :is(.test-skill-tabs, .test-path-expand, .resource-task, .resource-actions button, .interview-timer-controls button, .interview-question-navigation > button, .model-audio-button, .production-evidence-check, .written-result__checks) { border-color: rgba(255,255,255,0.28); background: rgba(25,34,48,0.9); color: #fff; }
 .test-secondary-action { background: var(--yellow); color: var(--ink); }
 .test-text-action { min-height: 42px; padding: 10px; font-size: 0.66rem; font-weight: 900; text-align: center; }
 

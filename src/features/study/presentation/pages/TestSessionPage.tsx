@@ -43,6 +43,10 @@ export function TestSessionPage() {
   const [isRecording, setIsRecording] = useState(false);
   const [microphoneError, setMicrophoneError] = useState(false);
   const [speakingPractised, setSpeakingPractised] = useState(false);
+  const [mediaReviewed, setMediaReviewed] = useState(false);
+  const [recordingReviewed, setRecordingReviewed] = useState(false);
+  const [checklistChecks, setChecklistChecks] = useState<boolean[]>(() => stage.productionTask.checklist.map(() => false));
+  const [showExitDialog, setShowExitDialog] = useState(false);
   const finishedRef = useRef(false);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -51,11 +55,21 @@ export function TestSessionPage() {
   const question = questions[questionIndex];
   const selectedAnswer = answers[question.id];
   const minimumCharacters = stage.productionTask.minimumCharacters ?? 0;
-  const canContinueProduction = stage.productionTask.mode === "listening"
-    ? true
+  const wordCount = writtenResponse.trim() ? writtenResponse.trim().split(/\s+/u).length : 0;
+  const meetsWritingLength = language === "en" && stage.productionTask.minimumWords
+    ? wordCount >= stage.productionTask.minimumWords && wordCount <= (stage.productionTask.maximumWords ?? Number.POSITIVE_INFINITY)
+    : writtenResponse.trim().length >= minimumCharacters;
+  const checklistComplete = checklistChecks.every(Boolean);
+  const productionVerified = stage.productionTask.mode === "listening"
+    ? mediaReviewed && checklistComplete
     : stage.productionTask.mode === "writing"
-    ? writtenResponse.trim().length >= minimumCharacters
-    : Boolean(recordingUrl || speakingPractised);
+      ? meetsWritingLength && checklistComplete
+      : Boolean(recordingUrl && recordingReviewed && checklistComplete);
+  const canContinueProduction = stage.productionTask.mode === "listening"
+    ? mediaReviewed && checklistComplete
+    : stage.productionTask.mode === "writing"
+    ? meetsWritingLength && checklistComplete
+    : Boolean((recordingUrl && recordingReviewed && checklistComplete) || (speakingPractised && checklistComplete));
   const totalSteps = questions.length + 1;
   const currentStep = productionDone ? questionIndex + 2 : 1;
 
@@ -69,6 +83,10 @@ export function TestSessionPage() {
     setProductionDone(false);
     setWrittenResponse("");
     setSpeakingPractised(false);
+    setMediaReviewed(false);
+    setRecordingReviewed(false);
+    setChecklistChecks(stage.productionTask.checklist.map(() => false));
+    setShowExitDialog(false);
     setMicrophoneError(false);
     setIsRecording(false);
     setRecordingUrl((current) => {
@@ -94,21 +112,21 @@ export function TestSessionPage() {
   const finishTest = useCallback(() => {
     if (finishedRef.current) return;
     finishedRef.current = true;
-    const graded = gradeAttempt(language, stage, questions, answers);
-    recordAttempt(language, stage.id, graded.score);
+    const graded = gradeAttempt(language, stage, questions, answers, productionVerified);
+    recordAttempt(language, stage.id, graded.score, graded.passed);
     setResult(graded);
     document.getElementById("test-session-top")?.scrollIntoView({ behavior: "smooth" });
-  }, [answers, language, questions, recordAttempt, stage]);
+  }, [answers, language, productionVerified, questions, recordAttempt, stage]);
 
   useEffect(() => {
-    if (!timed || result) return;
+    if (!timed || !productionDone || result) return;
     if (secondsLeft <= 0) {
       finishTest();
       return;
     }
     const timer = window.setTimeout(() => setSecondsLeft((current) => current - 1), 1000);
     return () => window.clearTimeout(timer);
-  }, [finishTest, result, secondsLeft, timed]);
+  }, [finishTest, productionDone, result, secondsLeft, timed]);
 
   if (invalidLanguage || invalidStage || !unlocked) {
     return <Navigate to={`/tests/${invalidLanguage ? "en" : language}`} replace />;
@@ -163,6 +181,7 @@ export function TestSessionPage() {
       recorder.onstop = () => {
         const recording = new Blob(recordingChunksRef.current, { type: recorder.mimeType || "audio/webm" });
         setRecordingUrl(URL.createObjectURL(recording));
+        setRecordingReviewed(false);
         setIsRecording(false);
         stream.getTracks().forEach((track) => track.stop());
       };
@@ -196,6 +215,9 @@ export function TestSessionPage() {
     setProductionDone(false);
     setWrittenResponse("");
     setSpeakingPractised(false);
+    setMediaReviewed(false);
+    setRecordingReviewed(false);
+    setChecklistChecks(stage.productionTask.checklist.map(() => false));
     setMicrophoneError(false);
     setIsRecording(false);
     if (recorderRef.current?.state === "recording") recorderRef.current.stop();
@@ -222,7 +244,7 @@ export function TestSessionPage() {
           <p>{result.passed ? copy.tests.resultPass : copy.tests.resultRetry}</p>
           <div className="result-score-row">
             <div><strong>{result.score}</strong><small>/ 100 · {copy.tests.score}</small></div>
-            <div><strong>{result.estimate}</strong><small>{copy.tests.estimate}</small></div>
+            <div><strong>{result.productionVerified ? "✓" : "!"}</strong><small>{result.productionVerified ? (language === "ko" ? "수행 증거 확인" : "Evidence verified") : (language === "ko" ? "수행 증거 부족" : "Evidence incomplete")}</small></div>
           </div>
           <span className="result-correct-count">{result.correctCount}/{result.questions.length} {copy.tests.correctAnswers}</span>
         </header>
@@ -284,7 +306,7 @@ export function TestSessionPage() {
   return (
     <div className={`page test-session-page test-session-page--${language}`} id="test-session-top">
       <header className="session-topbar">
-        <Link to={`/tests/${language}`} aria-label={copy.tests.sessionExit}>×</Link>
+        <button className="session-exit-button" type="button" aria-label={copy.tests.sessionExit} onClick={() => setShowExitDialog(true)}>×</button>
         <div className="session-progress" aria-label={`${currentStep} ${copy.tests.of} ${totalSteps}`}><span style={{ width: `${(currentStep / totalSteps) * 100}%` }} /></div>
         <span className={timed ? "session-timer session-timer--active" : "session-timer"}>
           <small>{timed ? copy.tests.timeLeft : copy.tests.untimed}</small>
@@ -303,6 +325,7 @@ export function TestSessionPage() {
         </span>
         <h1>{stage.productionTask.prompt}</h1>
         <p className="production-instructions">{stage.productionTask.instructions}</p>
+        {timed && stage.productionTask.retakeInstruction && <p className="production-retake-instruction"><strong>{language === "ko" ? "재시도 조건" : "Retake constraint"}:</strong> {stage.productionTask.retakeInstruction}</p>}
 
         {stage.productionTask.mode === "writing" ? (
           <div className="writing-response">
@@ -312,14 +335,17 @@ export function TestSessionPage() {
               aria-label={copy.tests.productiveTask}
               onChange={(event) => setWrittenResponse(event.target.value)}
             />
-            <div><span>{writtenResponse.trim().length} {copy.tests.characters}</span><strong>{copy.tests.minimum} · {minimumCharacters}</strong></div>
+            <div>
+              <span>{language === "en" ? `${wordCount} words` : `${writtenResponse.trim().length} ${copy.tests.characters}`}</span>
+              <strong>{language === "en" && stage.productionTask.minimumWords ? `${stage.productionTask.minimumWords}–${stage.productionTask.maximumWords} words` : `${copy.tests.minimum} · ${minimumCharacters}`}</strong>
+            </div>
           </div>
         ) : stage.productionTask.mode === "listening" ? (
           stage.media ? (
             <article className="listening-media-card">
               <div className="listening-media-card__frame">
                 <iframe
-                  src={`https://www.youtube-nocookie.com/embed/${stage.media.videoId}?rel=0`}
+                  src={`https://www.youtube-nocookie.com/embed/${stage.media.videoId}?rel=0&start=${stage.media.startSeconds ?? 0}&end=${stage.media.endSeconds ?? 180}`}
                   title={stage.media.title}
                   loading="lazy"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -334,6 +360,7 @@ export function TestSessionPage() {
                 <strong>{stage.media.title}</strong>
                 <p>{stage.media.creator}</p>
                 <a href={stage.media.sourceUrl} target="_blank" rel="noreferrer">{copy.tests.openYoutube} ↗</a>
+                <small>{language === "ko" ? `권장 구간 · ${stage.media.excerptMinutes ?? 3}분` : `Recommended excerpt · ${stage.media.excerptMinutes ?? 3} min`}</small>
               </div>
             </article>
           ) : (
@@ -345,6 +372,14 @@ export function TestSessionPage() {
           )
         ) : (
           <div className="speaking-recorder">
+            <button type="button" className="model-audio-button" onClick={() => {
+              if (!("speechSynthesis" in window)) return;
+              window.speechSynthesis.cancel();
+              const utterance = new SpeechSynthesisUtterance(stage.questions[0]?.passage ?? stage.productionTask.prompt);
+              utterance.lang = language === "ko" ? "ko-KR" : "en-GB";
+              utterance.rate = 0.88;
+              window.speechSynthesis.speak(utterance);
+            }}>▶ {language === "ko" ? "발음 모델 듣기" : "Listen to a pronunciation model"}</button>
             <div className={isRecording ? "recording-status recording-status--active" : "recording-status"}>
               <span aria-hidden="true" />
               <strong>{isRecording ? copy.tests.recording : `${stage.productionTask.targetSeconds ?? 60}s`}</strong>
@@ -355,6 +390,7 @@ export function TestSessionPage() {
               <button type="button" className="record-button" onClick={startRecording}>{recordingUrl ? copy.tests.recordAgain : copy.tests.startRecording}</button>
             )}
             {recordingUrl && <audio controls src={recordingUrl} aria-label={copy.tests.playRecording} />}
+            {recordingUrl && <label className="practice-without-recording"><input type="checkbox" checked={recordingReviewed} onChange={(event) => setRecordingReviewed(event.target.checked)} /><span>{language === "ko" ? "녹음을 다시 듣고 한 가지 개선점을 찾았습니다." : "I listened back and identified one improvement."}</span></label>}
             {microphoneError && <p role="alert">{copy.tests.microphoneUnavailable}</p>}
             <label className="practice-without-recording">
               <input type="checkbox" checked={speakingPractised} onChange={(event) => setSpeakingPractised(event.target.checked)} />
@@ -365,8 +401,9 @@ export function TestSessionPage() {
 
         <aside className="production-checklist">
           <strong>{copy.tests.productionChecklist}</strong>
-          <ul>{stage.productionTask.checklist.map((item) => <li key={item}>{item}</li>)}</ul>
+          <div>{stage.productionTask.checklist.map((item, index) => <label key={item}><input type="checkbox" checked={checklistChecks[index]} onChange={(event) => setChecklistChecks((current) => current.map((value, itemIndex) => itemIndex === index ? event.target.checked : value))} /><span>{item}</span></label>)}</div>
         </aside>
+        {stage.productionTask.mode === "listening" && <label className="production-evidence-check"><input type="checkbox" checked={mediaReviewed} onChange={(event) => setMediaReviewed(event.target.checked)} /><span>{language === "ko" ? "권장 구간을 듣고 답의 근거를 메모했습니다." : "I listened to the recommended excerpt and noted evidence for my answer."}</span></label>}
         <p className="production-privacy">{copy.tests.productionNotice}</p>
       </main>
       ) : (
@@ -401,6 +438,15 @@ export function TestSessionPage() {
           {productionDone ? (questionIndex === questions.length - 1 ? copy.tests.finish : copy.tests.next) : copy.tests.continueRubric}<span aria-hidden="true">→</span>
         </button>
       </footer>
+      {showExitDialog && (
+        <div className="test-exit-modal" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setShowExitDialog(false); }}>
+          <section role="dialog" aria-modal="true" aria-labelledby="test-exit-title">
+            <h2 id="test-exit-title">{language === "ko" ? "연습을 종료할까요?" : "Leave this practice?"}</h2>
+            <p>{language === "ko" ? "현재 답변과 녹음은 저장되지 않습니다." : "Your current answers and recording are not saved."}</p>
+            <div><button type="button" onClick={() => setShowExitDialog(false)}>{language === "ko" ? "계속 연습" : "Keep practising"}</button><Link to={`/tests/${language}`}>{language === "ko" ? "종료" : "Leave"}</Link></div>
+          </section>
+        </div>
+      )}
     </div>
   );
 }

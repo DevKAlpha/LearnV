@@ -18,6 +18,8 @@ export type LearningResource = {
   official: boolean;
   verifiedAt: string;
   learningOrder?: number;
+  estimatedMinutes?: number;
+  access?: "open" | "account";
 };
 
 export const learningResources: LearningResource[] = [

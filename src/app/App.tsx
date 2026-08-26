@@ -17,14 +17,15 @@ import { ThemeToggle } from "@/shared/ui/ThemeToggle";
 
 export function App() {
   const progress = useGksProgress();
-  const { copy, locale, setLocale } = useI18n();
+  const { copy, setLearningLocale } = useI18n();
   const location = useLocation();
   const learningLocale = resolveLearningLocale(location.pathname);
   const isImmersiveLearningExperience = isImmersiveLearningRoute(location.pathname);
 
   useEffect(() => {
-    if (learningLocale && learningLocale !== locale) setLocale(learningLocale);
-  }, [learningLocale, locale, setLocale]);
+    setLearningLocale(learningLocale);
+    return () => setLearningLocale(null);
+  }, [learningLocale, setLearningLocale]);
 
   return (
     <div className="app-shell">

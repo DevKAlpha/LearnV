@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { useLanguageTestProgress } from "@/application/controllers/useLanguageTestProgress";
 import { useI18n } from "@/application/i18n/I18nContext";
@@ -14,6 +15,9 @@ export function TestPathPage() {
   const track = languageTestTracks[language];
   const trackProgress = progress[language];
   const attemptCount = Object.values(trackProgress).reduce((total, stage) => total + stage.attempts, 0);
+  const [activeSkill, setActiveSkill] = useState<TestSkill>("writing");
+  const [showAll, setShowAll] = useState(false);
+  const labels = { writing: copy.tests.writing, listening: copy.tests.listening, pronunciation: copy.tests.pronunciation };
 
   if (invalidLanguage) return <Navigate to="/study" replace />;
 
@@ -40,18 +44,27 @@ export function TestPathPage() {
       </header>
 
       <main className="test-skill-sections" aria-label={copy.tests.pathTitle}>
-        {(["writing", "listening", "pronunciation"] as TestSkill[]).map((skill) => {
+        <nav className="test-skill-tabs" aria-label={copy.tests.pathTitle}>
+          {(["writing", "listening", "pronunciation"] as TestSkill[]).map((skill) => {
+            const completed = track.stages.filter((stage) => stage.skill === skill && trackProgress[stage.id]?.passed).length;
+            return <button key={skill} type="button" aria-pressed={activeSkill === skill} onClick={() => { setActiveSkill(skill); setShowAll(false); }}><AppIcon name={skill === "pronunciation" ? "speaking" : skill} /><span>{labels[skill]}</span><small>{completed}/10</small></button>;
+          })}
+        </nav>
+        {([activeSkill] as TestSkill[]).map((skill) => {
           const skillStages = track.stages.filter((stage) => stage.skill === skill);
           const completed = skillStages.filter((stage) => trackProgress[stage.id]?.passed).length;
-          const labels = { writing: copy.tests.writing, listening: copy.tests.listening, pronunciation: copy.tests.pronunciation };
           const icons: Record<TestSkill, AppIconName> = { writing: "writing", listening: "listening", pronunciation: "speaking" };
+          const firstIncompleteIndex = skillStages.findIndex((stage) => !trackProgress[stage.id]?.passed);
+          const currentIndex = firstIncompleteIndex < 0 ? skillStages.length - 1 : firstIncompleteIndex;
+          const visibleStages = showAll ? skillStages : skillStages.filter((_, index) => index >= Math.max(0, currentIndex - 1) && index <= Math.min(skillStages.length - 1, currentIndex + 1));
           return <section className={`test-skill-section test-skill-section--${skill}`} key={skill}>
             <header className="test-skill-header">
               <span aria-hidden="true"><AppIcon name={icons[skill]} /></span>
               <div><small>{completed}/10 {copy.tests.completed}</small><h2>{labels[skill]}</h2><p>{copy.tests.skillDescriptions[skill]}</p></div>
             </header>
             <div className="test-map">
-        {skillStages.map((stage, skillIndex) => {
+        {visibleStages.map((stage) => {
+          const skillIndex = skillStages.findIndex((candidate) => candidate.id === stage.id);
           const index = track.stages.findIndex((candidate) => candidate.id === stage.id);
           const unlocked = isStageUnlocked(track.stages, index, trackProgress);
           const stageProgress = trackProgress[stage.id];
@@ -88,6 +101,7 @@ export function TestPathPage() {
           );
         })}
             </div>
+            <button className="test-path-expand" type="button" onClick={() => setShowAll((current) => !current)}>{showAll ? (language === "ko" ? "현재 단계만 보기" : "Show current steps") : (language === "ko" ? "10개 단계 모두 보기" : "Show all 10 steps")}</button>
           </section>;
         })}
       </main>

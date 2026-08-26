@@ -23,14 +23,14 @@ function readProgress(): TestProgressState {
 export function useLanguageTestProgress() {
   const [progress, setProgress] = useState<TestProgressState>(readProgress);
 
-  const recordAttempt = useCallback((language: TestLanguage, stageId: string, score: number) => {
+  const recordAttempt = useCallback((language: TestLanguage, stageId: string, score: number, passed: boolean) => {
     setProgress((current) => {
       const previous = current[language][stageId];
       const nextStage: StageProgress = {
         attempts: (previous?.attempts ?? 0) + 1,
         bestScore: Math.max(previous?.bestScore ?? 0, score),
         lastScore: score,
-        passed: Boolean(previous?.passed) || score >= 70,
+        passed: Boolean(previous?.passed) || passed,
         lastCompletedAt: new Date().toISOString(),
       };
       const next = {

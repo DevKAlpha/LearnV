@@ -27,7 +27,12 @@ describe("language test paths", () => {
           expect(stage.productionTask.targetSeconds).toBeGreaterThanOrEqual(30);
         } else if (stage.productionTask.mode === "writing") {
           expect(stage.productionTask.minimumCharacters).toBeGreaterThanOrEqual(40);
+          if (track.language === "en") {
+            expect(stage.productionTask.minimumWords).toBeGreaterThanOrEqual(100);
+            expect(stage.productionTask.maximumWords).toBeGreaterThan(stage.productionTask.minimumWords ?? 0);
+          }
         }
+        expect(stage.productionTask.retakeInstruction?.trim()).not.toBe("");
       });
     });
   });
@@ -50,8 +55,17 @@ describe("language test paths", () => {
         expect(stage.media?.videoId).toMatch(/^[\w-]{11}$/);
         expect(stage.media?.sourceUrl).toContain(stage.media?.videoId);
         expect(stage.media?.variety.trim()).not.toBe("");
+        expect(stage.media?.endSeconds).toBeGreaterThan(stage.media?.startSeconds ?? -1);
+        expect(stage.media?.excerptMinutes).toBeLessThanOrEqual(5);
         expect(stage.questions.every((question) => !question.audioText)).toBe(true);
       });
+    });
+  });
+
+  it("varies correct answer positions instead of teaching a fixed pattern", () => {
+    Object.values(languageTestTracks).forEach((track) => {
+      const positions = new Set(track.stages.flatMap((stage) => stage.questions.map((question) => question.correctIndex)));
+      expect(positions.size).toBeGreaterThanOrEqual(3);
     });
   });
 
@@ -96,13 +110,15 @@ describe("language test paths", () => {
     expect(isStageUnlocked(stages, 1, progress)).toBe(true);
   });
 
-  it("grades answers and labels the result as an estimate", () => {
+  it("requires productive evidence before a perfect quiz can unlock the next stage", () => {
     const stage = languageTestTracks.ko.stages[0];
     const answers = Object.fromEntries(stage.questions.map((question) => [question.id, question.correctIndex]));
-    const result = gradeAttempt("ko", stage, stage.questions, answers);
-    expect(result.score).toBe(100);
-    expect(result.correctCount).toBe(4);
-    expect(result.passed).toBe(true);
-    expect(result.estimate).toContain("3급");
+    const incomplete = gradeAttempt("ko", stage, stage.questions, answers, false);
+    const verified = gradeAttempt("ko", stage, stage.questions, answers, true);
+    expect(incomplete.score).toBe(100);
+    expect(incomplete.correctCount).toBe(4);
+    expect(incomplete.passed).toBe(false);
+    expect(incomplete.productionVerified).toBe(false);
+    expect(verified.passed).toBe(true);
   });
 });

@@ -7,6 +7,7 @@ const STORAGE_KEY = "learnv-locale-v1";
 type I18nContextValue = {
   locale: Locale;
   setLocale: (locale: Locale) => void;
+  setLearningLocale: (locale: Locale | null) => void;
   copy: TranslationCatalog;
 };
 
@@ -23,15 +24,25 @@ function detectLocale(): Locale {
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocale] = useState<Locale>(detectLocale);
+  const [baseLocale, setBaseLocale] = useState<Locale>(detectLocale);
+  const [learningLocale, setLearningLocale] = useState<Locale | null>(null);
+  const locale = learningLocale ?? baseLocale;
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, locale);
+    localStorage.setItem(STORAGE_KEY, baseLocale);
+  }, [baseLocale]);
+
+  useEffect(() => {
     document.documentElement.lang = locale;
     document.documentElement.dataset.locale = locale;
   }, [locale]);
 
-  const value = useMemo(() => ({ locale, setLocale, copy: translations[locale] }), [locale]);
+  const value = useMemo(() => ({
+    locale,
+    setLocale: setBaseLocale,
+    setLearningLocale,
+    copy: translations[locale],
+  }), [locale]);
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }

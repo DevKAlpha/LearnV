@@ -28,6 +28,12 @@ export function WrittenSimulatorPage() {
     : simulator.score.total >= 65
       ? copy.written.resultDeveloping
       : copy.written.resultRevise;
+  const draftChecks = [
+    { ok: state.personalStatement.trim().length >= 600, label: locale === "ko" ? "자기소개서 초안이 최소 연습 길이에 도달했습니다." : locale === "en" ? "The Personal Statement reaches the practice length." : "El Personal Statement alcanza la extensión de práctica." },
+    { ok: state.studyPlan.trim().length >= 600, label: locale === "ko" ? "학업계획서 초안이 최소 연습 길이에 도달했습니다." : locale === "en" ? "The Study Plan reaches the practice length." : "El Study Plan alcanza la extensión de práctica." },
+    { ok: /\d/u.test(`${state.personalStatement} ${state.studyPlan}`), label: locale === "ko" ? "확인 가능한 숫자 또는 기간이 포함되어 있습니다." : locale === "en" ? "A verifiable number or timeline is included." : "Incluye una cifra o plazo verificable." },
+    { ok: state.personalStatement.trim() !== state.studyPlan.trim(), label: locale === "ko" ? "두 글이 서로 다른 목적을 수행합니다." : locale === "en" ? "The two drafts serve different purposes." : "Los dos borradores cumplen propósitos distintos." },
+  ];
 
   useEffect(() => {
     const reset = () => simulator.reset();
@@ -182,6 +188,11 @@ export function WrittenSimulatorPage() {
             <span><b>{simulator.score.review}/20</b>{copy.written.selfReview}</span>
           </div>
           <p className="written-result__notice">{copy.written.resultNotice}</p>
+          <div className="written-result__checks">
+            <h3>{locale === "ko" ? "자동으로 확인한 항목" : locale === "en" ? "Automated completion checks" : "Comprobaciones automáticas"}</h3>
+            <ul>{draftChecks.map((check) => <li className={check.ok ? "is-complete" : "is-missing"} key={check.label}><span>{check.ok ? "✓" : "!"}</span>{check.label}</li>)}</ul>
+            <small>{locale === "ko" ? "LearnV는 글의 품질이나 선발 가능성을 자동 평가하지 않습니다." : locale === "en" ? "LearnV does not automatically judge writing quality or selection chances." : "LearnV no califica automáticamente la calidad del texto ni predice la selección."}</small>
+          </div>
           <div className="written-stage__actions">
             <Link className="test-secondary-action" to="/study">{copy.written.backStudy}</Link>
             <button className="test-primary-action" type="button" onClick={simulator.reset}>{copy.written.retry}<span aria-hidden="true">↻</span></button>
@@ -207,7 +218,7 @@ type WritingStageProps = {
 };
 
 function WritingStage({ copy, step, title, prompt, help, value, limit, onChange, onBack, onNext }: WritingStageProps) {
-  const ready = value.trim().length >= 200;
+  const ready = value.trim().length >= 600;
   return (
     <section className="written-stage written-stage--writing">
       <span className="eyebrow">{step} · {title}</span>
