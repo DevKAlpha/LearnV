@@ -146,26 +146,26 @@ El radar detecta disponibilidad y cambios en fuentes oficiales; no convierte aut
 
 | Rama | Responsabilidad principal |
 | --- | --- |
-| `codex/home` | Inicio, plan diario, recordatorios y objetivos. |
-| `codex/scholarship` | Beca, radar, fuentes, programas y videos GKS. |
-| `codex/study` | Idiomas, recursos, pruebas, entrevistas y simulador escrito. |
-| `codex/documents` | Checklist y preparación documental. |
-| `codex/profile` | Perfil y resumen de niveles/progreso. |
-| `codex/platform` | Arquitectura, navegación global, UI compartida, CI y documentación. |
+| `home` | Inicio, plan diario, recordatorios y objetivos. |
+| `scholarship` | Beca, radar, fuentes, programas y videos GKS. |
+| `study` | Idiomas, recursos, pruebas, entrevistas y simulador escrito. |
+| `documents` | Checklist y preparación documental. |
+| `profile` | Perfil y resumen de niveles/progreso. |
+| `platform` | Arquitectura, navegación global, UI compartida, CI y documentación. |
 
 ### Trabajo en un apartado
 
 ```bash
 git switch main
 git pull --ff-only origin main
-git switch codex/study        # sustituir por la rama correspondiente
+git switch study              # sustituir por la rama correspondiente
 git merge main
 
 # realizar cambios
 pnpm validate
 git add <archivos-del-apartado>
 git commit -m "feat: descripcion breve"
-git push origin codex/study
+git push origin study
 ```
 
 Después se abre un **Pull Request hacia `main`** usando la plantilla del repositorio. No se realizan commits funcionales directamente en `main`.
@@ -175,12 +175,12 @@ Una vez integrado el PR, la rama del apartado se sincroniza:
 ```bash
 git switch main
 git pull --ff-only origin main
-git switch codex/study
+git switch study
 git merge main
-git push origin codex/study
+git push origin study
 ```
 
-Los cambios que afecten más de un apartado se realizan en `codex/platform` o en una rama temporal `codex/<historia>-<descripcion>`, se validan y se integran mediante PR.
+Los cambios que afecten más de un apartado se realizan en `platform` o en una rama temporal `feature/<historia>-<descripcion>`, se validan y se integran mediante PR.
 
 ## Actualización de contenidos
 

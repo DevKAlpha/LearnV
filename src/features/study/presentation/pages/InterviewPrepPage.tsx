@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { localize } from "@/domain/models/i18n";
 import { interviewQuestions, interviewTips } from "@/infrastructure/data/interview-prep";
+import { LiteYouTube } from "@/shared/ui/LiteYouTube";
 
 type Category = "all" | "motivation" | "academic" | "adaptation" | "contribution";
 type SavedPractice = Record<string, { answer: string; checked: boolean[] }>;
@@ -92,7 +93,7 @@ export function InterviewPrepPage() {
 
       <section className="interview-video" aria-labelledby="video-title">
         <div className="section-heading"><div><span className="eyebrow">{copy.interview.videoKicker}</span><h2 id="video-title">{copy.interview.videoTitle}</h2></div></div>
-        <div className="interview-video__frame"><iframe src="https://www.youtube-nocookie.com/embed/VZhCWLIhcnA" title={copy.interview.videoTitle} loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen /></div>
+        <div className="interview-video__frame"><LiteYouTube videoId="VZhCWLIhcnA" title={copy.interview.videoTitle} /></div>
         <div className="interview-video__copy"><span>{copy.interview.experienceBadge}</span><p>{copy.interview.videoText}</p><a href="https://www.youtube.com/watch?v=VZhCWLIhcnA" target="_blank" rel="noreferrer">{copy.interview.openYoutube} ↗</a></div>
       </section>
 

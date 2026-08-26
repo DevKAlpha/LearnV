@@ -10,6 +10,7 @@ import {
 } from "@/domain/models/language-test";
 import { practiceTestTracks as languageTestTracks } from "@/infrastructure/data/practice-tests";
 import { AppIcon } from "@/shared/ui/AppIcon";
+import { LiteYouTube } from "@/shared/ui/LiteYouTube";
 
 function formatTime(seconds: number) {
   const minutes = Math.floor(seconds / 60);
@@ -344,13 +345,7 @@ export function TestSessionPage() {
           stage.media ? (
             <article className="listening-media-card">
               <div className="listening-media-card__frame">
-                <iframe
-                  src={`https://www.youtube-nocookie.com/embed/${stage.media.videoId}?rel=0&start=${stage.media.startSeconds ?? 0}&end=${stage.media.endSeconds ?? 180}`}
-                  title={stage.media.title}
-                  loading="lazy"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                />
+                <LiteYouTube videoId={stage.media.videoId} title={stage.media.title} startSeconds={stage.media.startSeconds} endSeconds={stage.media.endSeconds} />
               </div>
               <div className="listening-media-card__body">
                 <div className="listening-media-card__badges">

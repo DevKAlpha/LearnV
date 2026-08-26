@@ -14,6 +14,7 @@ import { AppRoutes } from "@/app/routing/AppRoutes";
 import { AnimatedRouteView } from "@/app/routing/AnimatedRouteView";
 import { BrandMark } from "@/shared/ui/BrandMark";
 import { ThemeToggle } from "@/shared/ui/ThemeToggle";
+import { SectionTour } from "@/app/layout/SectionTour";
 
 export function App() {
   const progress = useGksProgress();
@@ -60,6 +61,7 @@ export function App() {
       </main>
 
       <BottomNav />
+      <SectionTour />
     </div>
   );
 }

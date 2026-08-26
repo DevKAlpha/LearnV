@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { useI18n } from "@/application/i18n/I18nContext";
 
 export function AppGuide() {
-  const { copy } = useI18n();
+  const { copy, locale } = useI18n();
   const [open, setOpen] = useState(false);
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -35,6 +35,10 @@ export function AppGuide() {
               <button ref={closeRef} type="button" aria-label={copy.guide.close} onClick={() => setOpen(false)}>×</button>
             </header>
             <p className="app-guide-dialog__intro">{copy.guide.intro}</p>
+            <button className="app-guide-tour-button" type="button" onClick={() => {
+              setOpen(false);
+              window.setTimeout(() => window.dispatchEvent(new Event("learnv:start-tour")), 120);
+            }}><span aria-hidden="true">✦</span>{locale === "ko" ? "이 화면 안내 다시 보기" : locale === "en" ? "Replay this screen tour" : "Volver a ver el recorrido de esta pantalla"}<i aria-hidden="true">→</i></button>
             <div className="app-guide-controls">
               <strong>{copy.guide.controlsTitle}</strong>
               <ul>{copy.guide.controls.map((control) => <li key={control}>{control}</li>)}</ul>

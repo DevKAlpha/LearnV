@@ -5,7 +5,13 @@ on:
     branches: [main]
   push:
     branches:
-      - "codex/**"
+      - home
+      - scholarship
+      - study
+      - documents
+      - profile
+      - platform
+      - architecture-readme
 
 permissions:
   contents: read

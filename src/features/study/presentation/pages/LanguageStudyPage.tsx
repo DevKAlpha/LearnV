@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguageTestProgress } from "@/application/controllers/useLanguageTestProgress";
 import { useI18n } from "@/application/i18n/I18nContext";
@@ -18,7 +19,31 @@ export function LanguageStudyPage({ language }: LanguageStudyPageProps) {
   const isEnglish = language === "en";
   const resourceCount = learningResources.filter((resource) => resource.languages.includes(language)).length;
   const otherLanguage = isEnglish ? "korean" : "english";
-  const scrollToSection = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const [activeSection, setActiveSection] = useState<"tests" | "materials">("tests");
+  const scrollToSection = (id: "language-tests" | "language-materials") => {
+    setActiveSection(id === "language-tests" ? "tests" : "materials");
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  useEffect(() => {
+    let frame = 0;
+    const updateActiveSection = () => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        const materials = document.getElementById("language-materials");
+        if (!materials) return;
+        setActiveSection(materials.getBoundingClientRect().top <= 190 ? "materials" : "tests");
+      });
+    };
+    updateActiveSection();
+    window.addEventListener("scroll", updateActiveSection, { passive: true });
+    window.addEventListener("resize", updateActiveSection);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", updateActiveSection);
+      window.removeEventListener("resize", updateActiveSection);
+    };
+  }, [language]);
 
   return (
     <div className={`page language-study-page language-study-page--${language}`}>
@@ -39,8 +64,8 @@ export function LanguageStudyPage({ language }: LanguageStudyPageProps) {
       </header>
 
       <nav className="language-study-jump-nav" aria-label={copy.study.spaceNavigation}>
-        <button type="button" onClick={() => scrollToSection("language-tests")}><span aria-hidden="true"><AppIcon name="test" /></span>{copy.study.goTests}</button>
-        <button type="button" onClick={() => scrollToSection("language-materials")}><span aria-hidden="true"><AppIcon name="document" /></span>{copy.study.goMaterials}</button>
+        <button className={activeSection === "tests" ? "is-active" : ""} type="button" aria-pressed={activeSection === "tests"} onClick={() => scrollToSection("language-tests")}><span aria-hidden="true"><AppIcon name="test" /></span>{copy.study.goTests}</button>
+        <button className={activeSection === "materials" ? "is-active" : ""} type="button" aria-pressed={activeSection === "materials"} onClick={() => scrollToSection("language-materials")}><span aria-hidden="true"><AppIcon name="document" /></span>{copy.study.goMaterials}</button>
         <Link to={`/study/${otherLanguage}`}><span className="language-swap-icon" aria-hidden="true">EN<small>한</small></span>{copy.study.changeLanguage}</Link>
       </nav>
 

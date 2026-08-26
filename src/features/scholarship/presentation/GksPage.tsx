@@ -5,6 +5,7 @@ import { useI18n } from "@/application/i18n/I18nContext";
 import { currentCycle, keyFacts, sources, targetPrograms } from "@/infrastructure/data/gks-2026";
 import { gksFeedbackVideos } from "@/infrastructure/data/gks-feedback-videos";
 import { SourceLink } from "@/shared/ui/SourceLink";
+import { LiteYouTube } from "@/shared/ui/LiteYouTube";
 import { StatusBadge } from "@/shared/ui/StatusBadge";
 import { Link } from "react-router-dom";
 import { BrandMark } from "@/shared/ui/BrandMark";
@@ -120,13 +121,7 @@ export function GksPage() {
             transition={{ duration: 0.2 }}
           >
             <div className="gks-video-slide__frame">
-              <iframe
-                src={`https://www.youtube-nocookie.com/embed/${selectedVideo.videoId}?rel=0`}
-                title={selectedVideoCopy.title}
-                loading="lazy"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              />
+              <LiteYouTube videoId={selectedVideo.videoId} title={selectedVideoCopy.title} />
             </div>
             <div className="gks-video-slide__copy">
               <span>{selectedVideoCopy.badge}</span>
