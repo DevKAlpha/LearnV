@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguageTestProgress } from "@/application/controllers/useLanguageTestProgress";
 import { currentCycle } from "@/infrastructure/data/gks-2026";
@@ -7,6 +8,8 @@ import { BrandMark } from "@/shared/ui/BrandMark";
 export function ProfilePage({ score }: { score: number }) {
   const { copy } = useI18n();
   const { progress, totals } = useLanguageTestProgress();
+  const [creditTaps, setCreditTaps] = useState(0);
+  const easterEggVisible = creditTaps >= 5;
 
   const averageBestScore = (language: "en" | "ko") => {
     const attempts = Object.values(progress[language]);
@@ -49,16 +52,23 @@ export function ProfilePage({ score }: { score: number }) {
       </Link>
 
       <section className="profile-fields">
-        <Link to="/gks"><small>{copy.profile.nationality}</small><strong>{copy.profile.nationalityValue}</strong><span>→</span></Link>
-        <Link to="/gks"><small>{copy.profile.major}</small><strong>{copy.profile.majorValue}</strong><span>→</span></Link>
-        <Link to="/study/korean"><small>{copy.profile.korean}</small><strong>{koreanLevel}{koreanScore !== null && <em> · {totals.ko}/5 {copy.profile.testsCompleted}</em>}</strong><span>{koreanScore === null ? "→" : "↻"}</span></Link>
-        <Link to="/study/english"><small>{copy.profile.english}</small><strong>{englishLevel}{englishScore !== null && <em> · {totals.en}/5 {copy.profile.testsCompleted}</em>}</strong><span>{englishScore === null ? "→" : "↻"}</span></Link>
+        <div className="profile-field"><small>{copy.profile.nationality}</small><strong>{copy.profile.nationalityValue}</strong></div>
+        <div className="profile-field"><small>{copy.profile.major}</small><strong>{copy.profile.majorValue}</strong></div>
+        <div className="profile-field"><small>{copy.profile.korean}</small><strong>{koreanLevel}{koreanScore !== null && <em> · {totals.ko}/5 {copy.profile.testsCompleted}</em>}</strong></div>
+        <div className="profile-field"><small>{copy.profile.english}</small><strong>{englishLevel}{englishScore !== null && <em> · {totals.en}/5 {copy.profile.testsCompleted}</em>}</strong></div>
       </section>
 
       <section className="profile-cycle">
         <span className="eyebrow">{copy.profile.targetCycle}</span><h2>{currentCycle.target}</h2><p>{copy.home.cycleNote}</p>
         <Link to="/gks">{copy.profile.radar} →</Link>
       </section>
+
+      <footer className={easterEggVisible ? "profile-credit is-revealed" : "profile-credit"} onClick={() => setCreditTaps((value) => Math.min(5, value + 1))}>
+        <span aria-hidden="true">© 2026 · </span>{copy.profile.developedBy}{" "}
+        {easterEggVisible
+          ? <strong aria-live="polite">ninininini</strong>
+          : <a href="https://github.com/DevKAlpha/LearnV/commits?author=DevKAlpha" target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>DevKAlpha</a>}
+      </footer>
     </div>
   );
 }
