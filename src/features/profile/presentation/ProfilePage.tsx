@@ -66,8 +66,8 @@ export function ProfilePage({ score }: { score: number }) {
       <footer className={easterEggVisible ? "profile-credit is-revealed" : "profile-credit"} onClick={() => setCreditTaps((value) => Math.min(5, value + 1))}>
         <span aria-hidden="true">© 2026 · </span>{copy.profile.developedBy}{" "}
         {easterEggVisible
-          ? <strong aria-live="polite">ninininini</strong>
-          : <a href="https://github.com/DevKAlpha/LearnV/commits?author=DevKAlpha" target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>DevKAlpha</a>}
+          ? <strong aria-live="polite">ninininini 😘 💜</strong>
+          : "DevKAlpha"}
       </footer>
     </div>
   );

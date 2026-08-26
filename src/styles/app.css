@@ -3006,9 +3006,7 @@ html[data-theme="dark"] .document-tags span {
 }
 
 .profile-credit:active { transform: scale(0.97); }
-.profile-credit a,
 .profile-credit strong { color: var(--ink); font-weight: 900; }
-.profile-credit a { text-underline-offset: 2px; }
 .profile-credit.is-revealed {
   color: var(--ink);
   background: color-mix(in srgb, var(--purple) 16%, transparent);
@@ -3021,7 +3019,7 @@ html[data-theme="dark"] .document-tags span {
   color: #f8eefc;
 }
 
-:root[data-theme="dark"] .profile-credit :is(a, strong) { color: #fff; }
+:root[data-theme="dark"] .profile-credit strong { color: #fff; }
 :root[data-theme="dark"] .profile-credit.is-revealed {
   background: rgba(172, 103, 207, 0.22);
   box-shadow: 0 0 22px rgba(196, 128, 230, 0.3);
