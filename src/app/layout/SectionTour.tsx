@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import { useLocation } from "react-router-dom";
-import { useI18n } from "@/application/i18n/I18nContext";
-import type { LocalizedText } from "@/domain/models/i18n";
+import type { Locale, LocalizedText } from "@/domain/models/i18n";
 import { localize } from "@/domain/models/i18n";
 
 type TourStep = { selector: string; title: LocalizedText; text: LocalizedText };
@@ -100,18 +99,20 @@ function readSeenTours(): Record<string, boolean> {
 
 export function SectionTour() {
   const { pathname } = useLocation();
-  const { locale } = useI18n();
   const definition = useMemo(() => getDefinition(pathname), [pathname]);
   const [open, setOpen] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [steps, setSteps] = useState<TourStep[]>([]);
   const [rect, setRect] = useState<HighlightRect | null>(null);
+  const [tourLocale, setTourLocale] = useState<Locale>("es");
+  const nextButtonRef = useRef<HTMLButtonElement>(null);
 
   const startTour = useCallback(() => {
     const available = definition.steps.filter((item) => document.querySelector(item.selector));
     if (available.length === 0) return;
     setSteps(available);
     setStepIndex(0);
+    setTourLocale("es");
     setOpen(true);
   }, [definition]);
 
@@ -165,33 +166,63 @@ export function SectionTour() {
 
   useEffect(() => {
     if (!open) return;
-    const onKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") closeTour(); };
+    const appRoot = document.getElementById("root");
+    document.documentElement.classList.add("section-tour-lock");
+    document.body.classList.add("section-tour-lock");
+    appRoot?.setAttribute("inert", "");
+    nextButtonRef.current?.focus();
+
+    const blockBackgroundMovement = (event: Event) => {
+      const target = event.target;
+      if (target instanceof Element && target.closest(".section-tour__card")) return;
+      event.preventDefault();
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeTour();
+      const activatesControl = event.key === " " && event.target instanceof HTMLElement && event.target.matches("button, a");
+      if (!activatesControl && ["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].includes(event.key)) event.preventDefault();
+    };
     document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [closeTour, open]);
+    document.addEventListener("wheel", blockBackgroundMovement, { capture: true, passive: false });
+    document.addEventListener("touchmove", blockBackgroundMovement, { capture: true, passive: false });
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("wheel", blockBackgroundMovement, true);
+      document.removeEventListener("touchmove", blockBackgroundMovement, true);
+      document.documentElement.classList.remove("section-tour-lock");
+      document.body.classList.remove("section-tour-lock");
+      appRoot?.removeAttribute("inert");
+    };
+  }, [closeTour, open, stepIndex]);
 
   if (!open || !steps[stepIndex]) return null;
   const current = steps[stepIndex];
   const cardAtTop = Boolean(rect && rect.top + rect.height > window.innerHeight * 0.58);
-  const labels = locale === "ko"
-    ? { guide: "빠른 안내", skip: "건너뛰기", previous: "이전", next: "다음", finish: "완료" }
-    : locale === "en"
-      ? { guide: "Quick tour", skip: "Skip", previous: "Previous", next: "Next", finish: "Finish" }
-      : { guide: "Recorrido rápido", skip: "Omitir", previous: "Anterior", next: "Siguiente", finish: "Finalizar" };
+  const labels = tourLocale === "ko"
+    ? { guide: "빠른 안내", language: "설명 언어", skip: "모두 건너뛰기", previous: "이전", next: "다음", finish: "완료" }
+    : tourLocale === "en"
+      ? { guide: "Quick tour", language: "Explanation language", skip: "Skip all", previous: "Previous", next: "Next", finish: "Finish" }
+      : { guide: "Recorrido rápido", language: "Idioma de las explicaciones", skip: "Omitir todo", previous: "Anterior", next: "Siguiente", finish: "Finalizar" };
 
   return createPortal(
     <div className="section-tour" role="dialog" aria-modal="true" aria-labelledby="section-tour-title">
       {rect && <div className="section-tour__highlight" style={{ top: rect.top, left: rect.left, width: rect.width, height: rect.height } as CSSProperties} />}
       <section className={cardAtTop ? "section-tour__card section-tour__card--top" : "section-tour__card"}>
-        <div className="section-tour__meta"><span>{labels.guide}</span><strong>{stepIndex + 1}/{steps.length}</strong></div>
+        <div className="section-tour__meta">
+          <span>{labels.guide}</span>
+          <div className="section-tour__languages" role="group" aria-label={labels.language}>
+            {(["es", "en", "ko"] as const).map((language) => <button key={language} type="button" aria-pressed={tourLocale === language} aria-label={language === "es" ? "Español" : language === "en" ? "English" : "한국어"} onClick={() => setTourLocale(language)}>{language === "ko" ? "한" : language.toUpperCase()}</button>)}
+          </div>
+          <strong>{stepIndex + 1}/{steps.length}</strong>
+        </div>
         <div className="section-tour__progress"><i style={{ width: `${((stepIndex + 1) / steps.length) * 100}%` }} /></div>
-        <small>{localize(definition.title, locale)}</small>
-        <h2 id="section-tour-title">{localize(current.title, locale)}</h2>
-        <p>{localize(current.text, locale)}</p>
+        <small>{localize(definition.title, tourLocale)}</small>
+        <h2 id="section-tour-title">{localize(current.title, tourLocale)}</h2>
+        <p>{localize(current.text, tourLocale)}</p>
         <div className="section-tour__actions">
           <button type="button" className="section-tour__skip" onClick={closeTour}>{labels.skip}</button>
           {stepIndex > 0 && <button type="button" onClick={() => setStepIndex((value) => value - 1)}>← {labels.previous}</button>}
-          <button type="button" className="section-tour__next" onClick={() => stepIndex === steps.length - 1 ? closeTour() : setStepIndex((value) => value + 1)}>{stepIndex === steps.length - 1 ? labels.finish : labels.next} →</button>
+          <button ref={nextButtonRef} type="button" className="section-tour__next" onClick={() => stepIndex === steps.length - 1 ? closeTour() : setStepIndex((value) => value + 1)}>{stepIndex === steps.length - 1 ? labels.finish : labels.next} →</button>
         </div>
       </section>
     </div>,

@@ -4296,11 +4296,16 @@ html[data-theme="dark"] .document-tags span {
 :root[data-theme="dark"] :is(.app-guide-dialog__intro, .app-guide-sections p) { color: #ead5e7; }
 :root[data-theme="dark"] .app-guide-tour-button { border-color: rgba(255,255,255,0.32); background: linear-gradient(135deg, #753e8d, #8a7220); box-shadow: 3px 4px 0 #070b11; color: white; }
 
-.section-tour { position: fixed; z-index: 300; inset: 0; pointer-events: none; }
+html.section-tour-lock,
+body.section-tour-lock { overflow: hidden; overscroll-behavior: none; }
+.section-tour { position: fixed; z-index: 300; inset: 0; overflow: hidden; pointer-events: auto; touch-action: none; }
 .section-tour__highlight { position: fixed; z-index: 0; border: 3px solid var(--yellow); border-radius: 18px; box-shadow: 0 0 0 9999px rgba(15,10,18,0.72), 0 0 0 6px rgba(255,208,82,0.24), 0 0 30px rgba(255,208,82,0.48); pointer-events: none; transition: inset 240ms ease, width 240ms ease, height 240ms ease; }
-.section-tour__card { position: fixed; z-index: 1; right: 14px; bottom: max(14px, env(safe-area-inset-bottom)); left: 14px; width: min(calc(100% - 28px), 520px); margin: 0 auto; padding: 16px; border: 2px solid var(--ink); border-radius: 23px; background: linear-gradient(145deg, rgba(255,252,246,0.98), rgba(238,214,244,0.98)); box-shadow: var(--glass-highlight), 6px 7px 0 var(--ink), 0 22px 54px rgba(0,0,0,0.36); color: var(--ink); pointer-events: auto; }
+.section-tour__card { position: fixed; z-index: 1; right: 14px; bottom: max(14px, env(safe-area-inset-bottom)); left: 14px; width: min(calc(100% - 28px), 520px); max-height: calc(100dvh - 28px); overflow: auto; margin: 0 auto; padding: 16px; border: 2px solid var(--ink); border-radius: 23px; background: linear-gradient(145deg, rgba(255,252,246,0.98), rgba(238,214,244,0.98)); box-shadow: var(--glass-highlight), 6px 7px 0 var(--ink), 0 22px 54px rgba(0,0,0,0.36); color: var(--ink); pointer-events: auto; touch-action: manipulation; overscroll-behavior: contain; }
 .section-tour__card--top { top: max(14px, env(safe-area-inset-top)); bottom: auto; }
 .section-tour__meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: #73418a; font-size: 0.55rem; font-weight: 950; letter-spacing: 0.06em; text-transform: uppercase; }
+.section-tour__languages { display: inline-flex; align-items: center; gap: 3px; margin-left: auto; padding: 2px; border: 1px solid color-mix(in srgb, currentColor 34%, transparent); border-radius: 999px; }
+.section-tour__languages button { display: grid; min-width: 30px; height: 28px; padding: 0 6px; place-items: center; border: 0; border-radius: 999px; background: transparent; color: inherit; font: inherit; letter-spacing: 0; cursor: pointer; }
+.section-tour__languages button[aria-pressed="true"] { background: var(--ink); color: white; box-shadow: 0 2px 0 var(--yellow); }
 .section-tour__progress { height: 6px; overflow: hidden; margin-top: 8px; border-radius: 999px; background: rgba(32,24,34,0.12); }
 .section-tour__progress i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--purple), var(--hot-pink), var(--yellow)); transition: width 220ms ease; }
 .section-tour__card > small { display: block; margin-top: 12px; color: var(--muted); font-size: 0.53rem; font-weight: 850; }
@@ -4312,6 +4317,7 @@ html[data-theme="dark"] .document-tags span {
 .section-tour__actions .section-tour__next { background: var(--ink); color: white; }
 :root[data-theme="dark"] .section-tour__card { border-color: rgba(255,255,255,0.34); background: linear-gradient(145deg, rgba(41,27,45,0.98), rgba(24,31,43,0.98)); box-shadow: var(--glass-highlight), 6px 7px 0 #070b11, 0 22px 54px rgba(0,0,0,0.5); color: white; }
 :root[data-theme="dark"] .section-tour__meta { color: #e3b8ef; }
+:root[data-theme="dark"] .section-tour__languages button[aria-pressed="true"] { background: #f1d2f5; color: #1f1821; }
 :root[data-theme="dark"] .section-tour__card :is(p, small) { color: #eaddea; }
 :root[data-theme="dark"] .section-tour__actions button { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: white; }
 :root[data-theme="dark"] .section-tour__actions .section-tour__next { background: #f1d2f5; color: #1f1821; }
