@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { useI18n } from "@/application/i18n/I18nContext";
 import { useTheme } from "@/application/theme/ThemeContext";
 
 const TEST_STORAGE_KEY = "learnv-language-tests-v1";
@@ -47,7 +46,6 @@ function createFaviconSvg(pathname: string, readiness: number, dark: boolean) {
 
 export function DynamicFavicon({ readiness }: DynamicFaviconProps) {
   const location = useLocation();
-  const { locale } = useI18n();
   const { theme } = useTheme();
   const [progressVersion, setProgressVersion] = useState(0);
 
@@ -73,7 +71,7 @@ export function DynamicFavicon({ readiness }: DynamicFaviconProps) {
       : location.pathname.includes("/tests/ko") || location.pathname.includes("/study/korean")
         ? "korean"
         : "general";
-  }, [location.pathname, locale, progressVersion, readiness, theme]);
+  }, [location.pathname, progressVersion, readiness, theme]);
 
   return null;
 }

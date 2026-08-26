@@ -2,7 +2,6 @@ import type { Locale } from "@/domain/models/i18n";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { ThemeToggle } from "@/shared/ui/ThemeToggle";
-import { m } from "motion/react";
 import { BrandMark } from "@/shared/ui/BrandMark";
 import { AppGuide } from "@/app/layout/AppGuide";
 
@@ -24,25 +23,20 @@ export function LanguageSwitcher() {
       <div className="app-toolbar__controls">
         <div className="language-switcher" role="group" aria-label={copy.app.languageLabel}>
           {options.map((option) => (
-            <m.button
+            <button
               key={option.value}
               type="button"
               className={locale === option.value ? "language-option language-option--active" : "language-option"}
               aria-pressed={locale === option.value}
               aria-label={option.label}
               onClick={() => setLocale(option.value)}
-              whileTap={{ scale: 0.94 }}
             >
               {locale === option.value && (
-                <m.span
-                  className="language-option__active"
-                  layoutId="active-language"
-                  transition={{ type: "spring", stiffness: 520, damping: 38 }}
-                />
+                <span className="language-option__active" />
               )}
               <span>{option.short}</span>
               <small>{option.label}</small>
-            </m.button>
+            </button>
           ))}
         </div>
         <ThemeToggle compact />

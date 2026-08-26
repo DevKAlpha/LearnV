@@ -1,5 +1,4 @@
 import { useEffect, useRef, type PropsWithChildren } from "react";
-import { animate, m, useReducedMotion } from "motion/react";
 
 type Props = PropsWithChildren<{
   routeKey: string;
@@ -8,63 +7,45 @@ type Props = PropsWithChildren<{
 /** Applies route-level transitions without coupling feature pages to Motion. */
 export function AnimatedRouteView({ children, routeKey }: Props) {
   const routeRef = useRef<HTMLDivElement>(null);
-  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     const route = routeRef.current;
-    if (!route || reduceMotion) return;
+    if (!route || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    const revealTargets = Array.from(
-      route.querySelectorAll<HTMLElement>(".page > header, .page > section, .page > article"),
-    );
-    if (!revealTargets.length) return;
+    const observed = new Set<Element>();
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-revealed");
+        observer.unobserve(entry.target);
+      });
+    }, { rootMargin: "0px 0px -28px", threshold: 0.06 });
 
-    const observers: IntersectionObserver[] = [];
-    const controls: Array<ReturnType<typeof animate>> = [];
-
-    revealTargets.forEach((target, index) => {
-      target.style.opacity = "0";
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (!entry?.isIntersecting) return;
-          const control = animate(
-            target,
-            { opacity: [0, 1], y: [14, 0] },
-            {
-              duration: 0.38,
-              delay: Math.min(index, 3) * 0.045,
-              ease: [0.22, 1, 0.36, 1],
-            },
-          );
-          controls.push(control);
-          observer.unobserve(target);
-        },
-        { rootMargin: "0px 0px -28px", threshold: 0.06 },
-      );
-      observer.observe(target);
-      observers.push(observer);
-    });
-
-    return () => {
-      observers.forEach((observer) => observer.disconnect());
-      controls.forEach((control) => control.stop());
-      revealTargets.forEach((target) => {
-        target.style.removeProperty("opacity");
-        target.style.removeProperty("transform");
+    const discover = () => {
+      route.querySelectorAll<HTMLElement>(".page > header, .page > section, .page > article").forEach((target, index) => {
+        if (observed.has(target)) return;
+        observed.add(target);
+        target.classList.add("route-reveal-item");
+        target.style.setProperty("--reveal-delay", `${Math.min(index, 3) * 45}ms`);
+        observer.observe(target);
       });
     };
-  }, [reduceMotion, routeKey]);
+
+    discover();
+    const mutationObserver = new MutationObserver(discover);
+    mutationObserver.observe(route, { childList: true, subtree: true });
+
+    return () => {
+      mutationObserver.disconnect();
+      observer.disconnect();
+      observed.forEach((target) => {
+        target.classList.remove("route-reveal-item", "is-revealed");
+        (target as HTMLElement).style.removeProperty("--reveal-delay");
+      });
+    };
+  }, [routeKey]);
 
   return (
-    <m.div
-      ref={routeRef}
-      className="route-stage"
-      initial={{ opacity: 0, y: reduceMotion ? 0 : 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: reduceMotion ? 0 : -6 }}
-      transition={{ duration: reduceMotion ? 0.12 : 0.28, ease: [0.22, 1, 0.36, 1] }}
-    >
-      {children}
-    </m.div>
+    <div ref={routeRef} className="route-stage">{children}</div>
   );
 }

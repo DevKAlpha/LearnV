@@ -8,6 +8,16 @@ type LiteYouTubeProps = {
   endSeconds?: number;
 };
 
+function warmYouTubeConnection() {
+  const origin = "https://www.youtube-nocookie.com";
+  if (document.head.querySelector(`link[rel="preconnect"][href="${origin}"]`)) return;
+  const link = document.createElement("link");
+  link.rel = "preconnect";
+  link.href = origin;
+  link.crossOrigin = "anonymous";
+  document.head.append(link);
+}
+
 export function LiteYouTube({ videoId, title, startSeconds = 0, endSeconds }: LiteYouTubeProps) {
   const { locale } = useI18n();
   const [active, setActive] = useState(false);
@@ -26,7 +36,15 @@ export function LiteYouTube({ videoId, title, startSeconds = 0, endSeconds }: Li
       allowFullScreen
     />
   ) : (
-    <button className="lite-youtube" type="button" aria-label={playLabel} onClick={() => setActive(true)}>
+    <button
+      className="lite-youtube"
+      type="button"
+      aria-label={playLabel}
+      onPointerEnter={warmYouTubeConnection}
+      onFocus={warmYouTubeConnection}
+      onTouchStart={warmYouTubeConnection}
+      onClick={() => setActive(true)}
+    >
       <img
         src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`}
         alt=""

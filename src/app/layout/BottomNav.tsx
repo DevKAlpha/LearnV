@@ -6,7 +6,6 @@ import {
   WRITTEN_SIMULATOR_STATE_EVENT,
 } from "@/application/controllers/writtenSimulatorStatus";
 import { useI18n } from "@/application/i18n/I18nContext";
-import { AnimatePresence, m } from "motion/react";
 import { AppIcon, type AppIconName } from "@/shared/ui/AppIcon";
 
 export function BottomNav() {
@@ -54,12 +53,9 @@ export function BottomNav() {
   ];
 
   return <>
-    <m.nav
+    <nav
       className="bottom-nav"
       aria-label={copy.nav.mainAria}
-      initial={{ y: 18, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ type: "spring", stiffness: 320, damping: 28 }}
     >
       {items.filter((item) => !(isWrittenSimulator && writtenSimulatorStarted && item.icon === "profile")).map((item) => {
         const active = location.pathname === item.to
@@ -75,26 +71,12 @@ export function BottomNav() {
           aria-current={active ? "page" : undefined}
         >
           {active && (
-            <m.span
-              className="nav-active-pill"
-              layoutId="bottom-nav-active"
-              transition={{ type: "spring", stiffness: 430, damping: 36 }}
-            />
+            <span className="nav-active-pill" />
           )}
-          <m.span
-            className="nav-item__motion"
-            animate={active ? { y: -2, scale: 1.06 } : { y: 0, scale: 1 }}
-            whileTap={{ y: 2, scale: 0.88 }}
-            transition={{ type: "spring", stiffness: 500, damping: 30 }}
-          >
-            <m.span
-              className="nav-symbol"
-              aria-hidden="true"
-              animate={active ? { rotate: [0, -8, 7, 0] } : { rotate: 0 }}
-              transition={{ duration: 0.38 }}
-            ><AppIcon name={item.icon} /></m.span>
+          <span className="nav-item__motion">
+            <span className="nav-symbol" aria-hidden="true"><AppIcon name={item.icon} /></span>
             <span className="nav-label">{item.label}</span>
-          </m.span>
+          </span>
         </NavLink>
         );
       })}
@@ -112,30 +94,22 @@ export function BottomNav() {
           </span>
         </button>
       )}
-    </m.nav>
+    </nav>
 
     {createPortal(
-      <AnimatePresence>
-        {resetDialogOpen && (
-          <m.div
+      resetDialogOpen ? (
+          <div
             className="reset-confirm-backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
             onMouseDown={(event) => {
               if (event.target === event.currentTarget) setResetDialogOpen(false);
             }}
           >
-            <m.section
+            <section
               className="reset-confirm-dialog"
               role="dialog"
               aria-modal="true"
               aria-labelledby="reset-dialog-title"
               aria-describedby="reset-dialog-description"
-              initial={{ opacity: 0, y: 18, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 12, scale: 0.97 }}
-              transition={{ type: "spring", stiffness: 380, damping: 30 }}
             >
               <span className="reset-confirm-dialog__icon" aria-hidden="true">↻</span>
               <span className="eyebrow">{copy.written.reset}</span>
@@ -153,10 +127,9 @@ export function BottomNav() {
                   }}
                 >{copy.written.confirmReset}</button>
               </div>
-            </m.section>
-          </m.div>
-        )}
-      </AnimatePresence>,
+            </section>
+          </div>
+        ) : null,
       document.body,
     )}
   </>;

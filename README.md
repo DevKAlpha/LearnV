@@ -27,7 +27,8 @@ La interfaz funciona en español, inglés y coreano, incluye temas claro/oscuro,
 - React 19 y TypeScript estricto.
 - Vite 7 para desarrollo y compilación.
 - React Router 7 con rutas diferidas por pantalla.
-- Motion for React para transiciones y feedback táctil.
+- Animaciones CSS aceleradas por composición e `IntersectionObserver`, con reducción de movimiento y sin un motor visual pesado en la carga inicial.
+- Carga diferida por ruta, precarga por intención y renderizado diferido de colecciones fuera de pantalla.
 - Vitest para reglas de dominio y validación de datos.
 - CSS propio con variables temáticas y paleta inspirada en tulipanes.
 - Docker + Nginx para ejecución autocontenida.

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { AnimatePresence, m } from "motion/react";
 import { useGksRadar } from "@/application/controllers/useGksRadar";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { currentCycle, keyFacts, sources, targetPrograms } from "@/infrastructure/data/gks-2026";
@@ -108,17 +107,12 @@ export function GksPage() {
           <span className="gks-video-slider__count" aria-live="polite">{videoIndex + 1} / {gksFeedbackVideos.length}</span>
         </div>
 
-        <AnimatePresence mode="wait" initial={false}>
-          <m.article
+        <article
             className="gks-video-slide"
             id="gks-video-panel"
             role="tabpanel"
             aria-labelledby={`gks-video-tab-${selectedVideo.id}`}
             key={selectedVideo.id}
-            initial={{ opacity: 0, x: 18 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -18 }}
-            transition={{ duration: 0.2 }}
           >
             <div className="gks-video-slide__frame">
               <LiteYouTube videoId={selectedVideo.videoId} title={selectedVideoCopy.title} />
@@ -130,8 +124,7 @@ export function GksPage() {
               <p>{selectedVideoCopy.text}</p>
               <a href={selectedVideo.sourceUrl} target="_blank" rel="noreferrer">{copy.gks.openVideo}<span aria-hidden="true">↗</span></a>
             </div>
-          </m.article>
-        </AnimatePresence>
+        </article>
 
         <div className="gks-video-slider__controls">
           <button type="button" onClick={() => moveVideo(-1)} aria-label={copy.gks.previousVideo}>←</button>

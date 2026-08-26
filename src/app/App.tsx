@@ -1,5 +1,4 @@
-import { Suspense, useEffect } from "react";
-import { AnimatePresence } from "motion/react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useGksProgress } from "@/application/controllers/useGksProgress";
 import { useI18n } from "@/application/i18n/I18nContext";
@@ -12,9 +11,11 @@ import { RouteLoader } from "@/app/routing/RouteLoader";
 import { ScrollToTop } from "@/app/routing/ScrollToTop";
 import { AppRoutes } from "@/app/routing/AppRoutes";
 import { AnimatedRouteView } from "@/app/routing/AnimatedRouteView";
+import { RoutePrefetcher } from "@/app/routing/RoutePrefetcher";
 import { BrandMark } from "@/shared/ui/BrandMark";
 import { ThemeToggle } from "@/shared/ui/ThemeToggle";
-import { SectionTour } from "@/app/layout/SectionTour";
+
+const SectionTour = lazy(() => import("@/app/layout/SectionTour").then((module) => ({ default: module.SectionTour })));
 
 export function App() {
   const progress = useGksProgress();
@@ -22,15 +23,27 @@ export function App() {
   const location = useLocation();
   const learningLocale = resolveLearningLocale(location.pathname);
   const isImmersiveLearningExperience = isImmersiveLearningRoute(location.pathname);
+  const [tourReady, setTourReady] = useState(false);
 
   useEffect(() => {
     setLearningLocale(learningLocale);
     return () => setLearningLocale(null);
   }, [learningLocale, setLearningLocale]);
 
+  useEffect(() => {
+    const requestIdle = (window as unknown as { requestIdleCallback?: Window["requestIdleCallback"] }).requestIdleCallback;
+    if (requestIdle) {
+      const request = requestIdle(() => setTourReady(true), { timeout: 900 });
+      return () => window.cancelIdleCallback?.(request);
+    }
+    const timer = setTimeout(() => setTourReady(true), 350);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="app-shell">
       <ScrollToTop />
+      <RoutePrefetcher />
       <DynamicFavicon readiness={progress.score} />
       <a className="skip-link" href="#main-content">{copy.app.skipLink}</a>
       <aside className="desktop-brand" aria-label="LearnV">
@@ -51,17 +64,15 @@ export function App() {
             <div className="test-theme-toolbar__controls"><ThemeToggle compact /><AppGuide /></div>
           </div>
         )}
-        <AnimatePresence mode="wait" initial={false}>
-          <AnimatedRouteView routeKey={location.pathname} key={location.pathname}>
-            <Suspense fallback={<RouteLoader label={copy.common.loading} />}>
-              <AppRoutes location={location} progress={progress} />
-            </Suspense>
-          </AnimatedRouteView>
-        </AnimatePresence>
+        <AnimatedRouteView routeKey={location.pathname} key={location.pathname}>
+          <Suspense fallback={<RouteLoader label={copy.common.loading} />}>
+            <AppRoutes location={location} progress={progress} />
+          </Suspense>
+        </AnimatedRouteView>
       </main>
 
       <BottomNav />
-      <SectionTour />
+      {tourReady && <Suspense fallback={null}><SectionTour /></Suspense>}
     </div>
   );
 }
