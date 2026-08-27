@@ -11,6 +11,8 @@
     "typecheck": "tsc -b",
     "test": "vitest run",
     "check:architecture": "node scripts/check-architecture.mjs",
+    "release:check": "node scripts/check-release.mjs",
+    "release:commits": "node scripts/check-release-commits.mjs",
     "validate": "pnpm run check:architecture && pnpm test && pnpm run build"
   },
   "dependencies": {

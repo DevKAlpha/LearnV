@@ -1,0 +1,50 @@
+name: Create LearnV release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Validate tag and create release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Confirm tagged commit belongs to main
+        run: |
+          git fetch origin main
+          git merge-base --is-ancestor "$GITHUB_SHA" "origin/main"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Match VERSION and tag
+        run: pnpm run release:check
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+      - name: Run final validation
+        run: pnpm validate
+      - name: Package production bundle
+        id: package
+        run: |
+          VERSION="$(cat VERSION)"
+          ASSET="learnv-${VERSION}.tar.gz"
+          tar -czf "$ASSET" -C dist .
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "asset=$ASSET" >> "$GITHUB_OUTPUT"
+      - name: Create immutable GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.package.outputs.version }}
+          ASSET: ${{ steps.package.outputs.asset }}
+        run: gh release create "$GITHUB_REF_NAME" "$ASSET" --verify-tag --title "LearnV $VERSION" --generate-notes

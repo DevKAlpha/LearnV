@@ -2,7 +2,7 @@ name: Validate LearnV
 
 on:
   pull_request:
-    branches: [main]
+    branches: [prerelease]
   push:
     branches:
       - home

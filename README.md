@@ -1,6 +1,7 @@
 # LearnV
 
 [![Deploy LearnV to GitHub Pages](https://github.com/DevKAlpha/LearnV/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/DevKAlpha/LearnV/actions/workflows/deploy-pages.yml)
+[![Build LearnV prerelease](https://github.com/DevKAlpha/LearnV/actions/workflows/prerelease.yml/badge.svg?branch=prerelease)](https://github.com/DevKAlpha/LearnV/actions/workflows/prerelease.yml)
 
 Aplicación web móvil para preparar una candidatura de pregrado a la **Global Korea Scholarship (GKS-U)** desde España. LearnV reúne seguimiento de preparación, información oficial, recursos de inglés y coreano, prácticas progresivas, preparación de entrevistas y un simulador del expediente escrito.
 
@@ -118,6 +119,7 @@ Vite mostrará la dirección local disponible, normalmente `http://localhost:517
 | `pnpm preview` | Sirve localmente la compilación. |
 | `pnpm gks:update` | Actualiza manualmente el radar oficial. |
 | `pnpm validate` | Ejecuta arquitectura, pruebas y compilación completa. |
+| `pnpm release:check` | Valida el archivo `VERSION` cuando se abre un ciclo de lanzamiento. |
 
 Antes de integrar cualquier historia debe pasar:
 
@@ -141,9 +143,14 @@ La aplicación usa `BrowserRouter` con `basename` calculado por Vite. `scripts/c
 
 El radar detecta disponibilidad y cambios en fuentes oficiales; no convierte automáticamente una variación web en un requisito confirmado. La convocatoria vigente debe verificarse antes de presentar documentos.
 
-## Estrategia de ramas
+## Estrategia de ramas y lanzamientos
 
-`main` es estable, requiere validación y es la única rama que despliega. Cada apartado se trabaja en su rama asignada:
+LearnV separa la integración del lanzamiento:
+
+- `prerelease` reúne historias finalizadas, ejecuta la validación completa y genera un artefacto temporal para pruebas.
+- `main` contiene únicamente versiones aprobadas y es la única rama que despliega GitHub Pages.
+
+Cada apartado se trabaja en su rama asignada:
 
 | Rama | Responsabilidad principal |
 | --- | --- |
@@ -153,14 +160,16 @@ El radar detecta disponibilidad y cambios en fuentes oficiales; no convierte aut
 | `documents` | Checklist y preparación documental. |
 | `profile` | Perfil y resumen de niveles/progreso. |
 | `platform` | Arquitectura, navegación global, UI compartida, CI y documentación. |
+| `prerelease` | Integración, validación integral y artefactos previos al lanzamiento. |
+| `main` | Producción y contenido final liberado. |
 
 ### Trabajo en un apartado
 
 ```bash
-git switch main
-git pull --ff-only origin main
+git switch prerelease
+git pull --ff-only origin prerelease
 git switch study              # sustituir por la rama correspondiente
-git merge main
+git merge prerelease
 
 # realizar cambios
 pnpm validate
@@ -169,19 +178,23 @@ git commit -m "feat: descripcion breve"
 git push origin study
 ```
 
-Después se abre un **Pull Request hacia `main`** usando la plantilla del repositorio. No se realizan commits funcionales directamente en `main`.
+Después se abre un **Pull Request hacia `prerelease`** usando la plantilla del repositorio. Ninguna historia o corrección funcional apunta directamente a `main`.
 
 Una vez integrado el PR, la rama del apartado se sincroniza:
 
 ```bash
-git switch main
-git pull --ff-only origin main
+git switch prerelease
+git pull --ff-only origin prerelease
 git switch study
-git merge main
+git merge prerelease
 git push origin study
 ```
 
-Los cambios que afecten más de un apartado se realizan en `platform` o en una rama temporal `feature/<historia>-<descripcion>`, se validan y se integran mediante PR.
+Los cambios que afecten más de un apartado se realizan en `platform` o en una rama temporal `feature/<historia>-<descripcion>`, se validan y se integran en `prerelease` mediante PR.
+
+Solo un Pull Request procedente de `prerelease` puede apuntar a `main`. La compuerta de producción vuelve a ejecutar todas las pruebas y exige una versión preparada. La primera versión futura usará el formato `1.0.0A`, pero todavía no ha sido asignada ni se ha creado el archivo `VERSION`.
+
+El procedimiento completo, el formato de commits versionados y la creación de GitHub Releases se encuentran en [`docs/RELEASES.md`](docs/RELEASES.md).
 
 ## Actualización de contenidos
 

@@ -1,0 +1,55 @@
+name: Gate LearnV production release
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-gate-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  source:
+    name: Require prerelease source
+    runs-on: ubuntu-latest
+    steps:
+      - name: Only prerelease can target main
+        env:
+          HEAD_BRANCH: ${{ github.head_ref }}
+        run: |
+          if [ "$HEAD_BRANCH" != "prerelease" ]; then
+            echo "Production releases must come from the prerelease branch."
+            exit 1
+          fi
+
+  validate:
+    name: Validate production candidate
+    needs: source
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Validate architecture, tests and production build
+        run: pnpm validate
+      - name: Validate release version
+        run: pnpm run release:check
+      - name: Validate versioned release commits
+        run: pnpm run release:commits
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
