@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import { useLocation } from "react-router-dom";
 import type { Locale, LocalizedText } from "@/domain/models/i18n";
@@ -106,6 +106,8 @@ export function SectionTour() {
   const [rect, setRect] = useState<HighlightRect | null>(null);
   const [tourLocale, setTourLocale] = useState<Locale>("es");
   const nextButtonRef = useRef<HTMLButtonElement>(null);
+  const frozenScrollRef = useRef({ x: 0, y: 0 });
+  const contentHeightRef = useRef(0);
 
   const startTour = useCallback(() => {
     const available = definition.steps.filter((item) => document.querySelector(item.selector));
@@ -138,62 +140,143 @@ export function SectionTour() {
     return () => window.removeEventListener("learnv:start-tour", restart);
   }, [startTour]);
 
-  useEffect(() => {
-    if (!open || !steps[stepIndex]) return;
-    const target = document.querySelector<HTMLElement>(steps[stepIndex].selector);
-    if (!target) return;
-    target.scrollIntoView({ behavior: "smooth", block: "center" });
-    const update = () => {
-      const targetRect = target.getBoundingClientRect();
-      const padding = 7;
-      setRect({
-        top: Math.max(5, targetRect.top - padding),
-        left: Math.max(5, targetRect.left - padding),
-        width: Math.min(window.innerWidth - 10, targetRect.width + padding * 2),
-        height: Math.min(window.innerHeight - 10, targetRect.height + padding * 2),
-      });
-    };
-    const timer = window.setTimeout(update, 360);
-    update();
-    window.addEventListener("resize", update);
-    window.addEventListener("scroll", update, { passive: true });
-    return () => {
-      window.clearTimeout(timer);
-      window.removeEventListener("resize", update);
-      window.removeEventListener("scroll", update);
-    };
-  }, [open, stepIndex, steps]);
-
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!open) return;
     const appRoot = document.getElementById("root");
+    const lockedScrollX = window.scrollX;
+    const lockedScrollY = window.scrollY;
+    frozenScrollRef.current = { x: lockedScrollX, y: lockedScrollY };
+    contentHeightRef.current = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+    const previousHtmlStyles = {
+      overflow: document.documentElement.style.overflow,
+      overscrollBehavior: document.documentElement.style.overscrollBehavior,
+      touchAction: document.documentElement.style.touchAction,
+      height: document.documentElement.style.height,
+    };
+    const previousBodyStyles = {
+      position: document.body.style.position,
+      top: document.body.style.top,
+      right: document.body.style.right,
+      left: document.body.style.left,
+      width: document.body.style.width,
+      height: document.body.style.height,
+      overflow: document.body.style.overflow,
+      overscrollBehavior: document.body.style.overscrollBehavior,
+      touchAction: document.body.style.touchAction,
+    };
     document.documentElement.classList.add("section-tour-lock");
     document.body.classList.add("section-tour-lock");
+    document.documentElement.style.overflow = "hidden";
+    document.documentElement.style.overscrollBehavior = "none";
+    document.documentElement.style.touchAction = "none";
+    document.documentElement.style.height = "100%";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${lockedScrollY}px`;
+    document.body.style.right = "0";
+    document.body.style.left = "0";
+    document.body.style.width = "100%";
+    document.body.style.height = "100%";
+    document.body.style.overflow = "hidden";
+    document.body.style.overscrollBehavior = "none";
+    document.body.style.touchAction = "none";
     appRoot?.setAttribute("inert", "");
     nextButtonRef.current?.focus();
 
     const blockBackgroundMovement = (event: Event) => {
+      event.preventDefault();
+    };
+    const blockBackgroundPointer = (event: Event) => {
       const target = event.target;
       if (target instanceof Element && target.closest(".section-tour__card")) return;
       event.preventDefault();
+      event.stopPropagation();
+    };
+    const blockTouchPointerMove = (event: PointerEvent) => {
+      if (event.pointerType === "touch" || event.pointerType === "pen") blockBackgroundMovement(event);
     };
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closeTour();
       const activatesControl = event.key === " " && event.target instanceof HTMLElement && event.target.matches("button, a");
       if (!activatesControl && ["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].includes(event.key)) event.preventDefault();
     };
-    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("keydown", onKeyDown, true);
     document.addEventListener("wheel", blockBackgroundMovement, { capture: true, passive: false });
     document.addEventListener("touchmove", blockBackgroundMovement, { capture: true, passive: false });
+    document.addEventListener("pointermove", blockTouchPointerMove, { capture: true, passive: false });
+    document.addEventListener("pointerdown", blockBackgroundPointer, true);
+    document.addEventListener("click", blockBackgroundPointer, true);
+    document.addEventListener("dragstart", blockBackgroundMovement, true);
+    document.addEventListener("gesturestart", blockBackgroundMovement, { capture: true, passive: false });
+    document.addEventListener("gesturechange", blockBackgroundMovement, { capture: true, passive: false });
     return () => {
-      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("keydown", onKeyDown, true);
       document.removeEventListener("wheel", blockBackgroundMovement, true);
       document.removeEventListener("touchmove", blockBackgroundMovement, true);
+      document.removeEventListener("pointermove", blockTouchPointerMove, true);
+      document.removeEventListener("pointerdown", blockBackgroundPointer, true);
+      document.removeEventListener("click", blockBackgroundPointer, true);
+      document.removeEventListener("dragstart", blockBackgroundMovement, true);
+      document.removeEventListener("gesturestart", blockBackgroundMovement, true);
+      document.removeEventListener("gesturechange", blockBackgroundMovement, true);
       document.documentElement.classList.remove("section-tour-lock");
       document.body.classList.remove("section-tour-lock");
+      document.documentElement.style.overflow = previousHtmlStyles.overflow;
+      document.documentElement.style.overscrollBehavior = previousHtmlStyles.overscrollBehavior;
+      document.documentElement.style.touchAction = previousHtmlStyles.touchAction;
+      document.documentElement.style.height = previousHtmlStyles.height;
+      document.body.style.position = previousBodyStyles.position;
+      document.body.style.top = previousBodyStyles.top;
+      document.body.style.right = previousBodyStyles.right;
+      document.body.style.left = previousBodyStyles.left;
+      document.body.style.width = previousBodyStyles.width;
+      document.body.style.height = previousBodyStyles.height;
+      document.body.style.overflow = previousBodyStyles.overflow;
+      document.body.style.overscrollBehavior = previousBodyStyles.overscrollBehavior;
+      document.body.style.touchAction = previousBodyStyles.touchAction;
+      window.scrollTo(lockedScrollX, lockedScrollY);
       appRoot?.removeAttribute("inert");
     };
-  }, [closeTour, open, stepIndex]);
+  }, [open]);
+
+  useLayoutEffect(() => {
+    if (!open || !steps[stepIndex]) return;
+    const target = document.querySelector<HTMLElement>(steps[stepIndex].selector);
+    if (!target) return;
+
+    const positionTarget = () => {
+      const initialRect = target.getBoundingClientRect();
+      const currentY = frozenScrollRef.current.y;
+      const targetDocumentTop = currentY + initialRect.top;
+      const anchoredToViewport = getComputedStyle(target).position === "fixed";
+      const maxScroll = Math.max(0, contentHeightRef.current - window.innerHeight);
+      const desiredY = anchoredToViewport
+        ? currentY
+        : Math.max(0, Math.min(maxScroll, targetDocumentTop + initialRect.height / 2 - window.innerHeight / 2));
+
+      frozenScrollRef.current = { x: frozenScrollRef.current.x, y: desiredY };
+      document.body.style.top = `-${desiredY}px`;
+
+      const targetRect = target.getBoundingClientRect();
+      const padding = 7;
+      const top = Math.max(5, targetRect.top - padding);
+      const left = Math.max(5, targetRect.left - padding);
+      setRect({
+        top,
+        left,
+        width: Math.min(window.innerWidth - left - 5, targetRect.width + padding * 2),
+        height: Math.min(window.innerHeight - top - 5, targetRect.height + padding * 2),
+      });
+    };
+
+    const frame = window.requestAnimationFrame(positionTarget);
+    const timer = window.setTimeout(positionTarget, 80);
+    window.addEventListener("resize", positionTarget);
+    nextButtonRef.current?.focus();
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+      window.removeEventListener("resize", positionTarget);
+    };
+  }, [open, stepIndex, steps]);
 
   if (!open || !steps[stepIndex]) return null;
   const current = steps[stepIndex];

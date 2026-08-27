@@ -4403,10 +4403,11 @@ html[data-theme="dark"] .document-tags span {
 :root[data-theme="dark"] .app-guide-tour-button { border-color: rgba(255,255,255,0.32); background: linear-gradient(135deg, #753e8d, #8a7220); box-shadow: 3px 4px 0 #070b11; color: white; }
 
 html.section-tour-lock,
-body.section-tour-lock { overflow: hidden; overscroll-behavior: none; }
-.section-tour { position: fixed; z-index: 300; inset: 0; overflow: hidden; pointer-events: auto; touch-action: none; }
+body.section-tour-lock { height: 100%; max-height: 100%; overflow: hidden !important; overscroll-behavior: none; touch-action: none; }
+#root[inert] { pointer-events: none; user-select: none; -webkit-user-select: none; }
+.section-tour { position: fixed; z-index: 300; inset: 0; overflow: hidden; overscroll-behavior: none; pointer-events: auto; touch-action: none; user-select: none; -webkit-user-select: none; }
 .section-tour__highlight { position: fixed; z-index: 0; border: 3px solid var(--yellow); border-radius: 18px; box-shadow: 0 0 0 9999px rgba(15,10,18,0.72), 0 0 0 6px rgba(255,208,82,0.24), 0 0 30px rgba(255,208,82,0.48); pointer-events: none; transition: inset 240ms ease, width 240ms ease, height 240ms ease; }
-.section-tour__card { position: fixed; z-index: 1; right: 14px; bottom: max(14px, env(safe-area-inset-bottom)); left: 14px; width: min(calc(100% - 28px), 520px); max-height: calc(100dvh - 28px); overflow: auto; margin: 0 auto; padding: 16px; border: 2px solid var(--ink); border-radius: 23px; background: linear-gradient(145deg, rgba(255,252,246,0.98), rgba(238,214,244,0.98)); box-shadow: var(--glass-highlight), 6px 7px 0 var(--ink), 0 22px 54px rgba(0,0,0,0.36); color: var(--ink); pointer-events: auto; touch-action: manipulation; overscroll-behavior: contain; }
+.section-tour__card { position: fixed; z-index: 1; right: 14px; bottom: max(14px, env(safe-area-inset-bottom)); left: 14px; width: min(calc(100% - 28px), 520px); max-height: calc(100dvh - 28px); overflow: hidden; margin: 0 auto; padding: 16px; border: 2px solid var(--ink); border-radius: 23px; background: linear-gradient(145deg, rgba(255,252,246,0.98), rgba(238,214,244,0.98)); box-shadow: var(--glass-highlight), 6px 7px 0 var(--ink), 0 22px 54px rgba(0,0,0,0.36); color: var(--ink); pointer-events: auto; touch-action: none; overscroll-behavior: none; }
 .section-tour__card--top { top: max(14px, env(safe-area-inset-top)); bottom: auto; }
 .section-tour__meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: #73418a; font-size: 0.55rem; font-weight: 950; letter-spacing: 0.06em; text-transform: uppercase; }
 .section-tour__languages { display: inline-flex; align-items: center; gap: 3px; margin-left: auto; padding: 2px; border: 1px solid color-mix(in srgb, currentColor 34%, transparent); border-radius: 999px; }
