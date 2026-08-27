@@ -104,6 +104,7 @@ export function SectionTour() {
   const [stepIndex, setStepIndex] = useState(0);
   const [steps, setSteps] = useState<TourStep[]>([]);
   const [rect, setRect] = useState<HighlightRect | null>(null);
+  const [targetReady, setTargetReady] = useState(false);
   const [tourLocale, setTourLocale] = useState<Locale>("es");
   const nextButtonRef = useRef<HTMLButtonElement>(null);
   const frozenScrollRef = useRef({ x: 0, y: 0 });
@@ -114,6 +115,7 @@ export function SectionTour() {
     if (available.length === 0) return;
     setSteps(available);
     setStepIndex(0);
+    setTargetReady(false);
     setTourLocale("es");
     setOpen(true);
   }, [definition]);
@@ -123,11 +125,13 @@ export function SectionTour() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...seen, [definition.key]: true }));
     setOpen(false);
     setRect(null);
+    setTargetReady(false);
   }, [definition.key]);
 
   useEffect(() => {
     setOpen(false);
     setRect(null);
+    setTargetReady(false);
     const timer = window.setTimeout(() => {
       if (!readSeenTours()[definition.key]) startTour();
     }, 950);
@@ -175,8 +179,8 @@ export function SectionTour() {
     document.body.style.right = "0";
     document.body.style.left = "0";
     document.body.style.width = "100%";
-    document.body.style.height = "100%";
-    document.body.style.overflow = "hidden";
+    document.body.style.height = "auto";
+    document.body.style.overflow = "visible";
     document.body.style.overscrollBehavior = "none";
     document.body.style.touchAction = "none";
     appRoot?.setAttribute("inert", "");
@@ -241,19 +245,43 @@ export function SectionTour() {
     if (!open || !steps[stepIndex]) return;
     const target = document.querySelector<HTMLElement>(steps[stepIndex].selector);
     if (!target) return;
+    let cancelled = false;
+    let settleTimer = 0;
+    setRect(null);
+    setTargetReady(false);
 
-    const positionTarget = () => {
+    const forcedElements = new Set<HTMLElement>([
+      target,
+      ...Array.from(target.querySelectorAll<HTMLElement>(".route-reveal-item")),
+    ]);
+    const revealParent = target.closest<HTMLElement>(".route-reveal-item");
+    if (revealParent) forcedElements.add(revealParent);
+    forcedElements.forEach((element) => {
+      element.classList.add("section-tour-active-target", "is-revealed");
+    });
+
+    const nextFrame = () => new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()));
+    const positionTarget = async () => {
       const initialRect = target.getBoundingClientRect();
       const currentY = frozenScrollRef.current.y;
       const targetDocumentTop = currentY + initialRect.top;
       const anchoredToViewport = getComputedStyle(target).position === "fixed";
       const maxScroll = Math.max(0, contentHeightRef.current - window.innerHeight);
+      const cardHeight = document.querySelector<HTMLElement>(".section-tour__card")?.getBoundingClientRect().height ?? 230;
+      const centeredTop = (window.innerHeight - initialRect.height) / 2;
+      const cardWillBeAtTop = centeredTop + initialRect.height > window.innerHeight * 0.58;
+      const targetViewportTop = cardWillBeAtTop
+        ? Math.max(cardHeight + 28, centeredTop)
+        : Math.max(12, Math.min(centeredTop, window.innerHeight - cardHeight - initialRect.height - 28));
       const desiredY = anchoredToViewport
         ? currentY
-        : Math.max(0, Math.min(maxScroll, targetDocumentTop + initialRect.height / 2 - window.innerHeight / 2));
+        : Math.max(0, Math.min(maxScroll, targetDocumentTop - targetViewportTop));
 
       frozenScrollRef.current = { x: frozenScrollRef.current.x, y: desiredY };
       document.body.style.top = `-${desiredY}px`;
+
+      await nextFrame();
+      if (cancelled) return;
 
       const targetRect = target.getBoundingClientRect();
       const padding = 7;
@@ -267,14 +295,37 @@ export function SectionTour() {
       });
     };
 
-    const frame = window.requestAnimationFrame(positionTarget);
-    const timer = window.setTimeout(positionTarget, 80);
-    window.addEventListener("resize", positionTarget);
-    nextButtonRef.current?.focus();
+    const waitForVisualTarget = async () => {
+      const images = Array.from(target.querySelectorAll<HTMLImageElement>("img"));
+      const imagePromises = images.map((image) => {
+        if (image.complete) return image.decode?.().catch(() => undefined) ?? Promise.resolve();
+        return new Promise<void>((resolve) => {
+          image.addEventListener("load", () => resolve(), { once: true });
+          image.addEventListener("error", () => resolve(), { once: true });
+        });
+      });
+      const fontsReady = document.fonts?.ready ?? Promise.resolve();
+      await Promise.race([
+        Promise.all([fontsReady, ...imagePromises]),
+        new Promise<void>((resolve) => { settleTimer = window.setTimeout(resolve, 1500); }),
+      ]);
+      await new Promise<void>((resolve) => window.requestAnimationFrame(() => window.requestAnimationFrame(() => resolve())));
+      if (cancelled) return;
+      await positionTarget();
+      await nextFrame();
+      if (cancelled) return;
+      setTargetReady(true);
+      window.requestAnimationFrame(() => nextButtonRef.current?.focus());
+    };
+
+    void waitForVisualTarget();
+    const handleResize = () => { void positionTarget(); };
+    window.addEventListener("resize", handleResize);
     return () => {
-      window.cancelAnimationFrame(frame);
-      window.clearTimeout(timer);
-      window.removeEventListener("resize", positionTarget);
+      cancelled = true;
+      window.clearTimeout(settleTimer);
+      window.removeEventListener("resize", handleResize);
+      forcedElements.forEach((element) => element.classList.remove("section-tour-active-target"));
     };
   }, [open, stepIndex, steps]);
 
@@ -282,15 +333,15 @@ export function SectionTour() {
   const current = steps[stepIndex];
   const cardAtTop = Boolean(rect && rect.top + rect.height > window.innerHeight * 0.58);
   const labels = tourLocale === "ko"
-    ? { guide: "빠른 안내", language: "설명 언어", skip: "모두 건너뛰기", previous: "이전", next: "다음", finish: "완료" }
+    ? { guide: "빠른 안내", language: "설명 언어", skip: "모두 건너뛰기", previous: "이전", next: "다음", finish: "완료", preparing: "화면 준비 중" }
     : tourLocale === "en"
-      ? { guide: "Quick tour", language: "Explanation language", skip: "Skip all", previous: "Previous", next: "Next", finish: "Finish" }
-      : { guide: "Recorrido rápido", language: "Idioma de las explicaciones", skip: "Omitir todo", previous: "Anterior", next: "Siguiente", finish: "Finalizar" };
+      ? { guide: "Quick tour", language: "Explanation language", skip: "Skip all", previous: "Previous", next: "Next", finish: "Finish", preparing: "Preparing view" }
+      : { guide: "Recorrido rápido", language: "Idioma de las explicaciones", skip: "Omitir todo", previous: "Anterior", next: "Siguiente", finish: "Finalizar", preparing: "Preparando vista" };
 
   return createPortal(
     <div className="section-tour" role="dialog" aria-modal="true" aria-labelledby="section-tour-title">
-      {rect && <div className="section-tour__highlight" style={{ top: rect.top, left: rect.left, width: rect.width, height: rect.height } as CSSProperties} />}
-      <section className={cardAtTop ? "section-tour__card section-tour__card--top" : "section-tour__card"}>
+      {rect && <div key={`${definition.key}-${stepIndex}`} className="section-tour__highlight" style={{ top: rect.top, left: rect.left, width: rect.width, height: rect.height } as CSSProperties} />}
+      <section className={cardAtTop ? "section-tour__card section-tour__card--top" : "section-tour__card"} aria-busy={!targetReady}>
         <div className="section-tour__meta">
           <span>{labels.guide}</span>
           <div className="section-tour__languages" role="group" aria-label={labels.language}>
@@ -304,8 +355,12 @@ export function SectionTour() {
         <p>{localize(current.text, tourLocale)}</p>
         <div className="section-tour__actions">
           <button type="button" className="section-tour__skip" onClick={closeTour}>{labels.skip}</button>
-          {stepIndex > 0 && <button type="button" onClick={() => setStepIndex((value) => value - 1)}>← {labels.previous}</button>}
-          <button ref={nextButtonRef} type="button" className="section-tour__next" onClick={() => stepIndex === steps.length - 1 ? closeTour() : setStepIndex((value) => value + 1)}>{stepIndex === steps.length - 1 ? labels.finish : labels.next} →</button>
+          {stepIndex > 0 && <button type="button" disabled={!targetReady} onClick={() => setStepIndex((value) => value - 1)}>← {labels.previous}</button>}
+          <button ref={nextButtonRef} type="button" className="section-tour__next" disabled={!targetReady} onClick={() => {
+            if (!targetReady) return;
+            if (stepIndex === steps.length - 1) closeTour();
+            else setStepIndex((value) => value + 1);
+          }}>{targetReady ? `${stepIndex === steps.length - 1 ? labels.finish : labels.next} →` : `${labels.preparing}…`}</button>
         </div>
       </section>
     </div>,
