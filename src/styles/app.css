@@ -188,19 +188,45 @@ input:focus-visible + span {
   to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
+.visual-readiness-gate,
+.visual-readiness-content {
+  min-width: 0;
+  min-height: 55vh;
+}
+
+html.app-visual-loading {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 .route-loader {
-  position: relative;
+  position: fixed;
+  z-index: 520;
+  inset: 0;
   display: grid;
-  min-height: 58vh;
+  min-height: 100vh;
+  min-height: 100dvh;
   place-items: center;
   overflow: hidden;
   background:
-    radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--pink) 24%, transparent), transparent 10rem);
+    radial-gradient(circle at 50% 43%, color-mix(in srgb, var(--pink) 34%, transparent), transparent 11rem),
+    radial-gradient(circle at 12% 12%, color-mix(in srgb, var(--purple) 16%, transparent), transparent 18rem),
+    radial-gradient(circle at 88% 84%, color-mix(in srgb, var(--yellow) 13%, transparent), transparent 18rem),
+    var(--cream);
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 210ms ease, visibility 210ms ease;
+}
+
+.route-loader.is-leaving {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .route-loader__bar {
-  position: fixed;
-  z-index: 80;
+  position: absolute;
+  z-index: 1;
   top: 0;
   right: 0;
   left: 0;
@@ -282,6 +308,13 @@ input:focus-visible + span {
 @keyframes route-loader-book-right { 50% { transform: translate3d(2px, 0, 0); } }
 
 :root[data-theme="dark"] .route-loader__scene > strong { color: #fff8f2; }
+:root[data-theme="dark"] .route-loader {
+  background:
+    radial-gradient(circle at 50% 43%, rgba(199, 141, 221, 0.19), transparent 11rem),
+    radial-gradient(circle at 12% 12%, rgba(111, 46, 145, 0.17), transparent 18rem),
+    radial-gradient(circle at 88% 84%, rgba(255, 208, 82, 0.08), transparent 18rem),
+    var(--cream);
+}
 
 @media (prefers-reduced-motion: reduce) {
   .route-stage,

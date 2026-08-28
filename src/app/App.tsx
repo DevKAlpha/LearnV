@@ -7,11 +7,11 @@ import { AppGuide } from "@/app/layout/AppGuide";
 import { BottomNav } from "@/app/layout/BottomNav";
 import { DynamicFavicon } from "@/app/layout/DynamicFavicon";
 import { LanguageSwitcher } from "@/app/layout/LanguageSwitcher";
-import { RouteLoader } from "@/app/routing/RouteLoader";
 import { ScrollToTop } from "@/app/routing/ScrollToTop";
 import { AppRoutes } from "@/app/routing/AppRoutes";
 import { AnimatedRouteView } from "@/app/routing/AnimatedRouteView";
 import { RoutePrefetcher } from "@/app/routing/RoutePrefetcher";
+import { VisualReadinessGate } from "@/app/routing/VisualReadinessGate";
 import { BrandMark } from "@/shared/ui/BrandMark";
 import { ThemeToggle } from "@/shared/ui/ThemeToggle";
 
@@ -24,6 +24,7 @@ export function App() {
   const learningLocale = resolveLearningLocale(location.pathname);
   const isImmersiveLearningExperience = isImmersiveLearningRoute(location.pathname);
   const [tourReady, setTourReady] = useState(false);
+  const [visuallyReadyRoute, setVisuallyReadyRoute] = useState<string | null>(null);
 
   useEffect(() => {
     setLearningLocale(learningLocale);
@@ -64,15 +65,21 @@ export function App() {
             <div className="test-theme-toolbar__controls"><ThemeToggle compact /><AppGuide /></div>
           </div>
         )}
-        <AnimatedRouteView routeKey={location.pathname} key={location.pathname}>
-          <Suspense fallback={<RouteLoader label={copy.common.loading} />}>
-            <AppRoutes location={location} progress={progress} />
-          </Suspense>
-        </AnimatedRouteView>
+        <VisualReadinessGate
+          key={location.pathname}
+          label={copy.common.loading}
+          onReady={() => setVisuallyReadyRoute(location.pathname)}
+        >
+          <AnimatedRouteView routeKey={location.pathname}>
+            <Suspense fallback={null}>
+              <AppRoutes location={location} progress={progress} />
+            </Suspense>
+          </AnimatedRouteView>
+        </VisualReadinessGate>
       </main>
 
       <BottomNav />
-      {tourReady && <Suspense fallback={null}><SectionTour /></Suspense>}
+      {tourReady && visuallyReadyRoute === location.pathname && <Suspense fallback={null}><SectionTour /></Suspense>}
     </div>
   );
 }

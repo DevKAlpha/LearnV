@@ -16,12 +16,13 @@ function preload(pathname: string) {
   preloadAppRoute(pathname);
 }
 
-function likelyNextRoute(pathname: string) {
-  if (pathname === "/") return "/study";
-  if (pathname === "/study") return "/study/english";
-  if (pathname === "/study/english") return "/tests/en";
-  if (pathname === "/study/korean") return "/tests/ko";
-  return null;
+function likelyNextRoutes(pathname: string) {
+  if (pathname === "/") return ["/study", "/gks", "/checklist", "/profile"];
+  if (pathname === "/study") return ["/study/english", "/study/korean", "/study/interviews", "/study/written-simulator"];
+  if (pathname === "/study/english") return ["/tests/en", "/study/interviews"];
+  if (pathname === "/study/korean") return ["/tests/ko", "/study/interviews"];
+  if (/^\/tests\/(en|ko)/.test(pathname)) return [pathname.startsWith("/tests/en") ? "/study/english" : "/study/korean"];
+  return [];
 }
 
 export function RoutePrefetcher() {
@@ -49,11 +50,11 @@ export function RoutePrefetcher() {
   }, []);
 
   useEffect(() => {
-    const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
-    const nextRoute = likelyNextRoute(location.pathname);
-    if (!nextRoute || connection?.saveData) return;
+    const connection = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
+    const nextRoutes = likelyNextRoutes(location.pathname);
+    if (nextRoutes.length === 0 || connection?.saveData || connection?.effectiveType?.includes("2g")) return;
 
-    const run = () => preload(nextRoute);
+    const run = () => nextRoutes.forEach(preload);
     const requestIdle = (window as unknown as { requestIdleCallback?: Window["requestIdleCallback"] }).requestIdleCallback;
     if (requestIdle) {
       const request = requestIdle(run, { timeout: 1600 });
