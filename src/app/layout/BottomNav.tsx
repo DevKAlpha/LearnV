@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { NavLink, useLocation } from "react-router-dom";
+import { preloadAppRoute } from "@/app/routing/AppRoutes";
 import {
   hasActiveWrittenSimulator,
   WRITTEN_SIMULATOR_STATE_EVENT,
@@ -11,6 +12,7 @@ import { AppIcon, type AppIconName } from "@/shared/ui/AppIcon";
 export function BottomNav() {
   const { copy } = useI18n();
   const location = useLocation();
+  const [pendingPath, setPendingPath] = useState<string | null>(null);
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const isWrittenSimulator = location.pathname === "/study/written-simulator";
   const [writtenSimulatorStarted, setWrittenSimulatorStarted] = useState(
@@ -18,6 +20,7 @@ export function BottomNav() {
   );
 
   useEffect(() => {
+    setPendingPath(null);
     setResetDialogOpen(false);
     setWrittenSimulatorStarted(isWrittenSimulator && hasActiveWrittenSimulator());
   }, [isWrittenSimulator, location.pathname]);
@@ -51,6 +54,7 @@ export function BottomNav() {
     { to: "/checklist", icon: "checklist", label: copy.nav.documents },
     { to: "/profile", icon: "profile", label: copy.nav.profile },
   ];
+  const activePath = pendingPath ?? location.pathname;
 
   return <>
     <nav
@@ -58,9 +62,9 @@ export function BottomNav() {
       aria-label={copy.nav.mainAria}
     >
       {items.filter((item) => !(isWrittenSimulator && writtenSimulatorStarted && item.icon === "profile")).map((item) => {
-        const active = location.pathname === item.to
-          || (item.to !== "/" && location.pathname.startsWith(`${item.to}/`))
-          || (item.to === "/study" && location.pathname.startsWith("/tests/"));
+        const active = activePath === item.to
+          || (item.to !== "/" && activePath.startsWith(`${item.to}/`))
+          || (item.to === "/study" && activePath.startsWith("/tests/"));
         return (
           <NavLink
           key={item.to}
@@ -68,7 +72,16 @@ export function BottomNav() {
           end={item.end}
           className={`nav-item${active ? " nav-item--active" : ""}`}
           data-nav={item.icon}
+          data-pending={pendingPath === item.to ? "true" : undefined}
           aria-current={active ? "page" : undefined}
+          onFocus={() => preloadAppRoute(item.to)}
+          onPointerEnter={() => preloadAppRoute(item.to)}
+          onPointerDown={(event) => {
+            if (event.button !== 0 || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+            preloadAppRoute(item.to);
+            setPendingPath(item.to);
+          }}
+          onPointerCancel={() => setPendingPath(null)}
         >
           {active && (
             <span className="nav-active-pill" />

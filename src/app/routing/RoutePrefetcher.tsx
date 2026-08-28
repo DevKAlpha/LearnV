@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { preloadAppRoute } from "@/app/routing/AppRoutes";
 
 const prefetched = new Set<string>();
+const primaryRoutes = ["/gks", "/study", "/checklist", "/profile"];
 
 function normalizePath(url: URL) {
   const base = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -17,12 +18,17 @@ function preload(pathname: string) {
 }
 
 function likelyNextRoutes(pathname: string) {
-  if (pathname === "/") return ["/study", "/gks", "/checklist", "/profile"];
-  if (pathname === "/study") return ["/study/english", "/study/korean", "/study/interviews", "/study/written-simulator"];
-  if (pathname === "/study/english") return ["/tests/en", "/study/interviews"];
-  if (pathname === "/study/korean") return ["/tests/ko", "/study/interviews"];
-  if (/^\/tests\/(en|ko)/.test(pathname)) return [pathname.startsWith("/tests/en") ? "/study/english" : "/study/korean"];
-  return [];
+  let contextualRoutes: string[] = [];
+  if (pathname === "/") contextualRoutes = ["/study"];
+  else if (pathname === "/study") contextualRoutes = ["/study/english", "/study/korean", "/study/interviews", "/study/written-simulator"];
+  else if (pathname === "/study/english") contextualRoutes = ["/tests/en", "/study/interviews"];
+  else if (pathname === "/study/korean") contextualRoutes = ["/tests/ko", "/study/interviews"];
+  else if (/^\/tests\/(en|ko)/.test(pathname)) contextualRoutes = [pathname.startsWith("/tests/en") ? "/study/english" : "/study/korean"];
+
+  return [...new Set([
+    ...contextualRoutes,
+    ...primaryRoutes.filter((route) => route !== pathname),
+  ])];
 }
 
 export function RoutePrefetcher() {
