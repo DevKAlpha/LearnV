@@ -48,8 +48,9 @@ export function LiteYouTube({ videoId, title, startSeconds = 0, endSeconds }: Li
       <img
         src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`}
         alt=""
-        loading="lazy"
+        loading="eager"
         decoding="async"
+        fetchPriority="high"
         width="480"
         height="360"
       />

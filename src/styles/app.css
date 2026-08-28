@@ -3066,19 +3066,6 @@ html[data-theme="dark"] .document-tags span {
   box-shadow: 0 0 22px rgba(196, 128, 230, 0.3);
 }
 
-/* Skip layout and paint work for long, off-screen learning collections. */
-@supports (content-visibility: auto) {
-  :is(.resource-card, .document-card, .test-map-node, .answer-review-item, .interview-tip-list article, .gks-program-row) {
-    content-visibility: auto;
-    contain-intrinsic-size: auto 220px;
-  }
-
-  :is(.gks-disclosure, .interview-question-card, .production-review) {
-    content-visibility: auto;
-    contain-intrinsic-size: auto 320px;
-  }
-}
-
 .test-hub { margin-top: 44px; }
 
 .interview-entry {

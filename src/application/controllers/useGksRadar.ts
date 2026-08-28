@@ -41,9 +41,12 @@ function isRadarSnapshot(value: unknown): value is GksRadarSnapshot {
 
 export function useGksRadar() {
   const [snapshot, setSnapshot] = useState<GksRadarSnapshot>(fallbackSnapshot);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const controller = new AbortController();
+    let active = true;
+    const timeout = window.setTimeout(() => controller.abort(), 2_500);
     const radarUrl = new URL("data/gks-radar.json", document.baseURI);
     fetch(radarUrl, {
       cache: "no-cache",
@@ -58,10 +61,18 @@ export function useGksRadar() {
       })
       .catch((error: unknown) => {
         if (error instanceof DOMException && error.name === "AbortError") return;
+      })
+      .finally(() => {
+        window.clearTimeout(timeout);
+        if (active) setIsLoading(false);
       });
 
-    return () => controller.abort();
+    return () => {
+      active = false;
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
   }, []);
 
-  return snapshot;
+  return { ...snapshot, isLoading };
 }

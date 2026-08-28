@@ -4,6 +4,7 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  Suspense,
   type PropsWithChildren,
 } from "react";
 import { RouteLoader } from "@/app/routing/RouteLoader";
@@ -16,8 +17,11 @@ type VisualReadinessGateProps = PropsWithChildren<{
 type LoaderPhase = "loading" | "leaving" | "hidden";
 
 const FONT_TIMEOUT_MS = 1_200;
-const IMAGE_TIMEOUT_MS = 1_600;
+const IMAGE_TIMEOUT_MS = 3_000;
 const MOTION_TIMEOUT_MS = 700;
+const DOM_SETTLE_TIMEOUT_MS = 2_000;
+const DOM_QUIET_MS = 240;
+const PENDING_CONTENT_TIMEOUT_MS = 3_200;
 const LOADER_EXIT_MS = 210;
 
 function afterFrames(count = 1) {
@@ -39,6 +43,80 @@ function afterDelay(delay: number) {
 
 async function withTimeout(work: Promise<unknown>, timeout: number) {
   await Promise.race([work, afterDelay(timeout)]);
+}
+
+function waitForDomQuiet(root: HTMLElement) {
+  return new Promise<void>((resolve) => {
+    let quietTimer = 0;
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      window.clearTimeout(quietTimer);
+      window.clearTimeout(maxTimer);
+      mutationObserver.disconnect();
+      resizeObserver?.disconnect();
+      resolve();
+    };
+    const scheduleQuietCheck = () => {
+      window.clearTimeout(quietTimer);
+      quietTimer = window.setTimeout(finish, DOM_QUIET_MS);
+    };
+    const mutationObserver = new MutationObserver(scheduleQuietCheck);
+    const resizeObserver = typeof ResizeObserver === "undefined"
+      ? null
+      : new ResizeObserver(scheduleQuietCheck);
+    const maxTimer = window.setTimeout(finish, DOM_SETTLE_TIMEOUT_MS);
+    mutationObserver.observe(root, { attributes: true, characterData: true, childList: true, subtree: true });
+    resizeObserver?.observe(root);
+    root.querySelectorAll<HTMLElement>("header, section, article, img").forEach((element) => {
+      resizeObserver?.observe(element);
+    });
+    scheduleQuietCheck();
+  });
+}
+
+function pendingVisualContent(root: HTMLElement) {
+  return root.querySelector('[data-visual-pending="true"]');
+}
+
+function waitForPendingVisualContent(root: HTMLElement) {
+  if (!pendingVisualContent(root)) return Promise.resolve();
+
+  return new Promise<void>((resolve) => {
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      window.clearTimeout(maxTimer);
+      observer.disconnect();
+      resolve();
+    };
+    const observer = new MutationObserver(() => {
+      if (!pendingVisualContent(root)) finish();
+    });
+    const maxTimer = window.setTimeout(finish, PENDING_CONTENT_TIMEOUT_MS);
+    observer.observe(root, { attributes: true, childList: true, subtree: true });
+  });
+}
+
+async function waitForStableLayout(root: HTMLElement) {
+  let stableFrames = 0;
+  let previousSignature = "";
+
+  for (let frame = 0; frame < 18 && stableFrames < 3; frame += 1) {
+    await afterFrames();
+    const signature = [
+      root.childElementCount,
+      root.querySelectorAll("*").length,
+      root.scrollWidth,
+      root.scrollHeight,
+    ].join(":");
+
+    if (signature === previousSignature) stableFrames += 1;
+    else stableFrames = 0;
+    previousSignature = signature;
+  }
 }
 
 function isNearViewport(element: Element) {
@@ -85,14 +163,18 @@ async function waitForVisualStability(root: HTMLElement) {
     await withTimeout(document.fonts.ready, FONT_TIMEOUT_MS);
   }
 
+  await waitForPendingVisualContent(root);
+  await waitForDomQuiet(root);
   await afterFrames(2);
 
-  const visibleImages = Array.from(root.querySelectorAll<HTMLImageElement>("img"))
-    .filter((image) => image.loading !== "lazy" || isNearViewport(image));
-  if (visibleImages.length > 0) {
-    await withTimeout(Promise.all(visibleImages.map(waitForImage)), IMAGE_TIMEOUT_MS);
+  const routeImages = Array.from(root.querySelectorAll<HTMLImageElement>("img"));
+  const imagesToDecode = routeImages.filter((image) => image.loading !== "lazy" || isNearViewport(image));
+  if (imagesToDecode.length > 0) {
+    await withTimeout(Promise.all(imagesToDecode.map(waitForImage)), IMAGE_TIMEOUT_MS);
   }
 
+  await waitForDomQuiet(root);
+  await waitForStableLayout(root);
   await afterFrames(2);
 
   const animations = finiteAnimations(root);
@@ -103,6 +185,8 @@ async function waitForVisualStability(root: HTMLElement) {
     );
   }
 
+  await waitForDomQuiet(root);
+  await waitForStableLayout(root);
   await afterFrames(2);
 }
 
@@ -136,6 +220,10 @@ export function VisualReadinessGate({ children, label, onReady }: VisualReadines
   useEffect(() => {
     onReadyRef.current = onReady;
   }, [onReady]);
+
+  useLayoutEffect(() => {
+    document.documentElement.classList.add("app-visual-loading");
+  }, []);
 
   const prepare = useCallback((root: HTMLElement) => {
     contentRef.current = root;
@@ -205,7 +293,9 @@ export function VisualReadinessGate({ children, label, onReady }: VisualReadines
 
   return (
     <div className="visual-readiness-gate" aria-busy={phase !== "hidden"}>
-      <ReadyProbe onCommit={prepare}>{children}</ReadyProbe>
+      <Suspense fallback={null}>
+        <ReadyProbe onCommit={prepare}>{children}</ReadyProbe>
+      </Suspense>
       {phase !== "hidden" && <RouteLoader label={label} leaving={phase === "leaving"} />}
     </div>
   );

@@ -35,7 +35,7 @@ export function GksPage() {
   ) % gksFeedbackVideos.length);
 
   return (
-    <div className="page page--gks-radar">
+    <div className="page page--gks-radar" data-visual-pending={radar.isLoading ? "true" : undefined}>
       <header className="page-header page-header--gks">
         <div>
           <span className="sticker sticker--pink">{copy.gks.sticker}</span>

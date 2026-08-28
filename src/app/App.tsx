@@ -71,9 +71,7 @@ export function App() {
           onReady={() => setVisuallyReadyRoute(location.pathname)}
         >
           <AnimatedRouteView routeKey={location.pathname}>
-            <Suspense fallback={null}>
-              <AppRoutes location={location} progress={progress} />
-            </Suspense>
+            <AppRoutes location={location} progress={progress} />
           </AnimatedRouteView>
         </VisualReadinessGate>
       </main>
