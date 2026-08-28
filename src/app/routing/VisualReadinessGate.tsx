@@ -8,6 +8,10 @@ import {
   type PropsWithChildren,
 } from "react";
 import { RouteLoader } from "@/app/routing/RouteLoader";
+import {
+  PAGE_CACHE_RELOAD_MS,
+  shouldReloadAfterResume,
+} from "@/app/routing/resume-policy";
 
 type VisualReadinessGateProps = PropsWithChildren<{
   label: string;
@@ -214,7 +218,10 @@ export function VisualReadinessGate({ children, label, onReady }: VisualReadines
   const contentRef = useRef<HTMLElement | null>(null);
   const runRef = useRef(0);
   const exitTimerRef = useRef(0);
+  const resumeTimerRef = useRef(0);
   const hiddenAtRef = useRef<number | null>(null);
+  const restoredFromPageCacheRef = useRef(false);
+  const reloadScheduledRef = useRef(false);
   const onReadyRef = useRef(onReady);
 
   useEffect(() => {
@@ -246,33 +253,57 @@ export function VisualReadinessGate({ children, label, onReady }: VisualReadines
   }, []);
 
   useEffect(() => {
-    const resume = () => {
-      if (document.visibilityState !== "visible" || hiddenAtRef.current === null || !contentRef.current) return;
-      hiddenAtRef.current = null;
-      prepare(contentRef.current);
-    };
-    const onVisibilityChange = () => {
-      if (document.visibilityState === "hidden") {
-        hiddenAtRef.current = performance.now();
-        runRef.current += 1;
-        window.clearTimeout(exitTimerRef.current);
-        document.documentElement.classList.add("app-visual-loading");
-        setPhase("loading");
-        return;
-      }
-      resume();
-    };
-    const onPageHide = () => {
-      hiddenAtRef.current = performance.now();
+    const coverCurrentRoute = () => {
       runRef.current += 1;
       window.clearTimeout(exitTimerRef.current);
       document.documentElement.classList.add("app-visual-loading");
       setPhase("loading");
     };
+    const reloadCurrentRoute = () => {
+      if (reloadScheduledRef.current) return;
+      reloadScheduledRef.current = true;
+      coverCurrentRoute();
+      void afterFrames(2).then(() => window.location.reload());
+    };
+    const resume = (restoredFromPageCache: boolean) => {
+      if (
+        document.visibilityState !== "visible"
+        || hiddenAtRef.current === null
+        || !contentRef.current
+        || reloadScheduledRef.current
+      ) return;
+
+      const elapsedMs = Date.now() - hiddenAtRef.current;
+      if (shouldReloadAfterResume({ elapsedMs, restoredFromPageCache })) {
+        reloadCurrentRoute();
+        return;
+      }
+
+      hiddenAtRef.current = null;
+      restoredFromPageCacheRef.current = false;
+      prepare(contentRef.current);
+    };
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        window.clearTimeout(resumeTimerRef.current);
+        hiddenAtRef.current = Date.now();
+        coverCurrentRoute();
+        return;
+      }
+      window.clearTimeout(resumeTimerRef.current);
+      resumeTimerRef.current = window.setTimeout(() => resume(restoredFromPageCacheRef.current), 50);
+    };
+    const onPageHide = () => {
+      window.clearTimeout(resumeTimerRef.current);
+      hiddenAtRef.current ??= Date.now();
+      coverCurrentRoute();
+    };
     const onPageShow = (event: PageTransitionEvent) => {
       if (event.persisted) {
-        hiddenAtRef.current ??= performance.now();
-        resume();
+        window.clearTimeout(resumeTimerRef.current);
+        restoredFromPageCacheRef.current = true;
+        hiddenAtRef.current ??= Date.now() - PAGE_CACHE_RELOAD_MS;
+        resume(true);
       }
     };
 
@@ -280,6 +311,7 @@ export function VisualReadinessGate({ children, label, onReady }: VisualReadines
     window.addEventListener("pagehide", onPageHide);
     window.addEventListener("pageshow", onPageShow);
     return () => {
+      window.clearTimeout(resumeTimerRef.current);
       document.removeEventListener("visibilitychange", onVisibilityChange);
       window.removeEventListener("pagehide", onPageHide);
       window.removeEventListener("pageshow", onPageShow);
@@ -289,6 +321,7 @@ export function VisualReadinessGate({ children, label, onReady }: VisualReadines
   useEffect(() => () => {
     runRef.current += 1;
     window.clearTimeout(exitTimerRef.current);
+    window.clearTimeout(resumeTimerRef.current);
   }, []);
 
   return (
