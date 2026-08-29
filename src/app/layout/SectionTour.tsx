@@ -32,7 +32,7 @@ function getDefinition(pathname: string): TourDefinition {
     key: pathname.endsWith("english") ? "english-space" : "korean-space", title: t("Tu espacio de idioma", "Your language space", "언어 학습 공간"), steps: [
       step(".language-study-hero", t("Resumen del espacio", "Space summary", "학습 공간 요약"), t("Aquí ves el objetivo, las pruebas superadas y los recursos disponibles para este idioma.", "See the target, passed tests and available resources for this language.", "이 언어의 목표, 통과한 시험과 사용 가능한 자료를 확인합니다.")),
       step(".language-study-jump-nav", t("Navegación rápida", "Quick navigation", "빠른 이동"), t("El sombreado sigue la sección visible: pruebas o materiales. También puedes cambiar de idioma.", "The highlight follows the visible section: tests or materials. You can also switch language.", "현재 보이는 시험 또는 자료 메뉴가 강조됩니다. 언어도 바꿀 수 있습니다.")),
-      step(".test-hub", t("Prácticas guiadas", "Guided practice", "안내형 연습"), t("Abre el recorrido de 30 actividades: diez por cada habilidad.", "Open the 30-activity path: ten for each skill.", "기능별 10개씩 총 30개 활동 경로를 엽니다.")),
+      step(".test-hub", t("Prácticas guiadas", "Guided practice", "안내형 연습"), t("Abre el recorrido de 60 actividades: veinte por cada habilidad.", "Open the 60-activity path: twenty for each skill.", "기능별 20개씩 총 60개 활동 경로를 엽니다.")),
       step(".resource-library", t("Biblioteca con tareas", "Task-based library", "과제형 자료실"), t("Cada recurso indica qué hacer, cuánto tiempo reservar, si requiere cuenta y permite marcarlo como completado.", "Each resource tells you what to do, time needed, account access and lets you mark it complete.", "각 자료에는 할 일, 예상 시간, 계정 필요 여부와 완료 표시가 있습니다.")),
     ],
   };

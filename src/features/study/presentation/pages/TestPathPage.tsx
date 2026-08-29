@@ -3,7 +3,7 @@ import { Link, Navigate, useParams } from "react-router-dom";
 import { useLanguageTestProgress } from "@/application/controllers/useLanguageTestProgress";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { isStageUnlocked, type TestSkill } from "@/domain/models/language-test";
-import { practiceTestTracks as languageTestTracks, TESTS_PER_LANGUAGE } from "@/infrastructure/data/practice-tests";
+import { practiceTestTracks as languageTestTracks, TESTS_PER_LANGUAGE, TESTS_PER_SKILL } from "@/infrastructure/data/practice-tests";
 import { AppIcon, type AppIconName } from "@/shared/ui/AppIcon";
 
 export function TestPathPage() {
@@ -47,7 +47,7 @@ export function TestPathPage() {
         <nav className="test-skill-tabs" aria-label={copy.tests.pathTitle}>
           {(["writing", "listening", "pronunciation"] as TestSkill[]).map((skill) => {
             const completed = track.stages.filter((stage) => stage.skill === skill && trackProgress[stage.id]?.passed).length;
-            return <button key={skill} type="button" aria-pressed={activeSkill === skill} onClick={() => { setActiveSkill(skill); setShowAll(false); }}><AppIcon name={skill === "pronunciation" ? "speaking" : skill} /><span>{labels[skill]}</span><small>{completed}/10</small></button>;
+            return <button key={skill} type="button" aria-pressed={activeSkill === skill} onClick={() => { setActiveSkill(skill); setShowAll(false); }}><AppIcon name={skill === "pronunciation" ? "speaking" : skill} /><span>{labels[skill]}</span><small>{completed}/{TESTS_PER_SKILL}</small></button>;
           })}
         </nav>
         {([activeSkill] as TestSkill[]).map((skill) => {
@@ -60,7 +60,7 @@ export function TestPathPage() {
           return <section className={`test-skill-section test-skill-section--${skill}`} key={skill}>
             <header className="test-skill-header">
               <span aria-hidden="true"><AppIcon name={icons[skill]} /></span>
-              <div><small>{completed}/10 {copy.tests.completed}</small><h2>{labels[skill]}</h2><p>{copy.tests.skillDescriptions[skill]}</p></div>
+              <div><small>{completed}/{TESTS_PER_SKILL} {copy.tests.completed}</small><h2>{labels[skill]}</h2><p>{copy.tests.skillDescriptions[skill]}</p></div>
             </header>
             <div className="test-map">
         {visibleStages.map((stage) => {
@@ -101,7 +101,7 @@ export function TestPathPage() {
           );
         })}
             </div>
-            <button className="test-path-expand" type="button" onClick={() => setShowAll((current) => !current)}>{showAll ? (language === "ko" ? "현재 단계만 보기" : "Show current steps") : (language === "ko" ? "10개 단계 모두 보기" : "Show all 10 steps")}</button>
+            <button className="test-path-expand" type="button" onClick={() => setShowAll((current) => !current)}>{showAll ? (language === "ko" ? "현재 단계만 보기" : "Show current steps") : (language === "ko" ? `${TESTS_PER_SKILL}개 단계 모두 보기` : `Show all ${TESTS_PER_SKILL} steps`)}</button>
           </section>;
         })}
       </main>

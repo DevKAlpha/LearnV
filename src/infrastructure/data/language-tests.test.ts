@@ -8,13 +8,13 @@ import {
 import { practiceTestTracks as languageTestTracks } from "./practice-tests";
 
 describe("language test paths", () => {
-  it("provides ten tests for each of the three skills in both languages", () => {
+  it("provides twenty tests for each of the three skills in both languages", () => {
     Object.values(languageTestTracks).forEach((track) => {
-      expect(track.stages).toHaveLength(30);
+      expect(track.stages).toHaveLength(60);
       (["writing", "listening", "pronunciation"] as const).forEach((skill) => {
         const stages = track.stages.filter((stage) => stage.skill === skill);
-        expect(stages).toHaveLength(10);
-        expect(stages.map((stage) => stage.order)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+        expect(stages).toHaveLength(20);
+        expect(stages.map((stage) => stage.order)).toEqual(Array.from({ length: 20 }, (_, index) => index + 1));
       });
       expect(track.stages.some((stage) => stage.productionTask.mode === "speaking")).toBe(true);
       expect(track.stages.some((stage) => stage.productionTask.mode === "writing")).toBe(true);
@@ -37,6 +37,26 @@ describe("language test paths", () => {
     });
   });
 
+  it("keeps all 120 activities and 40 listening resources distinct", () => {
+    const tracks = Object.values(languageTestTracks);
+    const stages = tracks.flatMap((track) => track.stages);
+    const listeningMedia = stages.flatMap((stage) => stage.media ? [stage.media] : []);
+
+    expect(stages).toHaveLength(120);
+    expect(new Set(stages.map((stage) => stage.id)).size).toBe(120);
+    expect(listeningMedia).toHaveLength(40);
+    expect(new Set(listeningMedia.map((media) => media.videoId)).size).toBe(40);
+
+    tracks.forEach((track) => {
+      (["writing", "listening", "pronunciation"] as const).forEach((skill) => {
+        const skillStages = track.stages.filter((stage) => stage.skill === skill);
+        expect(new Set(skillStages.map((stage) => stage.title)).size).toBe(20);
+        expect(new Set(skillStages.map((stage) => stage.description)).size).toBe(20);
+        expect(new Set(skillStages.map((stage) => stage.productionTask.prompt)).size).toBe(20);
+      });
+    });
+  });
+
   it("models Korean as a TOPIK I to TOPIK II level 3 bridge", () => {
     expect(languageTestTracks.ko.label).toContain("TOPIK I → II");
     expect(languageTestTracks.ko.target).toContain("TOPIK I");
@@ -48,8 +68,8 @@ describe("language test paths", () => {
   it("uses a verified YouTube story or song in every listening stage", () => {
     Object.values(languageTestTracks).forEach((track) => {
       const listening = track.stages.filter((stage) => stage.skill === "listening");
-      expect(listening.filter((stage) => stage.media?.kind === "story")).toHaveLength(5);
-      expect(listening.filter((stage) => stage.media?.kind === "song")).toHaveLength(5);
+      expect(listening.filter((stage) => stage.media?.kind === "story")).toHaveLength(10);
+      expect(listening.filter((stage) => stage.media?.kind === "song")).toHaveLength(10);
       listening.forEach((stage) => {
         expect(stage.media?.provider).toBe("youtube");
         expect(stage.media?.videoId).toMatch(/^[\w-]{11}$/);
@@ -97,8 +117,8 @@ describe("language test paths", () => {
     const progress: Record<string, StageProgress> = {};
     expect(isStageUnlocked(stages, 0, progress)).toBe(true);
     expect(isStageUnlocked(stages, 1, progress)).toBe(false);
-    expect(isStageUnlocked(stages, 10, progress)).toBe(true);
     expect(isStageUnlocked(stages, 20, progress)).toBe(true);
+    expect(isStageUnlocked(stages, 40, progress)).toBe(true);
 
     progress[stages[0].id] = {
       attempts: 1,
