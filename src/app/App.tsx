@@ -47,15 +47,18 @@ export function App() {
       <RoutePrefetcher />
       <DynamicFavicon readiness={progress.score} />
       <a className="skip-link" href="#main-content">{copy.app.skipLink}</a>
-      <aside className="desktop-brand" aria-label="LearnV">
-        <div className="brand-mark"><BrandMark /></div>
-        <div>
-          <strong>LearnV</strong>
-          <span>{copy.app.tagline}</span>
-        </div>
-      </aside>
 
-      <main id="main-content" className="main-content">
+      <header className="app-chrome">
+        <aside className="desktop-brand" aria-label="LearnV">
+          <div className="brand-mark"><BrandMark /></div>
+          <div>
+            <strong>LearnV</strong>
+            <span>{copy.app.tagline}</span>
+          </div>
+        </aside>
+
+        <BottomNav />
+
         {!isImmersiveLearningExperience ? <LanguageSwitcher /> : (
           <div className="test-theme-toolbar">
             <Link className="mobile-brand" to="/" aria-label="LearnV">
@@ -65,6 +68,9 @@ export function App() {
             <div className="test-theme-toolbar__controls"><ThemeToggle compact /><AppGuide /></div>
           </div>
         )}
+      </header>
+
+      <main id="main-content" className="main-content">
         <VisualReadinessGate
           key={location.pathname}
           label={copy.common.loading}
@@ -76,7 +82,6 @@ export function App() {
         </VisualReadinessGate>
       </main>
 
-      <BottomNav />
       {tourReady && visuallyReadyRoute === location.pathname && <Suspense fallback={null}><SectionTour /></Suspense>}
     </div>
   );

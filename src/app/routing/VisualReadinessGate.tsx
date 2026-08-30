@@ -198,6 +198,11 @@ function removeBootstrapLoader() {
   document.getElementById("learnv-bootstrap-loader")?.remove();
 }
 
+function usesMobileResumeProtection() {
+  return window.matchMedia("(pointer: coarse)").matches
+    || window.matchMedia("(max-width: 719px)").matches;
+}
+
 type ReadyProbeProps = PropsWithChildren<{
   onCommit: (root: HTMLElement) => void;
 }>;
@@ -266,6 +271,12 @@ export function VisualReadinessGate({ children, label, onReady }: VisualReadines
       void afterFrames(2).then(() => window.location.reload());
     };
     const resume = (restoredFromPageCache: boolean) => {
+      const mobileDevice = usesMobileResumeProtection();
+      if (!mobileDevice) {
+        hiddenAtRef.current = null;
+        restoredFromPageCacheRef.current = false;
+        return;
+      }
       if (
         document.visibilityState !== "visible"
         || hiddenAtRef.current === null
@@ -274,7 +285,7 @@ export function VisualReadinessGate({ children, label, onReady }: VisualReadines
       ) return;
 
       const elapsedMs = Date.now() - hiddenAtRef.current;
-      if (shouldReloadAfterResume({ elapsedMs, restoredFromPageCache })) {
+      if (shouldReloadAfterResume({ elapsedMs, restoredFromPageCache, mobileDevice })) {
         reloadCurrentRoute();
         return;
       }
@@ -285,6 +296,11 @@ export function VisualReadinessGate({ children, label, onReady }: VisualReadines
     };
     const onVisibilityChange = () => {
       if (document.visibilityState === "hidden") {
+        if (!usesMobileResumeProtection()) {
+          hiddenAtRef.current = null;
+          restoredFromPageCacheRef.current = false;
+          return;
+        }
         window.clearTimeout(resumeTimerRef.current);
         hiddenAtRef.current = Date.now();
         coverCurrentRoute();
@@ -294,12 +310,13 @@ export function VisualReadinessGate({ children, label, onReady }: VisualReadines
       resumeTimerRef.current = window.setTimeout(() => resume(restoredFromPageCacheRef.current), 50);
     };
     const onPageHide = () => {
+      if (!usesMobileResumeProtection()) return;
       window.clearTimeout(resumeTimerRef.current);
       hiddenAtRef.current ??= Date.now();
       coverCurrentRoute();
     };
     const onPageShow = (event: PageTransitionEvent) => {
-      if (event.persisted) {
+      if (event.persisted && usesMobileResumeProtection()) {
         window.clearTimeout(resumeTimerRef.current);
         restoredFromPageCacheRef.current = true;
         hiddenAtRef.current ??= Date.now() - PAGE_CACHE_RELOAD_MS;
