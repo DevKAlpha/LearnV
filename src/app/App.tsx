@@ -49,13 +49,13 @@ export function App() {
       <a className="skip-link" href="#main-content">{copy.app.skipLink}</a>
 
       <header className="app-chrome">
-        <aside className="desktop-brand" aria-label="LearnV">
+        <Link className="desktop-brand" to="/" aria-label={`LearnV · ${copy.nav.home}`}>
           <div className="brand-mark"><BrandMark /></div>
           <div>
             <strong>LearnV</strong>
             <span>{copy.app.tagline}</span>
           </div>
-        </aside>
+        </Link>
 
         <BottomNav />
 

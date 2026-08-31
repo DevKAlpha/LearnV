@@ -4,7 +4,6 @@ import { ProgressOrbit } from "@/shared/ui/ProgressOrbit";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { LanguageGoals } from "@/features/home/presentation/LanguageGoals";
 import { getReminderStage } from "@/domain/models/learning-reminder";
-import { BrandMark } from "@/shared/ui/BrandMark";
 
 type Props = {
   score: number;
@@ -38,7 +37,6 @@ export function HomePage({ score, progress, toggleTask }: Props) {
             <span className="home-route-title__icons" aria-hidden="true">👉 ❤️ 👈</span>
           </h1>
         </div>
-        <Link to="/profile" className="avatar-button" aria-label={copy.home.openProfile}><BrandMark /></Link>
       </header>
 
       <section className="hero-grid" aria-labelledby="readiness-title">
