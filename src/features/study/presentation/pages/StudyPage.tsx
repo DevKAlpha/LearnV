@@ -4,8 +4,10 @@ import { useI18n } from "@/application/i18n/I18nContext";
 import { learningResources } from "@/infrastructure/data/learning-resources";
 import { TESTS_PER_LANGUAGE } from "@/infrastructure/data/practice-tests";
 import { PageEmblem } from "@/shared/ui/PageEmblem";
+import type { LearningJourneyController } from "@/application/controllers/useLearningJourney";
+import { LearningJourneyPanel } from "@/shared/ui/LearningJourneyPanel";
 
-export function StudyPage() {
+export function StudyPage({ learning }: { learning: LearningJourneyController }) {
   const { copy } = useI18n();
   const { totals } = useLanguageTestProgress();
   const spaces = [
@@ -40,6 +42,8 @@ export function StudyPage() {
         <h1>{copy.study.title}</h1>
         <p>{copy.study.intro}</p>
       </header>
+
+      <LearningJourneyPanel learning={learning} compact />
 
       <section className="study-start-card" aria-labelledby="starter-route-title">
         <div className="study-start-card__copy">

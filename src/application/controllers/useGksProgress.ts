@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { dailyTasks, documents } from "../../infrastructure/data/gks-2026";
+import { trackLearning } from "./learningJourneyEvents";
 
 const STORAGE_KEY = "learnv-progress-v1";
 const LEGACY_STORAGE_KEY = "gks-path-progress-v1";
@@ -31,21 +32,38 @@ export function useGksProgress() {
   }, [progress]);
 
   const toggleTask = (id: string) => {
-    setProgress((current) => ({
-      ...current,
-      completedTasks: current.completedTasks.includes(id)
-        ? current.completedTasks.filter((taskId) => taskId !== id)
-        : [...current.completedTasks, id],
-    }));
+    setProgress((current) => {
+      const completing = !current.completedTasks.includes(id);
+      if (completing) {
+        const task = dailyTasks.find((item) => item.id === id);
+        trackLearning({
+          kind: "task",
+          itemId: id,
+          language: task?.category === "topik" ? "ko" : task?.category === "english" ? "en" : "general",
+          skill: task?.category === "application" ? "application" : task?.category === "english" ? "writing" : "reading",
+          passed: true,
+        });
+      }
+      return {
+        ...current,
+        completedTasks: completing
+          ? [...current.completedTasks, id]
+          : current.completedTasks.filter((taskId) => taskId !== id),
+      };
+    });
   };
 
   const toggleDocument = (id: string) => {
-    setProgress((current) => ({
-      ...current,
-      completedDocuments: current.completedDocuments.includes(id)
-        ? current.completedDocuments.filter((documentId) => documentId !== id)
-        : [...current.completedDocuments, id],
-    }));
+    setProgress((current) => {
+      const completing = !current.completedDocuments.includes(id);
+      if (completing) trackLearning({ kind: "document", itemId: id, language: "general", skill: "documents", passed: true });
+      return {
+        ...current,
+        completedDocuments: completing
+          ? [...current.completedDocuments, id]
+          : current.completedDocuments.filter((documentId) => documentId !== id),
+      };
+    });
   };
 
   const score = useMemo(() => {

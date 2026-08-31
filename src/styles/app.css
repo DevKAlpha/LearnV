@@ -3044,6 +3044,40 @@ html[data-theme="dark"] .document-tags span {
   box-shadow: 0 0 20px color-mix(in srgb, var(--purple) 26%, transparent);
 }
 
+/* Local learning trace and adaptive next step */
+.learning-journey {
+  position: relative;
+  margin-top: 28px;
+  overflow: hidden;
+  padding: 22px;
+  border: 2px solid var(--ink);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 92% 8%, rgba(255, 191, 28, 0.28), transparent 30%),
+    linear-gradient(145deg, rgba(255,255,255,0.9), rgba(232,210,244,0.66));
+  box-shadow: var(--glass-highlight), 6px 7px 0 var(--ink), 0 18px 36px rgba(65, 40, 70, 0.12);
+}
+.learning-journey__heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+.learning-journey__heading h2 { margin: 5px 0 0; font-size: clamp(1.35rem, 5vw, 2rem); line-height: 1.02; }
+.learning-journey__heading p { max-width: 620px; margin: 8px 0 0; color: var(--muted); font-size: 0.76rem; font-weight: 650; line-height: 1.5; }
+.learning-journey__flame { display: grid; width: 46px; height: 46px; flex: 0 0 46px; place-items: center; border: 2px solid var(--ink); border-radius: 16px; background: var(--yellow); box-shadow: 3px 3px 0 var(--ink); font-size: 1.25rem; }
+.learning-journey__stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 18px; }
+.learning-journey__stat { display: flex; min-width: 0; align-items: center; gap: 7px; padding: 12px; border: 1.5px solid rgba(35,24,35,0.55); border-radius: 17px; background: rgba(255,255,255,0.55); }
+.learning-journey__stat strong { font-size: 1.35rem; line-height: 1; }
+.learning-journey__stat > span { min-width: 0; color: var(--muted); font-size: 0.62rem; font-weight: 800; }
+.learning-journey__stat small { display: block; overflow: hidden; margin-top: 2px; font-size: 0.58rem; line-height: 1.15; text-overflow: ellipsis; }
+.learning-journey__stat--streak { border-color: var(--ink); background: linear-gradient(145deg, #fff3bd, var(--yellow)); }
+.learning-recommendation { display: grid; gap: 14px; margin-top: 12px; padding: 15px; border-radius: 19px; background: var(--ink); color: #fff; }
+.learning-recommendation span { color: #f7d8ff; font-size: 0.58rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+.learning-recommendation p { margin: 5px 0 0; font-size: 0.75rem; font-weight: 700; line-height: 1.42; }
+.learning-recommendation a { display: flex; min-height: 42px; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 13px; border-radius: 14px; background: var(--yellow); color: var(--ink); font-size: 0.7rem; font-weight: 900; text-decoration: none; }
+.learning-recommendation a span { color: inherit; font-size: 1rem; letter-spacing: 0; }
+.learning-journey__privacy { margin: 13px 2px 0; color: var(--muted); font-size: 0.62rem; font-weight: 650; line-height: 1.45; }
+:root[data-theme="dark"] .learning-journey { background: radial-gradient(circle at 92% 8%, rgba(255,191,28,0.2), transparent 30%), linear-gradient(145deg, rgba(61,45,67,0.96), rgba(31,25,37,0.98)); }
+:root[data-theme="dark"] .learning-journey__stat { border-color: rgba(255,255,255,0.32); background: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .learning-journey__stat--streak { border-color: #f7d36b; background: rgba(255,191,28,0.18); }
+:root[data-theme="dark"] .learning-recommendation { background: #100d13; }
+
 :root[data-theme="dark"] .profile-credit {
   border-color: rgba(220, 178, 255, 0.62);
   background: rgba(255, 255, 255, 0.08);
@@ -4126,7 +4160,8 @@ html[data-theme="dark"] .document-tags span {
 }
 
 @media (min-width: 900px) {
-  body { background-color: #dfd0d8; }
+  body { min-height: 100dvh; background-color: #dfd0d8; background-attachment: fixed; }
+  #root { min-height: 100dvh; padding: 20px 0; box-sizing: border-box; }
   .app-shell {
     --desktop-gutter: clamp(18px, 2.4vw, 34px);
     display: grid;
@@ -4136,7 +4171,7 @@ html[data-theme="dark"] .document-tags span {
     width: min(calc(100% - clamp(32px, 4vw, 64px)), 1280px);
     min-height: calc(100vh - 40px);
     min-height: calc(100dvh - 40px);
-    margin: 20px auto;
+    margin: 0 auto;
     overflow: visible;
     border: 2px solid var(--ink);
     border-radius: 32px;
@@ -4148,7 +4183,7 @@ html[data-theme="dark"] .document-tags span {
     z-index: 80;
     top: 0;
     display: grid;
-    grid-template-columns: auto minmax(320px, 1fr) auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
     gap: clamp(12px, 1.5vw, 24px);
     min-width: 0;
@@ -4176,9 +4211,9 @@ html[data-theme="dark"] .document-tags span {
   }
   .brand-mark {
     display: grid;
-    width: 42px;
-    height: 42px;
-    flex: 0 0 42px;
+    width: 50px;
+    height: 50px;
+    flex: 0 0 50px;
     place-items: center;
     border: 2px solid var(--ink);
     border-radius: 14px;
@@ -4188,11 +4223,11 @@ html[data-theme="dark"] .document-tags span {
     -webkit-backdrop-filter: blur(16px) saturate(1.45);
     backdrop-filter: blur(16px) saturate(1.45);
   }
-  .brand-mark .brand-tulip { width: 29px; height: 36px; filter: none; }
+  .brand-mark .brand-tulip { width: 35px; height: 43px; filter: none; }
   .desktop-brand strong,
   .desktop-brand span { display: block; }
-  .desktop-brand strong { font-size: 0.86rem; }
-  .desktop-brand span { max-width: 118px; margin-top: 1px; color: var(--muted); font-size: 0.5rem; font-weight: 750; line-height: 1.2; }
+  .desktop-brand strong { font-size: 1rem; line-height: 1.05; }
+  .desktop-brand span { max-width: 148px; margin-top: 3px; color: var(--muted); font-size: 0.61rem; font-weight: 750; line-height: 1.2; }
   .main-content { grid-row: 2; min-width: 0; min-height: 0; }
   .app-toolbar,
   .test-theme-toolbar {
@@ -4228,7 +4263,7 @@ html[data-theme="dark"] .document-tags span {
     inset: auto;
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    width: min(100%, 520px);
+    width: 100%;
     min-height: 0;
     gap: 3px;
     margin: 0 auto;
@@ -4251,14 +4286,20 @@ html[data-theme="dark"] .document-tags span {
   .nav-item--active { transform: translateY(-1px); }
   .nav-item--active .nav-item__motion { transform: none; }
   .nav-symbol { font-size: 1.02rem; }
-  .nav-symbol .app-icon { width: 17px; height: 17px; }
-  .nav-label { font-size: 0.56rem; }
+  .nav-symbol .app-icon { width: 19px; height: 19px; }
+  .nav-label { font-size: 0.62rem; }
   .hero-grid { padding: 28px 30px; }
   .alert-card { margin-top: 20px; }
   .section-block { margin-top: 30px; }
   .resource-library,
   .objectives-section { margin-top: 30px; }
   .quote-card { margin-top: 30px; }
+  .learning-journey__stats { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .learning-journey--compact .learning-journey__stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .learning-journey--compact { display: grid; grid-template-columns: minmax(220px, 0.7fr) minmax(360px, 1.3fr); gap: 18px 24px; align-items: center; }
+  .learning-journey--compact .learning-journey__stats { grid-column: 1 / -1; margin-top: 0; }
+  .learning-journey--compact .learning-recommendation { grid-column: 1 / -1; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+  .learning-journey--compact .learning-recommendation a { min-width: 190px; }
   .program-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .study-feature { min-height: 390px; }
   .study-character { right: 40px; bottom: 30px; width: 220px; height: 195px; }
@@ -4270,10 +4311,12 @@ html[data-theme="dark"] .document-tags span {
   .app-shell { --desktop-gutter: 16px; }
   .app-chrome { grid-template-columns: auto minmax(300px, 1fr) auto; gap: 10px; }
   .desktop-brand span { display: none; }
+  .brand-mark { width: 46px; height: 46px; flex-basis: 46px; }
+  .brand-mark .brand-tulip { width: 32px; height: 39px; }
   .language-option small { display: none; }
   .language-option { min-width: 38px; padding-inline: 7px; }
   .nav-item__motion { gap: 5px; }
-  .nav-label { font-size: 0.54rem; }
+  .nav-label { font-size: 0.57rem; }
   .page { padding-inline: 34px; }
   .hero-copy h2 { font-size: clamp(3rem, 6vw, 3.8rem); }
 }

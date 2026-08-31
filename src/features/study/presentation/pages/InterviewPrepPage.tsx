@@ -4,6 +4,7 @@ import { useI18n } from "@/application/i18n/I18nContext";
 import { localize } from "@/domain/models/i18n";
 import { interviewQuestions, interviewTips } from "@/infrastructure/data/interview-prep";
 import { LiteYouTube } from "@/shared/ui/LiteYouTube";
+import { trackLearning } from "@/application/controllers/learningJourneyEvents";
 
 type Category = "all" | "motivation" | "academic" | "adaptation" | "contribution";
 type SavedPractice = Record<string, { answer: string; checked: boolean[] }>;
@@ -37,6 +38,10 @@ export function InterviewPrepPage() {
   useEffect(() => { if (secondsLeft === 0) setTimerRunning(false); }, [secondsLeft]);
 
   const changePractice = (direction: number) => {
+    if (direction > 0 && (answer.trim().length > 0 || checked.some(Boolean))) {
+      const score = Math.round((checked.filter(Boolean).length / checked.length) * 100);
+      trackLearning({ kind: "practice", itemId: practiceQuestion.id, language: "general", skill: "interview", score, passed: checked.every(Boolean) });
+    }
     setPracticeIndex((current) => (current + direction + visibleQuestions.length) % visibleQuestions.length);
     setSecondsLeft(75);
     setTimerRunning(false);

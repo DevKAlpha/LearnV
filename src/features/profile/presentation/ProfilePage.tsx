@@ -4,8 +4,10 @@ import { useLanguageTestProgress } from "@/application/controllers/useLanguageTe
 import { currentCycle } from "@/infrastructure/data/gks-2026";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { BrandMark } from "@/shared/ui/BrandMark";
+import type { LearningJourneyController } from "@/application/controllers/useLearningJourney";
+import { LearningJourneyPanel } from "@/shared/ui/LearningJourneyPanel";
 
-export function ProfilePage({ score }: { score: number }) {
+export function ProfilePage({ score, learning }: { score: number; learning: LearningJourneyController }) {
   const { copy } = useI18n();
   const { progress, totals } = useLanguageTestProgress();
   const [creditTaps, setCreditTaps] = useState(0);
@@ -57,6 +59,8 @@ export function ProfilePage({ score }: { score: number }) {
         <div className="profile-field"><small>{copy.profile.korean}</small><strong>{koreanLevel}{koreanScore !== null && <em> · {totals.ko}/5 {copy.profile.testsCompleted}</em>}</strong></div>
         <div className="profile-field"><small>{copy.profile.english}</small><strong>{englishLevel}{englishScore !== null && <em> · {totals.en}/5 {copy.profile.testsCompleted}</em>}</strong></div>
       </section>
+
+      <LearningJourneyPanel learning={learning} />
 
       <section className="profile-cycle">
         <span className="eyebrow">{copy.profile.targetCycle}</span><h2>{currentCycle.target}</h2><p>{copy.home.cycleNote}</p>

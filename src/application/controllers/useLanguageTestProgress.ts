@@ -6,6 +6,7 @@ import {
   type TestProgressState,
 } from "../../domain/models/language-test";
 import { practiceTestTracks } from "../../infrastructure/data/practice-tests";
+import { trackLearning } from "./learningJourneyEvents";
 
 const STORAGE_KEY = "learnv-language-tests-v1";
 
@@ -24,6 +25,8 @@ export function useLanguageTestProgress() {
   const [progress, setProgress] = useState<TestProgressState>(readProgress);
 
   const recordAttempt = useCallback((language: TestLanguage, stageId: string, score: number, passed: boolean) => {
+    const skill = practiceTestTracks[language].stages.find((stage) => stage.id === stageId)?.skill;
+    if (skill) trackLearning({ kind: "practice", itemId: stageId, language, skill, score, passed });
     setProgress((current) => {
       const previous = current[language][stageId];
       const nextStage: StageProgress = {

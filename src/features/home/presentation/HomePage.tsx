@@ -4,14 +4,17 @@ import { ProgressOrbit } from "@/shared/ui/ProgressOrbit";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { LanguageGoals } from "@/features/home/presentation/LanguageGoals";
 import { getReminderStage } from "@/domain/models/learning-reminder";
+import type { LearningJourneyController } from "@/application/controllers/useLearningJourney";
+import { LearningJourneyPanel } from "@/shared/ui/LearningJourneyPanel";
 
 type Props = {
   score: number;
   progress: { completedTasks: string[] };
   toggleTask: (id: string) => void;
+  learning: LearningJourneyController;
 };
 
-export function HomePage({ score, progress, toggleTask }: Props) {
+export function HomePage({ score, progress, toggleTask, learning }: Props) {
   const { locale, copy } = useI18n();
   const completedToday = dailyTasks.filter((task) => progress.completedTasks.includes(task.id)).length;
   const reminderStage = getReminderStage(score, completedToday, dailyTasks.length);
@@ -58,6 +61,8 @@ export function HomePage({ score, progress, toggleTask }: Props) {
         </div>
         <span className="alert-card__arrow" aria-hidden="true">↗</span>
       </Link>
+
+      <LearningJourneyPanel learning={learning} compact />
 
       <section className="section-block" aria-labelledby="today-title">
         <div className="section-heading">

@@ -1,6 +1,7 @@
 import { lazy } from "react";
 import { Navigate, Route, Routes, type Location } from "react-router-dom";
 import type { useGksProgress } from "@/application/controllers/useGksProgress";
+import type { LearningJourneyController } from "@/application/controllers/useLearningJourney";
 import { HomePage } from "@/features/home/presentation/HomePage";
 
 const loadGksPage = () => import("@/features/scholarship/presentation/GksPage").then((module) => ({ default: module.GksPage }));
@@ -41,14 +42,15 @@ type Progress = ReturnType<typeof useGksProgress>;
 type AppRoutesProps = {
   location: Location;
   progress: Progress;
+  learning: LearningJourneyController;
 };
 
-export function AppRoutes({ location, progress }: AppRoutesProps) {
+export function AppRoutes({ location, progress, learning }: AppRoutesProps) {
   return (
     <Routes location={location}>
-      <Route path="/" element={<HomePage {...progress} />} />
+      <Route path="/" element={<HomePage {...progress} learning={learning} />} />
       <Route path="/gks" element={<GksPage />} />
-      <Route path="/study" element={<StudyPage />} />
+      <Route path="/study" element={<StudyPage learning={learning} />} />
       <Route path="/study/english" element={<LanguageStudyPage language="en" />} />
       <Route path="/study/korean" element={<LanguageStudyPage language="ko" />} />
       <Route path="/study/interviews" element={<InterviewPrepPage />} />
@@ -56,7 +58,7 @@ export function AppRoutes({ location, progress }: AppRoutesProps) {
       <Route path="/tests/:language" element={<TestPathPage />} />
       <Route path="/tests/:language/:stageId" element={<TestSessionPage />} />
       <Route path="/checklist" element={<ChecklistPage {...progress} />} />
-      <Route path="/profile" element={<ProfilePage score={progress.score} />} />
+      <Route path="/profile" element={<ProfilePage score={progress.score} learning={learning} />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

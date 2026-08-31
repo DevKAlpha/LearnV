@@ -7,6 +7,7 @@ import {
   type ResourceType,
 } from "@/infrastructure/data/learning-resources";
 import { AppIcon, type AppIconName } from "@/shared/ui/AppIcon";
+import { trackLearning } from "@/application/controllers/learningJourneyEvents";
 
 type TypeFilter = "all" | ResourceType;
 
@@ -53,6 +54,7 @@ export function ResourceLibrary({ language }: ResourceLibraryProps) {
   const toggleComplete = (id: string) => {
     setCompleted((current) => {
       const next = current.includes(id) ? current.filter((item) => item !== id) : [...current, id];
+      if (!current.includes(id)) trackLearning({ kind: "resource", itemId: id, language, passed: true });
       localStorage.setItem("learnv-resource-progress-v1", JSON.stringify(next));
       window.dispatchEvent(new CustomEvent("learnv:progress"));
       return next;
@@ -110,7 +112,7 @@ export function ResourceLibrary({ language }: ResourceLibraryProps) {
                 <strong>{resource.organization}</strong>
                 <small>{locale === "ko" ? "자료 카드 검토" : locale === "en" ? "Resource card reviewed" : "Ficha del recurso revisada"} · {resource.verifiedAt}</small>
               </div>
-              <div className="resource-actions"><a href={resource.url} target="_blank" rel="noreferrer">{copy.study.openResource}<span aria-hidden="true">↗</span></a><button type="button" aria-pressed={completed.includes(resource.id)} onClick={() => toggleComplete(resource.id)}>{completed.includes(resource.id) ? "✓ " : ""}{locale === "ko" ? "완료" : locale === "en" ? "Complete" : "Completar"}</button></div>
+              <div className="resource-actions"><a href={resource.url} target="_blank" rel="noreferrer" onClick={() => trackLearning({ kind: "resource", itemId: resource.id, language })}>{copy.study.openResource}<span aria-hidden="true">↗</span></a><button type="button" aria-pressed={completed.includes(resource.id)} onClick={() => toggleComplete(resource.id)}>{completed.includes(resource.id) ? "✓ " : ""}{locale === "ko" ? "완료" : locale === "en" ? "Complete" : "Completar"}</button></div>
             </article>
           ))}
         </div>

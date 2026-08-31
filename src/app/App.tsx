@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useGksProgress } from "@/application/controllers/useGksProgress";
+import { useLearningJourney } from "@/application/controllers/useLearningJourney";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { isImmersiveLearningRoute, resolveLearningLocale } from "@/application/i18n/learning-locale";
 import { AppGuide } from "@/app/layout/AppGuide";
@@ -21,6 +22,7 @@ export function App() {
   const progress = useGksProgress();
   const { copy, setLearningLocale } = useI18n();
   const location = useLocation();
+  const learning = useLearningJourney(location.pathname);
   const learningLocale = resolveLearningLocale(location.pathname);
   const isImmersiveLearningExperience = isImmersiveLearningRoute(location.pathname);
   const [tourReady, setTourReady] = useState(false);
@@ -77,7 +79,7 @@ export function App() {
           onReady={() => setVisuallyReadyRoute(location.pathname)}
         >
           <AnimatedRouteView routeKey={location.pathname}>
-            <AppRoutes location={location} progress={progress} />
+            <AppRoutes location={location} progress={progress} learning={learning} />
           </AnimatedRouteView>
         </VisualReadinessGate>
       </main>

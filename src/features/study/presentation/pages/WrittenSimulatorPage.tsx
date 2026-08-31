@@ -9,6 +9,7 @@ import {
   writtenSimulatorRubricIds,
 } from "@/infrastructure/data/written-simulator";
 import { SourceLink } from "@/shared/ui/SourceLink";
+import { trackLearning } from "@/application/controllers/learningJourneyEvents";
 
 function formatTime(seconds: number) {
   const minutes = Math.floor(seconds / 60).toString().padStart(2, "0");
@@ -171,7 +172,10 @@ export function WrittenSimulatorPage() {
           </div>
           <div className="written-stage__actions">
             <button className="test-secondary-action" type="button" onClick={() => simulator.goTo("plan")}>{copy.written.previous}</button>
-            <button className="test-primary-action" type="button" onClick={simulator.finish}>{copy.written.finish}<span aria-hidden="true">→</span></button>
+            <button className="test-primary-action" type="button" onClick={() => {
+              trackLearning({ kind: "practice", itemId: "written-simulator", language: state.language, skill: "application", score: simulator.score.total, passed: simulator.score.total >= 65 });
+              simulator.finish();
+            }}>{copy.written.finish}<span aria-hidden="true">→</span></button>
           </div>
         </section>
       )}
