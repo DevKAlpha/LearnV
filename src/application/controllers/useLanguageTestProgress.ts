@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   emptyTestProgress,
   type StageProgress,
@@ -23,6 +23,13 @@ function readProgress(): TestProgressState {
 
 export function useLanguageTestProgress() {
   const [progress, setProgress] = useState<TestProgressState>(readProgress);
+  const mounted = useRef(false);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    if (mounted.current) window.dispatchEvent(new CustomEvent("learnv:progress"));
+    else mounted.current = true;
+  }, [progress]);
 
   const recordAttempt = useCallback((language: TestLanguage, stageId: string, score: number, passed: boolean) => {
     const skill = practiceTestTracks[language].stages.find((stage) => stage.id === stageId)?.skill;
@@ -40,8 +47,6 @@ export function useLanguageTestProgress() {
         ...current,
         [language]: { ...current[language], [stageId]: nextStage },
       };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      window.dispatchEvent(new CustomEvent("learnv:progress"));
       return next;
     });
   }, []);

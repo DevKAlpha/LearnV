@@ -6,6 +6,7 @@ import { TESTS_PER_LANGUAGE } from "@/infrastructure/data/practice-tests";
 import { PageEmblem } from "@/shared/ui/PageEmblem";
 import type { LearningJourneyController } from "@/application/controllers/useLearningJourney";
 import { LearningJourneyPanel } from "@/shared/ui/LearningJourneyPanel";
+import { LearningAnalysisPanel } from "@/features/study/presentation/components/LearningAnalysisPanel";
 
 export function StudyPage({ learning }: { learning: LearningJourneyController }) {
   const { copy } = useI18n();
@@ -44,6 +45,8 @@ export function StudyPage({ learning }: { learning: LearningJourneyController })
       </header>
 
       <LearningJourneyPanel learning={learning} compact />
+
+      <LearningAnalysisPanel learning={learning} />
 
       <section className="study-start-card" aria-labelledby="starter-route-title">
         <div className="study-start-card__copy">

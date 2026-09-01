@@ -3078,6 +3078,78 @@ html[data-theme="dark"] .document-tags span {
 :root[data-theme="dark"] .learning-journey__stat--streak { border-color: #f7d36b; background: rgba(255,191,28,0.18); }
 :root[data-theme="dark"] .learning-recommendation { background: #100d13; }
 
+/* Result analysis and transparent adaptive coaching */
+.learning-analysis {
+  position: relative;
+  margin-top: 28px;
+  overflow: hidden;
+  padding: 22px;
+  border: 2px solid var(--ink);
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at 100% 0, rgba(117, 170, 255, 0.24), transparent 32%),
+    linear-gradient(150deg, rgba(255,255,255,0.94), rgba(244,235,228,0.86));
+  box-shadow: var(--glass-highlight), 7px 8px 0 var(--ink), 0 20px 42px rgba(51,41,58,0.13);
+}
+.learning-analysis__header { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+.learning-analysis__header h2 { max-width: 680px; margin: 6px 0 0; font-size: clamp(1.45rem, 6vw, 2.35rem); letter-spacing: -0.05em; line-height: 1; }
+.learning-analysis__header p { max-width: 690px; margin: 9px 0 0; color: var(--muted); font-size: 0.74rem; font-weight: 650; line-height: 1.5; }
+.learning-analysis__mark { display: grid; width: 48px; height: 48px; flex: 0 0 48px; place-items: center; border: 2px solid var(--ink); border-radius: 16px; background: var(--blue); box-shadow: 3px 3px 0 var(--ink); font-size: 1.45rem; font-weight: 900; }
+.learning-analysis__empty { display: grid; gap: 14px; margin-top: 20px; padding: 18px; border: 1.5px solid var(--ink); border-radius: 22px; background: rgba(255,255,255,0.58); }
+.learning-analysis__empty > span { display: grid; width: 44px; height: 44px; place-items: center; border-radius: 14px; background: var(--yellow); color: var(--ink); font-size: 1.2rem; font-weight: 900; }
+.learning-analysis__empty h3 { margin: 0; font-size: 1rem; }
+.learning-analysis__empty p { margin: 5px 0 0; color: var(--muted); font-size: 0.7rem; font-weight: 650; line-height: 1.45; }
+.learning-analysis__empty a,
+.analysis-highlight a { display: flex; min-height: 42px; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 13px; border-radius: 14px; background: var(--ink); color: #fff; font-size: 0.68rem; font-weight: 900; text-decoration: none; }
+.learning-analysis__overview { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 20px; }
+.learning-analysis__score,
+.learning-analysis__metric,
+.learning-analysis__trend { min-width: 0; min-height: 72px; padding: 13px; border: 1.5px solid rgba(35,24,35,0.5); border-radius: 18px; background: rgba(255,255,255,0.62); }
+.learning-analysis__score { display: flex; align-items: center; gap: 7px; border-color: var(--ink); background: linear-gradient(145deg, rgba(194,153,220,0.75), rgba(255,255,255,0.88)); }
+.learning-analysis__score strong { font-size: 1.65rem; line-height: 1; white-space: nowrap; }
+.learning-analysis__score > span { color: var(--muted); font-size: 0.58rem; font-weight: 850; }
+.learning-analysis__score small { display: block; margin-top: 3px; font-size: 0.55rem; }
+.learning-analysis__metric { display: flex; flex-direction: column; justify-content: center; }
+.learning-analysis__metric strong { overflow: hidden; font-size: 1rem; line-height: 1.05; text-overflow: ellipsis; }
+.learning-analysis__metric span { margin-top: 5px; color: var(--muted); font-size: 0.57rem; font-weight: 800; }
+.learning-analysis__trend { display: flex; flex-direction: column; justify-content: center; background: rgba(255,255,255,0.75); }
+.learning-analysis__trend strong { font-size: 0.72rem; }
+.learning-analysis__trend span { margin-top: 5px; color: var(--muted); font-size: 0.62rem; font-weight: 850; }
+.learning-analysis__trend--improving { background: rgba(176, 213, 149, 0.45); }
+.learning-analysis__trend--declining { background: rgba(255, 171, 190, 0.45); }
+.learning-analysis__highlights { display: grid; gap: 10px; margin-top: 12px; }
+.analysis-highlight { display: grid; align-content: start; padding: 17px; border: 1.5px solid var(--ink); border-radius: 20px; }
+.analysis-highlight--priority { background: linear-gradient(145deg, rgba(255,191,28,0.7), rgba(255,242,203,0.8)); }
+.analysis-highlight--strength { background: linear-gradient(145deg, rgba(176,213,149,0.72), rgba(240,247,228,0.86)); }
+.analysis-highlight > span { font-size: 0.57rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+.analysis-highlight h3 { margin: 6px 0 0; font-size: 0.95rem; }
+.analysis-highlight p { margin: 7px 0 14px; color: #51424f; font-size: 0.66rem; font-weight: 700; line-height: 1.4; }
+.analysis-highlight a { margin-top: auto; }
+.learning-analysis__skills { display: grid; gap: 10px; margin-top: 12px; }
+.analysis-skill { padding: 16px; border: 1.5px solid var(--ink); border-radius: 20px; background: rgba(255,255,255,0.66); }
+.analysis-skill__top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.analysis-skill__top span { color: var(--muted); font-size: 0.56rem; font-weight: 850; text-transform: uppercase; }
+.analysis-skill__top b { font-size: 0.57rem; }
+.analysis-skill h3 { margin: 7px 0 10px; font-size: 1rem; }
+.analysis-skill__bar { overflow: hidden; height: 8px; border: 1.5px solid var(--ink); border-radius: 999px; background: rgba(255,255,255,0.82); }
+.analysis-skill__bar i { display: block; height: 100%; border-right: 1px solid var(--ink); background: var(--purple); transition: width 360ms ease; }
+.analysis-skill--starting .analysis-skill__bar i { background: var(--pink); }
+.analysis-skill--developing .analysis-skill__bar i { background: var(--yellow); }
+.analysis-skill--solid .analysis-skill__bar i,
+.analysis-skill--strong .analysis-skill__bar i { background: var(--green); }
+.analysis-skill__numbers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin-top: 11px; }
+.analysis-skill__numbers span { color: var(--muted); font-size: 0.54rem; font-weight: 800; }
+.analysis-skill__numbers strong { display: block; color: var(--ink); font-size: 0.85rem; }
+.analysis-skill footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 13px; padding-top: 11px; border-top: 1px solid rgba(35,24,35,0.18); font-size: 0.58rem; font-weight: 850; }
+.analysis-skill footer a { color: var(--ink); }
+.learning-analysis__privacy { margin: 14px 2px 0; color: var(--muted); font-size: 0.6rem; font-weight: 650; line-height: 1.45; }
+:root[data-theme="dark"] .learning-analysis { background: radial-gradient(circle at 100% 0, rgba(117,170,255,0.18), transparent 32%), linear-gradient(150deg, rgba(53,43,59,0.98), rgba(28,23,32,0.98)); }
+:root[data-theme="dark"] :is(.learning-analysis__empty, .learning-analysis__score, .learning-analysis__metric, .learning-analysis__trend, .analysis-skill) { border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .analysis-highlight { color: var(--ink); }
+:root[data-theme="dark"] .analysis-highlight a { background: #171218; }
+:root[data-theme="dark"] .analysis-skill__numbers strong,
+:root[data-theme="dark"] .analysis-skill footer a { color: #fff; }
+
 :root[data-theme="dark"] .profile-credit {
   border-color: rgba(220, 178, 255, 0.62);
   background: rgba(255, 255, 255, 0.08);
@@ -4300,6 +4372,15 @@ html[data-theme="dark"] .document-tags span {
   .learning-journey--compact .learning-journey__stats { grid-column: 1 / -1; margin-top: 0; }
   .learning-journey--compact .learning-recommendation { grid-column: 1 / -1; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
   .learning-journey--compact .learning-recommendation a { min-width: 190px; }
+  .learning-analysis { padding: 26px; }
+  .learning-analysis__empty { grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; }
+  .learning-analysis__empty a { min-width: 170px; }
+  .learning-analysis__overview { grid-template-columns: 1.2fr repeat(4, minmax(0, 1fr)); }
+  .learning-analysis__highlights { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .learning-analysis__skills { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .learning-analysis__highlights > :only-child,
+  .learning-analysis__skills > :only-child { grid-column: 1 / -1; }
+  .learning-analysis__skills > :only-child .analysis-skill__numbers { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .program-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .study-feature { min-height: 390px; }
   .study-character { right: 40px; bottom: 30px; width: 220px; height: 195px; }

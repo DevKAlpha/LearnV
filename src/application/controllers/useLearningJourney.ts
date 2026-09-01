@@ -6,14 +6,58 @@ import {
   type LearningEvent,
   type LearningJourneyState,
 } from "@/domain/models/learning-journey";
+import { analyzeLearningResults } from "@/domain/models/learning-analysis";
+import type { TestProgressState } from "@/domain/models/language-test";
 import { LEARNING_JOURNEY_EVENT } from "./learningJourneyEvents";
 
 const STORAGE_KEY = "learnv-learning-journey-v1";
 
+function skillFromStageId(stageId: string) {
+  return (["writing", "listening", "pronunciation"] as const)
+    .find((skill) => stageId.includes(`-${skill}-`));
+}
+
+function migrateLanguageResults(state: LearningJourneyState) {
+  if (state.version >= 2) return state;
+  let migrated: LearningJourneyState = { ...state, version: 2 };
+  try {
+    const stored = localStorage.getItem("learnv-language-tests-v1");
+    if (!stored) return migrated;
+    const progress = JSON.parse(stored) as TestProgressState;
+    const trackedItems = new Set(state.recentActivities
+      .filter((event) => event.kind === "practice")
+      .map((event) => event.itemId));
+
+    for (const language of ["en", "ko"] as const) {
+      for (const [stageId, result] of Object.entries(progress[language] ?? {})) {
+        if (trackedItems.has(stageId)) continue;
+        const skill = skillFromStageId(stageId);
+        if (!skill) continue;
+        migrated = recordLearningEvent(migrated, {
+          kind: "practice",
+          itemId: stageId,
+          language,
+          skill,
+          score: result.lastScore,
+          passed: result.passed,
+          occurredAt: result.lastCompletedAt,
+          attemptCount: result.attempts,
+        });
+      }
+    }
+  } catch {
+    return migrated;
+  }
+  return migrated;
+}
+
 function readJourney(): LearningJourneyState {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? { ...createLearningJourney(), ...(JSON.parse(stored) as LearningJourneyState) } : createLearningJourney();
+    const parsed: LearningJourneyState = stored
+      ? { ...createLearningJourney(), ...(JSON.parse(stored) as LearningJourneyState) }
+      : { ...createLearningJourney(), version: 1 };
+    return migrateLanguageResults(parsed);
   } catch {
     return createLearningJourney();
   }
@@ -56,9 +100,10 @@ export function useLearningJourney(pathname: string) {
   }, [record]);
 
   const recommendation = useMemo(() => getLearningRecommendation(journey), [journey]);
+  const analysis = useMemo(() => analyzeLearningResults(journey), [journey]);
   const activeMinutes = Math.round(journey.totalActiveSeconds / 60);
   const practicedSkills = Object.keys(journey.skillStats).length;
-  return { journey, recommendation, activeMinutes, practicedSkills };
+  return { journey, recommendation, analysis, activeMinutes, practicedSkills };
 }
 
 export type LearningJourneyController = ReturnType<typeof useLearningJourney>;

@@ -12,6 +12,7 @@ export type LearningEvent = {
   score?: number;
   passed?: boolean;
   activeSeconds?: number;
+  attemptCount?: number;
 };
 
 export type SkillTrace = {
@@ -23,7 +24,7 @@ export type SkillTrace = {
 };
 
 export type LearningJourneyState = {
-  version: 1;
+  version: 1 | 2;
   firstSeenAt: string;
   lastSeenAt: string;
   activeDates: string[];
@@ -83,7 +84,7 @@ export function calculateStreak(activeDates: string[], today = new Date()) {
 export function createLearningJourney(now = new Date()): LearningJourneyState {
   const timestamp = now.toISOString();
   return {
-    version: 1,
+    version: 2,
     firstSeenAt: timestamp,
     lastSeenAt: timestamp,
     activeDates: [],
@@ -119,7 +120,7 @@ export function recordLearningEvent(state: LearningJourneyState, event: Learning
     skillStats = {
       ...state.skillStats,
       [event.skill]: {
-        attempts: (previous?.attempts ?? 0) + (event.kind === "practice" ? 1 : 0),
+        attempts: (previous?.attempts ?? 0) + (event.kind === "practice" ? Math.max(1, event.attemptCount ?? 1) : 0),
         completions: (previous?.completions ?? 0) + (event.passed || event.kind === "task" || event.kind === "document" ? 1 : 0),
         bestScore: hasScore ? Math.max(previous?.bestScore ?? 0, event.score ?? 0) : previous?.bestScore ?? null,
         lastScore: hasScore ? event.score ?? null : previous?.lastScore ?? null,

@@ -52,9 +52,10 @@ export function ResourceLibrary({ language }: ResourceLibraryProps) {
   };
   const accountResources = new Set(["topik-basic-public-test", "sejong-workbook-2", "sejong-advanced-writing", "sejong-roadmap"]);
   const toggleComplete = (id: string) => {
+    const completing = !completed.includes(id);
+    if (completing) trackLearning({ kind: "resource", itemId: id, language, passed: true });
     setCompleted((current) => {
       const next = current.includes(id) ? current.filter((item) => item !== id) : [...current, id];
-      if (!current.includes(id)) trackLearning({ kind: "resource", itemId: id, language, passed: true });
       localStorage.setItem("learnv-resource-progress-v1", JSON.stringify(next));
       window.dispatchEvent(new CustomEvent("learnv:progress"));
       return next;

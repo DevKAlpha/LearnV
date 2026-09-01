@@ -32,18 +32,18 @@ export function useGksProgress() {
   }, [progress]);
 
   const toggleTask = (id: string) => {
+    const completing = !progress.completedTasks.includes(id);
+    if (completing) {
+      const task = dailyTasks.find((item) => item.id === id);
+      trackLearning({
+        kind: "task",
+        itemId: id,
+        language: task?.category === "topik" ? "ko" : task?.category === "english" ? "en" : "general",
+        skill: task?.category === "application" ? "application" : task?.category === "english" ? "writing" : "reading",
+        passed: true,
+      });
+    }
     setProgress((current) => {
-      const completing = !current.completedTasks.includes(id);
-      if (completing) {
-        const task = dailyTasks.find((item) => item.id === id);
-        trackLearning({
-          kind: "task",
-          itemId: id,
-          language: task?.category === "topik" ? "ko" : task?.category === "english" ? "en" : "general",
-          skill: task?.category === "application" ? "application" : task?.category === "english" ? "writing" : "reading",
-          passed: true,
-        });
-      }
       return {
         ...current,
         completedTasks: completing
@@ -54,9 +54,9 @@ export function useGksProgress() {
   };
 
   const toggleDocument = (id: string) => {
+    const completing = !progress.completedDocuments.includes(id);
+    if (completing) trackLearning({ kind: "document", itemId: id, language: "general", skill: "documents", passed: true });
     setProgress((current) => {
-      const completing = !current.completedDocuments.includes(id);
-      if (completing) trackLearning({ kind: "document", itemId: id, language: "general", skill: "documents", passed: true });
       return {
         ...current,
         completedDocuments: completing
