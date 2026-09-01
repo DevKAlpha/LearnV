@@ -4307,6 +4307,12 @@ html[data-theme="dark"] .document-tags span {
   .study-character--library { width: 175px; height: 158px; }
 }
 
+@media (min-width: 900px) and (max-width: 1392px) {
+  .app-shell {
+    width: min(calc(100% - clamp(72px, 10vw, 112px)), 1280px);
+  }
+}
+
 @media (min-width: 900px) and (max-width: 1120px) {
   .app-shell { --desktop-gutter: 16px; }
   .app-chrome { grid-template-columns: auto minmax(300px, 1fr) auto; gap: 10px; }
