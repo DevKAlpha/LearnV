@@ -7,6 +7,7 @@ import { PageEmblem } from "@/shared/ui/PageEmblem";
 import type { LearningJourneyController } from "@/application/controllers/useLearningJourney";
 import { LearningJourneyPanel } from "@/shared/ui/LearningJourneyPanel";
 import { LearningAnalysisPanel } from "@/features/study/presentation/components/LearningAnalysisPanel";
+import { AdaptiveRecommendationCenter } from "@/features/study/presentation/components/AdaptiveRecommendationCenter";
 
 export function StudyPage({ learning }: { learning: LearningJourneyController }) {
   const { copy } = useI18n();
@@ -47,6 +48,8 @@ export function StudyPage({ learning }: { learning: LearningJourneyController })
       <LearningJourneyPanel learning={learning} compact />
 
       <LearningAnalysisPanel learning={learning} />
+
+      <AdaptiveRecommendationCenter learning={learning} />
 
       <section className="study-start-card" aria-labelledby="starter-route-title">
         <div className="study-start-card__copy">
