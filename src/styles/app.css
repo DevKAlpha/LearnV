@@ -4453,10 +4453,15 @@ html[data-theme="dark"] .document-tags span {
   .study-character--library { width: 175px; height: 158px; }
 }
 
-@media (min-width: 900px) and (max-width: 1392px) {
+@media (min-width: 900px) and (max-width: 1599px) {
   .app-shell {
-    width: min(calc(100% - clamp(72px, 10vw, 112px)), 1280px);
+    width: min(86vw, 1280px);
+    border-width: 3px;
+    border-radius: 34px;
+    box-shadow: 8px 10px 0 var(--ink), 0 22px 54px rgba(48, 34, 48, 0.14);
   }
+
+  .app-chrome { border-radius: 31px 31px 0 0; }
 }
 
 @media (min-width: 900px) and (max-width: 1120px) {
