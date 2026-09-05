@@ -61,12 +61,18 @@ export function RoutePrefetcher() {
     if (nextRoutes.length === 0 || connection?.saveData || connection?.effectiveType?.includes("2g")) return;
 
     const run = () => nextRoutes.forEach(preload);
+    const capableDesktop = window.matchMedia("(min-width: 720px) and (pointer: fine)").matches;
+    if (capableDesktop) {
+      const frame = window.requestAnimationFrame(run);
+      return () => window.cancelAnimationFrame(frame);
+    }
+
     const requestIdle = (window as unknown as { requestIdleCallback?: Window["requestIdleCallback"] }).requestIdleCallback;
     if (requestIdle) {
-      const request = requestIdle(run, { timeout: 1600 });
+      const request = requestIdle(run, { timeout: 900 });
       return () => window.cancelIdleCallback?.(request);
     }
-    const timer = setTimeout(run, 700);
+    const timer = setTimeout(run, 350);
     return () => clearTimeout(timer);
   }, [location.pathname]);
 

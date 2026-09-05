@@ -16,16 +16,20 @@
       })();
     </script>
     <style>
-      #learnv-bootstrap-loader{position:fixed;z-index:519;inset:0;display:grid;place-items:center;min-height:100vh;min-height:100dvh;background:#f8eee8;color:#241a24;font-family:ui-sans-serif,system-ui,-apple-system,sans-serif}
+      #learnv-bootstrap-loader{position:fixed;z-index:519;inset:0;display:grid;place-items:center;min-height:100vh;min-height:100dvh;contain:layout paint;background:#f8eee8;color:#241a24;font-family:ui-sans-serif,system-ui,-apple-system,sans-serif}
+      #learnv-bootstrap-loader::before{position:absolute;top:0;right:0;left:0;height:3px;transform-origin:left;background:linear-gradient(90deg,#a663c2,#ec2745,#ffbd20,#66834d);animation:learnv-bootstrap-progress .9s cubic-bezier(.22,1,.36,1) infinite;content:"";will-change:transform}
       [data-theme="dark"] #learnv-bootstrap-loader{background:#181219;color:#fff8f2}
       .learnv-bootstrap-scene{display:grid;width:120px;place-items:center;gap:4px}
-      .learnv-bootstrap-scene svg{width:72px;height:82px;animation:learnv-bootstrap-tulip 1.8s ease-in-out infinite;filter:drop-shadow(3px 4px 0 rgba(43,24,48,.22))}
+      .learnv-bootstrap-scene svg{width:72px;height:82px;animation:learnv-bootstrap-tulip 1.8s ease-in-out infinite;filter:drop-shadow(3px 4px 0 rgba(43,24,48,.22));will-change:transform}
       .learnv-bootstrap-books{display:grid;width:108px;gap:3px;margin-top:-5px}
       .learnv-bootstrap-books i{display:block;height:12px;border:1.5px solid #241a24;border-radius:4px 9px 9px 4px}
       .learnv-bootstrap-books i:nth-child(1){width:88px;justify-self:center;background:#ffbd20}.learnv-bootstrap-books i:nth-child(2){width:108px;background:#ec2745}.learnv-bootstrap-books i:nth-child(3){width:96px;justify-self:end;background:#c3a1dc}
+      .learnv-bootstrap-books i:nth-child(odd){animation:learnv-bootstrap-book-left 1.2s ease-in-out infinite}.learnv-bootstrap-books i:nth-child(even){animation:learnv-bootstrap-book-right 1.2s .12s ease-in-out infinite}
       .learnv-bootstrap-scene strong{margin-top:8px;font-size:13px;letter-spacing:.03em}
+      @keyframes learnv-bootstrap-progress{0%{opacity:.5;transform:scaleX(0)}65%{opacity:1;transform:scaleX(.78)}100%{opacity:.72;transform:scaleX(1)}}
       @keyframes learnv-bootstrap-tulip{0%,100%{transform:translateY(0) rotate(-2.5deg)}50%{transform:translateY(-4px) rotate(2.5deg)}}
-      @media(prefers-reduced-motion:reduce){.learnv-bootstrap-scene svg{animation:none}}
+      @keyframes learnv-bootstrap-book-left{50%{transform:translate3d(-2px,0,0)}}@keyframes learnv-bootstrap-book-right{50%{transform:translate3d(2px,0,0)}}
+      @media(prefers-reduced-motion:reduce){#learnv-bootstrap-loader::before,.learnv-bootstrap-scene svg,.learnv-bootstrap-books i{animation:none}}
     </style>
     <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />
     <meta

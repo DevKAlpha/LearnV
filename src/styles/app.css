@@ -174,13 +174,14 @@ input:focus-visible + span {
 .route-stage {
   min-width: 0;
   min-height: 55vh;
-  animation: route-stage-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: route-stage-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .route-reveal-item {
   opacity: 0;
-  transform: translate3d(0, 12px, 0);
-  transition: opacity 320ms cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms), transform 320ms cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms);
+  transform: translate3d(0, 10px, 0);
+  backface-visibility: hidden;
+  transition: opacity 360ms cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms), transform 360ms cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms);
 }
 
 .route-reveal-item.is-revealed { opacity: 1; transform: translate3d(0, 0, 0); }
@@ -225,7 +226,10 @@ html.app-visual-loading {
     var(--cream);
   opacity: 1;
   pointer-events: auto;
-  transition: opacity 210ms ease, visibility 210ms ease;
+  contain: layout paint;
+  isolation: isolate;
+  transition: opacity 170ms ease, visibility 170ms ease;
+  will-change: opacity;
 }
 
 .route-loader.is-leaving {
@@ -244,6 +248,7 @@ html.app-visual-loading {
   transform-origin: left center;
   background: linear-gradient(90deg, var(--purple), var(--hot-pink), var(--yellow), var(--green));
   animation: route-loader-progress 900ms cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  will-change: transform;
 }
 
 .route-loader__scene {
@@ -253,6 +258,7 @@ html.app-visual-loading {
   min-height: 154px;
   place-items: center;
   animation: route-loader-arrive 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: opacity, transform;
 }
 
 .route-loader__scene > strong {
@@ -270,6 +276,7 @@ html.app-visual-loading {
   height: 94px;
   transform-origin: 50% 100%;
   animation: route-loader-tulip 1.8s ease-in-out infinite;
+  will-change: transform;
 }
 
 .route-loader__tulip .brand-tulip { width: 76px; height: 90px; filter: drop-shadow(3px 4px 0 rgba(43,24,48,0.22)); }
@@ -3209,6 +3216,21 @@ html[data-theme="dark"] .document-tags span {
 :root[data-theme="dark"] .adaptive-resources__reason.is-personalized { background: rgba(116,161,84,0.22); }
 :root[data-theme="dark"] .adaptive-resources__reason strong { color: #fff; }
 :root[data-theme="dark"] .adaptive-material { color: var(--ink); }
+
+.page--study-library > :is(section, article) + :is(section, article) {
+  margin-top: clamp(34px, 3.2vw, 46px);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .adaptive-material {
+    transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 200ms ease;
+  }
+
+  .adaptive-material:hover {
+    transform: translate3d(0, -3px, 0);
+    box-shadow: 0 12px 24px rgba(51, 41, 58, 0.12);
+  }
+}
 
 :root[data-theme="dark"] .profile-credit {
   border-color: rgba(220, 178, 255, 0.62);

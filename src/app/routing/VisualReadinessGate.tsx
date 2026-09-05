@@ -1,16 +1,17 @@
 import {
+  Suspense,
   useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
   useState,
-  Suspense,
   type PropsWithChildren,
 } from "react";
 import { RouteLoader } from "@/app/routing/RouteLoader";
 import {
   PAGE_CACHE_RELOAD_MS,
   shouldReloadAfterResume,
+  visualLoaderDelay,
 } from "@/app/routing/resume-policy";
 
 type VisualReadinessGateProps = PropsWithChildren<{
@@ -20,13 +21,10 @@ type VisualReadinessGateProps = PropsWithChildren<{
 
 type LoaderPhase = "loading" | "leaving" | "hidden";
 
-const FONT_TIMEOUT_MS = 1_200;
-const IMAGE_TIMEOUT_MS = 3_000;
-const MOTION_TIMEOUT_MS = 700;
-const DOM_SETTLE_TIMEOUT_MS = 2_000;
-const DOM_QUIET_MS = 240;
-const PENDING_CONTENT_TIMEOUT_MS = 3_200;
-const LOADER_EXIT_MS = 210;
+const FONT_TIMEOUT_MS = 800;
+const IMAGE_TIMEOUT_MS = 1_600;
+const DOCUMENT_TIMEOUT_MS = 1_200;
+const LOADER_EXIT_MS = 170;
 
 function afterFrames(count = 1) {
   return new Promise<void>((resolve) => {
@@ -47,61 +45,6 @@ function afterDelay(delay: number) {
 
 async function withTimeout(work: Promise<unknown>, timeout: number) {
   await Promise.race([work, afterDelay(timeout)]);
-}
-
-function waitForDomQuiet(root: HTMLElement) {
-  return new Promise<void>((resolve) => {
-    let quietTimer = 0;
-    let settled = false;
-    const finish = () => {
-      if (settled) return;
-      settled = true;
-      window.clearTimeout(quietTimer);
-      window.clearTimeout(maxTimer);
-      mutationObserver.disconnect();
-      resizeObserver?.disconnect();
-      resolve();
-    };
-    const scheduleQuietCheck = () => {
-      window.clearTimeout(quietTimer);
-      quietTimer = window.setTimeout(finish, DOM_QUIET_MS);
-    };
-    const mutationObserver = new MutationObserver(scheduleQuietCheck);
-    const resizeObserver = typeof ResizeObserver === "undefined"
-      ? null
-      : new ResizeObserver(scheduleQuietCheck);
-    const maxTimer = window.setTimeout(finish, DOM_SETTLE_TIMEOUT_MS);
-    mutationObserver.observe(root, { attributes: true, characterData: true, childList: true, subtree: true });
-    resizeObserver?.observe(root);
-    root.querySelectorAll<HTMLElement>("header, section, article, img").forEach((element) => {
-      resizeObserver?.observe(element);
-    });
-    scheduleQuietCheck();
-  });
-}
-
-function pendingVisualContent(root: HTMLElement) {
-  return root.querySelector('[data-visual-pending="true"]');
-}
-
-function waitForPendingVisualContent(root: HTMLElement) {
-  if (!pendingVisualContent(root)) return Promise.resolve();
-
-  return new Promise<void>((resolve) => {
-    let settled = false;
-    const finish = () => {
-      if (settled) return;
-      settled = true;
-      window.clearTimeout(maxTimer);
-      observer.disconnect();
-      resolve();
-    };
-    const observer = new MutationObserver(() => {
-      if (!pendingVisualContent(root)) finish();
-    });
-    const maxTimer = window.setTimeout(finish, PENDING_CONTENT_TIMEOUT_MS);
-    observer.observe(root, { attributes: true, childList: true, subtree: true });
-  });
 }
 
 async function waitForStableLayout(root: HTMLElement) {
@@ -143,55 +86,28 @@ async function waitForImage(image: HTMLImageElement) {
   }
 }
 
-function finiteAnimations(root: HTMLElement) {
-  return root.getAnimations({ subtree: true }).filter((animation) => {
-    const timing = animation.effect?.getComputedTiming();
-    if (!timing) return false;
-    const iterations = Number(timing.iterations);
-    const duration = Number(timing.duration);
-    return Number.isFinite(iterations)
-      && Number.isFinite(duration)
-      && animation.playState !== "finished"
-      && animation.playState !== "idle";
-  });
-}
-
 async function waitForVisualStability(root: HTMLElement) {
+  const readiness: Promise<unknown>[] = [];
+
   if (document.readyState !== "complete") {
-    await withTimeout(new Promise<void>((resolve) => {
+    readiness.push(withTimeout(new Promise<void>((resolve) => {
       window.addEventListener("load", () => resolve(), { once: true });
-    }), IMAGE_TIMEOUT_MS);
+    }), DOCUMENT_TIMEOUT_MS));
   }
 
   if (document.fonts?.ready) {
-    await withTimeout(document.fonts.ready, FONT_TIMEOUT_MS);
+    readiness.push(withTimeout(document.fonts.ready, FONT_TIMEOUT_MS));
   }
-
-  await waitForPendingVisualContent(root);
-  await waitForDomQuiet(root);
-  await afterFrames(2);
 
   const routeImages = Array.from(root.querySelectorAll<HTMLImageElement>("img"));
-  const imagesToDecode = routeImages.filter((image) => image.loading !== "lazy" || isNearViewport(image));
+  const imagesToDecode = routeImages.filter(isNearViewport);
   if (imagesToDecode.length > 0) {
-    await withTimeout(Promise.all(imagesToDecode.map(waitForImage)), IMAGE_TIMEOUT_MS);
+    readiness.push(withTimeout(Promise.all(imagesToDecode.map(waitForImage)), IMAGE_TIMEOUT_MS));
   }
 
-  await waitForDomQuiet(root);
+  await Promise.all(readiness);
   await waitForStableLayout(root);
-  await afterFrames(2);
-
-  const animations = finiteAnimations(root);
-  if (animations.length > 0) {
-    await withTimeout(
-      Promise.allSettled(animations.map((animation) => animation.finished)),
-      MOTION_TIMEOUT_MS,
-    );
-  }
-
-  await waitForDomQuiet(root);
-  await waitForStableLayout(root);
-  await afterFrames(2);
+  await afterFrames();
 }
 
 function removeBootstrapLoader() {
@@ -219,48 +135,97 @@ function ReadyProbe({ children, onCommit }: ReadyProbeProps) {
 
 /** Keeps route changes and mobile app resumes covered until the visible UI is stable. */
 export function VisualReadinessGate({ children, label, onReady }: VisualReadinessGateProps) {
-  const [phase, setPhase] = useState<LoaderPhase>("loading");
+  const [phase, setPhase] = useState<LoaderPhase>("hidden");
+  const [busy, setBusy] = useState(true);
   const contentRef = useRef<HTMLElement | null>(null);
   const runRef = useRef(0);
   const exitTimerRef = useRef(0);
+  const loaderDelayTimerRef = useRef(0);
   const resumeTimerRef = useRef(0);
   const hiddenAtRef = useRef<number | null>(null);
   const restoredFromPageCacheRef = useRef(false);
   const reloadScheduledRef = useRef(false);
+  const loaderVisibleRef = useRef(false);
+  const readyRef = useRef(false);
   const onReadyRef = useRef(onReady);
 
   useEffect(() => {
     onReadyRef.current = onReady;
   }, [onReady]);
 
-  useLayoutEffect(() => {
+  const showLoadingCover = useCallback(() => {
+    if (readyRef.current || loaderVisibleRef.current) return;
+    loaderVisibleRef.current = true;
     document.documentElement.classList.add("app-visual-loading");
+    setPhase("loading");
+  }, []);
+
+  const scheduleLoadingCover = useCallback((mobileDevice: boolean) => {
+    window.clearTimeout(loaderDelayTimerRef.current);
+    loaderDelayTimerRef.current = window.setTimeout(
+      showLoadingCover,
+      visualLoaderDelay(mobileDevice),
+    );
+  }, [showLoadingCover]);
+
+  const finishReady = useCallback((run: number) => {
+    if (runRef.current !== run) return;
+    readyRef.current = true;
+    window.clearTimeout(loaderDelayTimerRef.current);
+    removeBootstrapLoader();
+
+    const revealContent = () => {
+      if (runRef.current !== run) return;
+      loaderVisibleRef.current = false;
+      setPhase("hidden");
+      setBusy(false);
+      document.documentElement.classList.remove("app-visual-loading");
+      onReadyRef.current?.();
+    };
+
+    if (!loaderVisibleRef.current) {
+      revealContent();
+      return;
+    }
+
+    setPhase("leaving");
+    exitTimerRef.current = window.setTimeout(revealContent, LOADER_EXIT_MS);
   }, []);
 
   const prepare = useCallback((root: HTMLElement) => {
     contentRef.current = root;
     const run = ++runRef.current;
+    const mobileDevice = usesMobileResumeProtection();
     window.clearTimeout(exitTimerRef.current);
-    document.documentElement.classList.add("app-visual-loading");
-    setPhase("loading");
+    readyRef.current = false;
+    setBusy(true);
+    scheduleLoadingCover(mobileDevice);
+
+    if (!mobileDevice) {
+      finishReady(run);
+      return;
+    }
 
     void waitForVisualStability(root).then(() => {
-      if (runRef.current !== run) return;
-      removeBootstrapLoader();
-      setPhase("leaving");
-      exitTimerRef.current = window.setTimeout(() => {
-        if (runRef.current !== run) return;
-        setPhase("hidden");
-        document.documentElement.classList.remove("app-visual-loading");
-        onReadyRef.current?.();
-      }, LOADER_EXIT_MS);
+      finishReady(run);
     });
-  }, []);
+  }, [finishReady, scheduleLoadingCover]);
+
+  useLayoutEffect(() => {
+    if (!contentRef.current && !readyRef.current) {
+      scheduleLoadingCover(usesMobileResumeProtection());
+    }
+    return () => window.clearTimeout(loaderDelayTimerRef.current);
+  }, [scheduleLoadingCover]);
 
   useEffect(() => {
     const coverCurrentRoute = () => {
       runRef.current += 1;
       window.clearTimeout(exitTimerRef.current);
+      window.clearTimeout(loaderDelayTimerRef.current);
+      readyRef.current = false;
+      loaderVisibleRef.current = true;
+      setBusy(true);
       document.documentElement.classList.add("app-visual-loading");
       setPhase("loading");
     };
@@ -303,7 +268,6 @@ export function VisualReadinessGate({ children, label, onReady }: VisualReadines
         }
         window.clearTimeout(resumeTimerRef.current);
         hiddenAtRef.current = Date.now();
-        coverCurrentRoute();
         return;
       }
       window.clearTimeout(resumeTimerRef.current);
@@ -313,7 +277,6 @@ export function VisualReadinessGate({ children, label, onReady }: VisualReadines
       if (!usesMobileResumeProtection()) return;
       window.clearTimeout(resumeTimerRef.current);
       hiddenAtRef.current ??= Date.now();
-      coverCurrentRoute();
     };
     const onPageShow = (event: PageTransitionEvent) => {
       if (event.persisted && usesMobileResumeProtection()) {
@@ -338,11 +301,12 @@ export function VisualReadinessGate({ children, label, onReady }: VisualReadines
   useEffect(() => () => {
     runRef.current += 1;
     window.clearTimeout(exitTimerRef.current);
+    window.clearTimeout(loaderDelayTimerRef.current);
     window.clearTimeout(resumeTimerRef.current);
   }, []);
 
   return (
-    <div className="visual-readiness-gate" aria-busy={phase !== "hidden"}>
+    <div className="visual-readiness-gate" aria-busy={busy}>
       <Suspense fallback={null}>
         <ReadyProbe onCommit={prepare}>{children}</ReadyProbe>
       </Suspense>
