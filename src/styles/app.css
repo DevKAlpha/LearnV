@@ -4454,6 +4454,12 @@ html[data-theme="dark"] .document-tags span {
 }
 
 @media (min-width: 900px) and (max-width: 1599px) {
+  html {
+    font-size: clamp(17px, 1.2vw, 18px);
+    -webkit-font-smoothing: auto;
+    -moz-osx-font-smoothing: auto;
+  }
+
   .app-shell {
     width: min(86vw, 1280px);
     border-width: 3px;
@@ -4462,6 +4468,60 @@ html[data-theme="dark"] .document-tags span {
   }
 
   .app-chrome { border-radius: 31px 31px 0 0; }
+
+  .app-icon {
+    shape-rendering: geometricPrecision;
+  }
+
+  .desktop-brand strong { font-size: 1.05rem; }
+  .desktop-brand span { font-size: 0.65rem; line-height: 1.3; }
+  .nav-symbol .app-icon { width: 21px; height: 21px; stroke-width: 2; }
+  .nav-label { font-size: 0.65rem; font-weight: 900; line-height: 1.2; }
+  .language-option { font-size: 0.7rem; }
+  .language-option small { font-size: 0.62rem; }
+
+  .page small {
+    font-size: 0.64rem;
+    line-height: 1.4;
+  }
+
+  .page :is(.eyebrow, .status-badge, .live-pill) {
+    font-size: 0.64rem;
+    line-height: 1.35;
+  }
+
+  .page--gks-radar :is(
+    .gks-daily-radar__topline > span:last-child,
+    .gks-priority > span,
+    .gks-change-alert span,
+    .gks-daily-radar__footer span,
+    .gks-video-slider__notice
+  ) {
+    font-size: 0.64rem;
+    line-height: 1.45;
+  }
+
+  .page--gks-radar :is(
+    .gks-priority p,
+    .gks-video-slider__heading p,
+    .gks-video-slide__copy p,
+    .gks-fact-list p
+  ) {
+    font-size: 0.7rem;
+    line-height: 1.5;
+  }
+
+  .page--gks-radar :is(
+    .gks-priority a,
+    .gks-change-alert strong,
+    .gks-video-slide__copy a,
+    .gks-fact-list small,
+    .gks-program-row strong,
+    .gks-program-row small
+  ) {
+    font-size: 0.66rem;
+    line-height: 1.4;
+  }
 }
 
 @media (min-width: 900px) and (max-width: 1120px) {
@@ -4473,7 +4533,7 @@ html[data-theme="dark"] .document-tags span {
   .language-option small { display: none; }
   .language-option { min-width: 38px; padding-inline: 7px; }
   .nav-item__motion { gap: 5px; }
-  .nav-label { font-size: 0.57rem; }
+  .nav-label { font-size: 0.64rem; }
   .page { padding-inline: 34px; }
   .hero-copy h2 { font-size: clamp(3rem, 6vw, 3.8rem); }
 }
