@@ -4455,17 +4455,20 @@ html[data-theme="dark"] .document-tags span {
 
 @media (min-width: 900px) and (max-width: 1599px) {
   html {
-    font-size: clamp(17px, 1.2vw, 18px);
+    font-size: clamp(18px, 1.25vw, 19px);
     -webkit-font-smoothing: auto;
     -moz-osx-font-smoothing: auto;
   }
 
   .app-shell {
+    --muted: #584653;
     width: min(86vw, 1280px);
     border-width: 3px;
     border-radius: 34px;
     box-shadow: 8px 10px 0 var(--ink), 0 22px 54px rgba(48, 34, 48, 0.14);
   }
+
+  :root[data-theme="dark"] .app-shell { --muted: #f4e5f1; }
 
   .app-chrome { border-radius: 31px 31px 0 0; }
 
@@ -4474,19 +4477,22 @@ html[data-theme="dark"] .document-tags span {
   }
 
   .desktop-brand strong { font-size: 1.05rem; }
-  .desktop-brand span { font-size: 0.65rem; line-height: 1.3; }
+  .desktop-brand span { font-size: 0.68rem; font-weight: 800; line-height: 1.3; }
   .nav-symbol .app-icon { width: 21px; height: 21px; stroke-width: 2; }
-  .nav-label { font-size: 0.65rem; font-weight: 900; line-height: 1.2; }
-  .language-option { font-size: 0.7rem; }
-  .language-option small { font-size: 0.62rem; }
+  .nav-item { color: #584653; }
+  .nav-label { font-size: 0.68rem; font-weight: 900; line-height: 1.2; }
+  .language-option { font-size: 0.72rem; font-weight: 900; }
+  .language-option small { font-size: 0.66rem; font-weight: 850; }
 
   .page small {
-    font-size: 0.64rem;
+    font-size: 0.68rem;
+    font-weight: 800;
     line-height: 1.4;
   }
 
   .page :is(.eyebrow, .status-badge, .live-pill) {
-    font-size: 0.64rem;
+    font-size: 0.7rem;
+    font-weight: 900;
     line-height: 1.35;
   }
 
@@ -4497,7 +4503,8 @@ html[data-theme="dark"] .document-tags span {
     .gks-daily-radar__footer span,
     .gks-video-slider__notice
   ) {
-    font-size: 0.64rem;
+    font-size: 0.68rem;
+    font-weight: 850;
     line-height: 1.45;
   }
 
@@ -4507,7 +4514,8 @@ html[data-theme="dark"] .document-tags span {
     .gks-video-slide__copy p,
     .gks-fact-list p
   ) {
-    font-size: 0.7rem;
+    font-size: 0.74rem;
+    font-weight: 760;
     line-height: 1.5;
   }
 
@@ -4519,9 +4527,12 @@ html[data-theme="dark"] .document-tags span {
     .gks-program-row strong,
     .gks-program-row small
   ) {
-    font-size: 0.66rem;
+    font-size: 0.7rem;
+    font-weight: 850;
     line-height: 1.4;
   }
+
+  .page--gks-radar .gks-priority > strong { font-weight: 850; }
 }
 
 @media (min-width: 900px) and (max-width: 1120px) {
@@ -4533,7 +4544,7 @@ html[data-theme="dark"] .document-tags span {
   .language-option small { display: none; }
   .language-option { min-width: 38px; padding-inline: 7px; }
   .nav-item__motion { gap: 5px; }
-  .nav-label { font-size: 0.64rem; }
+  .nav-label { font-size: 0.66rem; }
   .page { padding-inline: 34px; }
   .hero-copy h2 { font-size: clamp(3rem, 6vw, 3.8rem); }
 }
