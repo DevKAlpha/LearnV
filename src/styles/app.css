@@ -4128,6 +4128,8 @@ html[data-theme="dark"] .document-tags span {
 
 .nav-item__motion {
   display: flex;
+  width: 100%;
+  max-width: 100%;
   min-width: 0;
   flex-direction: column;
   align-items: center;
@@ -4264,6 +4266,7 @@ html[data-theme="dark"] .document-tags span {
 
 .nav-symbol {
   display: grid;
+  flex: 0 0 auto;
   place-items: center;
   font-family: var(--font-display);
   font-size: 1.3rem;
@@ -4278,6 +4281,8 @@ html[data-theme="dark"] .document-tags span {
 }
 
 .nav-label {
+  min-width: 0;
+  flex: 0 1 auto;
   overflow: hidden;
   max-width: 100%;
   font-size: 0.52rem;
@@ -4565,7 +4570,13 @@ html[data-theme="dark"] .document-tags span {
   .brand-mark .brand-tulip { width: 32px; height: 39px; }
   .language-option small { display: none; }
   .language-option { min-width: 38px; padding-inline: 7px; }
-  .nav-item__motion { gap: 5px; }
+  .bottom-nav {
+    grid-template-columns: repeat(5, auto);
+    justify-content: space-between;
+    gap: 2px;
+  }
+  .nav-item { padding-inline: 5px; overflow: hidden; }
+  .nav-item__motion { gap: 4px; }
   .nav-label { font-size: 0.66rem; }
   .page { padding-inline: 34px; }
   .hero-copy h2 { font-size: clamp(3rem, 6vw, 3.8rem); }
