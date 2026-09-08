@@ -1,5 +1,5 @@
 export type LearningLanguage = "en" | "ko" | "general";
-export type LearningSkill = "reading" | "writing" | "listening" | "pronunciation" | "application" | "documents" | "interview";
+export type LearningSkill = "reading" | "grammar" | "vocabulary" | "writing" | "listening" | "pronunciation" | "application" | "documents" | "interview";
 export type LearningEventKind = "route" | "session" | "practice" | "resource" | "task" | "document";
 
 export type LearningEvent = {
@@ -147,7 +147,7 @@ export function recordLearningEvent(state: LearningJourneyState, event: Learning
 export function getLearningRecommendation(state: LearningJourneyState): LearningRecommendation {
   const skills = state.skillStats;
   if (state.recentActivities.length === 0) return { id: "begin", route: "/study" };
-  const scored = (["writing", "listening", "pronunciation"] as const)
+  const scored = (["reading", "grammar", "vocabulary", "writing", "listening", "pronunciation"] as const)
     .map((skill) => ({ skill, score: skills[skill]?.lastScore, attempts: skills[skill]?.attempts ?? 0 }))
     .filter((item) => item.attempts > 0 && item.score !== null && item.score !== undefined)
     .sort((a, b) => (a.score ?? 100) - (b.score ?? 100));

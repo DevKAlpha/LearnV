@@ -55,6 +55,8 @@ export function TestSessionPage() {
   const timed = runNumber > 1;
   const question = questions[questionIndex];
   const selectedAnswer = answers[question.id];
+  const selectedIsCorrect = selectedAnswer !== undefined && selectedAnswer === question.correctIndex;
+  const selectedFeedback = selectedAnswer === undefined ? null : question.optionFeedback[selectedAnswer];
   const minimumCharacters = stage.productionTask.minimumCharacters ?? 0;
   const wordCount = writtenResponse.trim() ? writtenResponse.trim().split(/\s+/u).length : 0;
   const meetsWritingLength = language === "en" && stage.productionTask.minimumWords
@@ -134,6 +136,7 @@ export function TestSessionPage() {
   }
 
   const chooseAnswer = (optionIndex: number) => {
+    if (selectedAnswer !== undefined) return;
     setAnswers((current) => ({ ...current, [question.id]: optionIndex }));
   };
 
@@ -234,6 +237,7 @@ export function TestSessionPage() {
   if (result) {
     const mastered = [...new Set(result.questions.filter((item) => item.correct).map((item) => item.question.skill))];
     const improvements = [...new Set(result.questions.filter((item) => !item.correct).map((item) => item.question.improvement))];
+    const sessionLesson = result.questions.find((item) => !item.correct)?.question ?? result.questions[0]?.question;
     const nextStage = track.stages[stageIndex + 1];
 
     return (
@@ -261,6 +265,19 @@ export function TestSessionPage() {
           </article>
         </section>
 
+        {sessionLesson && (
+          <section className="session-takeaway" aria-labelledby="session-takeaway-title">
+            <span className="eyebrow">{copy.tests.sessionTakeaway}</span>
+            <h2 id="session-takeaway-title">{stage.title}</h2>
+            <p>{copy.tests.sessionTakeawayText}</p>
+            <div>
+              <article><small>{copy.tests.microLesson}</small><strong>{sessionLesson.lesson}</strong></article>
+              <article><small>{copy.tests.modelExample}</small><strong>{sessionLesson.example}</strong></article>
+              <article><small>{copy.tests.transferChallenge}</small><strong>{sessionLesson.transfer}</strong></article>
+            </div>
+          </section>
+        )}
+
         <section className="production-review" aria-labelledby="production-review-title">
           <span className="eyebrow">{copy.tests.productiveTask}</span>
           <h2 id="production-review-title">{stage.productionTask.mode === "speaking" ? copy.tests.pronunciation : stage.productionTask.mode === "listening" ? copy.tests.listening : copy.tests.writing}</h2>
@@ -286,7 +303,10 @@ export function TestSessionPage() {
                 <dl>
                   <div><dt>{copy.tests.selectedAnswer}</dt><dd>{item.selectedIndex === null ? copy.tests.unanswered : item.question.options[item.selectedIndex]}</dd></div>
                   <div><dt>{copy.tests.correctAnswer}</dt><dd>{item.question.options[item.question.correctIndex]}</dd></div>
+                  {item.selectedIndex !== null && <div><dt>{copy.tests.selectedFeedback}</dt><dd>{item.question.optionFeedback[item.selectedIndex]}</dd></div>}
                   <div><dt>{copy.tests.explanation}</dt><dd>{item.question.explanation}</dd></div>
+                  <div><dt>{copy.tests.modelExample}</dt><dd>{item.question.example}</dd></div>
+                  <div><dt>{copy.tests.transferChallenge}</dt><dd>{item.question.transfer}</dd></div>
                   {!item.correct && <div><dt>{copy.tests.improveNext}</dt><dd>{item.question.improvement}</dd></div>}
                 </dl>
               </div>
@@ -417,13 +437,24 @@ export function TestSessionPage() {
         <h1>{question.prompt}</h1>
         <div className="answer-options" role="radiogroup" aria-label={question.prompt}>
           {question.options.map((option, optionIndex) => (
-            <label className={selectedAnswer === optionIndex ? "answer-option answer-option--selected" : "answer-option"} key={option}>
-              <input type="radio" name={question.id} checked={selectedAnswer === optionIndex} onChange={() => chooseAnswer(optionIndex)} />
+            <label className={`${selectedAnswer === optionIndex ? "answer-option answer-option--selected" : "answer-option"}${selectedAnswer !== undefined ? " answer-option--locked" : ""}`} key={option}>
+              <input type="radio" name={question.id} checked={selectedAnswer === optionIndex} disabled={selectedAnswer !== undefined} onChange={() => chooseAnswer(optionIndex)} />
               <span>{String.fromCharCode(65 + optionIndex)}</span>
               <strong>{option}</strong>
             </label>
           ))}
         </div>
+        {selectedFeedback && (
+          <aside className={`question-feedback question-feedback--${selectedIsCorrect ? "correct" : "review"}`} aria-live="polite">
+            <header><span aria-hidden="true">{selectedIsCorrect ? "✓" : "↗"}</span><strong>{selectedIsCorrect ? copy.tests.correctChoice : copy.tests.reviewChoice}</strong></header>
+            <p>{selectedFeedback}</p>
+            <dl>
+              <div><dt>{copy.tests.microLesson}</dt><dd>{question.lesson}</dd></div>
+              <div><dt>{copy.tests.modelExample}</dt><dd>{question.example}</dd></div>
+              <div><dt>{copy.tests.transferChallenge}</dt><dd>{question.transfer}</dd></div>
+            </dl>
+          </aside>
+        )}
       </main>
       )}
 

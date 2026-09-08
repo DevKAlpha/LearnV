@@ -13,7 +13,7 @@ import { LEARNING_JOURNEY_EVENT } from "./learningJourneyEvents";
 const STORAGE_KEY = "learnv-learning-journey-v1";
 
 function skillFromStageId(stageId: string) {
-  return (["writing", "listening", "pronunciation"] as const)
+  return (["reading", "grammar", "vocabulary", "writing", "listening", "pronunciation"] as const)
     .find((skill) => stageId.includes(`-${skill}-`));
 }
 

@@ -7,6 +7,10 @@ import type {
   TestStage,
   TestTrack,
 } from "../../domain/models/language-test";
+import { buildFoundationStages } from "./foundation-practice-tests";
+
+type LegacyTestSkill = Extract<TestSkill, "writing" | "listening" | "pronunciation">;
+type RawTestQuestion = Omit<TestQuestion, "optionFeedback" | "lesson" | "example" | "transfer">;
 
 type LevelSeed = {
   title: string;
@@ -26,12 +30,30 @@ function rotateOptions(question: TestQuestion, offset: number): TestQuestion {
   return {
     ...question,
     options,
+    optionFeedback: [...question.optionFeedback.slice(shift), ...question.optionFeedback.slice(0, shift)],
     correctIndex: (question.correctIndex - shift + question.options.length) % question.options.length,
   };
 }
 
-function varyAnswerPositions(items: TestQuestion[], level: number) {
-  return items.map((item, index) => rotateOptions(item, level + index));
+function enrichQuestion(language: TestLanguage, seed: LevelSeed, question: RawTestQuestion): TestQuestion {
+  const isKo = language === "ko";
+  return {
+    ...question,
+    optionFeedback: question.options.map((option, index) => index === question.correctIndex
+      ? (isKo
+        ? `정확합니다. ${question.explanation} 모델: ${seed.model}`
+        : `Correct. ${question.explanation} Model: ${seed.model}`)
+      : (isKo
+        ? `‘${option}’은 이 과제의 핵심을 충족하지 않습니다. ${question.improvement} 비교 모델: ${seed.model}`
+        : `“${option}” does not meet the task requirement. ${question.improvement} Compare it with: ${seed.model}`)),
+    lesson: question.explanation,
+    example: seed.model,
+    transfer: `${question.improvement} ${seed.prompt}`,
+  };
+}
+
+function varyAnswerPositions(items: RawTestQuestion[], level: number, language: TestLanguage, seed: LevelSeed) {
+  return items.map((item, index) => rotateOptions(enrichQuestion(language, seed, item), level + index));
 }
 
 const englishWriting: LevelSeed[] = [
@@ -172,7 +194,7 @@ const koreanPronunciation: LevelSeed[] = [
   ["GKS 모의 면접 완주", "통합 · 대응력", "자기소개, 동기, 실패, 윤리적 상황과 졸업 후 기여를 포함한 4분 모의 면접을 완료하세요.", "각 질문에 먼저 직접 답하고 관련된 근거 하나를 제시한 뒤 다음 질문 전에 짧게 생각하겠습니다.", "모든 질문을 포함한 하나의 외운 연설을 합니다.", "여러 질문에서 명료도와 자연스러운 대응을 끝까지 유지하는 것", ["고급 어휘 수만 늘림", "생각하는 쉼을 모두 제거", "모든 답에 같은 억양 사용"]],
 ].map(([title, focus, prompt, model, weak, detail, distractors]) => ({ title, focus, prompt, model, weak, detail, distractors } as LevelSeed));
 
-function questions(language: TestLanguage, skill: TestSkill, level: number, seed: LevelSeed): TestQuestion[] {
+function questions(language: TestLanguage, skill: LegacyTestSkill, level: number, seed: LevelSeed): TestQuestion[] {
   const id = `${language}-${skill}-${level}`;
   const isKo = language === "ko";
   const common = { passage: skill === "pronunciation" ? seed.model : undefined, audioText: skill === "listening" && !seed.media ? seed.model : undefined };
@@ -209,10 +231,10 @@ function questions(language: TestLanguage, skill: TestSkill, level: number, seed
       explanation: skill === "listening" && seed.media ? (isKo ? `이번 자료는 ${seed.media.variety}에 집중합니다.` : `This resource focuses on ${seed.media.variety}.`) : (isKo ? `검토 기록은 ${seed.detail}을 확인해야 합니다.` : `The review log must verify ${seed.detail}.`),
       improvement: skill === "listening" ? (isKo ? "발음뿐 아니라 속도, 리듬과 감정도 함께 메모하세요." : "Note pace, rhythm and emotion as well as pronunciation.") : (isKo ? "과제의 핵심 기준을 실제 초안이나 녹음의 근거와 연결하세요." : "Connect the task criterion to evidence in the actual draft or recording."),
     },
-  ], level);
+  ], level, language, seed);
 }
 
-function challenges(language: TestLanguage, skill: TestSkill, level: number, seed: LevelSeed): TestQuestion[] {
+function challenges(language: TestLanguage, skill: LegacyTestSkill, level: number, seed: LevelSeed): TestQuestion[] {
   const id = `${language}-${skill}-${level}`;
   const isKo = language === "ko";
   return varyAnswerPositions([
@@ -230,12 +252,12 @@ function challenges(language: TestLanguage, skill: TestSkill, level: number, see
       explanation: isKo ? "재시도는 같은 역량을 더 엄격한 조건에서 확인합니다." : "A retake checks the same skill under stricter conditions.",
       improvement: isKo ? "이전 피드백 중 한 가지를 재시도 목표로 정하세요." : "Choose one previous feedback point as the retake target.",
     },
-  ], level + 2);
+  ], level + 2, language, seed);
 }
 
-function buildStages(language: TestLanguage, skill: TestSkill, seeds: LevelSeed[]): TestStage[] {
+function buildStages(language: TestLanguage, skill: LegacyTestSkill, seeds: LevelSeed[]): TestStage[] {
   const isKo = language === "ko";
-  const icons: Record<TestSkill, string> = { writing: isKo ? "쓰" : "✎", listening: isKo ? "듣" : "◖", pronunciation: isKo ? "말" : "🎙" };
+  const icons: Record<LegacyTestSkill, string> = { writing: isKo ? "쓰" : "✎", listening: isKo ? "듣" : "◖", pronunciation: isKo ? "말" : "🎙" };
   const mode: ProductionMode = skill === "writing" ? "writing" : skill === "listening" ? "listening" : "speaking";
   return seeds.map((seed, index) => ({
     id: `${language}-${skill}-${String(index + 1).padStart(2, "0")}`,
@@ -283,6 +305,9 @@ function buildStages(language: TestLanguage, skill: TestSkill, seeds: LevelSeed[
 
 function makeTrack(language: TestLanguage): TestTrack {
   const isKo = language === "ko";
+  const reading = buildFoundationStages(language, "reading");
+  const grammar = buildFoundationStages(language, "grammar");
+  const vocabulary = buildFoundationStages(language, "vocabulary");
   const writing = buildStages(language, "writing", isKo ? koreanWriting : englishWriting);
   const listening = buildStages(language, "listening", isKo ? koreanListening : englishListening);
   const pronunciation = buildStages(language, "pronunciation", isKo ? koreanPronunciation : englishPronunciation);
@@ -293,7 +318,7 @@ function makeTrack(language: TestLanguage): TestTrack {
     target: isKo ? "TOPIK I 기반 → TOPIK II 3급" : "B1/B2 foundation → C1 readiness",
     sourceLabel: isKo ? "TOPIK official learning and IBT practice · pronunciation is GKS interview preparation" : "IELTS official Academic test format · adapted as non-official GKS preparation",
     sourceUrl: isKo ? "https://www.topik.go.kr/" : "https://ielts.org/organisations/ielts-for-organisations/test-types/ielts-academic-test/academic-test-format-in-detail",
-    stages: [...writing, ...listening, ...pronunciation],
+    stages: [...reading, ...grammar, ...vocabulary, ...writing, ...listening, ...pronunciation],
   };
 }
 
@@ -303,4 +328,4 @@ export const practiceTestTracks: Record<TestLanguage, TestTrack> = {
 };
 
 export const TESTS_PER_SKILL = 20;
-export const TESTS_PER_LANGUAGE = 60;
+export const TESTS_PER_LANGUAGE = 120;

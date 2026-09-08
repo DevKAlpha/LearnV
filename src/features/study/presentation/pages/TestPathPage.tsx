@@ -15,9 +15,25 @@ export function TestPathPage() {
   const track = languageTestTracks[language];
   const trackProgress = progress[language];
   const attemptCount = Object.values(trackProgress).reduce((total, stage) => total + stage.attempts, 0);
-  const [activeSkill, setActiveSkill] = useState<TestSkill>("writing");
+  const [activeSkill, setActiveSkill] = useState<TestSkill>("reading");
   const [showAll, setShowAll] = useState(false);
-  const labels = { writing: copy.tests.writing, listening: copy.tests.listening, pronunciation: copy.tests.pronunciation };
+  const labels: Record<TestSkill, string> = {
+    reading: copy.tests.reading,
+    grammar: copy.tests.grammar,
+    vocabulary: copy.tests.vocabulary,
+    writing: copy.tests.writing,
+    listening: copy.tests.listening,
+    pronunciation: copy.tests.pronunciation,
+  };
+  const skillOrder: TestSkill[] = ["reading", "grammar", "vocabulary", "writing", "listening", "pronunciation"];
+  const icons: Record<TestSkill, AppIconName> = {
+    reading: "book",
+    grammar: "test",
+    vocabulary: "sparkle",
+    writing: "writing",
+    listening: "listening",
+    pronunciation: "speaking",
+  };
 
   if (invalidLanguage) return <Navigate to="/study" replace />;
 
@@ -45,15 +61,14 @@ export function TestPathPage() {
 
       <main className="test-skill-sections" aria-label={copy.tests.pathTitle}>
         <nav className="test-skill-tabs" aria-label={copy.tests.pathTitle}>
-          {(["writing", "listening", "pronunciation"] as TestSkill[]).map((skill) => {
+          {skillOrder.map((skill) => {
             const completed = track.stages.filter((stage) => stage.skill === skill && trackProgress[stage.id]?.passed).length;
-            return <button key={skill} type="button" aria-pressed={activeSkill === skill} onClick={() => { setActiveSkill(skill); setShowAll(false); }}><AppIcon name={skill === "pronunciation" ? "speaking" : skill} /><span>{labels[skill]}</span><small>{completed}/{TESTS_PER_SKILL}</small></button>;
+            return <button key={skill} type="button" aria-pressed={activeSkill === skill} onClick={() => { setActiveSkill(skill); setShowAll(false); }}><AppIcon name={icons[skill]} /><span>{labels[skill]}</span><small>{completed}/{TESTS_PER_SKILL}</small></button>;
           })}
         </nav>
         {([activeSkill] as TestSkill[]).map((skill) => {
           const skillStages = track.stages.filter((stage) => stage.skill === skill);
           const completed = skillStages.filter((stage) => trackProgress[stage.id]?.passed).length;
-          const icons: Record<TestSkill, AppIconName> = { writing: "writing", listening: "listening", pronunciation: "speaking" };
           const firstIncompleteIndex = skillStages.findIndex((stage) => !trackProgress[stage.id]?.passed);
           const currentIndex = firstIncompleteIndex < 0 ? skillStages.length - 1 : firstIncompleteIndex;
           const visibleStages = showAll ? skillStages : skillStages.filter((_, index) => index >= Math.max(0, currentIndex - 1) && index <= Math.min(skillStages.length - 1, currentIndex + 1));

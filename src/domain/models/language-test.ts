@@ -1,5 +1,5 @@
 export type TestLanguage = "en" | "ko";
-export type TestSkill = "writing" | "listening" | "pronunciation";
+export type TestSkill = "reading" | "grammar" | "vocabulary" | "writing" | "listening" | "pronunciation";
 export type ProductionMode = "speaking" | "writing" | "listening";
 
 export type ProductionTask = {
@@ -37,6 +37,10 @@ export type TestQuestion = {
   correctIndex: number;
   explanation: string;
   improvement: string;
+  optionFeedback: string[];
+  lesson: string;
+  example: string;
+  transfer: string;
 };
 
 export type TestStage = {

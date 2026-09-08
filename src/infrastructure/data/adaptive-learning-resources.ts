@@ -5,7 +5,7 @@ const allLevels = ["starting", "developing", "solid", "strong"] as const;
 export const adaptiveLearningResources: AdaptiveLearningResource[] = [
   {
     id: "recommend-en-b2-writing",
-    languages: ["en"], skills: ["writing", "reading"], mastery: [...allLevels], format: "course",
+    languages: ["en"], skills: ["writing", "reading", "grammar", "vocabulary"], mastery: [...allLevels], format: "course",
     title: { es: "Writing B2 con modelos y práctica", en: "B2 writing with models and practice", ko: "B2 쓰기 예시와 연습" },
     description: { es: "Lecciones breves con preparación, texto modelo, consejos y comprobación de comprensión.", en: "Short lessons with preparation, model texts, writing tips and comprehension checks.", ko: "준비 활동, 예문, 쓰기 팁과 이해도 확인으로 구성된 짧은 수업입니다." },
     activity: { es: "Elige un modelo, subraya 3 conectores y reescribe un párrafo con evidencia propia.", en: "Choose one model, underline three linking devices and rewrite a paragraph with your own evidence.", ko: "예문 하나를 골라 연결어 3개를 표시하고 자신의 근거로 한 문단을 다시 쓰세요." },
@@ -13,7 +13,7 @@ export const adaptiveLearningResources: AdaptiveLearningResource[] = [
   },
   {
     id: "recommend-en-b2-reading",
-    languages: ["en"], skills: ["reading", "writing"], mastery: ["developing", "solid", "strong"], format: "course",
+    languages: ["en"], skills: ["reading", "writing", "grammar", "vocabulary"], mastery: ["developing", "solid", "strong"], format: "course",
     title: { es: "Reading B2 · comprender y justificar", en: "B2 reading · understand and justify", ko: "B2 읽기 · 이해하고 근거 찾기" },
     description: { es: "Textos B2 con preparación y actividades para identificar idea, detalle e intención.", en: "B2 texts with preparation and activities for identifying ideas, details and purpose.", ko: "핵심 내용, 세부 정보와 의도를 찾는 준비 활동과 B2 읽기 자료입니다." },
     activity: { es: "Lee una vez sin diccionario, escribe la idea central y justifica dos respuestas citando la frase clave.", en: "Read once without a dictionary, state the main idea and justify two answers with the key sentence.", ko: "사전 없이 한 번 읽고 핵심 내용을 적은 뒤 근거 문장으로 답 2개를 설명하세요." },
@@ -45,7 +45,7 @@ export const adaptiveLearningResources: AdaptiveLearningResource[] = [
   },
   {
     id: "recommend-en-ielts-samples",
-    languages: ["en"], skills: ["reading", "writing", "listening", "pronunciation"], mastery: ["solid", "strong"], format: "practice",
+    languages: ["en"], skills: ["reading", "grammar", "vocabulary", "writing", "listening", "pronunciation"], mastery: ["solid", "strong"], format: "practice",
     title: { es: "IELTS Academic · muestras oficiales", en: "IELTS Academic · official samples", ko: "IELTS Academic · 공식 샘플" },
     description: { es: "Bloques oficiales con audio, PDF, claves y respuestas para contrastar un nivel académico avanzado.", en: "Official blocks with audio, PDFs, keys and responses for benchmarking advanced academic skills.", ko: "고급 학술 능력을 점검할 수 있는 음원, PDF, 정답과 답안 예시입니다." },
     activity: { es: "Haz solo un bloque con tiempo, clasifica cada error y repite únicamente el patrón que más falló.", en: "Time one block, classify every error and repeat only the pattern that failed most often.", ko: "한 영역만 시간을 재어 풀고 오답을 분류한 뒤 가장 많이 틀린 유형만 반복하세요." },
@@ -53,7 +53,7 @@ export const adaptiveLearningResources: AdaptiveLearningResource[] = [
   },
   {
     id: "recommend-ko-sejong-roadmap",
-    languages: ["ko"], skills: ["reading", "writing", "listening", "pronunciation"], mastery: [...allLevels], format: "course",
+    languages: ["ko"], skills: ["reading", "grammar", "vocabulary", "writing", "listening", "pronunciation"], mastery: [...allLevels], format: "course",
     title: { es: "Ruta Sejong por nivel y habilidad", en: "Sejong roadmap by level and skill", ko: "수준·영역별 세종학당 학습 로드맵" },
     description: { es: "Cursos, libros, audios y videos organizados desde introducción hasta avanzado.", en: "Courses, books, audio and video organised from introductory to advanced levels.", ko: "입문부터 고급까지 강의, 교재, 음원과 영상을 수준별로 정리한 로드맵입니다." },
     activity: { es: "Abre tu nivel, elige una unidad de la habilidad recomendada y completa solo su primera actividad.", en: "Open your level, choose one unit for the recommended skill and complete only its first activity.", ko: "자신의 수준을 열고 추천 영역의 한 단원을 골라 첫 활동만 완료하세요." },
@@ -61,7 +61,7 @@ export const adaptiveLearningResources: AdaptiveLearningResource[] = [
   },
   {
     id: "recommend-ko-sejong-writing",
-    languages: ["ko"], skills: ["writing", "reading"], mastery: ["developing", "solid", "strong"], format: "course",
+    languages: ["ko"], skills: ["writing", "reading", "grammar", "vocabulary"], mastery: ["developing", "solid", "strong"], format: "course",
     title: { es: "Sejong Korean Writing · temas académicos", en: "Sejong Korean Writing · academic topics", ko: "세종학당 한국어 쓰기 · 학술 주제" },
     description: { es: "Lectura y escritura sobre sociedad, ciencia, economía e historia para avanzar hacia TOPIK II.", en: "Reading and writing on society, science, economics and history for progressing towards TOPIK II.", ko: "TOPIK II를 향해 사회, 과학, 경제와 역사 주제로 읽기·쓰기를 연습합니다." },
     activity: { es: "Completa una lectura, extrae 4 expresiones formales y úsalas en un resumen de 150–200 caracteres.", en: "Complete one reading, extract four formal expressions and use them in a 150–200-character summary.", ko: "읽기 하나를 완료하고 격식 표현 4개를 찾아 150~200자 요약에 사용하세요." },

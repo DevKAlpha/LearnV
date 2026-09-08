@@ -8,10 +8,10 @@ import {
 import { practiceTestTracks as languageTestTracks } from "./practice-tests";
 
 describe("language test paths", () => {
-  it("provides twenty tests for each of the three skills in both languages", () => {
+  it("provides twenty tests for each of the six skills in both languages", () => {
     Object.values(languageTestTracks).forEach((track) => {
-      expect(track.stages).toHaveLength(60);
-      (["writing", "listening", "pronunciation"] as const).forEach((skill) => {
+      expect(track.stages).toHaveLength(120);
+      (["reading", "grammar", "vocabulary", "writing", "listening", "pronunciation"] as const).forEach((skill) => {
         const stages = track.stages.filter((stage) => stage.skill === skill);
         expect(stages).toHaveLength(20);
         expect(stages.map((stage) => stage.order)).toEqual(Array.from({ length: 20 }, (_, index) => index + 1));
@@ -28,7 +28,7 @@ describe("language test paths", () => {
         } else if (stage.productionTask.mode === "writing") {
           expect(stage.productionTask.minimumCharacters).toBeGreaterThanOrEqual(40);
           if (track.language === "en") {
-            expect(stage.productionTask.minimumWords).toBeGreaterThanOrEqual(100);
+            expect(stage.productionTask.minimumWords).toBeGreaterThanOrEqual(stage.skill === "writing" ? 100 : 35);
             expect(stage.productionTask.maximumWords).toBeGreaterThan(stage.productionTask.minimumWords ?? 0);
           }
         }
@@ -37,18 +37,18 @@ describe("language test paths", () => {
     });
   });
 
-  it("keeps all 120 activities and 40 listening resources distinct", () => {
+  it("keeps all 240 activities and 40 listening resources distinct", () => {
     const tracks = Object.values(languageTestTracks);
     const stages = tracks.flatMap((track) => track.stages);
     const listeningMedia = stages.flatMap((stage) => stage.media ? [stage.media] : []);
 
-    expect(stages).toHaveLength(120);
-    expect(new Set(stages.map((stage) => stage.id)).size).toBe(120);
+    expect(stages).toHaveLength(240);
+    expect(new Set(stages.map((stage) => stage.id)).size).toBe(240);
     expect(listeningMedia).toHaveLength(40);
     expect(new Set(listeningMedia.map((media) => media.videoId)).size).toBe(40);
 
     tracks.forEach((track) => {
-      (["writing", "listening", "pronunciation"] as const).forEach((skill) => {
+      (["reading", "grammar", "vocabulary", "writing", "listening", "pronunciation"] as const).forEach((skill) => {
         const skillStages = track.stages.filter((stage) => stage.skill === skill);
         expect(new Set(skillStages.map((stage) => stage.title)).size).toBe(20);
         expect(new Set(skillStages.map((stage) => stage.description)).size).toBe(20);
@@ -61,7 +61,7 @@ describe("language test paths", () => {
     expect(languageTestTracks.ko.label).toContain("TOPIK I → II");
     expect(languageTestTracks.ko.target).toContain("TOPIK I");
     expect(languageTestTracks.ko.target).toContain("3급");
-    expect(languageTestTracks.ko.stages[0].title).toContain("TOPIK I");
+    expect(languageTestTracks.ko.stages[0].focus).toContain("TOPIK I");
     expect(languageTestTracks.ko.stages.at(-1)?.title).toContain("GKS");
   });
 
@@ -107,6 +107,11 @@ describe("language test paths", () => {
           expect(question.correctIndex).toBeLessThan(question.options.length);
           expect(question.explanation.trim()).not.toBe("");
           expect(question.improvement.trim()).not.toBe("");
+          expect(question.optionFeedback).toHaveLength(question.options.length);
+          expect(question.optionFeedback.every((feedback) => feedback.trim().length > 0)).toBe(true);
+          expect(question.lesson.trim()).not.toBe("");
+          expect(question.example.trim()).not.toBe("");
+          expect(question.transfer.trim()).not.toBe("");
         });
       });
     });
@@ -117,8 +122,7 @@ describe("language test paths", () => {
     const progress: Record<string, StageProgress> = {};
     expect(isStageUnlocked(stages, 0, progress)).toBe(true);
     expect(isStageUnlocked(stages, 1, progress)).toBe(false);
-    expect(isStageUnlocked(stages, 20, progress)).toBe(true);
-    expect(isStageUnlocked(stages, 40, progress)).toBe(true);
+    [20, 40, 60, 80, 100].forEach((index) => expect(isStageUnlocked(stages, index, progress)).toBe(true));
 
     progress[stages[0].id] = {
       attempts: 1,
