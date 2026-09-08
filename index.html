@@ -12,11 +12,11 @@
           : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
         document.documentElement.dataset.theme = theme;
         document.documentElement.style.colorScheme = theme;
-        document.documentElement.classList.add("app-visual-loading");
       })();
     </script>
     <style>
-      #learnv-bootstrap-loader{position:fixed;z-index:519;inset:0;display:grid;place-items:center;min-height:100vh;min-height:100dvh;contain:layout paint;background:#f8eee8;color:#241a24;font-family:ui-sans-serif,system-ui,-apple-system,sans-serif}
+      #learnv-bootstrap-loader{position:fixed;z-index:519;inset:0;display:grid;place-items:center;min-height:100vh;min-height:100dvh;contain:layout paint;background:#f8eee8;color:#241a24;font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .16s ease,visibility .16s ease}
+      #learnv-bootstrap-loader.is-visible{opacity:1;visibility:visible;pointer-events:auto}
       #learnv-bootstrap-loader::before{position:absolute;top:0;right:0;left:0;height:3px;transform-origin:left;background:linear-gradient(90deg,#a663c2,#ec2745,#ffbd20,#66834d);animation:learnv-bootstrap-progress .9s cubic-bezier(.22,1,.36,1) infinite;content:"";will-change:transform}
       [data-theme="dark"] #learnv-bootstrap-loader{background:#181219;color:#fff8f2}
       .learnv-bootstrap-scene{display:grid;width:120px;place-items:center;gap:4px}
@@ -25,6 +25,8 @@
       .learnv-bootstrap-books i{display:block;height:12px;border:1.5px solid #241a24;border-radius:4px 9px 9px 4px}
       .learnv-bootstrap-books i:nth-child(1){width:88px;justify-self:center;background:#ffbd20}.learnv-bootstrap-books i:nth-child(2){width:108px;background:#ec2745}.learnv-bootstrap-books i:nth-child(3){width:96px;justify-self:end;background:#c3a1dc}
       .learnv-bootstrap-books i:nth-child(odd){animation:learnv-bootstrap-book-left 1.2s ease-in-out infinite}.learnv-bootstrap-books i:nth-child(even){animation:learnv-bootstrap-book-right 1.2s .12s ease-in-out infinite}
+      #learnv-bootstrap-loader::before,.learnv-bootstrap-scene svg,.learnv-bootstrap-books i{animation-play-state:paused}
+      #learnv-bootstrap-loader.is-visible::before,#learnv-bootstrap-loader.is-visible .learnv-bootstrap-scene svg,#learnv-bootstrap-loader.is-visible .learnv-bootstrap-books i{animation-play-state:running}
       .learnv-bootstrap-scene strong{margin-top:8px;font-size:13px;letter-spacing:.03em}
       @keyframes learnv-bootstrap-progress{0%{opacity:.5;transform:scaleX(0)}65%{opacity:1;transform:scaleX(.78)}100%{opacity:.72;transform:scaleX(1)}}
       @keyframes learnv-bootstrap-tulip{0%,100%{transform:translateY(0) rotate(-2.5deg)}50%{transform:translateY(-4px) rotate(2.5deg)}}
@@ -52,7 +54,13 @@
         const labels = { es: "Cargando LearnV", en: "Loading LearnV", ko: "LearnV 불러오는 중" };
         const activeLocale = locale === "en" || locale === "ko" ? locale : "es";
         document.documentElement.lang = activeLocale;
-        document.getElementById("learnv-bootstrap-loader")?.setAttribute("aria-label", labels[activeLocale]);
+        const loader = document.getElementById("learnv-bootstrap-loader");
+        loader?.setAttribute("aria-label", labels[activeLocale]);
+        window.__learnvBootstrapLoaderTimer = window.setTimeout(() => {
+          if (!loader?.isConnected) return;
+          document.documentElement.classList.add("app-visual-loading");
+          loader.classList.add("is-visible");
+        }, 260);
       })();
     </script>
     <div id="root"></div>

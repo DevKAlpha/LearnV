@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   DESKTOP_VISUAL_LOADER_DELAY_MS,
-  LONG_BACKGROUND_RELOAD_MS,
+  LONG_BACKGROUND_REVALIDATE_MS,
   MOBILE_VISUAL_LOADER_DELAY_MS,
-  PAGE_CACHE_RELOAD_MS,
   shouldReloadAfterResume,
+  shouldRevalidateAfterResume,
   visualLoaderDelay,
 } from "@/app/routing/resume-policy";
 
@@ -13,27 +13,54 @@ describe("resume policy", () => {
     expect(shouldReloadAfterResume({ elapsedMs: 3_000, restoredFromPageCache: false, mobileDevice: true })).toBe(false);
   });
 
-  it("reloads a document restored from page cache after the browser was away", () => {
+  it("revalidates a document restored from page cache without reloading healthy UI", () => {
     expect(shouldReloadAfterResume({
-      elapsedMs: PAGE_CACHE_RELOAD_MS,
+      elapsedMs: 4_000,
+      restoredFromPageCache: true,
+      mobileDevice: true,
+    })).toBe(false);
+    expect(shouldRevalidateAfterResume({
+      elapsedMs: 4_000,
       restoredFromPageCache: true,
       mobileDevice: true,
     })).toBe(true);
   });
 
-  it("reloads after a long background period even without page cache", () => {
+  it("revalidates after a long background period without reloading a healthy route", () => {
     expect(shouldReloadAfterResume({
-      elapsedMs: LONG_BACKGROUND_RELOAD_MS,
+      elapsedMs: LONG_BACKGROUND_REVALIDATE_MS,
+      restoredFromPageCache: false,
+      mobileDevice: true,
+    })).toBe(false);
+    expect(shouldRevalidateAfterResume({
+      elapsedMs: LONG_BACKGROUND_REVALIDATE_MS,
       restoredFromPageCache: false,
       mobileDevice: true,
     })).toBe(true);
   });
 
+  it("reloads when the mobile browser discarded the document or lost the route", () => {
+    expect(shouldReloadAfterResume({
+      elapsedMs: LONG_BACKGROUND_REVALIDATE_MS,
+      restoredFromPageCache: false,
+      mobileDevice: true,
+      documentWasDiscarded: true,
+    })).toBe(true);
+    expect(shouldReloadAfterResume({
+      elapsedMs: 3_000,
+      restoredFromPageCache: true,
+      mobileDevice: true,
+      routeAvailable: false,
+    })).toBe(true);
+  });
+
   it("keeps desktop and laptop tabs visible after long background periods", () => {
     expect(shouldReloadAfterResume({
-      elapsedMs: LONG_BACKGROUND_RELOAD_MS * 20,
+      elapsedMs: LONG_BACKGROUND_REVALIDATE_MS * 20,
       restoredFromPageCache: true,
       mobileDevice: false,
+      documentWasDiscarded: true,
+      routeAvailable: false,
     })).toBe(false);
   });
 
@@ -45,5 +72,6 @@ describe("resume policy", () => {
     expect(visualLoaderDelay(true)).toBe(MOBILE_VISUAL_LOADER_DELAY_MS);
     expect(visualLoaderDelay(false)).toBe(DESKTOP_VISUAL_LOADER_DELAY_MS);
     expect(DESKTOP_VISUAL_LOADER_DELAY_MS).toBeGreaterThan(MOBILE_VISUAL_LOADER_DELAY_MS);
+    expect(MOBILE_VISUAL_LOADER_DELAY_MS).toBeGreaterThan(200);
   });
 });

@@ -9,8 +9,8 @@ import {
 } from "react";
 import { RouteLoader } from "@/app/routing/RouteLoader";
 import {
-  PAGE_CACHE_RELOAD_MS,
   shouldReloadAfterResume,
+  shouldRevalidateAfterResume,
   visualLoaderDelay,
 } from "@/app/routing/resume-policy";
 
@@ -89,9 +89,9 @@ async function waitForImage(image: HTMLImageElement) {
 async function waitForVisualStability(root: HTMLElement) {
   const readiness: Promise<unknown>[] = [];
 
-  if (document.readyState !== "complete") {
+  if (document.readyState === "loading") {
     readiness.push(withTimeout(new Promise<void>((resolve) => {
-      window.addEventListener("load", () => resolve(), { once: true });
+      document.addEventListener("DOMContentLoaded", () => resolve(), { once: true });
     }), DOCUMENT_TIMEOUT_MS));
   }
 
@@ -110,7 +110,17 @@ async function waitForVisualStability(root: HTMLElement) {
   await afterFrames();
 }
 
+function hasPendingVisualWork(root: HTMLElement) {
+  if (document.readyState === "loading" || document.fonts?.status === "loading") return true;
+  return Array.from(root.querySelectorAll<HTMLImageElement>("img"))
+    .filter(isNearViewport)
+    .some((image) => !image.complete || image.naturalWidth === 0);
+}
+
 function removeBootstrapLoader() {
+  const bootstrapWindow = window as Window & { __learnvBootstrapLoaderTimer?: number };
+  window.clearTimeout(bootstrapWindow.__learnvBootstrapLoaderTimer);
+  delete bootstrapWindow.__learnvBootstrapLoaderTimer;
   document.getElementById("learnv-bootstrap-loader")?.remove();
 }
 
@@ -199,13 +209,13 @@ export function VisualReadinessGate({ children, label, onReady }: VisualReadines
     window.clearTimeout(exitTimerRef.current);
     readyRef.current = false;
     setBusy(true);
-    scheduleLoadingCover(mobileDevice);
 
-    if (!mobileDevice) {
-      finishReady(run);
+    if (!hasPendingVisualWork(root)) {
+      void afterFrames(2).then(() => finishReady(run));
       return;
     }
 
+    scheduleLoadingCover(mobileDevice);
     void waitForVisualStability(root).then(() => {
       finishReady(run);
     });
@@ -242,22 +252,25 @@ export function VisualReadinessGate({ children, label, onReady }: VisualReadines
         restoredFromPageCacheRef.current = false;
         return;
       }
-      if (
-        document.visibilityState !== "visible"
-        || hiddenAtRef.current === null
-        || !contentRef.current
-        || reloadScheduledRef.current
-      ) return;
+      if (document.visibilityState !== "visible" || hiddenAtRef.current === null || reloadScheduledRef.current) return;
 
       const elapsedMs = Date.now() - hiddenAtRef.current;
-      if (shouldReloadAfterResume({ elapsedMs, restoredFromPageCache, mobileDevice })) {
+      const route = contentRef.current;
+      const resumeContext = {
+        elapsedMs,
+        restoredFromPageCache,
+        mobileDevice,
+        documentWasDiscarded: Boolean((document as Document & { wasDiscarded?: boolean }).wasDiscarded),
+        routeAvailable: Boolean(route?.isConnected),
+      };
+      if (shouldReloadAfterResume(resumeContext)) {
         reloadCurrentRoute();
         return;
       }
 
       hiddenAtRef.current = null;
       restoredFromPageCacheRef.current = false;
-      prepare(contentRef.current);
+      if (route && shouldRevalidateAfterResume(resumeContext)) prepare(route);
     };
     const onVisibilityChange = () => {
       if (document.visibilityState === "hidden") {
@@ -282,7 +295,7 @@ export function VisualReadinessGate({ children, label, onReady }: VisualReadines
       if (event.persisted && usesMobileResumeProtection()) {
         window.clearTimeout(resumeTimerRef.current);
         restoredFromPageCacheRef.current = true;
-        hiddenAtRef.current ??= Date.now() - PAGE_CACHE_RELOAD_MS;
+        hiddenAtRef.current ??= Date.now();
         resume(true);
       }
     };
