@@ -6,21 +6,9 @@ type ResumeContext = {
   elapsedMs: number;
   restoredFromPageCache: boolean;
   mobileDevice: boolean;
-  documentWasDiscarded?: boolean;
-  routeAvailable?: boolean;
 };
 
-/** Reloads only when the browser discarded the document or the mounted route was lost. */
-export function shouldReloadAfterResume({
-  mobileDevice,
-  documentWasDiscarded = false,
-  routeAvailable = true,
-}: ResumeContext) {
-  if (!mobileDevice) return false;
-  return documentWasDiscarded || !routeAvailable;
-}
-
-/** Rechecks visual resources after a meaningful mobile suspension without reloading healthy UI. */
+/** Rechecks visual resources after a meaningful mobile suspension without forcing another navigation. */
 export function shouldRevalidateAfterResume({ elapsedMs, restoredFromPageCache, mobileDevice }: ResumeContext) {
   if (!mobileDevice) return false;
   return restoredFromPageCache || Math.max(0, elapsedMs) >= LONG_BACKGROUND_REVALIDATE_MS;

@@ -27,7 +27,10 @@
       .learnv-bootstrap-books i:nth-child(odd){animation:learnv-bootstrap-book-left 1.2s ease-in-out infinite}.learnv-bootstrap-books i:nth-child(even){animation:learnv-bootstrap-book-right 1.2s .12s ease-in-out infinite}
       #learnv-bootstrap-loader::before,.learnv-bootstrap-scene svg,.learnv-bootstrap-books i{animation-play-state:paused}
       #learnv-bootstrap-loader.is-visible::before,#learnv-bootstrap-loader.is-visible .learnv-bootstrap-scene svg,#learnv-bootstrap-loader.is-visible .learnv-bootstrap-books i{animation-play-state:running}
+      #learnv-bootstrap-loader.is-stalled::before,#learnv-bootstrap-loader.is-stalled .learnv-bootstrap-scene svg,#learnv-bootstrap-loader.is-stalled .learnv-bootstrap-books i{animation-play-state:paused}
       .learnv-bootstrap-scene strong{margin-top:8px;font-size:13px;letter-spacing:.03em}
+      .learnv-bootstrap-retry{display:block;margin-top:8px;padding:7px 12px;border:1.5px solid currentColor;border-radius:999px;background:transparent;color:inherit;font:700 12px/1 ui-sans-serif,system-ui,-apple-system,sans-serif;cursor:pointer}
+      .learnv-bootstrap-retry[hidden]{display:none}
       @keyframes learnv-bootstrap-progress{0%{opacity:.5;transform:scaleX(0)}65%{opacity:1;transform:scaleX(.78)}100%{opacity:.72;transform:scaleX(1)}}
       @keyframes learnv-bootstrap-tulip{0%,100%{transform:translateY(0) rotate(-2.5deg)}50%{transform:translateY(-4px) rotate(2.5deg)}}
       @keyframes learnv-bootstrap-book-left{50%{transform:translate3d(-2px,0,0)}}@keyframes learnv-bootstrap-book-right{50%{transform:translate3d(2px,0,0)}}
@@ -46,21 +49,49 @@
         <svg viewBox="0 0 72 82" fill="none"><path d="M35 48v29" stroke="#557645" stroke-width="5" stroke-linecap="round"/><path d="M34 65c-10-7-18-4-22 4 9 4 17 3 22-4Z" fill="#78965a" stroke="#2d3927" stroke-width="2"/><path d="M38 59c8-7 15-6 20 0-7 5-14 5-20 0Z" fill="#91aa6e" stroke="#2d3927" stroke-width="2"/><path d="M36 52C21 52 10 41 11 25c8 1 15 5 20 12-1-11 1-21 5-31 5 10 7 20 5 31 5-7 12-11 20-12 1 16-10 27-25 27Z" fill="#b86bd2" stroke="#2b1830" stroke-width="2.6" stroke-linejoin="round"/><path d="M36 52c-9-3-14-11-13-25 6 4 10 9 13 17 3-8 7-13 13-17 1 14-4 22-13 25Z" fill="#a85bc5" fill-opacity=".58" stroke="#2b1830" stroke-width="1.8"/></svg>
         <div class="learnv-bootstrap-books"><i></i><i></i><i></i></div>
         <strong>LearnV</strong>
+        <button class="learnv-bootstrap-retry" type="button" hidden>Reintentar</button>
       </div>
     </div>
     <script>
       (() => {
         const locale = localStorage.getItem("learnv-locale-v1");
-        const labels = { es: "Cargando LearnV", en: "Loading LearnV", ko: "LearnV 불러오는 중" };
+        const labels = {
+          es: { loading: "Cargando LearnV", recovering: "Actualizando LearnV…", retry: "Reintentar" },
+          en: { loading: "Loading LearnV", recovering: "Refreshing LearnV…", retry: "Retry" },
+          ko: { loading: "LearnV 불러오는 중", recovering: "LearnV 새로 고치는 중…", retry: "다시 시도" },
+        };
         const activeLocale = locale === "en" || locale === "ko" ? locale : "es";
         document.documentElement.lang = activeLocale;
         const loader = document.getElementById("learnv-bootstrap-loader");
-        loader?.setAttribute("aria-label", labels[activeLocale]);
+        const status = loader?.querySelector("strong");
+        const retry = loader?.querySelector("button");
+        loader?.setAttribute("aria-label", labels[activeLocale].loading);
+        if (retry) {
+          retry.textContent = labels[activeLocale].retry;
+          retry.addEventListener("click", () => {
+            const retryUrl = new URL(location.href);
+            retryUrl.searchParams.set("learnv-recover", Date.now().toString());
+            location.replace(retryUrl);
+          });
+        }
         window.__learnvBootstrapLoaderTimer = window.setTimeout(() => {
           if (!loader?.isConnected) return;
           document.documentElement.classList.add("app-visual-loading");
           loader.classList.add("is-visible");
         }, 260);
+        window.__learnvBootstrapRecoveryTimer = window.setTimeout(() => {
+          if (!loader?.isConnected) return;
+          const recoveryUrl = new URL(location.href);
+          if (!recoveryUrl.searchParams.has("learnv-recover")) {
+            if (status) status.textContent = labels[activeLocale].recovering;
+            recoveryUrl.searchParams.set("learnv-recover", Date.now().toString());
+            location.replace(recoveryUrl);
+            return;
+          }
+          loader.classList.add("is-visible", "is-stalled");
+          if (status) status.textContent = labels[activeLocale].recovering;
+          if (retry) retry.hidden = false;
+        }, 8_000);
       })();
     </script>
     <div id="root"></div>

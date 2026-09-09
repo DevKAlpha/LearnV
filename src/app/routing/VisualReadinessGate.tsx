@@ -9,7 +9,6 @@ import {
 } from "react";
 import { RouteLoader } from "@/app/routing/RouteLoader";
 import {
-  shouldReloadAfterResume,
   shouldRevalidateAfterResume,
   visualLoaderDelay,
 } from "@/app/routing/resume-policy";
@@ -25,18 +24,29 @@ const FONT_TIMEOUT_MS = 800;
 const IMAGE_TIMEOUT_MS = 1_600;
 const DOCUMENT_TIMEOUT_MS = 1_200;
 const LOADER_EXIT_MS = 170;
+const FRAME_FALLBACK_MS = 80;
+const LAYOUT_TIMEOUT_MS = 900;
+const MAX_VISUAL_WAIT_MS = 2_600;
 
-function afterFrames(count = 1) {
+function afterFrame() {
   return new Promise<void>((resolve) => {
-    const advance = (remaining: number) => {
-      if (remaining <= 0) {
-        resolve();
-        return;
-      }
-      window.requestAnimationFrame(() => advance(remaining - 1));
+    let settled = false;
+    let frame = 0;
+    let fallback = 0;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(fallback);
+      resolve();
     };
-    advance(count);
+    frame = window.requestAnimationFrame(finish);
+    fallback = window.setTimeout(finish, FRAME_FALLBACK_MS);
   });
+}
+
+async function afterFrames(count = 1) {
+  for (let remaining = count; remaining > 0; remaining -= 1) await afterFrame();
 }
 
 function afterDelay(delay: number) {
@@ -106,7 +116,7 @@ async function waitForVisualStability(root: HTMLElement) {
   }
 
   await Promise.all(readiness);
-  await waitForStableLayout(root);
+  await withTimeout(waitForStableLayout(root), LAYOUT_TIMEOUT_MS);
   await afterFrames();
 }
 
@@ -118,10 +128,20 @@ function hasPendingVisualWork(root: HTMLElement) {
 }
 
 function removeBootstrapLoader() {
-  const bootstrapWindow = window as Window & { __learnvBootstrapLoaderTimer?: number };
+  const bootstrapWindow = window as Window & {
+    __learnvBootstrapLoaderTimer?: number;
+    __learnvBootstrapRecoveryTimer?: number;
+  };
   window.clearTimeout(bootstrapWindow.__learnvBootstrapLoaderTimer);
+  window.clearTimeout(bootstrapWindow.__learnvBootstrapRecoveryTimer);
   delete bootstrapWindow.__learnvBootstrapLoaderTimer;
+  delete bootstrapWindow.__learnvBootstrapRecoveryTimer;
   document.getElementById("learnv-bootstrap-loader")?.remove();
+  const currentUrl = new URL(window.location.href);
+  if (currentUrl.searchParams.has("learnv-recover")) {
+    currentUrl.searchParams.delete("learnv-recover");
+    window.history.replaceState(window.history.state, "", currentUrl);
+  }
 }
 
 function usesMobileResumeProtection() {
@@ -151,10 +171,10 @@ export function VisualReadinessGate({ children, label, onReady }: VisualReadines
   const runRef = useRef(0);
   const exitTimerRef = useRef(0);
   const loaderDelayTimerRef = useRef(0);
+  const readinessDeadlineTimerRef = useRef(0);
   const resumeTimerRef = useRef(0);
   const hiddenAtRef = useRef<number | null>(null);
   const restoredFromPageCacheRef = useRef(false);
-  const reloadScheduledRef = useRef(false);
   const loaderVisibleRef = useRef(false);
   const readyRef = useRef(false);
   const onReadyRef = useRef(onReady);
@@ -182,6 +202,7 @@ export function VisualReadinessGate({ children, label, onReady }: VisualReadines
     if (runRef.current !== run) return;
     readyRef.current = true;
     window.clearTimeout(loaderDelayTimerRef.current);
+    window.clearTimeout(readinessDeadlineTimerRef.current);
     removeBootstrapLoader();
 
     const revealContent = () => {
@@ -207,8 +228,10 @@ export function VisualReadinessGate({ children, label, onReady }: VisualReadines
     const run = ++runRef.current;
     const mobileDevice = usesMobileResumeProtection();
     window.clearTimeout(exitTimerRef.current);
+    window.clearTimeout(readinessDeadlineTimerRef.current);
     readyRef.current = false;
     setBusy(true);
+    readinessDeadlineTimerRef.current = window.setTimeout(() => finishReady(run), MAX_VISUAL_WAIT_MS);
 
     if (!hasPendingVisualWork(root)) {
       void afterFrames(2).then(() => finishReady(run));
@@ -229,22 +252,6 @@ export function VisualReadinessGate({ children, label, onReady }: VisualReadines
   }, [scheduleLoadingCover]);
 
   useEffect(() => {
-    const coverCurrentRoute = () => {
-      runRef.current += 1;
-      window.clearTimeout(exitTimerRef.current);
-      window.clearTimeout(loaderDelayTimerRef.current);
-      readyRef.current = false;
-      loaderVisibleRef.current = true;
-      setBusy(true);
-      document.documentElement.classList.add("app-visual-loading");
-      setPhase("loading");
-    };
-    const reloadCurrentRoute = () => {
-      if (reloadScheduledRef.current) return;
-      reloadScheduledRef.current = true;
-      coverCurrentRoute();
-      void afterFrames(2).then(() => window.location.reload());
-    };
     const resume = (restoredFromPageCache: boolean) => {
       const mobileDevice = usesMobileResumeProtection();
       if (!mobileDevice) {
@@ -252,7 +259,7 @@ export function VisualReadinessGate({ children, label, onReady }: VisualReadines
         restoredFromPageCacheRef.current = false;
         return;
       }
-      if (document.visibilityState !== "visible" || hiddenAtRef.current === null || reloadScheduledRef.current) return;
+      if (document.visibilityState !== "visible" || hiddenAtRef.current === null) return;
 
       const elapsedMs = Date.now() - hiddenAtRef.current;
       const route = contentRef.current;
@@ -260,17 +267,10 @@ export function VisualReadinessGate({ children, label, onReady }: VisualReadines
         elapsedMs,
         restoredFromPageCache,
         mobileDevice,
-        documentWasDiscarded: Boolean((document as Document & { wasDiscarded?: boolean }).wasDiscarded),
-        routeAvailable: Boolean(route?.isConnected),
       };
-      if (shouldReloadAfterResume(resumeContext)) {
-        reloadCurrentRoute();
-        return;
-      }
-
       hiddenAtRef.current = null;
       restoredFromPageCacheRef.current = false;
-      if (route && shouldRevalidateAfterResume(resumeContext)) prepare(route);
+      if (route?.isConnected && shouldRevalidateAfterResume(resumeContext)) prepare(route);
     };
     const onVisibilityChange = () => {
       if (document.visibilityState === "hidden") {
@@ -315,6 +315,7 @@ export function VisualReadinessGate({ children, label, onReady }: VisualReadines
     runRef.current += 1;
     window.clearTimeout(exitTimerRef.current);
     window.clearTimeout(loaderDelayTimerRef.current);
+    window.clearTimeout(readinessDeadlineTimerRef.current);
     window.clearTimeout(resumeTimerRef.current);
   }, []);
 
