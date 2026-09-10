@@ -8,10 +8,8 @@ import {
   type PropsWithChildren,
 } from "react";
 import { RouteLoader } from "@/app/routing/RouteLoader";
-import {
-  shouldRevalidateAfterResume,
-  visualLoaderDelay,
-} from "@/app/routing/resume-policy";
+import { RouteRecoveryBoundary } from "@/app/routing/RouteRecoveryBoundary";
+import { visualLoaderDelay } from "@/app/routing/resume-policy";
 
 type VisualReadinessGateProps = PropsWithChildren<{
   label: string;
@@ -130,13 +128,19 @@ function hasPendingVisualWork(root: HTMLElement) {
 function removeBootstrapLoader() {
   const bootstrapWindow = window as Window & {
     __learnvBootstrapLoaderTimer?: number;
-    __learnvBootstrapRecoveryTimer?: number;
+    __learnvBootstrapCleanup?: () => void;
   };
   window.clearTimeout(bootstrapWindow.__learnvBootstrapLoaderTimer);
-  window.clearTimeout(bootstrapWindow.__learnvBootstrapRecoveryTimer);
+  bootstrapWindow.__learnvBootstrapCleanup?.();
   delete bootstrapWindow.__learnvBootstrapLoaderTimer;
-  delete bootstrapWindow.__learnvBootstrapRecoveryTimer;
+  delete bootstrapWindow.__learnvBootstrapCleanup;
   document.getElementById("learnv-bootstrap-loader")?.remove();
+  document.documentElement.dataset.learnvReady = "true";
+  try {
+    window.sessionStorage.removeItem("learnv-asset-recovery-v1");
+  } catch {
+    // Storage can be unavailable in strict browser privacy modes.
+  }
   const currentUrl = new URL(window.location.href);
   if (currentUrl.searchParams.has("learnv-recover")) {
     currentUrl.searchParams.delete("learnv-recover");
@@ -172,9 +176,6 @@ export function VisualReadinessGate({ children, label, onReady }: VisualReadines
   const exitTimerRef = useRef(0);
   const loaderDelayTimerRef = useRef(0);
   const readinessDeadlineTimerRef = useRef(0);
-  const resumeTimerRef = useRef(0);
-  const hiddenAtRef = useRef<number | null>(null);
-  const restoredFromPageCacheRef = useRef(false);
   const loaderVisibleRef = useRef(false);
   const readyRef = useRef(false);
   const onReadyRef = useRef(onReady);
@@ -252,78 +253,37 @@ export function VisualReadinessGate({ children, label, onReady }: VisualReadines
   }, [scheduleLoadingCover]);
 
   useEffect(() => {
-    const resume = (restoredFromPageCache: boolean) => {
-      const mobileDevice = usesMobileResumeProtection();
-      if (!mobileDevice) {
-        hiddenAtRef.current = null;
-        restoredFromPageCacheRef.current = false;
-        return;
-      }
-      if (document.visibilityState !== "visible" || hiddenAtRef.current === null) return;
-
-      const elapsedMs = Date.now() - hiddenAtRef.current;
-      const route = contentRef.current;
-      const resumeContext = {
-        elapsedMs,
-        restoredFromPageCache,
-        mobileDevice,
-      };
-      hiddenAtRef.current = null;
-      restoredFromPageCacheRef.current = false;
-      if (route?.isConnected && shouldRevalidateAfterResume(resumeContext)) prepare(route);
+    const releaseRestoredRoute = () => {
+      if (document.visibilityState !== "visible" || !contentRef.current?.isConnected) return;
+      finishReady(runRef.current);
     };
     const onVisibilityChange = () => {
-      if (document.visibilityState === "hidden") {
-        if (!usesMobileResumeProtection()) {
-          hiddenAtRef.current = null;
-          restoredFromPageCacheRef.current = false;
-          return;
-        }
-        window.clearTimeout(resumeTimerRef.current);
-        hiddenAtRef.current = Date.now();
-        return;
-      }
-      window.clearTimeout(resumeTimerRef.current);
-      resumeTimerRef.current = window.setTimeout(() => resume(restoredFromPageCacheRef.current), 50);
+      if (document.visibilityState === "visible") releaseRestoredRoute();
     };
-    const onPageHide = () => {
-      if (!usesMobileResumeProtection()) return;
-      window.clearTimeout(resumeTimerRef.current);
-      hiddenAtRef.current ??= Date.now();
-    };
-    const onPageShow = (event: PageTransitionEvent) => {
-      if (event.persisted && usesMobileResumeProtection()) {
-        window.clearTimeout(resumeTimerRef.current);
-        restoredFromPageCacheRef.current = true;
-        hiddenAtRef.current ??= Date.now();
-        resume(true);
-      }
-    };
+    const onPageShow = () => releaseRestoredRoute();
 
     document.addEventListener("visibilitychange", onVisibilityChange);
-    window.addEventListener("pagehide", onPageHide);
     window.addEventListener("pageshow", onPageShow);
     return () => {
-      window.clearTimeout(resumeTimerRef.current);
       document.removeEventListener("visibilitychange", onVisibilityChange);
-      window.removeEventListener("pagehide", onPageHide);
       window.removeEventListener("pageshow", onPageShow);
     };
-  }, [prepare]);
+  }, [finishReady]);
 
   useEffect(() => () => {
     runRef.current += 1;
     window.clearTimeout(exitTimerRef.current);
     window.clearTimeout(loaderDelayTimerRef.current);
     window.clearTimeout(readinessDeadlineTimerRef.current);
-    window.clearTimeout(resumeTimerRef.current);
   }, []);
 
   return (
     <div className="visual-readiness-gate" aria-busy={busy}>
-      <Suspense fallback={null}>
-        <ReadyProbe onCommit={prepare}>{children}</ReadyProbe>
-      </Suspense>
+      <RouteRecoveryBoundary onFailure={() => finishReady(runRef.current)}>
+        <Suspense fallback={null}>
+          <ReadyProbe onCommit={prepare}>{children}</ReadyProbe>
+        </Suspense>
+      </RouteRecoveryBoundary>
       {phase !== "hidden" && <RouteLoader label={label} leaving={phase === "leaving"} />}
     </div>
   );

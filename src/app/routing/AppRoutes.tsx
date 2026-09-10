@@ -2,17 +2,19 @@ import { lazy } from "react";
 import { Navigate, Route, Routes, type Location } from "react-router-dom";
 import type { useGksProgress } from "@/application/controllers/useGksProgress";
 import type { LearningJourneyController } from "@/application/controllers/useLearningJourney";
+import { loadWithAssetRecovery } from "@/app/routing/asset-recovery";
 import { HomePage } from "@/features/home/presentation/HomePage";
 
-const loadGksPage = () => import("@/features/scholarship/presentation/GksPage").then((module) => ({ default: module.GksPage }));
-const loadStudyPage = () => import("@/features/study/presentation/pages/StudyPage").then((module) => ({ default: module.StudyPage }));
-const loadLanguageStudyPage = () => import("@/features/study/presentation/pages/LanguageStudyPage").then((module) => ({ default: module.LanguageStudyPage }));
-const loadInterviewPrepPage = () => import("@/features/study/presentation/pages/InterviewPrepPage").then((module) => ({ default: module.InterviewPrepPage }));
-const loadWrittenSimulatorPage = () => import("@/features/study/presentation/pages/WrittenSimulatorPage").then((module) => ({ default: module.WrittenSimulatorPage }));
-const loadTestPathPage = () => import("@/features/study/presentation/pages/TestPathPage").then((module) => ({ default: module.TestPathPage }));
-const loadTestSessionPage = () => import("@/features/study/presentation/pages/TestSessionPage").then((module) => ({ default: module.TestSessionPage }));
-const loadChecklistPage = () => import("@/features/documents/presentation/ChecklistPage").then((module) => ({ default: module.ChecklistPage }));
-const loadProfilePage = () => import("@/features/profile/presentation/ProfilePage").then((module) => ({ default: module.ProfilePage }));
+const recoverable = <T,>(loader: () => Promise<T>) => () => loadWithAssetRecovery(loader);
+const loadGksPage = recoverable(() => import("@/features/scholarship/presentation/GksPage").then((module) => ({ default: module.GksPage })));
+const loadStudyPage = recoverable(() => import("@/features/study/presentation/pages/StudyPage").then((module) => ({ default: module.StudyPage })));
+const loadLanguageStudyPage = recoverable(() => import("@/features/study/presentation/pages/LanguageStudyPage").then((module) => ({ default: module.LanguageStudyPage })));
+const loadInterviewPrepPage = recoverable(() => import("@/features/study/presentation/pages/InterviewPrepPage").then((module) => ({ default: module.InterviewPrepPage })));
+const loadWrittenSimulatorPage = recoverable(() => import("@/features/study/presentation/pages/WrittenSimulatorPage").then((module) => ({ default: module.WrittenSimulatorPage })));
+const loadTestPathPage = recoverable(() => import("@/features/study/presentation/pages/TestPathPage").then((module) => ({ default: module.TestPathPage })));
+const loadTestSessionPage = recoverable(() => import("@/features/study/presentation/pages/TestSessionPage").then((module) => ({ default: module.TestSessionPage })));
+const loadChecklistPage = recoverable(() => import("@/features/documents/presentation/ChecklistPage").then((module) => ({ default: module.ChecklistPage })));
+const loadProfilePage = recoverable(() => import("@/features/profile/presentation/ProfilePage").then((module) => ({ default: module.ProfilePage })));
 
 const GksPage = lazy(loadGksPage);
 const StudyPage = lazy(loadStudyPage);

@@ -283,6 +283,29 @@ html.app-visual-loading {
   backface-visibility: hidden;
 }
 
+.route-recovery {
+  display: grid;
+  min-height: min(72vh, 680px);
+  place-content: center;
+  place-items: center;
+  gap: 14px;
+  padding: 28px;
+  text-align: center;
+}
+
+.route-recovery__mark { width: 68px; height: 82px; }
+.route-recovery button {
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--yellow);
+  color: #241a24;
+  font-weight: 900;
+  box-shadow: 3px 4px 0 var(--ink);
+  cursor: pointer;
+}
+
 .route-loader__tulip .brand-tulip { width: 76px; height: 90px; filter: drop-shadow(3px 4px 0 rgba(43,24,48,0.22)); }
 
 .route-loader__books {

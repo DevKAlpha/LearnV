@@ -56,9 +56,9 @@
       (() => {
         const locale = localStorage.getItem("learnv-locale-v1");
         const labels = {
-          es: { loading: "Cargando LearnV", recovering: "Actualizando LearnV…", retry: "Reintentar" },
-          en: { loading: "Loading LearnV", recovering: "Refreshing LearnV…", retry: "Retry" },
-          ko: { loading: "LearnV 불러오는 중", recovering: "LearnV 새로 고치는 중…", retry: "다시 시도" },
+          es: { loading: "Cargando LearnV", recovering: "Actualizando LearnV…", stalled: "No pudimos completar la carga", retry: "Reintentar" },
+          en: { loading: "Loading LearnV", recovering: "Refreshing LearnV…", stalled: "We could not finish loading", retry: "Retry" },
+          ko: { loading: "LearnV 불러오는 중", recovering: "LearnV 새로 고치는 중…", stalled: "불러오기를 완료하지 못했습니다", retry: "다시 시도" },
         };
         const activeLocale = locale === "en" || locale === "ko" ? locale : "es";
         document.documentElement.lang = activeLocale;
@@ -66,32 +66,58 @@
         const status = loader?.querySelector("strong");
         const retry = loader?.querySelector("button");
         loader?.setAttribute("aria-label", labels[activeLocale].loading);
+        const showFallback = () => {
+          if (!loader?.isConnected) return;
+          loader.classList.add("is-visible", "is-stalled");
+          document.documentElement.classList.add("app-visual-loading");
+          if (status) status.textContent = labels[activeLocale].stalled;
+          if (retry) retry.hidden = false;
+        };
+        const recoverAssetOnce = (force = false) => {
+          let recentAttempt = false;
+          try {
+            const previousAttempt = Number(sessionStorage.getItem("learnv-asset-recovery-v1"));
+            recentAttempt = Number.isFinite(previousAttempt) && Date.now() - previousAttempt < 30_000;
+            if (!recentAttempt || force) sessionStorage.setItem("learnv-asset-recovery-v1", Date.now().toString());
+          } catch {
+            recentAttempt = location.search.includes("learnv-recover=");
+          }
+          if (recentAttempt && !force) {
+            showFallback();
+            return;
+          }
+          if (status) status.textContent = labels[activeLocale].recovering;
+          const recoveryUrl = new URL(location.href);
+          recoveryUrl.searchParams.set("learnv-recover", Date.now().toString());
+          location.replace(recoveryUrl);
+        };
         if (retry) {
           retry.textContent = labels[activeLocale].retry;
-          retry.addEventListener("click", () => {
-            const retryUrl = new URL(location.href);
-            retryUrl.searchParams.set("learnv-recover", Date.now().toString());
-            location.replace(retryUrl);
-          });
+          retry.addEventListener("click", () => recoverAssetOnce(true));
         }
+        const resemblesAssetFailure = (value) => /chunk|module script|dynamically imported|failed to fetch|stylesheet/i.test(String(value ?? ""));
+        const onAssetError = (event) => {
+          const target = event.target;
+          if (target instanceof HTMLScriptElement || target instanceof HTMLLinkElement || resemblesAssetFailure(event.message)) {
+            recoverAssetOnce();
+          }
+        };
+        const onUnhandledRejection = (event) => {
+          if (resemblesAssetFailure(event.reason?.message ?? event.reason)) recoverAssetOnce();
+        };
+        addEventListener("error", onAssetError, true);
+        addEventListener("unhandledrejection", onUnhandledRejection);
         window.__learnvBootstrapLoaderTimer = window.setTimeout(() => {
           if (!loader?.isConnected) return;
           document.documentElement.classList.add("app-visual-loading");
           loader.classList.add("is-visible");
         }, 260);
-        window.__learnvBootstrapRecoveryTimer = window.setTimeout(() => {
-          if (!loader?.isConnected) return;
-          const recoveryUrl = new URL(location.href);
-          if (!recoveryUrl.searchParams.has("learnv-recover")) {
-            if (status) status.textContent = labels[activeLocale].recovering;
-            recoveryUrl.searchParams.set("learnv-recover", Date.now().toString());
-            location.replace(recoveryUrl);
-            return;
-          }
-          loader.classList.add("is-visible", "is-stalled");
-          if (status) status.textContent = labels[activeLocale].recovering;
-          if (retry) retry.hidden = false;
-        }, 8_000);
+        const fallbackTimer = window.setTimeout(showFallback, 6_000);
+        window.__learnvBootstrapCleanup = () => {
+          clearTimeout(fallbackTimer);
+          removeEventListener("error", onAssetError, true);
+          removeEventListener("unhandledrejection", onUnhandledRejection);
+        };
       })();
     </script>
     <div id="root"></div>
