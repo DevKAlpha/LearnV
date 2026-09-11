@@ -17,6 +17,8 @@ export type AppIconName =
   | "test"
   | "video"
   | "sparkle"
+  | "chat"
+  | "send"
   | "refresh"
   | "lock";
 
@@ -54,6 +56,8 @@ export function AppIcon({ name, className, ...props }: AppIconProps) {
       {name === "test" && <><path d="M5 3h14v18H5zM8 8h5M8 12h3" /><path d="m13 16 2 2 4-5" /></>}
       {name === "video" && <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m10 9 5 3-5 3z" fill="currentColor" stroke="none" /></>}
       {name === "sparkle" && <><path d="M12 2c.5 5.5 2.5 7.5 8 8-5.5.5-7.5 2.5-8 8-.5-5.5-2.5-7.5-8-8 5.5-.5 7.5-2.5 8-8Z" /><path d="M19 16v6M16 19h6" /></>}
+      {name === "chat" && <><path d="M4 4h16v12H9l-5 4z" /><path d="M8 9h8M8 12h5" /></>}
+      {name === "send" && <><path d="m3 11 18-8-7 18-3-7z" /><path d="m11 14 4-5" /></>}
       {name === "refresh" && <><path d="M20 8V3l-2 2.1A8 8 0 1 0 20 15" /><path d="M15 3h5v5" /></>}
       {name === "lock" && <><rect x="5" y="10" width="14" height="11" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3" /></>}
     </svg>

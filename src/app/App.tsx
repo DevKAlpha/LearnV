@@ -15,6 +15,7 @@ import { RoutePrefetcher } from "@/app/routing/RoutePrefetcher";
 import { VisualReadinessGate } from "@/app/routing/VisualReadinessGate";
 import { BrandMark } from "@/shared/ui/BrandMark";
 import { ThemeToggle } from "@/shared/ui/ThemeToggle";
+import { InterviewChatbotLauncher } from "@/features/interview-chatbot/presentation/InterviewChatbotLauncher";
 
 const SectionTour = lazy(() => import("@/app/layout/SectionTour").then((module) => ({ default: module.SectionTour })));
 
@@ -83,6 +84,8 @@ export function App() {
           </AnimatedRouteView>
         </VisualReadinessGate>
       </main>
+
+      <InterviewChatbotLauncher prioritySkill={learning.analysis.priority?.skill} />
 
       {tourReady && visuallyReadyRoute === location.pathname && <Suspense fallback={null}><SectionTour /></Suspense>}
     </div>
