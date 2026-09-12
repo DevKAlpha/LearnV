@@ -10,6 +10,27 @@ export type InterviewAnswerEvaluation = {
   feedback: Record<InterviewSignal, string>;
 };
 
+export type InterviewSessionSummary = {
+  average: number;
+  strongest: InterviewSignal;
+  priority: InterviewSignal;
+  secondaryPriority: InterviewSignal;
+  answered: number;
+  coverage: Record<InterviewSignal, { total: number; percentage: number }>;
+  trend: "improving" | "stable" | "declining";
+  trendDelta: number;
+};
+
+export type InterviewSessionAdvice = {
+  assessment: string;
+  strength: string;
+  priority: string;
+  trend: string;
+  actionPlan: string[];
+  formula: string[];
+  nextTarget: string;
+};
+
 const ACTION_PATTERN = /\b(logr(?:e|é|amos|aron)|organic(?:e|é|amos)|cre(?:e|é|amos)|lider(?:e|é|amos)|investigu(?:e|é|amos)|mejor(?:e|é|amos)|alcanz(?:o|ó|amos)|learned|built|led|researched|improved|achieved|measured|organized|created)\b/i;
 const CONNECTION_PATTERN = /\b(gks|beca|scholarship|corea|korea|universidad|carrera|estudios?|major|degree|university|study plan)\b/i;
 const REFLECTION_PATTERN = /\b(porque|por eso|aprend(?:i|í)|cambi(?:e|é|ó)|me permiti(?:o|ó)|a partir de|because|therefore|learned|changed|allowed me|as a result)\b/i;
@@ -190,8 +211,9 @@ export function chooseInterviewQuestionIds(priority?: LearningSkill | null) {
   return ["introduce-yourself", adaptive, "culture-shock", "spain-korea"];
 }
 
-export function summarizeInterviewSession(evaluations: InterviewAnswerEvaluation[]) {
+export function summarizeInterviewSession(evaluations: InterviewAnswerEvaluation[]): InterviewSessionSummary {
   const signals: InterviewSignal[] = ["direct", "evidence", "connection", "reflection"];
+  const answered = evaluations.length;
   const average = evaluations.length
     ? Math.round(evaluations.reduce((total, item) => total + item.score, 0) / evaluations.length)
     : 0;
@@ -200,6 +222,121 @@ export function summarizeInterviewSession(evaluations: InterviewAnswerEvaluation
     total: evaluations.filter((item) => item.signals[signal]).length,
   }));
   const strongest = [...totals].sort((a, b) => b.total - a.total)[0]?.signal ?? "direct";
-  const priority = [...totals].sort((a, b) => a.total - b.total)[0]?.signal ?? "evidence";
-  return { average, strongest, priority, answered: evaluations.length };
+  const orderedPriorities = [...totals].sort((a, b) => a.total - b.total);
+  const priority = orderedPriorities[0]?.signal ?? "evidence";
+  const secondaryPriority = orderedPriorities.find((item) => item.signal !== priority)?.signal ?? "reflection";
+  const coverage = Object.fromEntries(totals.map(({ signal, total }) => [
+    signal,
+    { total, percentage: answered ? Math.round((total / answered) * 100) : 0 },
+  ])) as InterviewSessionSummary["coverage"];
+  const splitAt = Math.max(1, Math.floor(answered / 2));
+  const averageOf = (items: InterviewAnswerEvaluation[]) => items.length
+    ? items.reduce((total, item) => total + item.score, 0) / items.length
+    : 0;
+  const trendDelta = answered > 1
+    ? Math.round(averageOf(evaluations.slice(splitAt)) - averageOf(evaluations.slice(0, splitAt)))
+    : 0;
+  const trend = trendDelta >= 10 ? "improving" : trendDelta <= -10 ? "declining" : "stable";
+  return { average, strongest, priority, secondaryPriority, answered, coverage, trend, trendDelta };
+}
+
+const SESSION_SIGNAL_NAMES: Record<Locale, Record<InterviewSignal, string>> = {
+  es: { direct: "respuesta directa", evidence: "evidencia concreta", connection: "conexión con GKS", reflection: "reflexión personal" },
+  en: { direct: "direct answer", evidence: "concrete evidence", connection: "GKS connection", reflection: "personal reflection" },
+  ko: { direct: "직접적인 답변", evidence: "구체적인 근거", connection: "GKS 연결", reflection: "개인적 성찰" },
+};
+
+const SESSION_ACTIONS: Record<Locale, Record<InterviewSignal, string>> = {
+  es: {
+    direct: "Ensaya una primera frase de máximo 15 palabras que responda exactamente a la pregunta, sin iniciar con contexto.",
+    evidence: "Prepara un banco de cinco experiencias y resume cada una como situación, acción propia y resultado observable.",
+    connection: "Después de cada ejemplo, añade una frase que explique qué demuestra para tu carrera, Corea o el propósito de GKS.",
+    reflection: "Cierra cada experiencia con una decisión: qué aprendiste, qué cambiaste y qué harías de nuevo.",
+  },
+  en: {
+    direct: "Practise a first sentence of no more than 15 words that answers the question exactly, before adding context.",
+    evidence: "Build a bank of five experiences and reduce each one to situation, personal action and observable result.",
+    connection: "After every example, add one sentence explaining what it proves for your major, Korea or the purpose of GKS.",
+    reflection: "Close every experience with a decision: what you learned, what you changed and what you would do again.",
+  },
+  ko: {
+    direct: "배경 설명 전에 질문에 정확히 답하는 15단어 이내의 첫 문장을 연습하세요.",
+    evidence: "다섯 가지 경험을 준비하고 각각을 상황, 직접 한 행동과 확인 가능한 결과로 요약하세요.",
+    connection: "각 예시 뒤에 그 경험이 전공, 한국 또는 GKS의 목적에 무엇을 보여 주는지 한 문장으로 연결하세요.",
+    reflection: "각 경험을 배운 점, 바꾼 점과 다시 할 행동이라는 하나의 결정으로 마무리하세요.",
+  },
+};
+
+export function createInterviewSessionAdvice(summary: InterviewSessionSummary, locale: Locale): InterviewSessionAdvice {
+  const names = SESSION_SIGNAL_NAMES[locale];
+  const actions = SESSION_ACTIONS[locale];
+  const strongestCoverage = summary.coverage[summary.strongest];
+  const priorityCoverage = summary.coverage[summary.priority];
+  const targetTotal = summary.answered
+    ? Math.min(summary.answered, Math.max(priorityCoverage.total + 2, Math.ceil(summary.answered * 0.75)))
+    : 0;
+
+  if (locale === "en") {
+    const assessment = summary.average >= 85
+      ? "Your structure is consistent. The next gain will come from precision and natural delivery, not from adding more content."
+      : summary.average >= 60
+        ? "Your answers have a useful base, but the panel would not yet hear the same level of clarity in every response."
+        : "Your ideas are present, but they still depend on general statements. Build the structure before trying to sound more elaborate.";
+    const trend = summary.trend === "improving"
+      ? `The second half improved by ${summary.trendDelta} points: you applied feedback while the interview progressed.`
+      : summary.trend === "declining"
+        ? `The second half fell by ${Math.abs(summary.trendDelta)} points. Shorten your answers and protect the structure when fatigue appears.`
+        : `Your two halves stayed within ${Math.abs(summary.trendDelta)} points. The structure is stable; now raise the weakest criterion deliberately.`;
+    return {
+      assessment,
+      strength: `${names[summary.strongest]} appeared in ${strongestCoverage.total} of ${summary.answered} answers. Keep it while improving the other criteria.`,
+      priority: `${names[summary.priority]} appeared in only ${priorityCoverage.total} of ${summary.answered} answers and should lead your next practice.`,
+      trend,
+      actionPlan: [actions[summary.priority], actions[summary.secondaryPriority], "Record one 75-second answer, listen once for structure and repeat it without memorising wording."],
+      formula: ["Answer the question in one sentence", "Give situation, personal action and result", "Connect the evidence to GKS or your study plan", "Close with learning and the next decision"],
+      nextTarget: `In your next session, include ${names[summary.priority]} in at least ${targetTotal} of ${summary.answered} answers.`,
+    };
+  }
+
+  if (locale === "ko") {
+    const assessment = summary.average >= 85
+      ? "답변 구조가 일관적입니다. 이제 내용을 더 늘리기보다 정확성과 자연스러운 전달을 높이세요."
+      : summary.average >= 60
+        ? "답변에 유용한 기반이 있지만 모든 답변에서 같은 수준의 명확성이 아직 들리지 않습니다."
+        : "핵심 생각은 있지만 일반적인 주장에 의존하고 있습니다. 더 복잡하게 말하기 전에 구조를 먼저 만드세요.";
+    const trend = summary.trend === "improving"
+      ? `후반부가 ${summary.trendDelta}점 향상되었습니다. 면접이 진행되는 동안 피드백을 적용했습니다.`
+      : summary.trend === "declining"
+        ? `후반부가 ${Math.abs(summary.trendDelta)}점 낮아졌습니다. 피로할 때 답변을 줄이고 구조를 유지하세요.`
+        : `전반부와 후반부 차이가 ${Math.abs(summary.trendDelta)}점 이내입니다. 구조는 안정적이므로 가장 약한 기준을 의도적으로 높이세요.`;
+    return {
+      assessment,
+      strength: `${names[summary.strongest]}이(가) ${summary.answered}개 답변 중 ${strongestCoverage.total}개에 나타났습니다. 다른 기준을 보완할 때도 이 강점을 유지하세요.`,
+      priority: `${names[summary.priority]}이(가) ${summary.answered}개 답변 중 ${priorityCoverage.total}개에만 나타나 다음 연습의 최우선 과제입니다.`,
+      trend,
+      actionPlan: [actions[summary.priority], actions[summary.secondaryPriority], "75초 답변 하나를 녹음하고 구조만 한 번 확인한 뒤 문장을 외우지 않고 다시 말하세요."],
+      formula: ["한 문장으로 질문에 답하기", "상황, 직접 한 행동과 결과 제시하기", "근거를 GKS 또는 학업 계획과 연결하기", "배운 점과 다음 결정으로 마무리하기"],
+      nextTarget: `다음 연습에서는 ${summary.answered}개 답변 중 최소 ${targetTotal}개에 ${names[summary.priority]}을(를) 포함하세요.`,
+    };
+  }
+
+  const assessment = summary.average >= 85
+    ? "Tu estructura es consistente. La siguiente mejora vendrá de la precisión y la naturalidad, no de añadir más contenido."
+    : summary.average >= 60
+      ? "Tus respuestas tienen una base útil, pero el panel todavía no escucharía el mismo nivel de claridad en todas."
+      : "Tus ideas están presentes, pero aún dependen de afirmaciones generales. Construye primero la estructura antes de intentar sonar más elaborada.";
+  const trend = summary.trend === "improving"
+    ? `La segunda mitad mejoró ${summary.trendDelta} puntos: aplicaste la retroalimentación mientras avanzaba la entrevista.`
+    : summary.trend === "declining"
+      ? `La segunda mitad bajó ${Math.abs(summary.trendDelta)} puntos. Acorta tus respuestas y protege la estructura cuando aparezca el cansancio.`
+      : `Las dos mitades se mantuvieron a ${Math.abs(summary.trendDelta)} puntos de distancia. La estructura es estable; ahora eleva deliberadamente el criterio más débil.`;
+  return {
+    assessment,
+    strength: `${names[summary.strongest]} apareció en ${strongestCoverage.total} de ${summary.answered} respuestas. Consérvala mientras mejoras los demás criterios.`,
+    priority: `${names[summary.priority]} apareció solo en ${priorityCoverage.total} de ${summary.answered} respuestas y debe liderar tu próxima práctica.`,
+    trend,
+    actionPlan: [actions[summary.priority], actions[summary.secondaryPriority], "Graba una respuesta de 75 segundos, escúchala una vez buscando la estructura y repítela sin memorizar las palabras."],
+    formula: ["Responder la pregunta en una frase", "Dar situación, acción propia y resultado", "Conectar la evidencia con GKS o el plan académico", "Cerrar con aprendizaje y siguiente decisión"],
+    nextTarget: `En tu próxima sesión, incluye ${names[summary.priority]} en al menos ${targetTotal} de ${summary.answered} respuestas.`,
+  };
 }

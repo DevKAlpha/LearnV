@@ -27,8 +27,11 @@ type ChatbotCopy = {
   strongest: string;
   priority: string;
   completed: string;
-  reportText: string;
-  refine: string;
+  coverage: string;
+  evolution: string;
+  actionPlan: string;
+  answerFormula: string;
+  nextTarget: string;
   notice: string;
   signals: Record<InterviewSignal, string>;
   improvements: Record<InterviewSignal, string>;
@@ -46,10 +49,10 @@ export const interviewChatbotCopy: Record<Locale, ChatbotCopy> = {
     progress: "Pregunta", target: "Meta de respuesta · 90 s", placeholder: "Escribe como hablarías ante el panel…",
     send: "Enviar respuesta", continue: "Continuar", primaryFeedback: "Lectura rápida de tu respuesta",
     followUpIntro: "Gracias. Ahora necesito mayor precisión:", nextQuestionIntro: "Pasemos a la siguiente pregunta:",
-    reportKicker: "Informe de práctica", reportTitle: "Tu entrevista tiene una base para mejorar.",
+    reportKicker: "Informe de práctica", reportTitle: "Qué mantener y qué cambiar en tu próxima entrevista.",
     average: "Resultado estructural", strongest: "Fortaleza actual", priority: "Próximo foco", completed: "respuestas analizadas",
-    reportText: "Repite la sesión intentando convertir cada afirmación general en una evidencia breve y conectada con tu candidatura.",
-    refine: "Mantén la misma estructura y practica decirla en menos de 75 segundos, con naturalidad y sin memorizar.",
+    coverage: "Cobertura de la sesión", evolution: "Evolución durante la entrevista", actionPlan: "Plan para la próxima práctica",
+    answerFormula: "Fórmula reutilizable", nextTarget: "Objetivo medible",
     notice: "Este prototipo evalúa señales estructurales, no la veracidad, pronunciación ni calidad humana de la candidatura. No predice una selección GKS.",
     signals: { direct: "Respuesta directa", evidence: "Evidencia concreta", connection: "Conexión con GKS", reflection: "Reflexión personal" },
     improvements: {
@@ -70,10 +73,10 @@ export const interviewChatbotCopy: Record<Locale, ChatbotCopy> = {
     progress: "Question", target: "Response target · 90 s", placeholder: "Write as you would speak to the panel…",
     send: "Send answer", continue: "Continue", primaryFeedback: "Quick reading of your response",
     followUpIntro: "Thank you. I now need more precision:", nextQuestionIntro: "Let us move to the next question:",
-    reportKicker: "Practice report", reportTitle: "Your interview now has a foundation to improve.",
+    reportKicker: "Practice report", reportTitle: "What to keep and what to change in your next interview.",
     average: "Structural result", strongest: "Current strength", priority: "Next focus", completed: "answers analysed",
-    reportText: "Repeat the session and turn each general claim into brief evidence connected to your application.",
-    refine: "Keep the same structure and practise delivering it naturally in under 75 seconds without memorising it.",
+    coverage: "Session coverage", evolution: "Progress during the interview", actionPlan: "Plan for your next practice",
+    answerFormula: "Reusable answer formula", nextTarget: "Measurable target",
     notice: "This prototype evaluates structural signals, not truthfulness, pronunciation or the human quality of an application. It does not predict GKS selection.",
     signals: { direct: "Direct answer", evidence: "Concrete evidence", connection: "GKS connection", reflection: "Personal reflection" },
     improvements: {
@@ -94,10 +97,10 @@ export const interviewChatbotCopy: Record<Locale, ChatbotCopy> = {
     progress: "질문", target: "답변 목표 · 90초", placeholder: "면접 위원에게 말하듯 작성하세요…",
     send: "답변 보내기", continue: "계속", primaryFeedback: "답변 구조 빠른 분석",
     followUpIntro: "감사합니다. 이제 더 구체적으로 답해 주세요:", nextQuestionIntro: "다음 질문으로 넘어가겠습니다:",
-    reportKicker: "연습 결과", reportTitle: "면접 답변을 발전시킬 기반이 생겼습니다.",
+    reportKicker: "연습 결과", reportTitle: "다음 면접에서 유지할 점과 바꿀 점입니다.",
     average: "구조 결과", strongest: "현재 강점", priority: "다음 집중 영역", completed: "분석한 답변",
-    reportText: "일반적인 주장을 지원서와 연결된 짧은 근거로 바꾸며 다시 연습하세요.",
-    refine: "같은 구조를 유지하며 외우지 않고 자연스럽게 75초 안에 말하는 연습을 하세요.",
+    coverage: "세션 기준 충족도", evolution: "면접 중 변화", actionPlan: "다음 연습 계획",
+    answerFormula: "재사용 가능한 답변 구조", nextTarget: "측정 가능한 목표",
     notice: "이 프로토타입은 구조적 신호만 확인하며 진실성, 발음이나 지원자의 실제 자질을 평가하지 않습니다. GKS 선발을 예측하지 않습니다.",
     signals: { direct: "직접적인 답변", evidence: "구체적인 근거", connection: "GKS 연결", reflection: "개인적 성찰" },
     improvements: {

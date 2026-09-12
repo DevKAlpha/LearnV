@@ -4085,19 +4085,41 @@ html[data-theme="dark"] .document-tags span {
 .interview-chat__score { display: flex; align-items: center; gap: 11px; margin: 17px 0; padding: 14px; border: 1.5px solid var(--ink); border-radius: 18px; background: linear-gradient(135deg, var(--yellow), var(--pink)); box-shadow: 3px 4px 0 var(--ink); }
 .interview-chat__score strong { font-size: 2.35rem; letter-spacing: -0.06em; }
 .interview-chat__score span { font-size: 0.57rem; font-weight: 850; line-height: 1.35; }
+.interview-chat__assessment { margin: 0 0 13px !important; color: var(--ink) !important; font-weight: 780 !important; }
 .interview-chat__report dl { display: grid; gap: 7px; margin: 0 0 14px; }
 .interview-chat__report dl > div { padding: 10px 11px; border: 1px solid var(--line); border-radius: 13px; background: var(--paper); }
 .interview-chat__report dt { color: var(--muted); font-size: 0.49rem; font-weight: 900; text-transform: uppercase; }
 .interview-chat__report dd { margin: 4px 0 0; font-size: 0.64rem; font-weight: 800; line-height: 1.42; }
+.interview-chat__report-section { margin-top: 15px; }
+.interview-chat__report-section h3 { margin: 0 0 8px; color: var(--ink); font-size: 0.67rem; letter-spacing: -0.01em; }
+.interview-chat__coverage { display: grid; gap: 8px; padding: 11px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); }
+.interview-chat__coverage > div { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 3px 8px; }
+.interview-chat__coverage span { color: var(--muted); font-size: 0.54rem; font-weight: 800; }
+.interview-chat__coverage b { color: var(--ink); font-size: 0.53rem; }
+.interview-chat__coverage i { grid-column: 1 / -1; height: 7px; overflow: hidden; border-radius: 999px; background: color-mix(in srgb, var(--purple) 16%, var(--paper)); }
+.interview-chat__coverage i span { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--purple), var(--hot-pink), var(--yellow)); transition: width 420ms cubic-bezier(.22,1,.36,1); }
+.interview-chat__trend { margin: 0 !important; padding: 11px 12px; border-left: 4px solid var(--purple); border-radius: 5px 13px 13px 5px; background: color-mix(in srgb, var(--brand-light) 45%, var(--paper)); color: var(--ink) !important; font-size: 0.58rem !important; }
+.interview-chat__trend--improving { border-left-color: var(--green); }
+.interview-chat__trend--declining { border-left-color: var(--hot-pink); }
+.interview-chat__action-plan, .interview-chat__formula { display: grid; gap: 7px; margin: 0; padding: 0; list-style: none; }
+.interview-chat__action-plan li, .interview-chat__formula li { position: relative; padding: 9px 10px 9px 34px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); color: var(--muted); font-size: 0.56rem; font-weight: 720; line-height: 1.45; }
+.interview-chat__action-plan li > span, .interview-chat__formula li > span { position: absolute; top: 9px; left: 9px; display: grid; width: 18px; height: 18px; place-items: center; border-radius: 6px; background: var(--ink); color: white; font-size: 0.46rem; font-weight: 950; }
+.interview-chat__formula { grid-template-columns: repeat(2, minmax(0,1fr)); }
+.interview-chat__formula li { min-height: 56px; background: color-mix(in srgb, var(--yellow) 15%, var(--paper)); }
+.interview-chat__next-target { display: grid; gap: 4px; margin-top: 15px; padding: 12px; border: 1.5px solid var(--ink); border-radius: 14px; background: linear-gradient(135deg, var(--yellow), var(--pink)); box-shadow: 2px 3px 0 var(--ink); color: #241a24; }
+.interview-chat__next-target small { font-size: 0.48rem; font-weight: 950; letter-spacing: 0.05em; text-transform: uppercase; }
+.interview-chat__next-target strong { font-size: 0.62rem; line-height: 1.42; }
 .interview-chat__notice { margin-top: 12px !important; padding: 10px; border-left: 4px solid var(--hot-pink); background: var(--paper); font-size: 0.54rem !important; }
 
 :root[data-theme="dark"] .interview-chat { border-color: rgba(255,255,255,.32); background: #201921; box-shadow: var(--glass-highlight), 7px 8px 0 #070b11, 0 30px 70px rgba(0,0,0,.55); color: #fff8f2; }
 :root[data-theme="dark"] .interview-chat__score { color: #241a24; }
+:root[data-theme="dark"] .interview-chat__assessment { color: #fff8f2 !important; }
+:root[data-theme="dark"] .interview-chat__trend { background: #3d3448; color: #fff8f2 !important; }
 :root[data-theme="dark"] :is(.interview-chat__header, .interview-chat__language, .interview-chat__status, .interview-chat__composer) { border-color: rgba(255,255,255,.15); background: #28202a; }
-:root[data-theme="dark"] :is(.interview-chat__message, .interview-chat__welcome > strong, .interview-chat__report dl > div, .interview-chat__notice, .interview-chat__composer textarea) { border-color: rgba(255,255,255,.17); background: #30283a; color: #fff8f2; }
+:root[data-theme="dark"] :is(.interview-chat__message, .interview-chat__welcome > strong, .interview-chat__report dl > div, .interview-chat__coverage, .interview-chat__action-plan li, .interview-chat__formula li, .interview-chat__notice, .interview-chat__composer textarea) { border-color: rgba(255,255,255,.17); background: #30283a; color: #fff8f2; }
 :root[data-theme="dark"] .interview-chat__message--candidate { background: #56366a; }
 :root[data-theme="dark"] .interview-chat__message--coach { background: #3b3034; }
-:root[data-theme="dark"] :is(.interview-chat__header small, .interview-chat__language > span, .interview-chat__message > small, .interview-chat__feedback li, .interview-chat__welcome > p, .interview-chat__report > p) { color: #e9dce8; }
+:root[data-theme="dark"] :is(.interview-chat__header small, .interview-chat__language > span, .interview-chat__message > small, .interview-chat__feedback li, .interview-chat__welcome > p, .interview-chat__report > p, .interview-chat__action-plan li, .interview-chat__formula li) { color: #e9dce8; }
 
 @keyframes interview-chat-enter { from { opacity: 0; transform: translateY(28px) scale(.97); } to { opacity: 1; transform: none; } }
 @keyframes interview-chat-pulse { to { transform: rotate(8deg) scale(1.08); } }

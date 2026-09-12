@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   chooseInterviewQuestionIds,
   createAdaptiveInterviewFollowUp,
+  createInterviewSessionAdvice,
   evaluateInterviewAnswer,
   summarizeInterviewSession,
 } from "./interview-chatbot";
@@ -64,5 +65,34 @@ describe("interview chatbot", () => {
     const first = evaluateInterviewAnswer("Mi objetivo principal conecta mi carrera con GKS y Corea porque quiero estudiar allí.", "es");
     const second = evaluateInterviewAnswer("Organicé un proyecto con 8 personas y logré medir el resultado.", "es");
     expect(summarizeInterviewSession([first, second])).toMatchObject({ average: 50, answered: 2 });
+  });
+
+  it("reports signal coverage and progress between both halves of a session", () => {
+    const first = evaluateInterviewAnswer("Me gusta Corea.", "es");
+    const second = evaluateInterviewAnswer(
+      "Elegí esta carrera porque lideré un proyecto con 12 estudiantes. Aprendí a medir resultados y conecté ese trabajo con mi plan para GKS en Corea.",
+      "es",
+    );
+    const summary = summarizeInterviewSession([first, second]);
+
+    expect(summary).toMatchObject({ average: 63, trend: "improving", trendDelta: 75, answered: 2 });
+    expect(summary.coverage.connection).toEqual({ total: 2, percentage: 100 });
+    expect(summary.coverage.evidence).toEqual({ total: 1, percentage: 50 });
+  });
+
+  it("turns the final diagnosis into a measurable next-session plan", () => {
+    const answers = [
+      evaluateInterviewAnswer("Me gusta Corea.", "es"),
+      evaluateInterviewAnswer("Quiero aprender más.", "es"),
+      evaluateInterviewAnswer("Mi carrera es importante para mí.", "es"),
+      evaluateInterviewAnswer("Deseo obtener la beca GKS.", "es"),
+    ];
+    const summary = summarizeInterviewSession(answers);
+    const advice = createInterviewSessionAdvice(summary, "es");
+
+    expect(advice.actionPlan).toHaveLength(3);
+    expect(advice.formula).toHaveLength(4);
+    expect(advice.nextTarget).toContain("al menos");
+    expect(advice.nextTarget).toContain(`de ${summary.answered} respuestas`);
   });
 });

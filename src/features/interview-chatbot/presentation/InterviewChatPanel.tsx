@@ -5,6 +5,7 @@ import { localize } from "@/domain/models/i18n";
 import {
   chooseInterviewQuestionIds,
   createAdaptiveInterviewFollowUp,
+  createInterviewSessionAdvice,
   evaluateInterviewAnswer,
   summarizeInterviewSession,
   type InterviewAnswerEvaluation,
@@ -55,6 +56,7 @@ export function InterviewChatPanel({ onClose, prioritySkill }: InterviewChatPane
     return ids.map((id) => interviewQuestions.find((question) => question.id === id)).filter(Boolean) as typeof interviewQuestions;
   }, [prioritySkill]);
   const summary = useMemo(() => summarizeInterviewSession(evaluations), [evaluations]);
+  const advice = useMemo(() => createInterviewSessionAdvice(summary, locale), [summary, locale]);
 
   useEffect(() => {
     closeRef.current?.focus();
@@ -225,12 +227,46 @@ export function InterviewChatPanel({ onClose, prioritySkill }: InterviewChatPane
           <span className="eyebrow">{copy.reportKicker}</span>
           <h2>{copy.reportTitle}</h2>
           <div className="interview-chat__score"><strong>{summary.average}</strong><span>/100<br />{copy.average}</span></div>
+          <p className="interview-chat__assessment">{advice.assessment}</p>
           <dl>
-            <div><dt>{copy.strongest}</dt><dd>{copy.signals[summary.strongest]}</dd></div>
-            <div><dt>{copy.priority}</dt><dd>{summary.average >= 90 ? copy.refine : copy.improvements[summary.priority]}</dd></div>
+            <div><dt>{copy.strongest}</dt><dd>{advice.strength}</dd></div>
+            <div><dt>{copy.priority}</dt><dd>{advice.priority}</dd></div>
             <div><dt>{copy.completed}</dt><dd>{summary.answered}</dd></div>
           </dl>
-          <p>{copy.reportText}</p>
+
+          <section className="interview-chat__report-section" aria-labelledby="interview-coverage-title">
+            <h3 id="interview-coverage-title">{copy.coverage}</h3>
+            <div className="interview-chat__coverage">
+              {SIGNALS.map((signal) => (
+                <div key={signal}>
+                  <span>{copy.signals[signal]}</span>
+                  <b>{summary.coverage[signal].total}/{summary.answered}</b>
+                  <i aria-hidden="true"><span style={{ width: `${summary.coverage[signal].percentage}%` }} /></i>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="interview-chat__report-section" aria-labelledby="interview-evolution-title">
+            <h3 id="interview-evolution-title">{copy.evolution}</h3>
+            <p className={`interview-chat__trend interview-chat__trend--${summary.trend}`}>{advice.trend}</p>
+          </section>
+
+          <section className="interview-chat__report-section" aria-labelledby="interview-action-title">
+            <h3 id="interview-action-title">{copy.actionPlan}</h3>
+            <ol className="interview-chat__action-plan">
+              {advice.actionPlan.map((step, index) => <li key={step}><span aria-hidden="true">{index + 1}</span>{step}</li>)}
+            </ol>
+          </section>
+
+          <section className="interview-chat__report-section" aria-labelledby="interview-formula-title">
+            <h3 id="interview-formula-title">{copy.answerFormula}</h3>
+            <ol className="interview-chat__formula">
+              {advice.formula.map((step, index) => <li key={step}><span aria-hidden="true">{index + 1}</span>{step}</li>)}
+            </ol>
+          </section>
+
+          <aside className="interview-chat__next-target"><small>{copy.nextTarget}</small><strong>{advice.nextTarget}</strong></aside>
           <p className="interview-chat__notice">{copy.notice}</p>
           <button className="interview-chat__primary" type="button" onClick={() => startSession()}>{copy.restart}<span>↻</span></button>
         </div>
