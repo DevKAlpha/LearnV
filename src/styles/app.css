@@ -3979,17 +3979,17 @@ html[data-theme="dark"] .document-tags span {
 .interview-chat-launcher {
   position: fixed;
   z-index: 90;
-  right: 16px;
-  bottom: max(94px, calc(82px + env(safe-area-inset-bottom)));
+  right: 26px;
+  bottom: max(122px, calc(110px + env(safe-area-inset-bottom)));
   display: inline-flex;
-  min-width: 56px;
-  height: 56px;
+  width: 62px;
+  min-width: 62px;
+  height: 62px;
   align-items: center;
   justify-content: center;
-  gap: 9px;
-  padding: 7px;
+  padding: 8px;
   border: 2px solid var(--ink);
-  border-radius: 19px;
+  border-radius: 50%;
   background: linear-gradient(145deg, var(--yellow), #ff8eaf);
   box-shadow: var(--glass-highlight), 4px 5px 0 var(--ink), 0 14px 32px rgba(77, 31, 91, 0.24);
   color: #241a24;
@@ -3997,10 +3997,10 @@ html[data-theme="dark"] .document-tags span {
   transition: transform 180ms ease, box-shadow 180ms ease;
 }
 
-.interview-chat-launcher > span { position: relative; display: grid; width: 38px; height: 38px; place-items: center; border-radius: 13px; background: rgba(255,255,255,0.72); }
+.interview-chat-launcher > span { position: relative; display: grid; width: 42px; height: 42px; place-items: center; border-radius: 50%; background: rgba(255,255,255,0.72); }
 .interview-chat-launcher .app-icon { width: 23px; height: 23px; }
 .interview-chat-launcher i { position: absolute; top: -1px; right: -1px; width: 9px; height: 9px; border: 2px solid #fff8f2; border-radius: 50%; background: #4d9b60; }
-.interview-chat-launcher strong { display: none; padding-right: 8px; font-size: 0.67rem; white-space: nowrap; }
+.interview-chat-launcher strong { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .interview-chat-launcher:hover { transform: translateY(-3px); box-shadow: var(--glass-highlight), 4px 7px 0 var(--ink), 0 18px 36px rgba(77, 31, 91, 0.3); }
 .interview-chat-launcher:active { transform: translateY(2px); box-shadow: var(--glass-highlight), 2px 2px 0 var(--ink); }
 
@@ -4100,14 +4100,13 @@ html[data-theme="dark"] .document-tags span {
 @keyframes interview-chat-pulse { to { transform: rotate(8deg) scale(1.08); } }
 
 @media (min-width: 560px) {
-  .interview-chat-launcher { bottom: 24px; }
-  .interview-chat-launcher strong { display: block; }
+  .interview-chat-launcher { right: 42px; bottom: 42px; width: 66px; min-width: 66px; height: 66px; }
   .interview-chat-layer { align-items: center; justify-items: end; padding: 20px; }
   .interview-chat { height: min(86vh, 760px); border-radius: 28px; }
 }
 
 @media (min-width: 900px) {
-  .interview-chat-launcher { right: max(28px, calc((100vw - 1320px) / 2 + 12px)); bottom: 30px; }
+  .interview-chat-launcher { right: max(48px, calc((100vw - 1320px) / 2 + 48px)); bottom: 48px; }
   .interview-chat-layer { padding: 28px; }
   .interview-chat { width: 500px; }
   .interview-chat__welcome, .interview-chat__report { padding: 28px 25px 24px; }

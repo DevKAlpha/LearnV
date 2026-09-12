@@ -85,7 +85,9 @@ export function App() {
         </VisualReadinessGate>
       </main>
 
-      <InterviewChatbotLauncher prioritySkill={learning.analysis.priority?.skill} />
+      {!isImmersiveLearningExperience && (
+        <InterviewChatbotLauncher prioritySkill={learning.analysis.priority?.skill} />
+      )}
 
       {tourReady && visuallyReadyRoute === location.pathname && <Suspense fallback={null}><SectionTour /></Suspense>}
     </div>

@@ -20,5 +20,7 @@ describe("learning locale routing", () => {
     expect(isImmersiveLearningRoute("/study")).toBe(false);
     expect(isImmersiveLearningRoute("/study/english")).toBe(true);
     expect(isImmersiveLearningRoute("/tests/en")).toBe(true);
+    expect(isImmersiveLearningRoute("/study/korean")).toBe(true);
+    expect(isImmersiveLearningRoute("/tests/ko/listening-01")).toBe(true);
   });
 });
