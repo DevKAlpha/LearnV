@@ -4,6 +4,7 @@ import type { Locale } from "@/domain/models/i18n";
 import { localize } from "@/domain/models/i18n";
 import {
   chooseInterviewQuestionIds,
+  createAdaptiveInterviewFollowUp,
   evaluateInterviewAnswer,
   summarizeInterviewSession,
   type InterviewAnswerEvaluation,
@@ -107,10 +108,16 @@ export function InterviewChatPanel({ onClose, prioritySkill }: InterviewChatPane
     setEvaluations(nextEvaluations);
 
     if (!awaitingFollowUp) {
+      const followUp = createAdaptiveInterviewFollowUp(
+        submitted,
+        locale,
+        evaluation,
+        localize(currentQuestion.followUp, locale),
+      );
       nextMessages.push({
         id: messageId(),
         role: "interviewer",
-        text: `${copy.followUpIntro} ${localize(currentQuestion.followUp, locale)}`,
+        text: `${copy.followUpIntro} ${followUp}`,
       });
       setAwaitingFollowUp(true);
       setMessages(nextMessages);
@@ -190,7 +197,10 @@ export function InterviewChatPanel({ onClose, prioritySkill }: InterviewChatPane
                     <ul>{SIGNALS.map((signal) => (
                       <li className={message.evaluation?.signals[signal] ? "is-present" : "is-missing"} key={signal}>
                         <span aria-hidden="true">{message.evaluation?.signals[signal] ? "✓" : "→"}</span>
-                        {message.evaluation?.signals[signal] ? copy.signals[signal] : copy.improvements[signal]}
+                        <span className="interview-chat__feedback-copy">
+                          <strong>{message.evaluation?.signals[signal] ? copy.signals[signal] : copy.improvements[signal]}</strong>
+                          <small>{message.evaluation?.feedback[signal]}</small>
+                        </span>
                       </li>
                     ))}</ul>
                   </div>
