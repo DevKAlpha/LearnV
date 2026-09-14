@@ -3,17 +3,20 @@ import { trackLearning } from "@/application/controllers/learningJourneyEvents";
 import type { Locale } from "@/domain/models/i18n";
 import { localize } from "@/domain/models/i18n";
 import {
-  chooseInterviewQuestionIds,
+  chooseInterviewQuestionId,
   createAdaptiveInterviewFollowUp,
+  createAdaptiveInterviewQuestion,
   createInterviewSessionAdvice,
   evaluateInterviewAnswer,
+  INTERVIEW_STAGES,
+  interviewSignalFromLearningSkill,
   summarizeInterviewSession,
   type InterviewAnswerEvaluation,
   type InterviewSignal,
 } from "@/domain/models/interview-chatbot";
 import type { LearningSkill } from "@/domain/models/learning-journey";
 import { interviewChatbotCopy } from "@/infrastructure/data/interview-chatbot";
-import { interviewQuestions } from "@/infrastructure/data/interview-prep";
+import { interviewQuestions, type InterviewQuestion } from "@/infrastructure/data/interview-prep";
 import { AppIcon } from "@/shared/ui/AppIcon";
 import { BrandMark } from "@/shared/ui/BrandMark";
 
@@ -48,13 +51,12 @@ export function InterviewChatPanel({ onClose, prioritySkill }: InterviewChatPane
   const [seconds, setSeconds] = useState(0);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [evaluations, setEvaluations] = useState<InterviewAnswerEvaluation[]>([]);
+  const [questions, setQuestions] = useState<InterviewQuestion[]>([]);
   const closeRef = useRef<HTMLButtonElement>(null);
   const conversationEndRef = useRef<HTMLDivElement>(null);
+  const nextSessionSeedRef = useRef(Math.floor(Date.now() / 1000));
+  const activeSessionSeedRef = useRef(0);
   const copy = interviewChatbotCopy[locale];
-  const questions = useMemo(() => {
-    const ids = chooseInterviewQuestionIds(prioritySkill);
-    return ids.map((id) => interviewQuestions.find((question) => question.id === id)).filter(Boolean) as typeof interviewQuestions;
-  }, [prioritySkill]);
   const summary = useMemo(() => summarizeInterviewSession(evaluations), [evaluations]);
   const advice = useMemo(() => createInterviewSessionAdvice(summary, locale), [summary, locale]);
 
@@ -76,13 +78,27 @@ export function InterviewChatPanel({ onClose, prioritySkill }: InterviewChatPane
   }, [messages]);
 
   const startSession = (nextLocale = locale) => {
-    const firstQuestion = questions[0];
+    const sessionSeed = nextSessionSeedRef.current++;
+    const initialFocus = interviewSignalFromLearningSkill(prioritySkill);
+    const firstQuestionId = chooseInterviewQuestionId(INTERVIEW_STAGES[0], {
+      priority: prioritySkill,
+      focus: initialFocus,
+      seed: sessionSeed,
+    });
+    const firstQuestion = interviewQuestions.find((question) => question.id === firstQuestionId);
+    if (!firstQuestion) return;
+    activeSessionSeedRef.current = sessionSeed;
     setQuestionIndex(0);
     setAwaitingFollowUp(false);
     setAnswer("");
     setSeconds(0);
     setEvaluations([]);
-    setMessages([{ id: messageId(), role: "interviewer", text: localize(firstQuestion.question, nextLocale) }]);
+    setQuestions([firstQuestion]);
+    setMessages([{
+      id: messageId(),
+      role: "interviewer",
+      text: createAdaptiveInterviewQuestion(localize(firstQuestion.question, nextLocale), nextLocale, initialFocus, sessionSeed),
+    }]);
     setPhase("interview");
   };
 
@@ -126,7 +142,7 @@ export function InterviewChatPanel({ onClose, prioritySkill }: InterviewChatPane
       return;
     }
 
-    if (questionIndex === questions.length - 1) {
+    if (questionIndex === INTERVIEW_STAGES.length - 1) {
       const result = summarizeInterviewSession(nextEvaluations);
       trackLearning({
         kind: "practice",
@@ -142,11 +158,26 @@ export function InterviewChatPanel({ onClose, prioritySkill }: InterviewChatPane
     }
 
     const nextIndex = questionIndex + 1;
+    const currentSummary = summarizeInterviewSession(nextEvaluations);
+    const nextQuestionId = chooseInterviewQuestionId(INTERVIEW_STAGES[nextIndex], {
+      priority: prioritySkill,
+      focus: currentSummary.priority,
+      usedIds: questions.map((question) => question.id),
+      seed: activeSessionSeedRef.current + nextIndex,
+    });
+    const nextQuestion = interviewQuestions.find((question) => question.id === nextQuestionId);
+    if (!nextQuestion) return;
     nextMessages.push({
       id: messageId(),
       role: "interviewer",
-      text: `${copy.nextQuestionIntro} ${localize(questions[nextIndex].question, locale)}`,
+      text: `${copy.nextQuestionIntro} ${createAdaptiveInterviewQuestion(
+        localize(nextQuestion.question, locale),
+        locale,
+        currentSummary.priority,
+        activeSessionSeedRef.current + nextIndex,
+      )}`,
     });
+    setQuestions([...questions, nextQuestion]);
     setQuestionIndex(nextIndex);
     setAwaitingFollowUp(false);
     setMessages(nextMessages);
@@ -185,7 +216,7 @@ export function InterviewChatPanel({ onClose, prioritySkill }: InterviewChatPane
       {phase === "interview" && (
         <>
           <div className="interview-chat__status">
-            <span>{copy.progress} {Math.min(questionIndex + 1, questions.length)}/{questions.length}{awaitingFollowUp ? " · +1" : ""}</span>
+            <span>{copy.progress} {Math.min(questionIndex + 1, INTERVIEW_STAGES.length)}/{INTERVIEW_STAGES.length}{awaitingFollowUp ? " · +1" : ""}</span>
             {phase === "interview" && <time>{formatTime(seconds)} <small>/ 01:30</small></time>}
           </div>
           <div className="interview-chat__conversation" aria-live="polite">

@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   chooseInterviewQuestionIds,
+  chooseInterviewQuestionId,
   createAdaptiveInterviewFollowUp,
+  createAdaptiveInterviewQuestion,
   createInterviewSessionAdvice,
   evaluateInterviewAnswer,
   summarizeInterviewSession,
@@ -55,10 +57,30 @@ describe("interview chatbot", () => {
     expect(followUp).toContain("¿Qué experiencia concreta confirmó esa decisión?");
   });
 
-  it("adapts the second question to prior learning evidence", () => {
-    expect(chooseInterviewQuestionIds("writing")[1]).toBe("study-plan");
-    expect(chooseInterviewQuestionIds("grammar")[1]).toBe("academic-weakness");
-    expect(chooseInterviewQuestionIds("interview")[1]).toBe("pressure");
+  it("keeps the four learning stages while varying the route between sessions", () => {
+    const firstRoute = chooseInterviewQuestionIds("writing", 2);
+    const secondRoute = chooseInterviewQuestionIds("writing", 3);
+
+    expect(firstRoute).toHaveLength(4);
+    expect(secondRoute).toHaveLength(4);
+    expect(secondRoute).not.toEqual(firstRoute);
+    expect(chooseInterviewQuestionIds("writing", 2)).toEqual(firstRoute);
+  });
+
+  it("selects the next question from the weakness detected in prior feedback", () => {
+    expect(chooseInterviewQuestionId("academic", { focus: "connection", seed: 0 })).toBe("why-major");
+    expect(chooseInterviewQuestionId("adaptation", { focus: "evidence", seed: 0 })).toBe("conflict");
+    expect(chooseInterviewQuestionId("contribution", { focus: "reflection", seed: 1 })).toBe("return-plan");
+  });
+
+  it("varies the way it teaches the same weak criterion without losing the question", () => {
+    const question = "¿Qué harías después de graduarte?";
+    const first = createAdaptiveInterviewQuestion(question, "es", "connection", 0);
+    const second = createAdaptiveInterviewQuestion(question, "es", "connection", 1);
+
+    expect(first).toContain(question);
+    expect(second).toContain(question);
+    expect(second).not.toBe(first);
   });
 
   it("summarises several turns into one actionable priority", () => {

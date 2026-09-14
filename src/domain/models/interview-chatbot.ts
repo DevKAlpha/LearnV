@@ -2,6 +2,9 @@ import type { Locale } from "./i18n";
 import type { LearningSkill } from "./learning-journey";
 
 export type InterviewSignal = "direct" | "evidence" | "connection" | "reflection";
+export type InterviewStage = "motivation" | "academic" | "adaptation" | "contribution";
+
+export const INTERVIEW_STAGES: InterviewStage[] = ["motivation", "academic", "adaptation", "contribution"];
 
 export type InterviewAnswerEvaluation = {
   score: number;
@@ -199,16 +202,178 @@ export function createAdaptiveInterviewFollowUp(
   return `${bridge} ${defaultQuestion}`;
 }
 
-export function chooseInterviewQuestionIds(priority?: LearningSkill | null) {
-  const adaptive = priority === "application" || priority === "writing"
-    ? "study-plan"
-    : priority === "interview" || priority === "pronunciation"
-      ? "pressure"
-      : priority === "grammar" || priority === "vocabulary" || priority === "listening" || priority === "reading"
-        ? "academic-weakness"
-        : "why-korea";
+const INTERVIEW_QUESTION_POOLS: Record<InterviewStage, string[]> = {
+  motivation: ["introduce-yourself", "why-korea"],
+  academic: ["why-major", "academic-weakness", "study-plan", "language-plan"],
+  adaptation: ["culture-shock", "pressure", "conflict"],
+  contribution: ["spain-korea", "return-plan", "not-selected"],
+};
 
-  return ["introduce-yourself", adaptive, "culture-shock", "spain-korea"];
+const QUESTION_SIGNAL_AFFINITY: Record<string, InterviewSignal[]> = {
+  "introduce-yourself": ["direct", "evidence", "reflection"],
+  "why-korea": ["direct", "connection"],
+  "why-major": ["connection", "reflection"],
+  "academic-weakness": ["evidence", "reflection"],
+  "study-plan": ["direct", "evidence"],
+  "language-plan": ["direct", "evidence"],
+  "culture-shock": ["connection", "reflection"],
+  pressure: ["evidence", "reflection"],
+  conflict: ["direct", "evidence"],
+  "spain-korea": ["connection", "evidence"],
+  "return-plan": ["connection", "reflection"],
+  "not-selected": ["direct", "reflection"],
+};
+
+const LEARNING_PRIORITY_QUESTION: Partial<Record<LearningSkill, string>> = {
+  application: "why-major",
+  writing: "study-plan",
+  interview: "pressure",
+  pronunciation: "pressure",
+  grammar: "academic-weakness",
+  vocabulary: "language-plan",
+  listening: "culture-shock",
+  reading: "return-plan",
+};
+
+function positiveModulo(value: number, divisor: number) {
+  return ((Math.trunc(value) % divisor) + divisor) % divisor;
+}
+
+export function interviewSignalFromLearningSkill(priority?: LearningSkill | null): InterviewSignal | null {
+  if (priority === "application") return "connection";
+  if (priority === "reading" || priority === "listening") return "reflection";
+  if (priority) return priority === "interview" ? "evidence" : "direct";
+  return null;
+}
+
+/**
+ * Keeps the pedagogical stage stable while rotating among its strongest candidates.
+ * A weak signal detected in previous answers has more weight than the historic skill,
+ * and the seed prevents two sessions from always following the same route.
+ */
+export function chooseInterviewQuestionId(
+  stage: InterviewStage,
+  options: {
+    priority?: LearningSkill | null;
+    focus?: InterviewSignal | null;
+    usedIds?: string[];
+    seed?: number;
+  } = {},
+) {
+  const { priority, focus = null, usedIds = [], seed = 0 } = options;
+  const unused = INTERVIEW_QUESTION_POOLS[stage].filter((id) => !usedIds.includes(id));
+  const candidates = unused.length ? unused : INTERVIEW_QUESTION_POOLS[stage];
+  const preferredQuestion = priority ? LEARNING_PRIORITY_QUESTION[priority] : undefined;
+  const ranked = [...candidates].sort((left, right) => {
+    const score = (id: string) => (focus && QUESTION_SIGNAL_AFFINITY[id]?.includes(focus) ? 4 : 0)
+      + (id === preferredQuestion ? 2 : 0);
+    return score(right) - score(left) || left.localeCompare(right);
+  });
+  const adaptivePoolSize = focus || preferredQuestion ? Math.min(2, ranked.length) : ranked.length;
+  return ranked[positiveModulo(seed, adaptivePoolSize)];
+}
+
+export function chooseInterviewQuestionIds(priority?: LearningSkill | null, seed = 0) {
+  const initialFocus = interviewSignalFromLearningSkill(priority);
+  return INTERVIEW_STAGES.map((stage, index) => chooseInterviewQuestionId(stage, {
+    priority,
+    focus: index === 0 ? initialFocus : null,
+    seed: seed + index,
+  }));
+}
+
+const QUESTION_FRAMES: Record<Locale, Record<InterviewSignal | "neutral", string[]>> = {
+  es: {
+    neutral: [
+      "Empecemos con una respuesta auténtica:",
+      "Piensa en lo que realmente sostendrías ante el panel:",
+      "No busques una frase perfecta; responde con precisión:",
+    ],
+    direct: [
+      "Ve primero a tu idea central y luego explíquela:",
+      "Esta vez abre con una respuesta inequívoca:",
+      "Practiquemos claridad desde la primera frase:",
+    ],
+    evidence: [
+      "Quiero comprobarlo mediante una experiencia concreta:",
+      "Evita generalidades y apóyate en algo que hayas hecho:",
+      "Construye la respuesta alrededor de una acción y su resultado:",
+    ],
+    connection: [
+      "Conecta esta respuesta con el propósito de tu candidatura:",
+      "Haz visible por qué esto importa para GKS y tu plan académico:",
+      "Responde mostrando el vínculo con la oportunidad que solicitas:",
+    ],
+    reflection: [
+      "Quiero conocer la decisión que nació de tu experiencia:",
+      "Incluye qué aprendiste y qué cambió después:",
+      "Responde desde una experiencia y cierra con su aprendizaje:",
+    ],
+  },
+  en: {
+    neutral: [
+      "Let us begin with an authentic answer:",
+      "Think about what you would genuinely stand behind before the panel:",
+      "Do not look for a perfect line; answer precisely:",
+    ],
+    direct: [
+      "Lead with your central point, then explain it:",
+      "This time, open with an unambiguous answer:",
+      "Let us practise clarity from the first sentence:",
+    ],
+    evidence: [
+      "Show this through one concrete experience:",
+      "Avoid generalities and rely on something you actually did:",
+      "Build the answer around one action and its result:",
+    ],
+    connection: [
+      "Connect this answer to the purpose of your application:",
+      "Make clear why this matters for GKS and your study plan:",
+      "Answer by showing the link to the opportunity you are seeking:",
+    ],
+    reflection: [
+      "Show the decision that came from your experience:",
+      "Include what you learned and what changed afterwards:",
+      "Answer through an experience and close with its lesson:",
+    ],
+  },
+  ko: {
+    neutral: [
+      "진솔한 답변으로 시작해 보세요:",
+      "면접관 앞에서 실제로 주장할 내용을 생각해 보세요:",
+      "완벽한 문장보다 정확한 답변에 집중하세요:",
+    ],
+    direct: [
+      "핵심 답변을 먼저 말한 뒤 설명하세요:",
+      "이번에는 모호하지 않은 답변으로 시작하세요:",
+      "첫 문장부터 명확하게 말하는 연습을 해 보세요:",
+    ],
+    evidence: [
+      "한 가지 구체적인 경험으로 보여 주세요:",
+      "일반적인 표현을 피하고 직접 한 행동을 근거로 답하세요:",
+      "하나의 행동과 그 결과를 중심으로 답변을 구성하세요:",
+    ],
+    connection: [
+      "이 답변을 지원 목적과 연결하세요:",
+      "이 내용이 GKS와 학업 계획에 왜 중요한지 보여 주세요:",
+      "지원하는 기회와의 연결이 드러나게 답하세요:",
+    ],
+    reflection: [
+      "경험을 통해 내린 결정을 들려주세요:",
+      "배운 점과 이후 달라진 점을 포함하세요:",
+      "경험으로 답하고 그 경험의 교훈으로 마무리하세요:",
+    ],
+  },
+};
+
+export function createAdaptiveInterviewQuestion(
+  question: string,
+  locale: Locale,
+  focus: InterviewSignal | null,
+  variation = 0,
+) {
+  const frames = QUESTION_FRAMES[locale][focus ?? "neutral"];
+  return `${frames[positiveModulo(variation, frames.length)]} ${question}`;
 }
 
 export function summarizeInterviewSession(evaluations: InterviewAnswerEvaluation[]): InterviewSessionSummary {
