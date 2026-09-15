@@ -4,6 +4,7 @@ import type { Locale } from "@/domain/models/i18n";
 import { localize } from "@/domain/models/i18n";
 import {
   chooseInterviewQuestionId,
+  chooseInterviewPersonalityId,
   createAdaptiveInterviewFollowUp,
   createAdaptiveInterviewQuestion,
   createInterviewSessionAdvice,
@@ -12,10 +13,11 @@ import {
   interviewSignalFromLearningSkill,
   summarizeInterviewSession,
   type InterviewAnswerEvaluation,
+  type InterviewPersonalityId,
   type InterviewSignal,
 } from "@/domain/models/interview-chatbot";
 import type { LearningSkill } from "@/domain/models/learning-journey";
-import { interviewChatbotCopy } from "@/infrastructure/data/interview-chatbot";
+import { interviewChatbotCopy, interviewPersonalities } from "@/infrastructure/data/interview-chatbot";
 import { interviewQuestions, type InterviewQuestion } from "@/infrastructure/data/interview-prep";
 import { AppIcon } from "@/shared/ui/AppIcon";
 import { BrandMark } from "@/shared/ui/BrandMark";
@@ -52,11 +54,13 @@ export function InterviewChatPanel({ onClose, prioritySkill }: InterviewChatPane
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [evaluations, setEvaluations] = useState<InterviewAnswerEvaluation[]>([]);
   const [questions, setQuestions] = useState<InterviewQuestion[]>([]);
+  const [personalityId, setPersonalityId] = useState<InterviewPersonalityId>("analytical");
   const closeRef = useRef<HTMLButtonElement>(null);
   const conversationEndRef = useRef<HTMLDivElement>(null);
   const nextSessionSeedRef = useRef(Math.floor(Date.now() / 1000));
   const activeSessionSeedRef = useRef(0);
   const copy = interviewChatbotCopy[locale];
+  const personality = interviewPersonalities[personalityId];
   const summary = useMemo(() => summarizeInterviewSession(evaluations), [evaluations]);
   const advice = useMemo(() => createInterviewSessionAdvice(summary, locale), [summary, locale]);
 
@@ -79,6 +83,8 @@ export function InterviewChatPanel({ onClose, prioritySkill }: InterviewChatPane
 
   const startSession = (nextLocale = locale) => {
     const sessionSeed = nextSessionSeedRef.current++;
+    const nextPersonalityId = chooseInterviewPersonalityId(sessionSeed, personalityId);
+    const nextPersonality = interviewPersonalities[nextPersonalityId];
     const initialFocus = interviewSignalFromLearningSkill(prioritySkill);
     const firstQuestionId = chooseInterviewQuestionId(INTERVIEW_STAGES[0], {
       priority: prioritySkill,
@@ -88,6 +94,7 @@ export function InterviewChatPanel({ onClose, prioritySkill }: InterviewChatPane
     const firstQuestion = interviewQuestions.find((question) => question.id === firstQuestionId);
     if (!firstQuestion) return;
     activeSessionSeedRef.current = sessionSeed;
+    setPersonalityId(nextPersonalityId);
     setQuestionIndex(0);
     setAwaitingFollowUp(false);
     setAnswer("");
@@ -97,7 +104,12 @@ export function InterviewChatPanel({ onClose, prioritySkill }: InterviewChatPane
     setMessages([{
       id: messageId(),
       role: "interviewer",
-      text: createAdaptiveInterviewQuestion(localize(firstQuestion.question, nextLocale), nextLocale, initialFocus, sessionSeed),
+      text: `${localize(nextPersonality.opening, nextLocale)} ${createAdaptiveInterviewQuestion(
+        localize(firstQuestion.question, nextLocale),
+        nextLocale,
+        initialFocus,
+        sessionSeed,
+      )}`,
     }]);
     setPhase("interview");
   };
@@ -135,7 +147,7 @@ export function InterviewChatPanel({ onClose, prioritySkill }: InterviewChatPane
       nextMessages.push({
         id: messageId(),
         role: "interviewer",
-        text: `${copy.followUpIntro} ${followUp}`,
+        text: `${localize(personality.followUpIntro, locale)} ${followUp}`,
       });
       setAwaitingFollowUp(true);
       setMessages(nextMessages);
@@ -170,7 +182,7 @@ export function InterviewChatPanel({ onClose, prioritySkill }: InterviewChatPane
     nextMessages.push({
       id: messageId(),
       role: "interviewer",
-      text: `${copy.nextQuestionIntro} ${createAdaptiveInterviewQuestion(
+      text: `${localize(personality.nextQuestionIntro, locale)} ${createAdaptiveInterviewQuestion(
         localize(nextQuestion.question, locale),
         locale,
         currentSummary.priority,
@@ -187,7 +199,10 @@ export function InterviewChatPanel({ onClose, prioritySkill }: InterviewChatPane
     <section className="interview-chat" role="dialog" aria-modal="true" aria-labelledby="interview-chat-title">
       <header className="interview-chat__header">
         <span className="interview-chat__avatar" aria-hidden="true"><BrandMark showLetter={false} /></span>
-        <div><strong id="interview-chat-title">{copy.name}</strong><small><i />{copy.role}</small></div>
+        <div>
+          <strong id="interview-chat-title">{phase === "welcome" ? copy.name : localize(personality.name, locale)}</strong>
+          <small><i />{phase === "welcome" ? copy.role : localize(personality.role, locale)}</small>
+        </div>
         <button ref={closeRef} className="interview-chat__close" type="button" aria-label={copy.close} onClick={onClose}>×</button>
       </header>
 
@@ -207,6 +222,7 @@ export function InterviewChatPanel({ onClose, prioritySkill }: InterviewChatPane
           <h2>{copy.welcome}</h2>
           <p>{copy.introduction}</p>
           <strong>{copy.sessionPlan}</strong>
+          <p className="interview-chat__adaptive"><AppIcon name="chat" />{copy.personalityNote}</p>
           {prioritySkill && <p className="interview-chat__adaptive"><AppIcon name="sparkle" />{copy.adaptive}</p>}
           <p className="interview-chat__privacy"><span aria-hidden="true">✓</span>{copy.privacy}</p>
           <button className="interview-chat__primary" type="button" onClick={() => startSession()}>{copy.start}<span>→</span></button>
@@ -222,7 +238,11 @@ export function InterviewChatPanel({ onClose, prioritySkill }: InterviewChatPane
           <div className="interview-chat__conversation" aria-live="polite">
             {messages.map((message) => (
               <article className={`interview-chat__message interview-chat__message--${message.role}`} key={message.id}>
-                <small>{message.role === "candidate" ? (locale === "ko" ? "나" : locale === "en" ? "You" : "Tú") : message.role === "coach" ? "LearnV Coach" : copy.name}</small>
+                <small>{message.role === "candidate"
+                  ? (locale === "ko" ? "나" : locale === "en" ? "You" : "Tú")
+                  : message.role === "coach"
+                    ? "LearnV Coach"
+                    : localize(personality.name, locale)}</small>
                 <p>{message.text}</p>
                 {message.evaluation && (
                   <div className="interview-chat__feedback">

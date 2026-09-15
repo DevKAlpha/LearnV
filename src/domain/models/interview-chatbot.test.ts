@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   chooseInterviewQuestionIds,
   chooseInterviewQuestionId,
+  chooseInterviewPersonalityId,
   createAdaptiveInterviewFollowUp,
   createAdaptiveInterviewQuestion,
   createInterviewSessionAdvice,
@@ -81,6 +82,16 @@ describe("interview chatbot", () => {
     expect(first).toContain(question);
     expect(second).toContain(question);
     expect(second).not.toBe(first);
+  });
+
+  it("rotates the GKS interviewer personality for every new session", () => {
+    const first = chooseInterviewPersonalityId(0);
+    const second = chooseInterviewPersonalityId(1, first);
+    const repeatedSeed = chooseInterviewPersonalityId(0, first);
+
+    expect(first).toBe("analytical");
+    expect(second).toBe("direct");
+    expect(repeatedSeed).not.toBe(first);
   });
 
   it("summarises several turns into one actionable priority", () => {

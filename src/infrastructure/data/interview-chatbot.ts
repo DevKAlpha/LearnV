@@ -1,5 +1,6 @@
 import type { Locale } from "@/domain/models/i18n";
-import type { InterviewSignal } from "@/domain/models/interview-chatbot";
+import type { InterviewPersonalityId, InterviewSignal } from "@/domain/models/interview-chatbot";
+import type { LocalizedText } from "@/domain/models/i18n";
 
 type ChatbotCopy = {
   name: string;
@@ -8,6 +9,7 @@ type ChatbotCopy = {
   welcome: string;
   introduction: string;
   sessionPlan: string;
+  personalityNote: string;
   adaptive: string;
   privacy: string;
   start: string;
@@ -43,6 +45,7 @@ export const interviewChatbotCopy: Record<Locale, ChatbotCopy> = {
     welcome: "Practiquemos como en una entrevista real.",
     introduction: "Responderás cuatro preguntas y una repregunta por cada una. Analizaré la estructura de tu respuesta para ayudarte a ser más directa, concreta y coherente.",
     sessionPlan: "4 preguntas · repreguntas adaptativas · resultado final",
+    personalityNote: "Cada práctica cambia de entrevistador y enfoque para evitar respuestas memorizadas.",
     adaptive: "La sesión usa tu progreso de LearnV para priorizar el área que necesita más práctica.",
     privacy: "Tus respuestas no se guardan ni se envían. Solo se registra la puntuación estructural al terminar.",
     start: "Comenzar entrevista", restart: "Practicar otra vez", language: "Idioma de la entrevista",
@@ -67,6 +70,7 @@ export const interviewChatbotCopy: Record<Locale, ChatbotCopy> = {
     welcome: "Let us practise as if this were a real interview.",
     introduction: "You will answer four questions and one follow-up for each. I will analyse the structure of your response to help you become more direct, specific and coherent.",
     sessionPlan: "4 questions · adaptive follow-ups · final report",
+    personalityNote: "Each practice changes interviewer and approach to discourage memorised answers.",
     adaptive: "The session uses your LearnV progress to prioritise the area that needs more practice.",
     privacy: "Your answers are neither saved nor sent. Only the structural score is recorded when you finish.",
     start: "Start interview", restart: "Practise again", language: "Interview language",
@@ -91,6 +95,7 @@ export const interviewChatbotCopy: Record<Locale, ChatbotCopy> = {
     welcome: "실제 면접처럼 연습해 보겠습니다.",
     introduction: "네 가지 질문과 각 질문의 추가 질문에 답합니다. 더 직접적이고 구체적이며 일관된 답변을 만들도록 답변 구조를 분석합니다.",
     sessionPlan: "질문 4개 · 맞춤 추가 질문 · 최종 결과",
+    personalityNote: "암기한 답변에 의존하지 않도록 연습마다 면접관과 접근 방식이 달라집니다.",
     adaptive: "LearnV 학습 기록을 활용해 가장 연습이 필요한 영역을 우선합니다.",
     privacy: "답변은 저장되거나 전송되지 않습니다. 완료 시 구조 점수만 기록됩니다.",
     start: "면접 시작", restart: "다시 연습", language: "면접 언어",
@@ -109,5 +114,65 @@ export const interviewChatbotCopy: Record<Locale, ChatbotCopy> = {
       connection: "예시가 한국, GKS 또는 학업 계획과 어떻게 연결되는지 설명하세요.",
       reflection: "배운 점, 변화 또는 다음 행동으로 답변을 마무리하세요.",
     },
+  },
+};
+
+export type InterviewPersonalityProfile = {
+  id: InterviewPersonalityId;
+  name: LocalizedText;
+  role: LocalizedText;
+  opening: LocalizedText;
+  followUpIntro: LocalizedText;
+  nextQuestionIntro: LocalizedText;
+};
+
+export const interviewPersonalities: Record<InterviewPersonalityId, InterviewPersonalityProfile> = {
+  analytical: {
+    id: "analytical",
+    name: { es: "Hanbyeol", en: "Hanbyeol", ko: "한별" },
+    role: { es: "Evaluadora GKS · enfoque analítico", en: "GKS evaluator · analytical approach", ko: "GKS 평가관 · 분석형" },
+    opening: {
+      es: "Soy Hanbyeol. Hoy observaré especialmente la coherencia entre tus afirmaciones y la evidencia que las respalda.",
+      en: "I am Hanbyeol. Today I will pay particular attention to the consistency between your claims and the evidence supporting them.",
+      ko: "한별입니다. 오늘은 주장과 이를 뒷받침하는 근거 사이의 일관성을 중점적으로 보겠습니다.",
+    },
+    followUpIntro: { es: "Voy a contrastar esa idea:", en: "I want to test that idea:", ko: "그 생각을 확인해 보겠습니다:" },
+    nextQuestionIntro: { es: "Revisemos otro criterio:", en: "Let us examine another criterion:", ko: "다른 기준을 살펴보겠습니다:" },
+  },
+  direct: {
+    id: "direct",
+    name: { es: "Minjun", en: "Minjun", ko: "민준" },
+    role: { es: "Entrevistador GKS · enfoque directo", en: "GKS interviewer · direct approach", ko: "GKS 면접관 · 직접형" },
+    opening: {
+      es: "Soy Minjun. Iré al punto y esperaré respuestas claras antes de escuchar el contexto.",
+      en: "I am Minjun. I will get to the point and expect a clear answer before hearing the context.",
+      ko: "민준입니다. 핵심부터 묻고 배경 설명 전에 명확한 답변을 기대하겠습니다.",
+    },
+    followUpIntro: { es: "Necesito una respuesta más concreta:", en: "I need a more concrete answer:", ko: "더 구체적인 답변이 필요합니다:" },
+    nextQuestionIntro: { es: "Siguiente:", en: "Next:", ko: "다음 질문입니다:" },
+  },
+  supportive: {
+    id: "supportive",
+    name: { es: "Seo-yeon", en: "Seo-yeon", ko: "서연" },
+    role: { es: "Entrevistadora GKS · enfoque cercano", en: "GKS interviewer · supportive approach", ko: "GKS 면접관 · 공감형" },
+    opening: {
+      es: "Soy Seo-yeon. Mantendré un tono cercano, pero te pediré ejemplos reales para que tu propia voz sea convincente.",
+      en: "I am Seo-yeon. I will keep a supportive tone, while asking for real examples so your own voice remains convincing.",
+      ko: "서연입니다. 편안한 분위기를 유지하되, 본인의 목소리가 설득력 있게 들리도록 실제 경험을 요청하겠습니다.",
+    },
+    followUpIntro: { es: "Bien, profundicemos sin perder tu voz:", en: "Good. Let us go deeper without losing your voice:", ko: "좋습니다. 본인의 목소리를 유지하며 더 깊이 답해 보세요:" },
+    nextQuestionIntro: { es: "Avancemos a otra situación:", en: "Let us move to another situation:", ko: "다른 상황으로 넘어가겠습니다:" },
+  },
+  strategic: {
+    id: "strategic",
+    name: { es: "Jiho", en: "Jiho", ko: "지호" },
+    role: { es: "Evaluador GKS · enfoque estratégico", en: "GKS evaluator · strategic approach", ko: "GKS 평가관 · 전략형" },
+    opening: {
+      es: "Soy Jiho. Buscaré que cada experiencia se conecte con tu plan académico, GKS y tu contribución futura.",
+      en: "I am Jiho. I will look for every experience to connect with your academic plan, GKS and your future contribution.",
+      ko: "지호입니다. 각 경험이 학업 계획, GKS와 향후 기여로 어떻게 이어지는지 확인하겠습니다.",
+    },
+    followUpIntro: { es: "Ahora conecta esa idea con el panorama completo:", en: "Now connect that idea to the wider picture:", ko: "이제 그 생각을 전체 계획과 연결해 보세요:" },
+    nextQuestionIntro: { es: "Cambiemos el ángulo:", en: "Let us change the angle:", ko: "관점을 바꿔 보겠습니다:" },
   },
 };

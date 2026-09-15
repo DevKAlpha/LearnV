@@ -3,6 +3,8 @@ import type { LearningSkill } from "./learning-journey";
 
 export type InterviewSignal = "direct" | "evidence" | "connection" | "reflection";
 export type InterviewStage = "motivation" | "academic" | "adaptation" | "contribution";
+export const INTERVIEW_PERSONALITY_IDS = ["analytical", "direct", "supportive", "strategic"] as const;
+export type InterviewPersonalityId = typeof INTERVIEW_PERSONALITY_IDS[number];
 
 export const INTERVIEW_STAGES: InterviewStage[] = ["motivation", "academic", "adaptation", "contribution"];
 
@@ -237,6 +239,15 @@ const LEARNING_PRIORITY_QUESTION: Partial<Record<LearningSkill, string>> = {
 
 function positiveModulo(value: number, divisor: number) {
   return ((Math.trunc(value) % divisor) + divisor) % divisor;
+}
+
+export function chooseInterviewPersonalityId(
+  seed: number,
+  previous?: InterviewPersonalityId | null,
+): InterviewPersonalityId {
+  const selected = INTERVIEW_PERSONALITY_IDS[positiveModulo(seed, INTERVIEW_PERSONALITY_IDS.length)];
+  if (selected !== previous) return selected;
+  return INTERVIEW_PERSONALITY_IDS[positiveModulo(seed + 1, INTERVIEW_PERSONALITY_IDS.length)];
 }
 
 export function interviewSignalFromLearningSkill(priority?: LearningSkill | null): InterviewSignal | null {
