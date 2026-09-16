@@ -36,12 +36,112 @@ export type InterviewSessionAdvice = {
   nextTarget: string;
 };
 
-const ACTION_PATTERN = /\b(logr(?:e|é|amos|aron)|organic(?:e|é|amos)|cre(?:e|é|amos)|lider(?:e|é|amos)|investigu(?:e|é|amos)|mejor(?:e|é|amos)|alcanz(?:o|ó|amos)|learned|built|led|researched|improved|achieved|measured|organized|created)\b/i;
-const CONNECTION_PATTERN = /\b(gks|beca|scholarship|corea|korea|universidad|carrera|estudios?|major|degree|university|study plan)\b/i;
-const REFLECTION_PATTERN = /\b(porque|por eso|aprend(?:i|í)|cambi(?:e|é|ó)|me permiti(?:o|ó)|a partir de|because|therefore|learned|changed|allowed me|as a result)\b/i;
 const KOREAN_ACTION_PATTERN = /(배웠|만들|이끌|조사|개선|달성|측정|준비)/;
 const KOREAN_CONNECTION_PATTERN = /(한국|전공|학업|대학|계획|장학금)/;
 const KOREAN_REFLECTION_PATTERN = /(왜냐하면|그래서|배웠|변화|결과|통해)/;
+
+type InterviewLexicalProfile = {
+  action: string[];
+  outcome: string[];
+  connection: string[];
+  reflection: string[];
+};
+
+type InterviewLexicalMatches = {
+  action: string;
+  outcome: string;
+  connection: string;
+  reflection: string;
+};
+
+/**
+ * Families are deliberately stored as stems, not fixed phrases. This accepts
+ * conjugations and natural interruptions such as “me di, con el tiempo, cuenta”.
+ * The Spanish set includes formal interview language and common peninsular
+ * ways of describing initiative heard in Cantabria/Santander, without rewarding
+ * highly local vocabulary that would be inappropriate before a scholarship panel.
+ */
+const INTERVIEW_LEXICON: Record<"es" | "en", InterviewLexicalProfile> = {
+  es: {
+    action: [
+      "alcanz", "analiz", "apoy", "colabor", "compagin", "consegu", "coordin", "cread", "crear",
+      "desarroll", "disen", "encarg", "gestion", "implement", "impuls", "investig", "lider", "llev",
+      "logr", "mejor", "organiz", "particip", "planific", "plante", "prepar", "present", "propus",
+      "puse", "resolv", "saqu", "trabaj", "tire", "voluntari",
+    ],
+    outcome: [
+      "alcanz", "aprobad", "aument", "complet", "consegu", "entreg", "finaliz", "impact", "logr",
+      "mejor", "reduj", "reduccion", "result", "resuelt", "salio", "superad",
+    ],
+    connection: [
+      "academ", "beca", "carrera", "corea", "estudi", "facultad", "formacion", "gks", "grado",
+      "master", "posgrado", "programa", "universidad",
+    ],
+    reflection: [
+      "aprend", "cambi", "comprend", "confirm", "conclu", "cuadr", "cuenta", "decid", "descubr",
+      "encaj", "ensen", "entend", "permit", "porque", "razon", "reflexion", "replante", "sirv",
+    ],
+  },
+  en: {
+    action: [
+      "achiev", "analys", "analyz", "built", "collaborat", "coordinat", "creat", "develop", "implement",
+      "improv", "led", "manag", "measur", "organis", "organiz", "planned", "prepared", "presented",
+      "researched", "resolved", "supported", "worked",
+    ],
+    outcome: ["achiev", "completed", "delivered", "impact", "improv", "increas", "reduc", "result", "solved"],
+    connection: ["academic", "degree", "gks", "korea", "major", "programme", "program", "scholarship", "stud", "university"],
+    reflection: ["allowed", "because", "changed", "decid", "discover", "learn", "realiz", "reflect", "therefore", "underst"],
+  },
+};
+
+function normalizeLexicalToken(value: string) {
+  return value.normalize("NFD").replace(/\p{M}+/gu, "").toLocaleLowerCase();
+}
+
+function lexicalTokens(answer: string) {
+  return (answer.match(/[\p{L}\p{M}\p{N}]+/gu) ?? []).map((original) => ({
+    original,
+    normalized: normalizeLexicalToken(original),
+  }));
+}
+
+function findLexicalMatch(
+  tokens: ReturnType<typeof lexicalTokens>,
+  stems: string[],
+  preferredStems: string[] = [],
+) {
+  const preferred = preferredStems
+    .map((stem) => tokens.find(({ normalized }) => normalized.startsWith(stem)))
+    .find(Boolean);
+  return preferred ?? tokens.find(({ normalized }) => stems.some((stem) => normalized.startsWith(stem))) ?? null;
+}
+
+function analyzeInterviewLexicon(answer: string, locale: Locale): InterviewLexicalMatches {
+  if (locale === "ko") {
+    return {
+      action: matchedText(answer, [KOREAN_ACTION_PATTERN]),
+      outcome: "",
+      connection: matchedText(answer, [KOREAN_CONNECTION_PATTERN]),
+      reflection: matchedText(answer, [KOREAN_REFLECTION_PATTERN]),
+    };
+  }
+
+  const tokens = lexicalTokens(answer);
+  const profile = INTERVIEW_LEXICON[locale];
+  const action = findLexicalMatch(tokens, profile.action)?.original ?? "";
+  const outcome = findLexicalMatch(tokens, profile.outcome)?.original ?? "";
+  const preferredConnection = locale === "es"
+    ? ["gks", "beca", "corea"]
+    : ["gks", "scholarship", "korea"];
+  const connection = findLexicalMatch(tokens, profile.connection, preferredConnection)?.original ?? "";
+  const reflectionMatch = findLexicalMatch(tokens, profile.reflection);
+  const contextualReflection = reflectionMatch
+    && ["cuadr", "cuenta", "encaj", "sirv"].some((stem) => reflectionMatch.normalized.startsWith(stem));
+  const hasPersonalContext = tokens.some(({ normalized }) => ["me", "mi", "yo"].includes(normalized));
+  const reflection = contextualReflection && !hasPersonalContext ? "" : reflectionMatch?.original ?? "";
+
+  return { action, outcome, connection, reflection };
+}
 
 function countWords(answer: string, locale: Locale) {
   const compact = answer.trim().replace(/\s+/g, " ");
@@ -69,21 +169,14 @@ function createContextualFeedback(
   locale: Locale,
   wordCount: number,
   signals: Record<InterviewSignal, boolean>,
+  lexical: InterviewLexicalMatches,
 ): Record<InterviewSignal, string> {
   const excerpt = compactExcerpt(answer);
   const quotedExcerpt = quote(excerpt, locale);
-  const action = matchedText(answer, [ACTION_PATTERN, KOREAN_ACTION_PATTERN]);
+  const action = lexical.action || lexical.outcome;
   const number = answer.match(/\b\d+(?:[.,]\d+)?%?\b/)?.[0] ?? "";
-  const connection = matchedText(answer, [
-    /\bgks\b/i,
-    /\b(?:beca|scholarship|장학금)\b/i,
-    /\b(?:corea|korea|한국)\b/i,
-    /\b(?:universidad|university|대학)\b/i,
-    /\b(?:carrera|major|degree|전공|학업)\b/i,
-    CONNECTION_PATTERN,
-    KOREAN_CONNECTION_PATTERN,
-  ]);
-  const reflection = matchedText(answer, [REFLECTION_PATTERN, KOREAN_REFLECTION_PATTERN]);
+  const connection = lexical.connection;
+  const reflection = lexical.reflection;
 
   if (locale === "en") {
     return {
@@ -145,14 +238,15 @@ function createContextualFeedback(
 export function evaluateInterviewAnswer(answer: string, locale: Locale): InterviewAnswerEvaluation {
   const normalized = answer.trim();
   const wordCount = countWords(normalized, locale);
+  const lexical = analyzeInterviewLexicon(normalized, locale);
   const signals = {
     direct: wordCount >= 12,
-    evidence: /\d/.test(normalized) || ACTION_PATTERN.test(normalized) || KOREAN_ACTION_PATTERN.test(normalized),
-    connection: CONNECTION_PATTERN.test(normalized) || KOREAN_CONNECTION_PATTERN.test(normalized),
-    reflection: REFLECTION_PATTERN.test(normalized) || KOREAN_REFLECTION_PATTERN.test(normalized),
+    evidence: /\d/.test(normalized) || Boolean(lexical.action || lexical.outcome),
+    connection: Boolean(lexical.connection),
+    reflection: Boolean(lexical.reflection),
   };
   const score = (Object.values(signals).filter(Boolean).length * 25);
-  const feedback = createContextualFeedback(normalized, locale, wordCount, signals);
+  const feedback = createContextualFeedback(normalized, locale, wordCount, signals, lexical);
   return { score, wordCount, signals, feedback };
 }
 

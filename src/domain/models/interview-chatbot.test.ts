@@ -36,6 +36,34 @@ describe("interview chatbot", () => {
   });
 
   it.each([
+    ["Aprendí al revisar mi primera candidatura y ahora cambiaré el orden de preparación.", "Aprendí"],
+    ["Con el tiempo me di, después de hablar con mi tutora, cuenta de que necesitaba medir el avance.", "cuenta"],
+    ["La experiencia me sirvió, aun con varios meses de distancia, para replantear mi decisión.", "sirvió"],
+    ["Aquella opción me encajó cuando comprendí las exigencias reales del programa.", "encajó"],
+  ] as const)("recognises natural Spanish reflection without requiring an exact phrase", (answer, word) => {
+    const result = evaluateInterviewAnswer(answer, "es");
+    expect(result.signals.reflection).toBe(true);
+    expect(result.feedback.reflection).toContain(`«${word}»`);
+  });
+
+  it.each([
+    "En Santander me encargué del grupo y saqué adelante la presentación final.",
+    "Cuando faltó una compañera, por mi parte tiré del equipo hasta que salió adelante.",
+    "Me puse con el proyecto, llevé la coordinación y entregamos el resultado a tiempo.",
+    "Compaginé los estudios con un voluntariado y resolví dos incidencias del equipo.",
+  ])("recognises natural applicant language used in Spain as concrete action", (answer) => {
+    expect(evaluateInterviewAnswer(answer, "es").signals.evidence).toBe(true);
+  });
+
+  it("does not mistake an unrelated use of cuenta for personal reflection", () => {
+    expect(evaluateInterviewAnswer("La universidad solicita una cuenta bancaria para realizar el pago.", "es").signals.reflection).toBe(false);
+  });
+
+  it("does not award an application connection for a regional place name alone", () => {
+    expect(evaluateInterviewAnswer("Soy de Santander y vivo en Cantabria desde hace años.", "es").signals.connection).toBe(false);
+  });
+
+  it.each([
     ["I like Korea and want to study there.", "en", "I like Korea and want to study there"],
     ["한국에서 공부하고 싶습니다.", "ko", "한국에서 공부하고 싶습니다"],
   ] as const)("keeps contextual feedback in the selected interview language", (answer, locale, excerpt) => {
