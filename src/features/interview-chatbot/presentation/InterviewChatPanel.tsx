@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import { trackLearning } from "@/application/controllers/learningJourneyEvents";
 import type { Locale } from "@/domain/models/i18n";
 import { localize } from "@/domain/models/i18n";
+import { createInterviewStudyPath } from "@/domain/models/interview-learning-link";
 import {
   chooseInterviewQuestionId,
   chooseInterviewPersonalityId,
@@ -18,6 +20,7 @@ import {
 } from "@/domain/models/interview-chatbot";
 import type { LearningSkill } from "@/domain/models/learning-journey";
 import { interviewChatbotCopy, interviewPersonalities } from "@/infrastructure/data/interview-chatbot";
+import { interviewLearningLinkCopy } from "@/infrastructure/data/interview-learning-link";
 import { interviewQuestions, type InterviewQuestion } from "@/infrastructure/data/interview-prep";
 import { AppIcon } from "@/shared/ui/AppIcon";
 import { BrandMark } from "@/shared/ui/BrandMark";
@@ -32,6 +35,7 @@ type ChatMessage = {
 type InterviewChatPanelProps = {
   onClose: () => void;
   prioritySkill?: LearningSkill | null;
+  focusSignal?: InterviewSignal | null;
 };
 
 const SIGNALS: InterviewSignal[] = ["direct", "evidence", "connection", "reflection"];
@@ -44,7 +48,8 @@ function formatTime(seconds: number) {
   return `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
 }
 
-export function InterviewChatPanel({ onClose, prioritySkill }: InterviewChatPanelProps) {
+export function InterviewChatPanel({ onClose, prioritySkill, focusSignal }: InterviewChatPanelProps) {
+  const navigate = useNavigate();
   const [locale, setLocale] = useState<Locale>("es");
   const [phase, setPhase] = useState<"welcome" | "interview" | "report">("welcome");
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -60,6 +65,7 @@ export function InterviewChatPanel({ onClose, prioritySkill }: InterviewChatPane
   const nextSessionSeedRef = useRef(Math.floor(Date.now() / 1000));
   const activeSessionSeedRef = useRef(0);
   const copy = interviewChatbotCopy[locale];
+  const learningLinkCopy = interviewLearningLinkCopy[locale];
   const personality = interviewPersonalities[personalityId];
   const summary = useMemo(() => summarizeInterviewSession(evaluations), [evaluations]);
   const advice = useMemo(() => createInterviewSessionAdvice(summary, locale), [summary, locale]);
@@ -85,7 +91,7 @@ export function InterviewChatPanel({ onClose, prioritySkill }: InterviewChatPane
     const sessionSeed = nextSessionSeedRef.current++;
     const nextPersonalityId = chooseInterviewPersonalityId(sessionSeed, personalityId);
     const nextPersonality = interviewPersonalities[nextPersonalityId];
-    const initialFocus = interviewSignalFromLearningSkill(prioritySkill);
+    const initialFocus = focusSignal ?? interviewSignalFromLearningSkill(prioritySkill);
     const firstQuestionId = chooseInterviewQuestionId(INTERVIEW_STAGES[0], {
       priority: prioritySkill,
       focus: initialFocus,
@@ -223,7 +229,7 @@ export function InterviewChatPanel({ onClose, prioritySkill }: InterviewChatPane
           <p>{copy.introduction}</p>
           <strong>{copy.sessionPlan}</strong>
           <p className="interview-chat__adaptive"><AppIcon name="chat" />{copy.personalityNote}</p>
-          {prioritySkill && <p className="interview-chat__adaptive"><AppIcon name="sparkle" />{copy.adaptive}</p>}
+          {(focusSignal || prioritySkill) && <p className="interview-chat__adaptive"><AppIcon name="sparkle" />{copy.adaptive}</p>}
           <p className="interview-chat__privacy"><span aria-hidden="true">✓</span>{copy.privacy}</p>
           <button className="interview-chat__primary" type="button" onClick={() => startSession()}>{copy.start}<span>→</span></button>
         </div>
@@ -318,6 +324,24 @@ export function InterviewChatPanel({ onClose, prioritySkill }: InterviewChatPane
           </section>
 
           <aside className="interview-chat__next-target"><small>{copy.nextTarget}</small><strong>{advice.nextTarget}</strong></aside>
+          <section className="interview-chat__study-bridge" aria-labelledby="interview-study-bridge-title">
+            <span aria-hidden="true"><AppIcon name="book" /></span>
+            <div>
+              <small>{learningLinkCopy.kicker}</small>
+              <h3 id="interview-study-bridge-title">{learningLinkCopy.chatbotMaterialTitle}</h3>
+              <p>{learningLinkCopy.chatbotMaterialText}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                const path = createInterviewStudyPath(summary.priority);
+                onClose();
+                navigate(path);
+              }}
+            >
+              {learningLinkCopy.chatbotMaterialAction}<span aria-hidden="true">→</span>
+            </button>
+          </section>
           <p className="interview-chat__notice">{copy.notice}</p>
           <button className="interview-chat__primary" type="button" onClick={() => startSession()}>{copy.restart}<span>↻</span></button>
         </div>

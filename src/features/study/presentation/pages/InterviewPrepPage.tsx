@@ -1,10 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
+import { openInterviewChatbot } from "@/application/controllers/interviewChatbotEvents";
+import { trackLearning } from "@/application/controllers/learningJourneyEvents";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { localize } from "@/domain/models/i18n";
+import { getInterviewStudyRoute, parseInterviewStudyFocus } from "@/domain/models/interview-learning-link";
+import { interviewLearningLinkCopy } from "@/infrastructure/data/interview-learning-link";
 import { interviewQuestions, interviewTips } from "@/infrastructure/data/interview-prep";
+import { AppIcon } from "@/shared/ui/AppIcon";
 import { LiteYouTube } from "@/shared/ui/LiteYouTube";
-import { trackLearning } from "@/application/controllers/learningJourneyEvents";
 
 type Category = "all" | "motivation" | "academic" | "adaptation" | "contribution";
 type SavedPractice = Record<string, { answer: string; checked: boolean[] }>;
@@ -16,6 +20,7 @@ function readSavedPractice(): SavedPractice {
 
 export function InterviewPrepPage() {
   const { locale, copy } = useI18n();
+  const [searchParams] = useSearchParams();
   const [category, setCategory] = useState<Category>("all");
   const [practiceIndex, setPracticeIndex] = useState(0);
   const [savedPractice, setSavedPractice] = useState<SavedPractice>(readSavedPractice);
@@ -27,6 +32,10 @@ export function InterviewPrepPage() {
   const answer = currentPractice.answer;
   const checked = currentPractice.checked;
   const categories: Category[] = ["all", "motivation", "academic", "adaptation", "contribution"];
+  const requestedFocus = parseInterviewStudyFocus(searchParams.get("focus"));
+  const activeFocus = requestedFocus ?? "direct";
+  const linkedRoute = getInterviewStudyRoute(activeFocus);
+  const learningLinkCopy = interviewLearningLinkCopy[locale];
   const scrollToSection = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   useEffect(() => { localStorage.setItem(INTERVIEW_STORAGE_KEY, JSON.stringify(savedPractice)); }, [savedPractice]);
@@ -36,6 +45,15 @@ export function InterviewPrepPage() {
     return () => window.clearTimeout(timer);
   }, [secondsLeft, timerRunning]);
   useEffect(() => { if (secondsLeft === 0) setTimerRunning(false); }, [secondsLeft]);
+  useEffect(() => {
+    if (!requestedFocus) return;
+    const categoryQuestions = interviewQuestions.filter((question) => question.category === linkedRoute.category);
+    const linkedIndex = categoryQuestions.findIndex((question) => question.id === linkedRoute.questionId);
+    setCategory(linkedRoute.category);
+    setPracticeIndex(Math.max(0, linkedIndex));
+    setSecondsLeft(75);
+    setTimerRunning(false);
+  }, [linkedRoute.category, linkedRoute.questionId, requestedFocus]);
 
   const changePractice = (direction: number) => {
     if (direction > 0 && (answer.trim().length > 0 || checked.some(Boolean))) {
@@ -47,6 +65,14 @@ export function InterviewPrepPage() {
     setTimerRunning(false);
   };
   const updateCurrent = (next: Partial<{ answer: string; checked: boolean[] }>) => setSavedPractice((current) => ({ ...current, [practiceQuestion.id]: { ...currentPractice, ...next } }));
+  const reviewLinkedMaterial = () => {
+    trackLearning({ kind: "resource", itemId: `interview-material-${activeFocus}`, language: "general", skill: "interview" });
+    scrollToSection(linkedRoute.sectionId);
+  };
+  const practiseLinkedFocus = () => {
+    trackLearning({ kind: "resource", itemId: `interview-chat-link-${activeFocus}`, language: "general", skill: "interview" });
+    openInterviewChatbot(activeFocus);
+  };
 
   return (
     <div className="page interview-page">
@@ -63,6 +89,28 @@ export function InterviewPrepPage() {
           <button type="button" onClick={() => scrollToSection("tips-title")}><b>03</b>{copy.interview.factAdaptation}<i aria-hidden="true">↓</i></button>
         </div>
       </header>
+
+      <section className="interview-learning-bridge" id="interview-learning-bridge" aria-labelledby="interview-learning-bridge-title">
+        <div className="interview-learning-bridge__heading">
+          <span className="interview-learning-bridge__icon" aria-hidden="true"><AppIcon name="sparkle" /></span>
+          <div>
+            <span className="eyebrow">{learningLinkCopy.kicker}</span>
+            <h2 id="interview-learning-bridge-title">{learningLinkCopy.title}</h2>
+          </div>
+        </div>
+        <p>{learningLinkCopy.introduction}</p>
+        {requestedFocus && <small className="interview-learning-bridge__origin">✓ {learningLinkCopy.fromChat}</small>}
+        <article className="interview-learning-bridge__focus">
+          <small>{learningLinkCopy.focusLabel}</small>
+          <strong>{learningLinkCopy.focusNames[activeFocus]}</strong>
+          <span>{learningLinkCopy.materialNames[activeFocus]}</span>
+          <p>{learningLinkCopy.guidance[activeFocus]}</p>
+        </article>
+        <div className="interview-learning-bridge__actions">
+          <button type="button" onClick={reviewLinkedMaterial}><AppIcon name="book" />{learningLinkCopy.review}</button>
+          <button type="button" onClick={practiseLinkedFocus}><AppIcon name="chat" />{learningLinkCopy.practise}<span aria-hidden="true">→</span></button>
+        </div>
+      </section>
 
       <section className="interview-method" aria-labelledby="interview-method-title">
         <div className="section-heading"><div><span className="eyebrow">{copy.interview.methodKicker}</span><h2 id="interview-method-title">{copy.interview.methodTitle}</h2></div></div>
