@@ -10,7 +10,6 @@ type ChatbotCopy = {
   introduction: string;
   sessionPlan: string;
   personalityNote: string;
-  adaptive: string;
   privacy: string;
   start: string;
   restart: string;
@@ -46,8 +45,7 @@ export const interviewChatbotCopy: Record<Locale, ChatbotCopy> = {
     introduction: "Responderás cuatro preguntas y una repregunta por cada una. Analizaré la estructura de tu respuesta para ayudarte a ser más directa, concreta y coherente.",
     sessionPlan: "4 preguntas · repreguntas adaptativas · resultado final",
     personalityNote: "Cada práctica cambia de entrevistador y enfoque para evitar respuestas memorizadas.",
-    adaptive: "La sesión usa tu progreso de LearnV para priorizar el área que necesita más práctica.",
-    privacy: "Tus respuestas no se guardan ni se envían. Solo se registra la puntuación estructural al terminar.",
+    privacy: "Tus respuestas no se guardan ni se envían. Solo se registran el resultado estructural y el criterio que debes reforzar.",
     start: "Comenzar entrevista", restart: "Practicar otra vez", language: "Idioma de la entrevista",
     progress: "Pregunta", target: "Meta de respuesta · 90 s", placeholder: "Escribe como hablarías ante el panel…",
     send: "Enviar respuesta", continue: "Continuar", primaryFeedback: "Lectura rápida de tu respuesta",
@@ -71,8 +69,7 @@ export const interviewChatbotCopy: Record<Locale, ChatbotCopy> = {
     introduction: "You will answer four questions and one follow-up for each. I will analyse the structure of your response to help you become more direct, specific and coherent.",
     sessionPlan: "4 questions · adaptive follow-ups · final report",
     personalityNote: "Each practice changes interviewer and approach to discourage memorised answers.",
-    adaptive: "The session uses your LearnV progress to prioritise the area that needs more practice.",
-    privacy: "Your answers are neither saved nor sent. Only the structural score is recorded when you finish.",
+    privacy: "Your answers are neither saved nor sent. Only the structural result and the criterion to strengthen are recorded.",
     start: "Start interview", restart: "Practise again", language: "Interview language",
     progress: "Question", target: "Response target · 90 s", placeholder: "Write as you would speak to the panel…",
     send: "Send answer", continue: "Continue", primaryFeedback: "Quick reading of your response",
@@ -96,8 +93,7 @@ export const interviewChatbotCopy: Record<Locale, ChatbotCopy> = {
     introduction: "네 가지 질문과 각 질문의 추가 질문에 답합니다. 더 직접적이고 구체적이며 일관된 답변을 만들도록 답변 구조를 분석합니다.",
     sessionPlan: "질문 4개 · 맞춤 추가 질문 · 최종 결과",
     personalityNote: "암기한 답변에 의존하지 않도록 연습마다 면접관과 접근 방식이 달라집니다.",
-    adaptive: "LearnV 학습 기록을 활용해 가장 연습이 필요한 영역을 우선합니다.",
-    privacy: "답변은 저장되거나 전송되지 않습니다. 완료 시 구조 점수만 기록됩니다.",
+    privacy: "답변은 저장되거나 전송되지 않습니다. 구조 결과와 보완할 기준만 기록됩니다.",
     start: "면접 시작", restart: "다시 연습", language: "면접 언어",
     progress: "질문", target: "답변 목표 · 90초", placeholder: "면접 위원에게 말하듯 작성하세요…",
     send: "답변 보내기", continue: "계속", primaryFeedback: "답변 구조 빠른 분석",

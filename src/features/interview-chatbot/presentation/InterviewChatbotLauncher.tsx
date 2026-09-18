@@ -21,7 +21,13 @@ const labels = {
   ko: { open: "GKS 면접 연습", short: "GKS 면접", loading: "면접 준비 중…", close: "면접 닫기" },
 };
 
-export function InterviewChatbotLauncher({ prioritySkill }: { prioritySkill?: LearningSkill | null }) {
+export function InterviewChatbotLauncher({
+  prioritySkill,
+  adaptiveFocus,
+}: {
+  prioritySkill?: LearningSkill | null;
+  adaptiveFocus?: InterviewSignal | null;
+}) {
   const { locale } = useI18n();
   const [open, setOpen] = useState(false);
   const [requestedFocus, setRequestedFocus] = useState<InterviewSignal | null>(null);
@@ -61,7 +67,11 @@ export function InterviewChatbotLauncher({ prioritySkill }: { prioritySkill?: Le
         <div className="interview-chat-layer">
           <button className="interview-chat-backdrop" type="button" aria-label={copy.close} onClick={close} />
           <Suspense fallback={<div className="interview-chat-loading" role="status"><AppIcon name="sparkle" />{copy.loading}</div>}>
-            <InterviewChatPanel onClose={close} prioritySkill={prioritySkill} focusSignal={requestedFocus} />
+            <InterviewChatPanel
+              onClose={close}
+              prioritySkill={prioritySkill}
+              focusSignal={requestedFocus ?? adaptiveFocus}
+            />
           </Suspense>
         </div>,
         document.body,

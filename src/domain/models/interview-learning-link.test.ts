@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   createInterviewStudyPath,
   getInterviewStudyRoute,
-  parseInterviewStudyFocus,
 } from "./interview-learning-link";
 
 describe("interview learning link", () => {
@@ -13,13 +12,7 @@ describe("interview learning link", () => {
     expect(getInterviewStudyRoute("reflection")).toMatchObject({ category: "academic", questionId: "academic-weakness" });
   });
 
-  it("only accepts supported focus values from a URL", () => {
-    expect(parseInterviewStudyFocus("evidence")).toBe("evidence");
-    expect(parseInterviewStudyFocus("unknown")).toBeNull();
-    expect(parseInterviewStudyFocus(null)).toBeNull();
-  });
-
   it("creates a deep link to the linked learning material", () => {
-    expect(createInterviewStudyPath("connection")).toBe("/study/interviews?focus=connection#interview-learning-bridge");
+    expect(createInterviewStudyPath()).toBe("/study/interviews#interview-learning-bridge");
   });
 });

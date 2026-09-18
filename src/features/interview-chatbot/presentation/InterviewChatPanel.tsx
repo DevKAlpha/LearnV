@@ -165,10 +165,11 @@ export function InterviewChatPanel({ onClose, prioritySkill, focusSignal }: Inte
       trackLearning({
         kind: "practice",
         itemId: "gks-interview-chatbot",
-        language: "general",
+        language: locale === "en" ? "en" : locale === "ko" ? "ko" : "general",
         skill: "interview",
         score: result.average,
         passed: result.average >= 70,
+        interviewFocus: result.priority,
       });
       setMessages(nextMessages);
       setPhase("report");
@@ -229,7 +230,6 @@ export function InterviewChatPanel({ onClose, prioritySkill, focusSignal }: Inte
           <p>{copy.introduction}</p>
           <strong>{copy.sessionPlan}</strong>
           <p className="interview-chat__adaptive"><AppIcon name="chat" />{copy.personalityNote}</p>
-          {(focusSignal || prioritySkill) && <p className="interview-chat__adaptive"><AppIcon name="sparkle" />{copy.adaptive}</p>}
           <p className="interview-chat__privacy"><span aria-hidden="true">✓</span>{copy.privacy}</p>
           <button className="interview-chat__primary" type="button" onClick={() => startSession()}>{copy.start}<span>→</span></button>
         </div>
@@ -334,7 +334,7 @@ export function InterviewChatPanel({ onClose, prioritySkill, focusSignal }: Inte
             <button
               type="button"
               onClick={() => {
-                const path = createInterviewStudyPath(summary.priority);
+                const path = createInterviewStudyPath();
                 onClose();
                 navigate(path);
               }}

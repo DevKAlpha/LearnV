@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { openInterviewChatbot } from "@/application/controllers/interviewChatbotEvents";
 import { trackLearning } from "@/application/controllers/learningJourneyEvents";
+import type { LearningJourneyController } from "@/application/controllers/useLearningJourney";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { localize } from "@/domain/models/i18n";
-import { getInterviewStudyRoute, parseInterviewStudyFocus } from "@/domain/models/interview-learning-link";
 import { interviewLearningLinkCopy } from "@/infrastructure/data/interview-learning-link";
 import { interviewQuestions, interviewTips } from "@/infrastructure/data/interview-prep";
 import { AppIcon } from "@/shared/ui/AppIcon";
@@ -18,11 +18,17 @@ function readSavedPractice(): SavedPractice {
   try { return JSON.parse(localStorage.getItem(INTERVIEW_STORAGE_KEY) ?? "{}"); } catch { return {}; }
 }
 
-export function InterviewPrepPage() {
+function questionIndexFor(category: Category, questionId: string) {
+  return Math.max(0, interviewQuestions
+    .filter((question) => question.category === category)
+    .findIndex((question) => question.id === questionId));
+}
+
+export function InterviewPrepPage({ learning }: { learning: LearningJourneyController }) {
   const { locale, copy } = useI18n();
-  const [searchParams] = useSearchParams();
-  const [category, setCategory] = useState<Category>("all");
-  const [practiceIndex, setPracticeIndex] = useState(0);
+  const adaptation = learning.interviewAdaptation;
+  const [category, setCategory] = useState<Category>(adaptation.category);
+  const [practiceIndex, setPracticeIndex] = useState(() => questionIndexFor(adaptation.category, adaptation.questionId));
   const [savedPractice, setSavedPractice] = useState<SavedPractice>(readSavedPractice);
   const [secondsLeft, setSecondsLeft] = useState(75);
   const [timerRunning, setTimerRunning] = useState(false);
@@ -32,9 +38,7 @@ export function InterviewPrepPage() {
   const answer = currentPractice.answer;
   const checked = currentPractice.checked;
   const categories: Category[] = ["all", "motivation", "academic", "adaptation", "contribution"];
-  const requestedFocus = parseInterviewStudyFocus(searchParams.get("focus"));
-  const activeFocus = requestedFocus ?? "direct";
-  const linkedRoute = getInterviewStudyRoute(activeFocus);
+  const activeFocus = adaptation.focus;
   const learningLinkCopy = interviewLearningLinkCopy[locale];
   const scrollToSection = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
@@ -46,19 +50,24 @@ export function InterviewPrepPage() {
   }, [secondsLeft, timerRunning]);
   useEffect(() => { if (secondsLeft === 0) setTimerRunning(false); }, [secondsLeft]);
   useEffect(() => {
-    if (!requestedFocus) return;
-    const categoryQuestions = interviewQuestions.filter((question) => question.category === linkedRoute.category);
-    const linkedIndex = categoryQuestions.findIndex((question) => question.id === linkedRoute.questionId);
-    setCategory(linkedRoute.category);
-    setPracticeIndex(Math.max(0, linkedIndex));
+    setCategory(adaptation.category);
+    setPracticeIndex(questionIndexFor(adaptation.category, adaptation.questionId));
     setSecondsLeft(75);
     setTimerRunning(false);
-  }, [linkedRoute.category, linkedRoute.questionId, requestedFocus]);
+  }, [adaptation.category, adaptation.questionId]);
 
   const changePractice = (direction: number) => {
     if (direction > 0 && (answer.trim().length > 0 || checked.some(Boolean))) {
       const score = Math.round((checked.filter(Boolean).length / checked.length) * 100);
-      trackLearning({ kind: "practice", itemId: practiceQuestion.id, language: "general", skill: "interview", score, passed: checked.every(Boolean) });
+      trackLearning({
+        kind: "practice",
+        itemId: practiceQuestion.id,
+        language: adaptation.language,
+        skill: "interview",
+        score,
+        passed: checked.every(Boolean),
+        interviewFocus: activeFocus,
+      });
     }
     setPracticeIndex((current) => (current + direction + visibleQuestions.length) % visibleQuestions.length);
     setSecondsLeft(75);
@@ -66,11 +75,11 @@ export function InterviewPrepPage() {
   };
   const updateCurrent = (next: Partial<{ answer: string; checked: boolean[] }>) => setSavedPractice((current) => ({ ...current, [practiceQuestion.id]: { ...currentPractice, ...next } }));
   const reviewLinkedMaterial = () => {
-    trackLearning({ kind: "resource", itemId: `interview-material-${activeFocus}`, language: "general", skill: "interview" });
-    scrollToSection(linkedRoute.sectionId);
+    trackLearning({ kind: "resource", itemId: `interview-material-${activeFocus}`, language: adaptation.language, skill: "interview" });
+    scrollToSection(adaptation.sectionId);
   };
   const practiseLinkedFocus = () => {
-    trackLearning({ kind: "resource", itemId: `interview-chat-link-${activeFocus}`, language: "general", skill: "interview" });
+    trackLearning({ kind: "resource", itemId: `interview-chat-link-${activeFocus}`, language: adaptation.language, skill: "interview" });
     openInterviewChatbot(activeFocus);
   };
 
@@ -99,13 +108,6 @@ export function InterviewPrepPage() {
           </div>
         </div>
         <p>{learningLinkCopy.introduction}</p>
-        {requestedFocus && <small className="interview-learning-bridge__origin">✓ {learningLinkCopy.fromChat}</small>}
-        <article className="interview-learning-bridge__focus">
-          <small>{learningLinkCopy.focusLabel}</small>
-          <strong>{learningLinkCopy.focusNames[activeFocus]}</strong>
-          <span>{learningLinkCopy.materialNames[activeFocus]}</span>
-          <p>{learningLinkCopy.guidance[activeFocus]}</p>
-        </article>
         <div className="interview-learning-bridge__actions">
           <button type="button" onClick={reviewLinkedMaterial}><AppIcon name="book" />{learningLinkCopy.review}</button>
           <button type="button" onClick={practiseLinkedFocus}><AppIcon name="chat" />{learningLinkCopy.practise}<span aria-hidden="true">→</span></button>

@@ -1,5 +1,6 @@
 export type LearningLanguage = "en" | "ko" | "general";
 export type LearningSkill = "reading" | "grammar" | "vocabulary" | "writing" | "listening" | "pronunciation" | "application" | "documents" | "interview";
+export type InterviewLearningFocus = "direct" | "evidence" | "connection" | "reflection";
 export type LearningEventKind = "route" | "session" | "practice" | "resource" | "task" | "document";
 
 export type LearningEvent = {
@@ -13,6 +14,7 @@ export type LearningEvent = {
   passed?: boolean;
   activeSeconds?: number;
   attemptCount?: number;
+  interviewFocus?: InterviewLearningFocus;
 };
 
 export type SkillTrace = {

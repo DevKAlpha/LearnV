@@ -7,6 +7,7 @@ import {
   type LearningJourneyState,
 } from "@/domain/models/learning-journey";
 import { analyzeLearningResults } from "@/domain/models/learning-analysis";
+import { createInterviewAdaptation } from "@/domain/models/interview-adaptation";
 import type { TestProgressState } from "@/domain/models/language-test";
 import { LEARNING_JOURNEY_EVENT } from "./learningJourneyEvents";
 
@@ -101,9 +102,10 @@ export function useLearningJourney(pathname: string) {
 
   const recommendation = useMemo(() => getLearningRecommendation(journey), [journey]);
   const analysis = useMemo(() => analyzeLearningResults(journey), [journey]);
+  const interviewAdaptation = useMemo(() => createInterviewAdaptation(journey), [journey]);
   const activeMinutes = Math.round(journey.totalActiveSeconds / 60);
   const practicedSkills = Object.keys(journey.skillStats).length;
-  return { journey, recommendation, analysis, activeMinutes, practicedSkills };
+  return { journey, recommendation, analysis, interviewAdaptation, activeMinutes, practicedSkills };
 }
 
 export type LearningJourneyController = ReturnType<typeof useLearningJourney>;

@@ -55,7 +55,7 @@ export function AppRoutes({ location, progress, learning }: AppRoutesProps) {
       <Route path="/study" element={<StudyPage learning={learning} />} />
       <Route path="/study/english" element={<LanguageStudyPage language="en" />} />
       <Route path="/study/korean" element={<LanguageStudyPage language="ko" />} />
-      <Route path="/study/interviews" element={<InterviewPrepPage />} />
+      <Route path="/study/interviews" element={<InterviewPrepPage learning={learning} />} />
       <Route path="/study/written-simulator" element={<WrittenSimulatorPage />} />
       <Route path="/tests/:language" element={<TestPathPage />} />
       <Route path="/tests/:language/:stageId" element={<TestSessionPage />} />

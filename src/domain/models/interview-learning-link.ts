@@ -44,10 +44,6 @@ export function getInterviewStudyRoute(signal: InterviewSignal): InterviewStudyR
   return INTERVIEW_STUDY_ROUTES[signal];
 }
 
-export function parseInterviewStudyFocus(value: string | null | undefined): InterviewSignal | null {
-  return isInterviewSignal(value) ? value : null;
-}
-
-export function createInterviewStudyPath(signal: InterviewSignal) {
-  return `/study/interviews?focus=${signal}#interview-learning-bridge`;
+export function createInterviewStudyPath() {
+  return "/study/interviews#interview-learning-bridge";
 }
