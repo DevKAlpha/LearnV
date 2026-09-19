@@ -22,6 +22,7 @@ import type { LearningSkill } from "@/domain/models/learning-journey";
 import { interviewChatbotCopy, interviewPersonalities } from "@/infrastructure/data/interview-chatbot";
 import { interviewLearningLinkCopy } from "@/infrastructure/data/interview-learning-link";
 import { interviewQuestions, type InterviewQuestion } from "@/infrastructure/data/interview-prep";
+import { recordInterviewScoreLog } from "@/infrastructure/data/interview-score-log";
 import { AppIcon } from "@/shared/ui/AppIcon";
 import { BrandMark } from "@/shared/ui/BrandMark";
 
@@ -64,6 +65,7 @@ export function InterviewChatPanel({ onClose, prioritySkill, focusSignal }: Inte
   const conversationEndRef = useRef<HTMLDivElement>(null);
   const nextSessionSeedRef = useRef(Math.floor(Date.now() / 1000));
   const activeSessionSeedRef = useRef(0);
+  const sessionIdRef = useRef("");
   const copy = interviewChatbotCopy[locale];
   const learningLinkCopy = interviewLearningLinkCopy[locale];
   const personality = interviewPersonalities[personalityId];
@@ -100,6 +102,7 @@ export function InterviewChatPanel({ onClose, prioritySkill, focusSignal }: Inte
     const firstQuestion = interviewQuestions.find((question) => question.id === firstQuestionId);
     if (!firstQuestion) return;
     activeSessionSeedRef.current = sessionSeed;
+    sessionIdRef.current = `interview-${Date.now()}-${sessionSeed}`;
     setPersonalityId(nextPersonalityId);
     setQuestionIndex(0);
     setAwaitingFollowUp(false);
@@ -133,6 +136,18 @@ export function InterviewChatPanel({ onClose, prioritySkill, focusSignal }: Inte
     const evaluation = evaluateInterviewAnswer(submitted, locale);
     const nextEvaluations = [...evaluations, evaluation];
     const currentQuestion = questions[questionIndex];
+    recordInterviewScoreLog({
+      sessionId: sessionIdRef.current,
+      questionId: currentQuestion.id,
+      questionNumber: questionIndex + 1,
+      stage: INTERVIEW_STAGES[questionIndex],
+      turn: awaitingFollowUp ? "follow-up" : "primary",
+      locale,
+      personalityId,
+      wordCount: evaluation.wordCount,
+      score: evaluation.score,
+      explanation: evaluation.scoreLog,
+    });
     const nextMessages: ChatMessage[] = [
       ...messages,
       { id: messageId(), role: "candidate", text: submitted },

@@ -26,6 +26,33 @@ describe("interview chatbot", () => {
     expect(result.feedback.connection).toContain("GKS");
   });
 
+  it("creates an internal explanation for every awarded and missing scoring criterion", () => {
+    const result = evaluateInterviewAnswer(
+      "Organicé un proyecto con 12 estudiantes para preparar una presentación.",
+      "es",
+    );
+
+    expect(result.scoreLog.rubricVersion).toBe("structural-v1");
+    expect(result.scoreLog.criteria).toHaveLength(4);
+    expect(result.scoreLog.criteria.reduce((total, item) => total + item.awardedPoints, 0)).toBe(result.score);
+    expect(result.scoreLog.criteria.find((item) => item.signal === "direct")).toMatchObject({
+      awardedPoints: 0,
+      reasonCode: "word-count-below-threshold",
+    });
+    expect(result.scoreLog.criteria.find((item) => item.signal === "evidence")).toMatchObject({
+      awardedPoints: 25,
+      reasonCode: "numeric-detail-detected",
+    });
+    expect(result.scoreLog.criteria.every((item) => item.reason.length > 20)).toBe(true);
+  });
+
+  it("does not copy the candidate answer into the internal score explanation", () => {
+    const privatePhrase = "mi experiencia confidencial omega";
+    const result = evaluateInterviewAnswer(privatePhrase, "es");
+
+    expect(JSON.stringify(result.scoreLog)).not.toContain(privatePhrase);
+  });
+
   it("turns the candidate's own wording into precise improvement suggestions", () => {
     const answer = "Me gusta Corea y quiero estudiar allí.";
     const result = evaluateInterviewAnswer(answer, "es");

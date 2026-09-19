@@ -8,11 +8,40 @@ export type InterviewPersonalityId = typeof INTERVIEW_PERSONALITY_IDS[number];
 
 export const INTERVIEW_STAGES: InterviewStage[] = ["motivation", "academic", "adaptation", "contribution"];
 
+export const INTERVIEW_RUBRIC_VERSION = "structural-v1";
+
+export type InterviewScoreReasonCode =
+  | "word-count-met"
+  | "word-count-below-threshold"
+  | "numeric-detail-detected"
+  | "action-or-outcome-detected"
+  | "evidence-not-detected"
+  | "application-connection-detected"
+  | "application-connection-not-detected"
+  | "reflection-language-detected"
+  | "reflection-language-not-detected";
+
+export type InterviewScoreCriterionLog = {
+  signal: InterviewSignal;
+  awardedPoints: 0 | 25;
+  maxPoints: 25;
+  reasonCode: InterviewScoreReasonCode;
+  reason: string;
+};
+
+export type InterviewScoreExplanation = {
+  rubricVersion: typeof INTERVIEW_RUBRIC_VERSION;
+  score: number;
+  maxScore: 100;
+  criteria: InterviewScoreCriterionLog[];
+};
+
 export type InterviewAnswerEvaluation = {
   score: number;
   wordCount: number;
   signals: Record<InterviewSignal, boolean>;
   feedback: Record<InterviewSignal, string>;
+  scoreLog: InterviewScoreExplanation;
 };
 
 export type InterviewSessionSummary = {
@@ -234,20 +263,80 @@ function createContextualFeedback(
   };
 }
 
+function createScoreExplanation(
+  wordCount: number,
+  signals: Record<InterviewSignal, boolean>,
+  lexical: InterviewLexicalMatches,
+  hasNumericDetail: boolean,
+): InterviewScoreExplanation {
+  const criteria: InterviewScoreCriterionLog[] = [
+    {
+      signal: "direct",
+      awardedPoints: signals.direct ? 25 : 0,
+      maxPoints: 25,
+      reasonCode: signals.direct ? "word-count-met" : "word-count-below-threshold",
+      reason: signals.direct
+        ? `Awarded because the answer contains ${wordCount} words, meeting the 12-word structural threshold.`
+        : `Not awarded because the answer contains ${wordCount} words, below the 12-word structural threshold.`,
+    },
+    {
+      signal: "evidence",
+      awardedPoints: signals.evidence ? 25 : 0,
+      maxPoints: 25,
+      reasonCode: hasNumericDetail
+        ? "numeric-detail-detected"
+        : lexical.action || lexical.outcome
+          ? "action-or-outcome-detected"
+          : "evidence-not-detected",
+      reason: hasNumericDetail
+        ? "Awarded because the structural analyser detected a numeric detail."
+        : lexical.action || lexical.outcome
+          ? "Awarded because the structural analyser detected action or outcome language."
+          : "Not awarded because no numeric detail, action or outcome language was detected.",
+    },
+    {
+      signal: "connection",
+      awardedPoints: signals.connection ? 25 : 0,
+      maxPoints: 25,
+      reasonCode: signals.connection
+        ? "application-connection-detected"
+        : "application-connection-not-detected",
+      reason: signals.connection
+        ? "Awarded because the structural analyser detected a connection to the application, GKS, Korea or the study plan."
+        : "Not awarded because no connection to the application, GKS, Korea or the study plan was detected.",
+    },
+    {
+      signal: "reflection",
+      awardedPoints: signals.reflection ? 25 : 0,
+      maxPoints: 25,
+      reasonCode: signals.reflection
+        ? "reflection-language-detected"
+        : "reflection-language-not-detected",
+      reason: signals.reflection
+        ? "Awarded because the structural analyser detected learning, change or reflective language."
+        : "Not awarded because no learning, change or reflective language was detected.",
+    },
+  ];
+  const score = criteria.reduce((total, criterion) => total + criterion.awardedPoints, 0);
+  return { rubricVersion: INTERVIEW_RUBRIC_VERSION, score, maxScore: 100, criteria };
+}
+
 /** A transparent structural rubric; it does not claim to understand or judge the candidate. */
 export function evaluateInterviewAnswer(answer: string, locale: Locale): InterviewAnswerEvaluation {
   const normalized = answer.trim();
   const wordCount = countWords(normalized, locale);
   const lexical = analyzeInterviewLexicon(normalized, locale);
+  const hasNumericDetail = /\d/.test(normalized);
   const signals = {
     direct: wordCount >= 12,
-    evidence: /\d/.test(normalized) || Boolean(lexical.action || lexical.outcome),
+    evidence: hasNumericDetail || Boolean(lexical.action || lexical.outcome),
     connection: Boolean(lexical.connection),
     reflection: Boolean(lexical.reflection),
   };
-  const score = (Object.values(signals).filter(Boolean).length * 25);
+  const scoreLog = createScoreExplanation(wordCount, signals, lexical, hasNumericDetail);
+  const score = scoreLog.score;
   const feedback = createContextualFeedback(normalized, locale, wordCount, signals, lexical);
-  return { score, wordCount, signals, feedback };
+  return { score, wordCount, signals, feedback, scoreLog };
 }
 
 export function createAdaptiveInterviewFollowUp(
