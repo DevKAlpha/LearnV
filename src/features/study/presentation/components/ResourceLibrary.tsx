@@ -8,6 +8,7 @@ import {
 } from "@/infrastructure/data/learning-resources";
 import { AppIcon, type AppIconName } from "@/shared/ui/AppIcon";
 import { trackLearning } from "@/application/controllers/learningJourneyEvents";
+import { recordLearningError } from "@/infrastructure/data/learning-error-log";
 
 type TypeFilter = "all" | ResourceType;
 
@@ -19,7 +20,18 @@ export function ResourceLibrary({ language }: ResourceLibraryProps) {
   const { locale, copy } = useI18n();
   const [type, setType] = useState<TypeFilter>("all");
   const [completed, setCompleted] = useState<string[]>(() => {
-    try { return JSON.parse(localStorage.getItem("learnv-resource-progress-v1") ?? "[]"); } catch { return []; }
+    try {
+      const parsed: unknown = JSON.parse(localStorage.getItem("learnv-resource-progress-v1") ?? "[]");
+      if (!Array.isArray(parsed) || !parsed.every((item) => typeof item === "string")) throw new Error("Invalid resource progress shape");
+      return parsed;
+    } catch (error) {
+      recordLearningError({
+        area: language === "ko" ? "korean-learning" : "english-learning",
+        code: "resource-progress-read-failed",
+        error,
+      });
+      return [];
+    }
   });
   const resources = useMemo(
     () => learningResources.filter((resource) =>
@@ -56,7 +68,16 @@ export function ResourceLibrary({ language }: ResourceLibraryProps) {
     if (completing) trackLearning({ kind: "resource", itemId: id, language, passed: true });
     setCompleted((current) => {
       const next = current.includes(id) ? current.filter((item) => item !== id) : [...current, id];
-      localStorage.setItem("learnv-resource-progress-v1", JSON.stringify(next));
+      try {
+        localStorage.setItem("learnv-resource-progress-v1", JSON.stringify(next));
+      } catch (error) {
+        recordLearningError({
+          area: language === "ko" ? "korean-learning" : "english-learning",
+          code: "resource-progress-write-failed",
+          error,
+          context: { resourceId: id, completing },
+        });
+      }
       window.dispatchEvent(new CustomEvent("learnv:progress"));
       return next;
     });

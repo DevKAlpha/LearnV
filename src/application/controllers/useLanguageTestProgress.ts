@@ -6,6 +6,7 @@ import {
   type TestProgressState,
 } from "../../domain/models/language-test";
 import { practiceTestTracks } from "../../infrastructure/data/practice-tests";
+import { recordLearningError, resolveLearningDiagnosticArea } from "../../infrastructure/data/learning-error-log";
 import { trackLearning } from "./learningJourneyEvents";
 
 const STORAGE_KEY = "learnv-language-tests-v1";
@@ -15,8 +16,14 @@ function readProgress(): TestProgressState {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (!stored) return emptyTestProgress;
     const parsed = JSON.parse(stored) as Partial<TestProgressState>;
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("Invalid language progress shape");
     return { en: parsed.en ?? {}, ko: parsed.ko ?? {} };
-  } catch {
+  } catch (error) {
+    recordLearningError({
+      area: resolveLearningDiagnosticArea(window.location.pathname) ?? "study-overview",
+      code: "language-progress-read-failed",
+      error,
+    });
     return emptyTestProgress;
   }
 }
@@ -26,7 +33,15 @@ export function useLanguageTestProgress() {
   const mounted = useRef(false);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    } catch (error) {
+      recordLearningError({
+        area: resolveLearningDiagnosticArea(window.location.pathname) ?? "study-overview",
+        code: "language-progress-write-failed",
+        error,
+      });
+    }
     if (mounted.current) window.dispatchEvent(new CustomEvent("learnv:progress"));
     else mounted.current = true;
   }, [progress]);
@@ -34,6 +49,12 @@ export function useLanguageTestProgress() {
   const recordAttempt = useCallback((language: TestLanguage, stageId: string, score: number, passed: boolean) => {
     const skill = practiceTestTracks[language].stages.find((stage) => stage.id === stageId)?.skill;
     if (skill) trackLearning({ kind: "practice", itemId: stageId, language, skill, score, passed });
+    else recordLearningError({
+      area: language === "ko" ? "korean-learning" : "english-learning",
+      severity: "warning",
+      code: "test-stage-skill-not-found",
+      context: { stageId, score, passed },
+    });
     setProgress((current) => {
       const previous = current[language][stageId];
       const nextStage: StageProgress = {

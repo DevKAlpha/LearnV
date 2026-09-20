@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { useLanguageTestProgress } from "@/application/controllers/useLanguageTestProgress";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { isStageUnlocked, type TestSkill } from "@/domain/models/language-test";
 import { practiceTestTracks as languageTestTracks, TESTS_PER_LANGUAGE, TESTS_PER_SKILL } from "@/infrastructure/data/practice-tests";
+import { recordLearningError } from "@/infrastructure/data/learning-error-log";
 import { AppIcon, type AppIconName } from "@/shared/ui/AppIcon";
 
 export function TestPathPage() {
@@ -34,6 +35,16 @@ export function TestPathPage() {
     listening: "listening",
     pronunciation: "speaking",
   };
+
+  useEffect(() => {
+    if (!invalidLanguage) return;
+    recordLearningError({
+      area: "study-overview",
+      severity: "warning",
+      code: "invalid-test-path-language",
+      context: { languageParam: languageParam ?? null },
+    });
+  }, [invalidLanguage, languageParam]);
 
   if (invalidLanguage) return <Navigate to="/study" replace />;
 

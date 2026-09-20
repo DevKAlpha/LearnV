@@ -16,12 +16,17 @@ import {
   announceWrittenSimulatorState,
   WRITTEN_SIMULATOR_STORAGE_KEY,
 } from "./writtenSimulatorStatus";
+import { recordLearningError } from "../../infrastructure/data/learning-error-log";
 
 function readState(): WrittenSimulatorState {
   try {
     const stored = localStorage.getItem(WRITTEN_SIMULATOR_STORAGE_KEY);
-    return stored ? { ...emptyWrittenSimulator, ...JSON.parse(stored) } : emptyWrittenSimulator;
-  } catch {
+    if (!stored) return emptyWrittenSimulator;
+    const parsed: unknown = JSON.parse(stored);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("Invalid written simulator state shape");
+    return { ...emptyWrittenSimulator, ...parsed };
+  } catch (error) {
+    recordLearningError({ area: "written-simulator", code: "written-state-read-failed", error });
     return emptyWrittenSimulator;
   }
 }
@@ -31,7 +36,11 @@ export function useWrittenSimulator() {
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
-    localStorage.setItem(WRITTEN_SIMULATOR_STORAGE_KEY, JSON.stringify(state));
+    try {
+      localStorage.setItem(WRITTEN_SIMULATOR_STORAGE_KEY, JSON.stringify(state));
+    } catch (error) {
+      recordLearningError({ area: "written-simulator", code: "written-state-write-failed", error });
+    }
     announceWrittenSimulatorState(isWrittenSimulatorStarted(state));
   }, [state]);
 

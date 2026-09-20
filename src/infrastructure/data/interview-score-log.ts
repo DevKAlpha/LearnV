@@ -4,6 +4,7 @@ import type {
   InterviewScoreExplanation,
   InterviewStage,
 } from "@/domain/models/interview-chatbot";
+import { recordLearningError } from "./learning-error-log";
 
 export const INTERVIEW_SCORE_LOG_STORAGE_KEY = "learnv-interview-score-log-v1";
 export const INTERVIEW_SCORE_LOG_LIMIT = 200;
@@ -46,7 +47,13 @@ export function readInterviewScoreLog(storage: ScoreLogStorage = window.localSto
   try {
     const parsed: unknown = JSON.parse(storage.getItem(INTERVIEW_SCORE_LOG_STORAGE_KEY) ?? "[]");
     return Array.isArray(parsed) ? parsed.filter(isScoreLogEntry).slice(0, INTERVIEW_SCORE_LOG_LIMIT) : [];
-  } catch {
+  } catch (error) {
+    recordLearningError({
+      area: "interview-chatbot",
+      code: "interview-score-log-read-failed",
+      error,
+      route: "/interview-chatbot",
+    }, storage);
     return [];
   }
 }
@@ -69,7 +76,13 @@ export function recordInterviewScoreLog(
     const entries = [entry, ...readInterviewScoreLog(storage)].slice(0, INTERVIEW_SCORE_LOG_LIMIT);
     storage.setItem(INTERVIEW_SCORE_LOG_STORAGE_KEY, JSON.stringify(entries));
     return entry;
-  } catch {
+  } catch (error) {
+    recordLearningError({
+      area: "interview-chatbot",
+      code: "interview-score-log-write-failed",
+      error,
+      route: "/interview-chatbot",
+    }, storage);
     return null;
   }
 }

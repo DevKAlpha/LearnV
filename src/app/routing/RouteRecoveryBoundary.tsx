@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { recoverFromAssetFailure } from "@/app/routing/asset-recovery";
+import { recordLearningError, resolveLearningDiagnosticArea } from "@/infrastructure/data/learning-error-log";
 import { BrandMark } from "@/shared/ui/BrandMark";
 
 type Props = {
@@ -23,7 +24,14 @@ export class RouteRecoveryBoundary extends Component<Props, State> {
     return { failed: true };
   }
 
-  componentDidCatch(_error: Error, _info: ErrorInfo) {
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    const area = resolveLearningDiagnosticArea(window.location.pathname);
+    if (area) recordLearningError({
+      area,
+      code: "react-route-render-failed",
+      error,
+      context: { componentStack: info.componentStack ?? "" },
+    });
     this.props.onFailure();
   }
 

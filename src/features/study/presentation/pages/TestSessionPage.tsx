@@ -9,6 +9,7 @@ import {
   type TestResult,
 } from "@/domain/models/language-test";
 import { practiceTestTracks as languageTestTracks } from "@/infrastructure/data/practice-tests";
+import { recordLearningError } from "@/infrastructure/data/learning-error-log";
 import { AppIcon } from "@/shared/ui/AppIcon";
 import { LiteYouTube } from "@/shared/ui/LiteYouTube";
 
@@ -131,6 +132,16 @@ export function TestSessionPage() {
     return () => window.clearTimeout(timer);
   }, [finishTest, productionDone, result, secondsLeft, timed]);
 
+  useEffect(() => {
+    if (!invalidLanguage && !invalidStage && unlocked) return;
+    recordLearningError({
+      area: language === "ko" ? "korean-learning" : "english-learning",
+      severity: "warning",
+      code: invalidLanguage ? "invalid-test-language-route" : invalidStage ? "test-stage-not-found" : "locked-test-route-requested",
+      context: { languageParam: languageParam ?? null, stageId: stageId ?? null },
+    });
+  }, [invalidLanguage, invalidStage, language, languageParam, stageId, unlocked]);
+
   if (invalidLanguage || invalidStage || !unlocked) {
     return <Navigate to={`/tests/${invalidLanguage ? "en" : language}`} replace />;
   }
@@ -154,13 +165,28 @@ export function TestSessionPage() {
   const playAudio = () => {
     if (!question.audioText || !("speechSynthesis" in window)) {
       setAudioFallback(true);
+      recordLearningError({
+        area: language === "ko" ? "korean-learning" : "english-learning",
+        severity: "warning",
+        code: "speech-synthesis-unavailable",
+        context: { stageId: stage.id, questionId: question.id },
+      });
       return;
     }
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(question.audioText);
     utterance.lang = language === "ko" ? "ko-KR" : "en-GB";
     utterance.rate = runNumber > 1 ? 1.03 : 0.94;
-    utterance.onerror = () => setAudioFallback(true);
+    utterance.onerror = (event) => {
+      setAudioFallback(true);
+      recordLearningError({
+        area: language === "ko" ? "korean-learning" : "english-learning",
+        severity: "warning",
+        code: "speech-synthesis-failed",
+        message: "Speech synthesis could not play the learning prompt.",
+        context: { stageId: stage.id, questionId: question.id, eventType: event.error },
+      });
+    };
     window.speechSynthesis.speak(utterance);
   };
 
@@ -168,6 +194,12 @@ export function TestSessionPage() {
     setMicrophoneError(false);
     if (!("MediaRecorder" in window) || !navigator.mediaDevices?.getUserMedia) {
       setMicrophoneError(true);
+      recordLearningError({
+        area: language === "ko" ? "korean-learning" : "english-learning",
+        severity: "warning",
+        code: "media-recorder-unavailable",
+        context: { stageId: stage.id },
+      });
       return;
     }
 
@@ -192,10 +224,17 @@ export function TestSessionPage() {
       recorder.start();
       setSpeakingPractised(false);
       setIsRecording(true);
-    } catch {
+    } catch (error) {
       setMicrophoneError(true);
       setIsRecording(false);
       streamRef.current?.getTracks().forEach((track) => track.stop());
+      recordLearningError({
+        area: language === "ko" ? "korean-learning" : "english-learning",
+        severity: "warning",
+        code: "microphone-start-failed",
+        error,
+        context: { stageId: stage.id },
+      });
     }
   };
 

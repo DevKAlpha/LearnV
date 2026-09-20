@@ -8,10 +8,15 @@ import {
 } from "@/domain/models/learning-journey";
 import { analyzeLearningResults } from "@/domain/models/learning-analysis";
 import { createInterviewAdaptation } from "@/domain/models/interview-adaptation";
+import { recordLearningError, resolveLearningDiagnosticArea } from "@/infrastructure/data/learning-error-log";
 import type { TestProgressState } from "@/domain/models/language-test";
 import { LEARNING_JOURNEY_EVENT } from "./learningJourneyEvents";
 
 const STORAGE_KEY = "learnv-learning-journey-v1";
+
+function currentDiagnosticArea() {
+  return resolveLearningDiagnosticArea(window.location.pathname) ?? "study-overview";
+}
 
 function skillFromStageId(stageId: string) {
   return (["reading", "grammar", "vocabulary", "writing", "listening", "pronunciation"] as const)
@@ -46,7 +51,8 @@ function migrateLanguageResults(state: LearningJourneyState) {
         });
       }
     }
-  } catch {
+  } catch (error) {
+    recordLearningError({ area: currentDiagnosticArea(), code: "learning-journey-migration-failed", error });
     return migrated;
   }
   return migrated;
@@ -59,7 +65,8 @@ function readJourney(): LearningJourneyState {
       ? { ...createLearningJourney(), ...(JSON.parse(stored) as LearningJourneyState) }
       : { ...createLearningJourney(), version: 1 };
     return migrateLanguageResults(parsed);
-  } catch {
+  } catch (error) {
+    recordLearningError({ area: currentDiagnosticArea(), code: "learning-journey-read-failed", error });
     return createLearningJourney();
   }
 }
@@ -71,7 +78,16 @@ export function useLearningJourney(pathname: string) {
   const record = useCallback((event: LearningEvent) => {
     setJourney((current) => {
       const next = recordLearningEvent(current, event);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch (error) {
+        recordLearningError({
+          area: currentDiagnosticArea(),
+          code: "learning-journey-write-failed",
+          error,
+          context: { eventKind: event.kind, skill: event.skill ?? null, language: event.language ?? null },
+        });
+      }
       return next;
     });
   }, []);

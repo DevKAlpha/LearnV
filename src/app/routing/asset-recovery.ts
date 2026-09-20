@@ -1,3 +1,5 @@
+import { recordLearningError, resolveLearningDiagnosticArea } from "@/infrastructure/data/learning-error-log";
+
 export const ASSET_RECOVERY_STORAGE_KEY = "learnv-asset-recovery-v1";
 export const ASSET_RECOVERY_QUERY = "learnv-recover";
 export const ASSET_LOAD_TIMEOUT_MS = 8_000;
@@ -31,7 +33,23 @@ function recentlyRecovered(now: number) {
 export function recoverFromAssetFailure(error: unknown, force = false) {
   if (!force && !resemblesAssetFailure(error)) return false;
   const now = Date.now();
-  if (!force && recentlyRecovered(now)) return false;
+  const area = resolveLearningDiagnosticArea(window.location.pathname);
+  if (!force && recentlyRecovered(now)) {
+    if (area) recordLearningError({
+      area,
+      severity: "error",
+      code: "asset-recovery-loop-prevented",
+      error,
+    });
+    return false;
+  }
+
+  if (area) recordLearningError({
+    area,
+    severity: "recovery",
+    code: force ? "asset-recovery-forced" : "asset-recovery-started",
+    error,
+  });
 
   try {
     window.sessionStorage.setItem(ASSET_RECOVERY_STORAGE_KEY, String(now));

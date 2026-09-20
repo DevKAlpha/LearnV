@@ -7,6 +7,7 @@ import { useI18n } from "@/application/i18n/I18nContext";
 import { localize } from "@/domain/models/i18n";
 import { interviewLearningLinkCopy } from "@/infrastructure/data/interview-learning-link";
 import { interviewQuestions, interviewTips } from "@/infrastructure/data/interview-prep";
+import { recordLearningError } from "@/infrastructure/data/learning-error-log";
 import { AppIcon } from "@/shared/ui/AppIcon";
 import { LiteYouTube } from "@/shared/ui/LiteYouTube";
 
@@ -15,7 +16,14 @@ type SavedPractice = Record<string, { answer: string; checked: boolean[] }>;
 const INTERVIEW_STORAGE_KEY = "learnv-interview-practice-v1";
 
 function readSavedPractice(): SavedPractice {
-  try { return JSON.parse(localStorage.getItem(INTERVIEW_STORAGE_KEY) ?? "{}"); } catch { return {}; }
+  try {
+    const parsed: unknown = JSON.parse(localStorage.getItem(INTERVIEW_STORAGE_KEY) ?? "{}");
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("Invalid interview practice shape");
+    return parsed as SavedPractice;
+  } catch (error) {
+    recordLearningError({ area: "interview-preparation", code: "interview-practice-read-failed", error });
+    return {};
+  }
 }
 
 function questionIndexFor(category: Category, questionId: string) {
@@ -42,7 +50,13 @@ export function InterviewPrepPage({ learning }: { learning: LearningJourneyContr
   const learningLinkCopy = interviewLearningLinkCopy[locale];
   const scrollToSection = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
-  useEffect(() => { localStorage.setItem(INTERVIEW_STORAGE_KEY, JSON.stringify(savedPractice)); }, [savedPractice]);
+  useEffect(() => {
+    try {
+      localStorage.setItem(INTERVIEW_STORAGE_KEY, JSON.stringify(savedPractice));
+    } catch (error) {
+      recordLearningError({ area: "interview-preparation", code: "interview-practice-write-failed", error });
+    }
+  }, [savedPractice]);
   useEffect(() => {
     if (!timerRunning || secondsLeft <= 0) return;
     const timer = window.setTimeout(() => setSecondsLeft((current) => current - 1), 1000);
