@@ -40,6 +40,15 @@ describe("dynamic interview adaptation", () => {
     });
   });
 
+  it("responds to recent improvement without being anchored to an old low result", () => {
+    let state = createLearningJourney();
+    state = recordLearningEvent(state, { kind: "practice", language: "en", skill: "writing", score: 30, passed: false });
+    state = recordLearningEvent(state, { kind: "practice", language: "en", skill: "writing", score: 90, passed: true });
+    state = recordLearningEvent(state, { kind: "practice", language: "en", skill: "writing", score: 90, passed: true });
+
+    expect(createInterviewAdaptation(state)).toMatchObject({ language: "en", level: "solid" });
+  });
+
   it("allows a fresh chatbot report to override an older stored focus", () => {
     let state = createLearningJourney();
     state = recordLearningEvent(state, { kind: "practice", language: "en", skill: "grammar", score: 62, passed: false });

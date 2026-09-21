@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { openInterviewChatbot } from "@/application/controllers/interviewChatbotEvents";
 import { trackLearning } from "@/application/controllers/learningJourneyEvents";
 import type { LearningJourneyController } from "@/application/controllers/useLearningJourney";
@@ -34,6 +34,7 @@ function questionIndexFor(category: Category, questionId: string) {
 
 export function InterviewPrepPage({ learning }: { learning: LearningJourneyController }) {
   const { locale, copy } = useI18n();
+  const { hash } = useLocation();
   const adaptation = learning.interviewAdaptation;
   const [category, setCategory] = useState<Category>(adaptation.category);
   const [practiceIndex, setPracticeIndex] = useState(() => questionIndexFor(adaptation.category, adaptation.questionId));
@@ -69,6 +70,13 @@ export function InterviewPrepPage({ learning }: { learning: LearningJourneyContr
     setSecondsLeft(75);
     setTimerRunning(false);
   }, [adaptation.category, adaptation.questionId]);
+  useEffect(() => {
+    if (!hash) return;
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: "auto", block: "start" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [hash]);
 
   const changePractice = (direction: number) => {
     if (direction > 0 && (answer.trim().length > 0 || checked.some(Boolean))) {

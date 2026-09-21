@@ -64,6 +64,18 @@ describe("interview score log", () => {
     expect(entries.at(-1)?.questionNumber).toBe(6);
   });
 
+  it("keeps the main answer and follow-up as separate traces for the same question", () => {
+    const storage = createMemoryStorage();
+    const primary = logInput(0);
+    recordInterviewScoreLog(primary, storage);
+    recordInterviewScoreLog({ ...primary, turn: "follow-up" }, storage);
+
+    const entries = readInterviewScoreLog(storage);
+    expect(entries).toHaveLength(2);
+    expect(entries.map((entry) => entry.turn)).toEqual(["follow-up", "primary"]);
+    expect(new Set(entries.map((entry) => entry.id)).size).toBe(2);
+  });
+
   it("recovers safely from corrupted stored data", () => {
     const storage = createMemoryStorage();
     storage.setItem(INTERVIEW_SCORE_LOG_STORAGE_KEY, "not-json");

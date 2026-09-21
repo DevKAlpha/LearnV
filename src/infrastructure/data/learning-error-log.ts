@@ -14,6 +14,9 @@ export type LearningDiagnosticContext = Record<string, string | number | boolean
 export type LearningErrorLogEntry = {
   id: string;
   occurredAt: string;
+  firstOccurredAt: string;
+  lastOccurredAt: string;
+  occurrences: number;
   area: LearningDiagnosticArea;
   severity: LearningDiagnosticSeverity;
   code: string;
@@ -87,6 +90,15 @@ function isLogEntry(value: unknown): value is LearningErrorLogEntry {
     && LEARNING_DIAGNOSTIC_AREAS.includes(entry.area as LearningDiagnosticArea);
 }
 
+function normalizeLogEntry(entry: LearningErrorLogEntry): LearningErrorLogEntry {
+  return {
+    ...entry,
+    firstOccurredAt: typeof entry.firstOccurredAt === "string" ? entry.firstOccurredAt : entry.occurredAt,
+    lastOccurredAt: typeof entry.lastOccurredAt === "string" ? entry.lastOccurredAt : entry.occurredAt,
+    occurrences: Number.isFinite(entry.occurrences) && entry.occurrences > 0 ? entry.occurrences : 1,
+  };
+}
+
 function browserStorage(): DiagnosticStorage | null {
   try {
     return window.localStorage;
@@ -104,6 +116,7 @@ export function readLearningErrorLog(
     const parsed: unknown = JSON.parse(storage.getItem(learningErrorStorageKey(area)) ?? "[]");
     return Array.isArray(parsed)
       ? parsed.filter((entry): entry is LearningErrorLogEntry => isLogEntry(entry) && entry.area === area)
+        .map(normalizeLogEntry)
         .slice(0, LEARNING_ERROR_LOG_LIMIT)
       : [];
   } catch {
@@ -120,19 +133,30 @@ export function recordLearningError(
   try {
     const occurredAt = input.occurredAt ?? new Date().toISOString();
     const details = errorDetails(input.error);
+    const message = compact(input.message || details.message, 300);
+    const previous = readLearningErrorLog(input.area, storage);
+    const repeatedIndex = previous.findIndex((entry) =>
+      entry.code === compact(input.code, 80)
+      && entry.route === compact(input.route ?? window.location.pathname, 180)
+      && entry.message === message
+      && entry.errorName === details.name);
+    const repeated = repeatedIndex >= 0 ? previous[repeatedIndex] : null;
     const entry: LearningErrorLogEntry = {
       id: `${input.area}:${input.code}:${occurredAt}`,
       occurredAt,
+      firstOccurredAt: repeated?.firstOccurredAt ?? occurredAt,
+      lastOccurredAt: occurredAt,
+      occurrences: (repeated?.occurrences ?? 0) + 1,
       area: input.area,
       severity: input.severity ?? "error",
       code: compact(input.code, 80),
-      message: compact(input.message || details.message, 300),
+      message,
       errorName: details.name,
       route: compact(input.route ?? window.location.pathname, 180),
       context: safeContext(input.context),
       stack: details.stack,
     };
-    const next = [entry, ...readLearningErrorLog(input.area, storage)].slice(0, LEARNING_ERROR_LOG_LIMIT);
+    const next = [entry, ...previous.filter((_, index) => index !== repeatedIndex)].slice(0, LEARNING_ERROR_LOG_LIMIT);
     storage.setItem(learningErrorStorageKey(input.area), JSON.stringify(next));
     return entry;
   } catch {

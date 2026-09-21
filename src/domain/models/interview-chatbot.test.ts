@@ -86,6 +86,14 @@ describe("interview chatbot", () => {
     expect(evaluateInterviewAnswer("La universidad solicita una cuenta bancaria para realizar el pago.", "es").signals.reflection).toBe(false);
   });
 
+  it.each([
+    ["Elegí esta opción porque es adecuada para mi objetivo académico.", "es"],
+    ["I chose this option because it fits my academic goal.", "en"],
+    ["왜냐하면 이 전공이 제 목표와 맞습니다.", "ko"],
+  ] as const)("does not confuse a causal connector with personal reflection", (answer, locale) => {
+    expect(evaluateInterviewAnswer(answer, locale).signals.reflection).toBe(false);
+  });
+
   it("does not award an application connection for a regional place name alone", () => {
     expect(evaluateInterviewAnswer("Soy de Santander y vivo en Cantabria desde hace años.", "es").signals.connection).toBe(false);
   });
@@ -152,7 +160,7 @@ describe("interview chatbot", () => {
   it("summarises several turns into one actionable priority", () => {
     const first = evaluateInterviewAnswer("Mi objetivo principal conecta mi carrera con GKS y Corea porque quiero estudiar allí.", "es");
     const second = evaluateInterviewAnswer("Organicé un proyecto con 8 personas y logré medir el resultado.", "es");
-    expect(summarizeInterviewSession([first, second])).toMatchObject({ average: 50, answered: 2 });
+    expect(summarizeInterviewSession([first, second])).toMatchObject({ average: 38, answered: 2 });
   });
 
   it("reports signal coverage and progress between both halves of a session", () => {

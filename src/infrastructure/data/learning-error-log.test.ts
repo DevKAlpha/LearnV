@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   LEARNING_ERROR_LOG_LIMIT,
+  LEARNING_DIAGNOSTIC_AREAS,
   learningErrorStorageKey,
   readLearningErrorLog,
   recordLearningError,
@@ -16,6 +17,11 @@ function createMemoryStorage() {
 }
 
 describe("learning error log", () => {
+  it("uses a different storage key for every hidden learning log", () => {
+    const keys = LEARNING_DIAGNOSTIC_AREAS.map(learningErrorStorageKey);
+    expect(new Set(keys).size).toBe(LEARNING_DIAGNOSTIC_AREAS.length);
+  });
+
   it.each([
     ["/study", "study-overview"],
     ["/study/english", "english-learning"],
@@ -69,6 +75,27 @@ describe("learning error log", () => {
     expect(raw).toContain("attempt");
     expect(raw).not.toContain("private candidate statement");
     expect(raw).not.toContain("private answer");
+  });
+
+  it("groups repeated failures so one noisy issue cannot hide other diagnostics", () => {
+    const storage = createMemoryStorage();
+    for (let index = 0; index < 4; index += 1) {
+      recordLearningError({
+        area: "interview-chatbot",
+        code: "chatbot-render-failed",
+        message: "The panel failed to render.",
+        route: "/",
+        occurredAt: new Date(2026, 8, 19, 11, 0, index).toISOString(),
+      }, storage);
+    }
+
+    const entries = readLearningErrorLog("interview-chatbot", storage);
+    expect(entries).toHaveLength(1);
+    expect(entries[0]).toMatchObject({
+      occurrences: 4,
+      firstOccurredAt: new Date(2026, 8, 19, 11, 0, 0).toISOString(),
+      lastOccurredAt: new Date(2026, 8, 19, 11, 0, 3).toISOString(),
+    });
   });
 
   it("bounds each module log and recovers from corrupted data", () => {

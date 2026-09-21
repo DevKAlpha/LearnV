@@ -67,7 +67,7 @@ export type InterviewSessionAdvice = {
 
 const KOREAN_ACTION_PATTERN = /(배웠|만들|이끌|조사|개선|달성|측정|준비)/;
 const KOREAN_CONNECTION_PATTERN = /(한국|전공|학업|대학|계획|장학금)/;
-const KOREAN_REFLECTION_PATTERN = /(왜냐하면|그래서|배웠|변화|결과|통해)/;
+const KOREAN_REFLECTION_PATTERN = /(배웠|깨달|느꼈|변화|성찰|알게\s*되|교훈)/;
 
 type InterviewLexicalProfile = {
   action: string[];
@@ -108,7 +108,7 @@ const INTERVIEW_LEXICON: Record<"es" | "en", InterviewLexicalProfile> = {
     ],
     reflection: [
       "aprend", "cambi", "comprend", "confirm", "conclu", "cuadr", "cuenta", "decid", "descubr",
-      "encaj", "ensen", "entend", "permit", "porque", "razon", "reflexion", "replante", "sirv",
+      "encaj", "ensen", "entend", "permit", "reflexion", "replante", "sirv",
     ],
   },
   en: {
@@ -119,7 +119,7 @@ const INTERVIEW_LEXICON: Record<"es" | "en", InterviewLexicalProfile> = {
     ],
     outcome: ["achiev", "completed", "delivered", "impact", "improv", "increas", "reduc", "result", "solved"],
     connection: ["academic", "degree", "gks", "korea", "major", "programme", "program", "scholarship", "stud", "university"],
-    reflection: ["allowed", "because", "changed", "decid", "discover", "learn", "realiz", "reflect", "therefore", "underst"],
+    reflection: ["allowed", "changed", "decid", "discover", "learn", "realiz", "reflect", "underst"],
   },
 };
 

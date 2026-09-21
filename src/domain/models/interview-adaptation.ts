@@ -72,8 +72,13 @@ const QUESTION_LADDERS: Record<InterviewSignal, Record<InterviewPracticeLevel, s
 };
 
 function average(events: LearningEvent[]) {
-  const scores = events.map((event) => event.score).filter((score): score is number => typeof score === "number");
-  return scores.length ? scores.reduce((total, score) => total + score, 0) / scores.length : null;
+  const scores = events.map((event) => event.score)
+    .filter((score): score is number => typeof score === "number")
+    .slice(0, 6);
+  if (!scores.length) return null;
+  const weighted = scores.reduce((total, score, index) => total + score * (scores.length - index), 0);
+  const weights = scores.reduce((total, _, index) => total + scores.length - index, 0);
+  return weighted / weights;
 }
 
 function levelFor(score: number | null): InterviewPracticeLevel {
