@@ -19,6 +19,19 @@ export type GksFact = {
   sourceId: string;
 };
 
+export type CertificationPriority = "highest" | "high" | "supporting";
+
+export type GksCertification = {
+  id: "topik" | "toefl" | "ielts" | "supporting";
+  icon: string;
+  priority: CertificationPriority;
+  sourceId: string;
+  scoreBands: Array<{
+    score: string;
+    weight: string;
+  }>;
+};
+
 export type StudyTask = {
   id: string;
   title: string;

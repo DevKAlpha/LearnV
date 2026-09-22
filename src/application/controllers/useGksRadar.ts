@@ -21,12 +21,12 @@ export type GksRadarSnapshot = {
 
 const fallbackSnapshot: GksRadarSnapshot = {
   schemaVersion: 1,
-  checkedAt: "2026-08-21T12:00:00.000Z",
-  nextCheckAt: "2026-08-22T12:00:00.000Z",
-  callDetected: false,
+  checkedAt: "2026-09-21T12:00:00.000Z",
+  nextCheckAt: "2026-09-22T12:00:00.000Z",
+  callDetected: true,
   sourceChecks: [
-    { id: "study-in-korea-notices", url: "https://www.studyinkorea.go.kr/ko/notice/scholarshipsList.do?boardSort=3", ok: true, changed: false },
-    { id: "niied-2027", url: "https://www.niied.go.kr/web/main/nid/niied_board/5745", ok: true, changed: false },
+    { id: "study-in-korea-notices", url: "https://www.studyinkorea.go.kr/ko/notice/scholarshipsList.do?boardSort=3", ok: true, changed: false, detectsCall: true },
+    { id: "study-in-korea-2027", url: "https://www.studyinkorea.go.kr/ko/notice/scholarshipsRead.do?bbsId=BBSMSTR_000000000461&nttId=4522", ok: true, changed: false, detectsCall: true },
     { id: "spain-embassy-notices", url: "https://overseas.mofa.go.kr/es-es/brd/m_8065/list.do", ok: false, changed: false },
   ],
 };

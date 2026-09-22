@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useGksRadar } from "@/application/controllers/useGksRadar";
 import { useI18n } from "@/application/i18n/I18nContext";
-import { currentCycle, keyFacts, sources, targetPrograms } from "@/infrastructure/data/gks-2026";
+import { currentCycle, gksCertifications, keyFacts, sources, targetPrograms } from "@/infrastructure/data/gks-2026";
 import { gksFeedbackVideos } from "@/infrastructure/data/gks-feedback-videos";
 import { SourceLink } from "@/shared/ui/SourceLink";
 import { LiteYouTube } from "@/shared/ui/LiteYouTube";
@@ -25,9 +25,11 @@ export function GksPage() {
     hour: "2-digit",
     minute: "2-digit",
   }).format(new Date(radar.checkedAt));
-  const latestSource = sources.find((source) => source.id === "niied-2027");
+  const latestSource = sources.find((source) => source.id === "study-in-korea-2027");
   const spainSource = sources.find((source) => source.id === "spain-embassy-notices");
-  const callSourceUrl = radar.sourceChecks.find((source) => source.detectsCall)?.url ?? latestSource?.url;
+  const callSourceUrl = latestSource?.url ?? radar.sourceChecks.find((source) => source.detectsCall)?.url;
+  const callIsPublished = currentCycle.status === "published";
+  const hasUnreviewedCall = radar.callDetected && !callIsPublished;
   const selectedVideo = gksFeedbackVideos[videoIndex];
   const selectedVideoCopy = copy.gks.videoItems[selectedVideo.id];
   const moveVideo = (direction: number) => setVideoIndex((current) => (
@@ -56,15 +58,15 @@ export function GksPage() {
             <span className="eyebrow">{copy.gks.dailyKicker}</span>
             <h2 id="daily-radar-title">{copy.gks.dailyTitle}</h2>
           </div>
-          <div className={`radar-signal${radar.callDetected ? " radar-signal--alert" : ""}`} aria-hidden="true">
-            <span>{radar.callDetected ? "!" : "✓"}</span>
+          <div className={`radar-signal${hasUnreviewedCall ? " radar-signal--alert" : ""}`} aria-hidden="true">
+            <span>{hasUnreviewedCall ? "!" : "✓"}</span>
           </div>
         </div>
 
-        <article className={`gks-priority gks-priority--main${radar.callDetected ? " gks-priority--alert" : ""}`}>
+        <article className={`gks-priority gks-priority--main${hasUnreviewedCall ? " gks-priority--alert" : ""}`}>
           <span>{copy.gks.callLabel}</span>
-          <strong>{currentCycle.target} · {radar.callDetected ? copy.gks.callDetected : copy.gks.callPending}</strong>
-          <p>{radar.callDetected ? copy.gks.callDetectedText : copy.gks.latestUpdateText}</p>
+          <strong>{currentCycle.target} · {callIsPublished ? copy.gks.callPublished : hasUnreviewedCall ? copy.gks.callDetected : copy.gks.callPending}</strong>
+          <p>{hasUnreviewedCall ? copy.gks.callDetectedText : copy.gks.latestUpdateText}</p>
           {callSourceUrl && <a href={callSourceUrl} target="_blank" rel="noreferrer">{copy.gks.openOfficial}<span aria-hidden="true">↗</span></a>}
         </article>
 
@@ -94,6 +96,74 @@ export function GksPage() {
           <span><b>{onlineSources}/{radar.sourceChecks.length}</b>{copy.gks.sourcesOnline}</span>
           <span><b>24 h</b>{copy.gks.refreshFrequency}</span>
           <span><b>{copy.gks.referenceYear}</b>{copy.gks.referenceOnly}</span>
+        </div>
+      </section>
+
+      <section className="gks-certifications" id="gks-certifications" aria-labelledby="gks-certifications-title">
+        <div className="gks-certifications__heading">
+          <div>
+            <span className="eyebrow">{copy.gks.certifications.kicker}</span>
+            <h2 id="gks-certifications-title">{copy.gks.certifications.title}</h2>
+            <p>{copy.gks.certifications.intro}</p>
+          </div>
+          <span className="gks-certifications__cycle">GKS-U 2027</span>
+        </div>
+
+        <div className="gks-certification-grid">
+          {gksCertifications.map((certificate) => {
+            const certificateCopy = copy.gks.certifications.items[certificate.id];
+            const studyPath = certificate.id === "topik"
+              ? "/study/korean"
+              : certificate.id === "toefl" || certificate.id === "ielts"
+                ? "/study/english"
+                : null;
+
+            return (
+              <article className={`gks-certification-card gks-certification-card--${certificate.priority}`} key={certificate.id}>
+                <header>
+                  <span className="gks-certification-card__icon" aria-hidden="true">{certificate.icon}</span>
+                  <div>
+                    <small>{certificateCopy.subtitle}</small>
+                    <h3>{certificateCopy.title}</h3>
+                  </div>
+                  <span className="gks-certification-card__priority">
+                    {copy.gks.certifications.priorityLabel} · {copy.gks.certifications.priorities[certificate.priority]}
+                  </span>
+                </header>
+
+                <p>{certificateCopy.text}</p>
+
+                {certificate.scoreBands.length > 0 && (
+                  <div className="gks-certification-bands" aria-label={copy.gks.certifications.languageWeight}>
+                    {certificate.scoreBands.map((band) => (
+                      <span key={`${certificate.id}-${band.score}`}>
+                        <b>{band.score}</b>
+                        <i>{band.weight}</i>
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="gks-certification-card__note">{certificateCopy.note}</div>
+                <footer>
+                  <SourceLink sourceId={certificate.sourceId} />
+                  {studyPath && (
+                    <Link to={studyPath}>
+                      {certificate.id === "topik" ? copy.gks.certifications.prepareKorean : copy.gks.certifications.prepareEnglish}
+                      <span aria-hidden="true">→</span>
+                    </Link>
+                  )}
+                </footer>
+              </article>
+            );
+          })}
+        </div>
+
+        <div className="gks-certifications__notes">
+          <p><strong>50%</strong>{copy.gks.certifications.noScore}</p>
+          <p>{copy.gks.certifications.bandLegend}</p>
+          <p>{copy.gks.certifications.bestOnly}</p>
+          <p>{copy.gks.certifications.validity}</p>
         </div>
       </section>
 
@@ -189,7 +259,15 @@ export function GksPage() {
         </details>
 
         <details className="gks-disclosure">
-          <summary><span><b>04</b>{copy.gks.sourcesSummary}</span><i aria-hidden="true">＋</i></summary>
+          <summary><span><b>04</b>{copy.gks.certificationsSummary}</span><i aria-hidden="true">＋</i></summary>
+          <div className="gks-disclosure__content">
+            <p className="section-intro">{copy.gks.certifications.intro}</p>
+            <a className="gks-certification-jump" href="#gks-certifications">{copy.gks.certifications.title}<span aria-hidden="true">↑</span></a>
+          </div>
+        </details>
+
+        <details className="gks-disclosure">
+          <summary><span><b>05</b>{copy.gks.sourcesSummary}</span><i aria-hidden="true">＋</i></summary>
           <div className="gks-disclosure__content">
             <p className="section-intro">{copy.gks.sourcesIntro}</p>
             <div className="source-list source-list--compact">{sources.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.id}><span><strong>{source.title}</strong><small>{source.organization}</small></span><span aria-hidden="true">↗</span></a>)}</div>

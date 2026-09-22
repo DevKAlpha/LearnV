@@ -10,8 +10,8 @@ const monitoredSources = [
     url: "https://www.studyinkorea.go.kr/ko/notice/scholarshipsList.do?boardSort=3",
   },
   {
-    id: "niied-2027",
-    url: "https://www.niied.go.kr/web/main/nid/niied_board/5745",
+    id: "study-in-korea-2027",
+    url: "https://www.studyinkorea.go.kr/ko/notice/scholarshipsRead.do?bbsId=BBSMSTR_000000000461&nttId=4522",
   },
   {
     id: "spain-embassy-notices",

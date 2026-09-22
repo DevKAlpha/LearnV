@@ -1,13 +1,22 @@
-import type { DocumentItem, GksFact, Source, StudyTask } from "../../domain/models/gks";
+import type { DocumentItem, GksCertification, GksFact, Source, StudyTask } from "../../domain/models/gks";
 
 export const currentCycle = {
-  reference: "GKS-U 2026",
+  reference: "GKS-U 2027",
   target: "GKS-U 2027",
-  targetStatus: "Convocatoria todavía no publicada",
-  verifiedAt: "2026-08-21",
+  targetStatus: "Convocatoria publicada",
+  status: "published" as const,
+  verifiedAt: "2026-09-21",
 };
 
 export const sources: Source[] = [
+  {
+    id: "study-in-korea-2027",
+    title: "2027 GKS-U Application Guidelines",
+    organization: "Study in Korea · NIIED",
+    url: "https://www.studyinkorea.go.kr/ko/notice/scholarshipsRead.do?bbsId=BBSMSTR_000000000461&nttId=4522",
+    publishedAt: "2026-09-09",
+    verifiedAt: "2026-09-21",
+  },
   {
     id: "study-in-korea-notices",
     title: "GKS Scholarship Notices",
@@ -46,6 +55,20 @@ export const sources: Source[] = [
     verifiedAt: "2026-08-21",
   },
   {
+    id: "toefl-official",
+    title: "TOEFL iBT Score Breakdown",
+    organization: "ETS",
+    url: "https://www.ets.org/toefl/test-takers/ibt/scores/understand-scores.html",
+    verifiedAt: "2026-09-21",
+  },
+  {
+    id: "ielts-official",
+    title: "IELTS scoring in detail",
+    organization: "IELTS",
+    url: "https://ielts.org/take-a-test/your-results/ielts-scoring-in-detail",
+    verifiedAt: "2026-09-21",
+  },
+  {
     id: "apostille-spain",
     title: "Legalización única o Apostilla de La Haya",
     organization: "Ministerio de Justicia de España",
@@ -58,6 +81,53 @@ export const sources: Source[] = [
     organization: "Embajada de la República de Corea en España",
     url: "https://overseas.mofa.go.kr/es-es/brd/m_8065/list.do",
     verifiedAt: "2026-08-23",
+  },
+];
+
+export const gksCertifications: GksCertification[] = [
+  {
+    id: "topik",
+    icon: "한",
+    priority: "highest",
+    sourceId: "study-in-korea-2027",
+    scoreBands: [
+      { score: "TOPIK 5–6", weight: "100% + 5%" },
+      { score: "TOPIK 4", weight: "90% + 4%" },
+      { score: "TOPIK 3", weight: "80% + 3%" },
+      { score: "TOPIK 2", weight: "70%" },
+      { score: "TOPIK 1", weight: "60%" },
+    ],
+  },
+  {
+    id: "toefl",
+    icon: "T",
+    priority: "high",
+    sourceId: "toefl-official",
+    scoreBands: [
+      { score: "114+ / 6.0", weight: "90%" },
+      { score: "95+ / 5.0+", weight: "80%" },
+      { score: "72+ / 4.0+", weight: "70%" },
+      { score: "44+ / 3.0+", weight: "60%" },
+    ],
+  },
+  {
+    id: "ielts",
+    icon: "I",
+    priority: "high",
+    sourceId: "ielts-official",
+    scoreBands: [
+      { score: "IELTS 8.0+", weight: "90%" },
+      { score: "IELTS 7.0+", weight: "80%" },
+      { score: "IELTS 6.0+", weight: "70%" },
+      { score: "IELTS 5.0+", weight: "60%" },
+    ],
+  },
+  {
+    id: "supporting",
+    icon: "★",
+    priority: "supporting",
+    sourceId: "study-in-korea-2027",
+    scoreBands: [],
   },
 ];
 
@@ -184,7 +254,7 @@ export const documents: DocumentItem[] = [
   {
     id: "language",
     label: "TOPIK / IELTS / TOEFL",
-    detail: "Opcional en 2026, pero útil para acreditar competencia y sumar puntuación.",
+    detail: "Opcional en la guía general 2027, pero puntúa y una universidad o carrera puede exigir un mínimo.",
     required: false,
   },
 ];

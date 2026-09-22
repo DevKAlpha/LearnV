@@ -1,24 +1,22 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-08-23T23:00:58.709Z",
-  "nextCheckAt": "2026-08-24T23:00:58.709Z",
-  "callDetected": false,
+  "checkedAt": "2026-09-21T12:00:00.000Z",
+  "nextCheckAt": "2026-09-22T12:00:00.000Z",
+  "callDetected": true,
   "sourceChecks": [
     {
       "id": "study-in-korea-notices",
       "url": "https://www.studyinkorea.go.kr/ko/notice/scholarshipsList.do?boardSort=3",
       "ok": true,
-      "changed": true,
-      "hash": "fcb53f7c274051b77c00",
-      "detectsCall": false
+      "changed": false,
+      "detectsCall": true
     },
     {
-      "id": "niied-2027",
-      "url": "https://www.niied.go.kr/web/main/nid/niied_board/5745",
+      "id": "study-in-korea-2027",
+      "url": "https://www.studyinkorea.go.kr/ko/notice/scholarshipsRead.do?bbsId=BBSMSTR_000000000461&nttId=4522",
       "ok": true,
       "changed": false,
-      "hash": "2ef200edef0637216b8e",
-      "detectsCall": false
+      "detectsCall": true
     },
     {
       "id": "spain-embassy-notices",
