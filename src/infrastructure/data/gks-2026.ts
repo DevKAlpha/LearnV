@@ -69,6 +69,27 @@ export const sources: Source[] = [
     verifiedAt: "2026-09-21",
   },
   {
+    id: "ef-set-official",
+    title: "EF SET English Certificate",
+    organization: "EF Education First",
+    url: "https://www.efset.org/english-certificate/",
+    verifiedAt: "2026-09-22",
+  },
+  {
+    id: "online-ksi-certificates",
+    title: "Online King Sejong Institute Certificate Guide",
+    organization: "King Sejong Institute Foundation",
+    url: "https://www.iksi.or.kr/lms/main/certificateInfo.do",
+    verifiedAt: "2026-09-22",
+  },
+  {
+    id: "eoi-santander-certification",
+    title: "Pruebas de Certificación",
+    organization: "Escuela Oficial de Idiomas de Santander",
+    url: "https://www.eoisantander.org/pruebas-de-certificacion/",
+    verifiedAt: "2026-09-22",
+  },
+  {
     id: "apostille-spain",
     title: "Legalización única o Apostilla de La Haya",
     organization: "Ministerio de Justicia de España",

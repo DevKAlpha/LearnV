@@ -32,6 +32,37 @@ export type GksCertification = {
   }>;
 };
 
+export type CertificationLanguage = "korean" | "english";
+export type CertificationCost = "free" | "paid" | "conditional";
+export type CertificationModality = "online" | "in-person";
+export type CertificationGksUse = "scoring" | "supporting" | "diagnostic";
+export type CertificationAvailability = "open" | "scheduled" | "check";
+
+export type CertificationOpportunity = {
+  id: string;
+  name: string;
+  issuer: string;
+  language: CertificationLanguage;
+  cost: CertificationCost;
+  modalities: CertificationModality[];
+  gksUse: CertificationGksUse;
+  availability: CertificationAvailability;
+  url: string;
+  verifiedAt: string;
+  content: {
+    summary: Record<"es" | "en" | "ko", string>;
+    price: Record<"es" | "en" | "ko", string>;
+    schedule: Record<"es" | "en" | "ko", string>;
+    caution: Record<"es" | "en" | "ko", string>;
+  };
+};
+
+export type CertificationCatalog = {
+  schemaVersion: 1;
+  updatedAt: string;
+  opportunities: CertificationOpportunity[];
+};
+
 export type StudyTask = {
   id: string;
   title: string;

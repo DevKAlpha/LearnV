@@ -1,0 +1,212 @@
+import type { CertificationCatalog } from "../../domain/models/gks";
+
+export const fallbackCertificationCatalog: CertificationCatalog = {
+  schemaVersion: 1,
+  updatedAt: "2026-09-22T12:00:00.000Z",
+  opportunities: [
+    {
+      id: "topik-official",
+      name: "TOPIK / TOPIK IBT",
+      issuer: "NIIED · Republic of Korea",
+      language: "korean",
+      cost: "paid",
+      modalities: ["in-person"],
+      gksUse: "scoring",
+      availability: "scheduled",
+      url: "https://www.studyinkorea.go.kr/ko/plan/examAndKoreanStudy.do",
+      verifiedAt: "2026-09-22",
+      content: {
+        summary: {
+          es: "Examen oficial de coreano y la opción con mayor impacto directo en la evaluación GKS-U 2027.",
+          en: "Official Korean proficiency test and the option with the greatest direct impact on the 2027 GKS-U evaluation.",
+          ko: "공식 한국어 능력시험이며 2027 GKS-U 평가에 가장 직접적인 영향을 주는 선택지입니다.",
+        },
+        price: {
+          es: "Tarifa variable según país y centro examinador.",
+          en: "Fee varies by country and authorised test centre.",
+          ko: "응시료는 국가와 시험장에 따라 다릅니다.",
+        },
+        schedule: {
+          es: "Convocatorias periódicas; consulta sede, formato y plazo antes de planificar el viaje.",
+          en: "Periodic sessions; confirm location, format and registration window before planning travel.",
+          ko: "정기 시행되므로 이동 계획 전에 시험장, 방식과 접수 기간을 확인하세요.",
+        },
+        caution: {
+          es: "TOPIK IBT sigue siendo una prueba supervisada en sedes habilitadas; no equivale a realizarla libremente desde casa.",
+          en: "TOPIK IBT remains a supervised test at authorised locations; it is not an unrestricted at-home exam.",
+          ko: "TOPIK IBT도 지정 시험장에서 감독하에 치르는 시험이며 자유로운 재택 시험이 아닙니다.",
+        },
+      },
+    },
+    {
+      id: "toefl-ibt",
+      name: "TOEFL iBT",
+      issuer: "ETS",
+      language: "english",
+      cost: "paid",
+      modalities: ["online", "in-person"],
+      gksUse: "scoring",
+      availability: "open",
+      url: "https://www.ets.org/toefl/test-takers/ibt/about/testing-options.html",
+      verifiedAt: "2026-09-22",
+      content: {
+        summary: {
+          es: "Certificación de inglés aceptada por la guía GKS-U, disponible en centro y como Home Edition supervisada.",
+          en: "English certificate accepted by the GKS-U guidelines, offered at test centres and as a supervised Home Edition.",
+          ko: "GKS-U 요강에서 인정하는 영어 성적으로 시험장과 감독형 Home Edition을 제공합니다.",
+        },
+        price: {
+          es: "De pago; el importe final depende del país, la fecha y los servicios elegidos.",
+          en: "Paid; the final price depends on country, date and selected services.",
+          ko: "유료이며 최종 금액은 국가, 시험일과 선택 서비스에 따라 달라집니다.",
+        },
+        schedule: {
+          es: "Centro: más de 170 fechas al año. Home Edition: franjas disponibles cuatro días por semana.",
+          en: "Test centre: over 170 dates per year. Home Edition: slots available four days a week.",
+          ko: "시험장: 연 170회 이상. Home Edition: 주 4일 예약 가능 시간 제공.",
+        },
+        caution: {
+          es: "Confirma que la universidad elegida acepta la modalidad Home Edition antes de pagar.",
+          en: "Confirm that the chosen university accepts the Home Edition before paying.",
+          ko: "결제 전에 지원 대학이 Home Edition을 인정하는지 확인하세요.",
+        },
+      },
+    },
+    {
+      id: "ielts-academic",
+      name: "IELTS Academic",
+      issuer: "IELTS",
+      language: "english",
+      cost: "paid",
+      modalities: ["online", "in-person"],
+      gksUse: "scoring",
+      availability: "open",
+      url: "https://www.ielts.org/test-centres",
+      verifiedAt: "2026-09-22",
+      content: {
+        summary: {
+          es: "Certificación oficial de inglés aceptada por GKS-U, con pruebas en centros y opción online en determinados países.",
+          en: "Official English certificate accepted by GKS-U, with test-centre delivery and an online option in selected countries.",
+          ko: "GKS-U에서 인정하는 공식 영어 성적으로 시험장 응시와 일부 국가의 온라인 응시를 제공합니다.",
+        },
+        price: {
+          es: "De pago; consulta el precio y posibles tasas directamente en el centro elegido.",
+          en: "Paid; check the fee and any extra charges directly with the selected centre.",
+          ko: "유료이며 응시료와 추가 비용은 선택한 시험장에 직접 확인하세요.",
+        },
+        schedule: {
+          es: "Más de 4.500 ubicaciones en más de 160 países; la modalidad online depende del país.",
+          en: "More than 4,500 locations across 160+ countries; online availability depends on country.",
+          ko: "160개국 이상 4,500여 시험장을 운영하며 온라인 가능 여부는 국가별로 다릅니다.",
+        },
+        caution: {
+          es: "La aceptación de IELTS Online depende de cada institución; verifícala antes de reservar.",
+          en: "IELTS Online acceptance is institution-specific; verify it before booking.",
+          ko: "IELTS Online 인정 여부는 기관마다 다르므로 예약 전에 확인하세요.",
+        },
+      },
+    },
+    {
+      id: "ef-set",
+      name: "EF SET Certificate",
+      issuer: "EF Education First",
+      language: "english",
+      cost: "free",
+      modalities: ["online"],
+      gksUse: "diagnostic",
+      availability: "open",
+      url: "https://www.efset.org/english-certificate/",
+      verifiedAt: "2026-09-22",
+      content: {
+        summary: {
+          es: "Prueba online gratuita alineada con el MCER para conocer tu nivel y obtener un certificado descargable.",
+          en: "Free online CEFR-aligned test for checking your level and obtaining a downloadable certificate.",
+          ko: "CEFR 기준으로 수준을 확인하고 다운로드 가능한 인증서를 받는 무료 온라인 시험입니다.",
+        },
+        price: {
+          es: "Gratuita; versiones certificadas de 50 y 90 minutos.",
+          en: "Free; 50- and 90-minute certifying versions.",
+          ko: "무료이며 50분 및 90분 인증 시험을 제공합니다.",
+        },
+        schedule: {
+          es: "Disponible bajo demanda desde ordenador, tableta o móvil.",
+          en: "Available on demand from a computer, tablet or mobile device.",
+          ko: "컴퓨터, 태블릿 또는 모바일에서 언제든 응시할 수 있습니다.",
+        },
+        caution: {
+          es: "Sirve como diagnóstico y evidencia de progreso, pero no sustituye TOPIK, TOEFL o IELTS en la puntuación GKS.",
+          en: "Useful for diagnosis and progress evidence, but it does not replace TOPIK, TOEFL or IELTS in GKS scoring.",
+          ko: "진단과 학습 진척 증빙에는 유용하지만 GKS 점수에서 TOPIK, TOEFL 또는 IELTS를 대체하지 않습니다.",
+        },
+      },
+    },
+    {
+      id: "online-ksi",
+      name: "Online King Sejong Institute",
+      issuer: "King Sejong Institute Foundation",
+      language: "korean",
+      cost: "free",
+      modalities: ["online"],
+      gksUse: "supporting",
+      availability: "scheduled",
+      url: "https://www.iksi.or.kr/lms/main/certificateInfo.do",
+      verifiedAt: "2026-09-22",
+      content: {
+        summary: {
+          es: "Cursos gratuitos de coreano; determinadas modalidades guiadas pueden emitir certificado de finalización o asistencia.",
+          en: "Free Korean courses; selected guided formats may issue a completion or attendance certificate.",
+          ko: "무료 한국어 과정이며 일부 지도형 과정은 수료증 또는 출석확인서를 발급할 수 있습니다.",
+        },
+        price: {
+          es: "Formación gratuita; revisa las condiciones particulares de cada curso.",
+          en: "Free learning; review the conditions attached to each course.",
+          ko: "무료 교육이며 과정별 세부 조건을 확인해야 합니다.",
+        },
+        schedule: {
+          es: "Las aperturas y plazas cambian por periodo; los cursos autodidactas no siempre emiten certificado.",
+          en: "Openings and seats change by term; self-study courses do not always issue certificates.",
+          ko: "학기별 개설과 정원이 달라지며 자율학습 과정은 수료증이 발급되지 않을 수 있습니다.",
+        },
+        caution: {
+          es: "Es preparación complementaria: el propio centro indica que el certificado no sirve para visado y no reemplaza TOPIK.",
+          en: "This is supporting preparation: the provider states that its certificate is not valid for visa purposes and it does not replace TOPIK.",
+          ko: "보완 학습용이며 기관 안내상 비자 발급에 사용할 수 없고 TOPIK을 대체하지 않습니다.",
+        },
+      },
+    },
+    {
+      id: "eoi-santander-english",
+      name: "Certificación EOI de Inglés",
+      issuer: "Escuela Oficial de Idiomas de Santander",
+      language: "english",
+      cost: "conditional",
+      modalities: ["in-person"],
+      gksUse: "supporting",
+      availability: "check",
+      url: "https://www.eoisantander.org/pruebas-de-certificacion/",
+      verifiedAt: "2026-09-22",
+      content: {
+        summary: {
+          es: "Certificación oficial presencial A2–C2 en Santander, útil como meta local y evidencia complementaria de nivel.",
+          en: "Official in-person A2–C2 certificate in Santander, useful as a local milestone and supporting evidence of proficiency.",
+          ko: "산탄데르에서 치르는 A2–C2 공식 대면 인증으로 지역 학습 목표와 보완 증빙에 유용합니다.",
+        },
+        price: {
+          es: "Sin coste para cierto alumnado oficial; matrícula libre aproximadamente 120 € según la convocatoria publicada.",
+          en: "Free for eligible enrolled students; external registration was approximately €120 in the published call.",
+          ko: "대상 재학생은 무료이며 공개된 공고 기준 외부 응시 등록은 약 120유로였습니다.",
+        },
+        schedule: {
+          es: "La matrícula libre suele abrir en marzo; confirma la próxima convocatoria y sus niveles disponibles.",
+          en: "External registration usually opens in March; confirm the next call and available levels.",
+          ko: "외부 응시 접수는 보통 3월에 열리므로 다음 공고와 제공 수준을 확인하세요.",
+        },
+        caution: {
+          es: "Aporta contexto académico, pero la guía GKS-U no la enumera como sustituta de TOEFL, IELTS o TOPIK.",
+          en: "It adds academic context, but the GKS-U guidelines do not list it as a replacement for TOEFL, IELTS or TOPIK.",
+          ko: "학업 배경에는 도움이 되지만 GKS-U 요강상 TOEFL, IELTS 또는 TOPIK 대체 성적은 아닙니다.",
+        },
+      },
+    },
+  ],
+};

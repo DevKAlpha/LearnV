@@ -8,6 +8,7 @@ import { LiteYouTube } from "@/shared/ui/LiteYouTube";
 import { StatusBadge } from "@/shared/ui/StatusBadge";
 import { Link } from "react-router-dom";
 import { BrandMark } from "@/shared/ui/BrandMark";
+import { CertificationOpportunityCatalog } from "./CertificationOpportunityCatalog";
 
 const dateLocales = { es: "es-ES", en: "en-GB", ko: "ko-KR" } as const;
 
@@ -165,6 +166,8 @@ export function GksPage() {
           <p>{copy.gks.certifications.bestOnly}</p>
           <p>{copy.gks.certifications.validity}</p>
         </div>
+
+        <CertificationOpportunityCatalog />
       </section>
 
       <section className="gks-video-slider" aria-labelledby="gks-video-title">
