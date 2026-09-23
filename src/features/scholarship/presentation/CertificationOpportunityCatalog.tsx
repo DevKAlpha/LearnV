@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useGksCertificationCatalog } from "@/application/controllers/useGksCertificationCatalog";
 import { useI18n } from "@/application/i18n/I18nContext";
 import type { CertificationCost, CertificationLanguage, CertificationModality } from "@/domain/models/gks";
+import { recordGksCertificationLog } from "@/infrastructure/data/gks-certification-log";
 import { gksCertificationCatalogCopy } from "@/infrastructure/i18n/gks-certification-catalog";
 
 const dateLocales = { es: "es-ES", en: "en-GB", ko: "ko-KR" } as const;
@@ -24,6 +25,30 @@ export function CertificationOpportunityCatalog() {
     year: "numeric",
   }).format(new Date(catalog.updatedAt));
 
+  const recordFilters = (
+    nextLanguage: CertificationLanguage | "all",
+    nextCost: CertificationCost | "all",
+    nextModality: CertificationModality | "all",
+  ) => recordGksCertificationLog({
+    event: "filter-changed",
+    source: "user",
+    catalogUpdatedAt: catalog.updatedAt,
+    opportunityCount: catalog.opportunities.length,
+    opportunityId: null,
+    reason: null,
+    filters: { language: nextLanguage, cost: nextCost, modality: nextModality },
+  });
+
+  const recordOfficialLink = (opportunityId: string) => recordGksCertificationLog({
+    event: "official-link-opened",
+    source: "user",
+    catalogUpdatedAt: catalog.updatedAt,
+    opportunityCount: catalog.opportunities.length,
+    opportunityId,
+    reason: null,
+    filters: { language, cost, modality },
+  });
+
   return (
     <div className="gks-certificate-catalog" aria-labelledby="gks-certificate-catalog-title" aria-busy={catalog.isLoading}>
       <div className="gks-certificate-catalog__heading">
@@ -40,7 +65,11 @@ export function CertificationOpportunityCatalog() {
       <div className="gks-certificate-filters" aria-label={copy.title}>
         <label>
           <span>{copy.filters.language}</span>
-          <select value={language} onChange={(event) => setLanguage(event.target.value as CertificationLanguage | "all")}>
+          <select value={language} onChange={(event) => {
+            const next = event.target.value as CertificationLanguage | "all";
+            setLanguage(next);
+            recordFilters(next, cost, modality);
+          }}>
             <option value="all">{copy.filters.all}</option>
             <option value="korean">{copy.filters.korean}</option>
             <option value="english">{copy.filters.english}</option>
@@ -48,7 +77,11 @@ export function CertificationOpportunityCatalog() {
         </label>
         <label>
           <span>{copy.filters.cost}</span>
-          <select value={cost} onChange={(event) => setCost(event.target.value as CertificationCost | "all")}>
+          <select value={cost} onChange={(event) => {
+            const next = event.target.value as CertificationCost | "all";
+            setCost(next);
+            recordFilters(language, next, modality);
+          }}>
             <option value="all">{copy.filters.all}</option>
             <option value="free">{copy.filters.free}</option>
             <option value="paid">{copy.filters.paid}</option>
@@ -57,7 +90,11 @@ export function CertificationOpportunityCatalog() {
         </label>
         <label>
           <span>{copy.filters.modality}</span>
-          <select value={modality} onChange={(event) => setModality(event.target.value as CertificationModality | "all")}>
+          <select value={modality} onChange={(event) => {
+            const next = event.target.value as CertificationModality | "all";
+            setModality(next);
+            recordFilters(language, cost, next);
+          }}>
             <option value="all">{copy.filters.all}</option>
             <option value="online">{copy.filters.online}</option>
             <option value="in-person">{copy.filters.inPerson}</option>
@@ -105,7 +142,14 @@ export function CertificationOpportunityCatalog() {
                 <div className="gks-certificate-option__caution"><b>{copy.caution}</b>{content.caution}</div>
                 <footer>
                   <small>{copy.verified} · {new Intl.DateTimeFormat(dateLocales[locale]).format(new Date(`${opportunity.verifiedAt}T12:00:00`))}</small>
-                  <a href={opportunity.url} target="_blank" rel="noreferrer">{copy.open}<span aria-hidden="true">↗</span></a>
+                  <a
+                    href={opportunity.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={() => recordOfficialLink(opportunity.id)}
+                  >
+                    {copy.open}<span aria-hidden="true">↗</span>
+                  </a>
                 </footer>
               </article>
             );
