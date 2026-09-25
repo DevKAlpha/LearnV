@@ -2,7 +2,7 @@ import type { CertificationCatalog } from "../../domain/models/gks";
 
 export const fallbackCertificationCatalog: CertificationCatalog = {
   schemaVersion: 1,
-  updatedAt: "2026-09-22T12:00:00.000Z",
+  updatedAt: "2026-09-24T12:00:00.000Z",
   opportunities: [
     {
       id: "topik-official",
@@ -14,7 +14,7 @@ export const fallbackCertificationCatalog: CertificationCatalog = {
       gksUse: "scoring",
       availability: "scheduled",
       url: "https://www.studyinkorea.go.kr/ko/plan/examAndKoreanStudy.do",
-      verifiedAt: "2026-09-22",
+      verifiedAt: "2026-09-24",
       content: {
         summary: {
           es: "Examen oficial de coreano y la opción con mayor impacto directo en la evaluación GKS-U 2027.",
@@ -48,7 +48,7 @@ export const fallbackCertificationCatalog: CertificationCatalog = {
       gksUse: "scoring",
       availability: "open",
       url: "https://www.ets.org/toefl/test-takers/ibt/about/testing-options.html",
-      verifiedAt: "2026-09-22",
+      verifiedAt: "2026-09-24",
       content: {
         summary: {
           es: "Certificación de inglés aceptada por la guía GKS-U, disponible en centro y como Home Edition supervisada.",
@@ -82,7 +82,7 @@ export const fallbackCertificationCatalog: CertificationCatalog = {
       gksUse: "scoring",
       availability: "open",
       url: "https://www.ielts.org/test-centres",
-      verifiedAt: "2026-09-22",
+      verifiedAt: "2026-09-24",
       content: {
         summary: {
           es: "Certificación oficial de inglés aceptada por GKS-U, con pruebas en centros y opción online en determinados países.",
@@ -116,7 +116,7 @@ export const fallbackCertificationCatalog: CertificationCatalog = {
       gksUse: "diagnostic",
       availability: "open",
       url: "https://www.efset.org/english-certificate/",
-      verifiedAt: "2026-09-22",
+      verifiedAt: "2026-09-24",
       content: {
         summary: {
           es: "Prueba online gratuita alineada con el MCER para conocer tu nivel y obtener un certificado descargable.",
@@ -150,7 +150,7 @@ export const fallbackCertificationCatalog: CertificationCatalog = {
       gksUse: "supporting",
       availability: "scheduled",
       url: "https://www.iksi.or.kr/lms/main/certificateInfo.do",
-      verifiedAt: "2026-09-22",
+      verifiedAt: "2026-09-24",
       content: {
         summary: {
           es: "Cursos gratuitos de coreano; determinadas modalidades guiadas pueden emitir certificado de finalización o asistencia.",
@@ -184,7 +184,7 @@ export const fallbackCertificationCatalog: CertificationCatalog = {
       gksUse: "supporting",
       availability: "check",
       url: "https://www.eoisantander.org/pruebas-de-certificacion/",
-      verifiedAt: "2026-09-22",
+      verifiedAt: "2026-09-24",
       content: {
         summary: {
           es: "Certificación oficial presencial A2–C2 en Santander, útil como meta local y evidencia complementaria de nivel.",

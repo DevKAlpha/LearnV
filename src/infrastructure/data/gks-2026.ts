@@ -5,7 +5,7 @@ export const currentCycle = {
   target: "GKS-U 2027",
   targetStatus: "Convocatoria publicada",
   status: "published" as const,
-  verifiedAt: "2026-09-21",
+  verifiedAt: "2026-09-24",
 };
 
 export const sources: Source[] = [
@@ -15,14 +15,14 @@ export const sources: Source[] = [
     organization: "Study in Korea · NIIED",
     url: "https://www.studyinkorea.go.kr/ko/notice/scholarshipsRead.do?bbsId=BBSMSTR_000000000461&nttId=4522",
     publishedAt: "2026-09-09",
-    verifiedAt: "2026-09-21",
+    verifiedAt: "2026-09-24",
   },
   {
     id: "study-in-korea-notices",
     title: "GKS Scholarship Notices",
     organization: "Study in Korea · NIIED",
     url: "https://www.studyinkorea.go.kr/ko/notice/scholarshipsList.do?boardSort=3",
-    verifiedAt: "2026-08-21",
+    verifiedAt: "2026-09-24",
   },
   {
     id: "study-in-korea-2026",
@@ -52,42 +52,42 @@ export const sources: Source[] = [
     title: "Language Proficiency Requirements & TOPIK",
     organization: "Study in Korea · NIIED",
     url: "https://www.studyinkorea.go.kr/ko/plan/examAndKoreanStudy.do",
-    verifiedAt: "2026-08-21",
+    verifiedAt: "2026-09-24",
   },
   {
     id: "toefl-official",
     title: "TOEFL iBT Score Breakdown",
     organization: "ETS",
     url: "https://www.ets.org/toefl/test-takers/ibt/scores/understand-scores.html",
-    verifiedAt: "2026-09-21",
+    verifiedAt: "2026-09-24",
   },
   {
     id: "ielts-official",
     title: "IELTS scoring in detail",
     organization: "IELTS",
     url: "https://ielts.org/take-a-test/your-results/ielts-scoring-in-detail",
-    verifiedAt: "2026-09-21",
+    verifiedAt: "2026-09-24",
   },
   {
     id: "ef-set-official",
     title: "EF SET English Certificate",
     organization: "EF Education First",
     url: "https://www.efset.org/english-certificate/",
-    verifiedAt: "2026-09-22",
+    verifiedAt: "2026-09-24",
   },
   {
     id: "online-ksi-certificates",
     title: "Online King Sejong Institute Certificate Guide",
     organization: "King Sejong Institute Foundation",
     url: "https://www.iksi.or.kr/lms/main/certificateInfo.do",
-    verifiedAt: "2026-09-22",
+    verifiedAt: "2026-09-24",
   },
   {
     id: "eoi-santander-certification",
     title: "Pruebas de Certificación",
     organization: "Escuela Oficial de Idiomas de Santander",
     url: "https://www.eoisantander.org/pruebas-de-certificacion/",
-    verifiedAt: "2026-09-22",
+    verifiedAt: "2026-09-24",
   },
   {
     id: "apostille-spain",
@@ -123,7 +123,7 @@ export const gksCertifications: GksCertification[] = [
     id: "toefl",
     icon: "T",
     priority: "high",
-    sourceId: "toefl-official",
+    sourceId: "study-in-korea-2027",
     scoreBands: [
       { score: "114+ / 6.0", weight: "90%" },
       { score: "95+ / 5.0+", weight: "80%" },
@@ -135,7 +135,7 @@ export const gksCertifications: GksCertification[] = [
     id: "ielts",
     icon: "I",
     priority: "high",
-    sourceId: "ielts-official",
+    sourceId: "study-in-korea-2027",
     scoreBands: [
       { score: "IELTS 8.0+", weight: "90%" },
       { score: "IELTS 7.0+", weight: "80%" },

@@ -12,11 +12,39 @@ const costs = new Set(["free", "paid", "conditional"]);
 const modalities = new Set(["online", "in-person"]);
 const uses = new Set(["scoring", "supporting", "diagnostic"]);
 const availabilityValues = new Set(["open", "scheduled", "check"]);
+const MAX_CATALOG_OPPORTUNITIES = 100;
 
 function hasLocalizedText(value: unknown) {
   if (!value || typeof value !== "object") return false;
   const candidate = value as Record<string, unknown>;
-  return ["es", "en", "ko"].every((locale) => typeof candidate[locale] === "string" && candidate[locale].length > 0);
+  return ["es", "en", "ko"].every((locale) => (
+    typeof candidate[locale] === "string"
+    && candidate[locale].trim().length > 0
+    && candidate[locale].length <= 1_000
+  ));
+}
+
+function isValidIsoDate(value: unknown) {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const parsed = new Date(`${value}T00:00:00.000Z`);
+  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+}
+
+function isValidIsoTimestamp(value: unknown) {
+  return typeof value === "string"
+    && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?(?:Z|[+-]\d{2}:\d{2})$/.test(value)
+    && isValidIsoDate(value.slice(0, 10))
+    && Number.isFinite(Date.parse(value));
+}
+
+function isHttpsUrl(value: unknown) {
+  if (typeof value !== "string") return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && Boolean(url.hostname);
+  } catch {
+    return false;
+  }
 }
 
 function isOpportunity(value: unknown): value is CertificationOpportunity {
@@ -25,15 +53,21 @@ function isOpportunity(value: unknown): value is CertificationOpportunity {
   const content = candidate.content as Partial<CertificationOpportunity["content"]> | undefined;
 
   return typeof candidate.id === "string"
+    && candidate.id.trim().length > 0
+    && candidate.id.length <= 80
     && typeof candidate.name === "string"
+    && candidate.name.trim().length > 0
+    && candidate.name.length <= 160
     && typeof candidate.issuer === "string"
-    && typeof candidate.url === "string"
-    && candidate.url.startsWith("https://")
-    && typeof candidate.verifiedAt === "string"
+    && candidate.issuer.trim().length > 0
+    && candidate.issuer.length <= 160
+    && isHttpsUrl(candidate.url)
+    && isValidIsoDate(candidate.verifiedAt)
     && languages.has(candidate.language ?? "")
     && costs.has(candidate.cost ?? "")
     && Array.isArray(candidate.modalities)
     && candidate.modalities.length > 0
+    && new Set(candidate.modalities).size === candidate.modalities.length
     && candidate.modalities.every((modality) => modalities.has(modality))
     && uses.has(candidate.gksUse ?? "")
     && availabilityValues.has(candidate.availability ?? "")
@@ -46,11 +80,14 @@ function isOpportunity(value: unknown): value is CertificationOpportunity {
 export function isCertificationCatalog(value: unknown): value is CertificationCatalog {
   if (!value || typeof value !== "object") return false;
   const candidate = value as Partial<CertificationCatalog>;
-  return candidate.schemaVersion === 1
-    && typeof candidate.updatedAt === "string"
-    && Array.isArray(candidate.opportunities)
-    && candidate.opportunities.length > 0
-    && candidate.opportunities.every(isOpportunity);
+  if (candidate.schemaVersion !== 1 || !isValidIsoTimestamp(candidate.updatedAt)) return false;
+
+  if (!Array.isArray(candidate.opportunities)
+    || candidate.opportunities.length === 0
+    || candidate.opportunities.length > MAX_CATALOG_OPPORTUNITIES
+    || !candidate.opportunities.every(isOpportunity)) return false;
+
+  return new Set(candidate.opportunities.map((opportunity) => opportunity.id)).size === candidate.opportunities.length;
 }
 
 export function useGksCertificationCatalog() {

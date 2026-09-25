@@ -86,4 +86,15 @@ describe("hidden GKS certification log and backup", () => {
     expect(readGksCertificationLog(storage)).toEqual([]);
     expect(readGksCertificationBackup(isKnownCatalog, storage)).toBeNull();
   });
+
+  it("descarta entradas parciales aunque el JSON sea válido", () => {
+    const storage = createMemoryStorage();
+    storage.setItem(GKS_CERTIFICATION_LOG_STORAGE_KEY, JSON.stringify([
+      { id: "partial", recordedAt: "not-a-date", event: "catalog-loaded", source: "runtime" },
+      { id: "ambiguous-date", recordedAt: "1", event: "catalog-loaded", source: "runtime" },
+      { id: "unknown-event", recordedAt: new Date().toISOString(), event: "unknown", source: "runtime" },
+    ]));
+
+    expect(readGksCertificationLog(storage)).toEqual([]);
+  });
 });

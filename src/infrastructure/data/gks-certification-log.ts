@@ -50,6 +50,10 @@ const events = new Set<GksCertificationLogEvent>([
   "filter-changed",
   "official-link-opened",
 ]);
+const sources = new Set<GksCertificationLogEntry["source"]>(["runtime", "backup", "fallback", "user"]);
+const filterLanguages = new Set(["all", "korean", "english"]);
+const filterCosts = new Set(["all", "free", "paid", "conditional"]);
+const filterModalities = new Set(["all", "online", "in-person"]);
 
 function browserStorage(): CertificationStorage | null {
   try {
@@ -65,13 +69,40 @@ function compact(value: string | null, maxLength: number) {
   return normalized.length <= maxLength ? normalized : `${normalized.slice(0, maxLength - 1)}…`;
 }
 
+function isIsoCalendarDate(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const parsed = new Date(`${value}T00:00:00.000Z`);
+  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+}
+
+function isIsoTimestamp(value: unknown) {
+  return typeof value === "string"
+    && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?(?:Z|[+-]\d{2}:\d{2})$/.test(value)
+    && isIsoCalendarDate(value.slice(0, 10))
+    && Number.isFinite(Date.parse(value));
+}
+
 function isLogEntry(value: unknown): value is GksCertificationLogEntry {
   if (!value || typeof value !== "object") return false;
   const entry = value as Partial<GksCertificationLogEntry>;
+  const validFilters = entry.filters === null || Boolean(entry.filters
+    && filterLanguages.has(entry.filters.language)
+    && filterCosts.has(entry.filters.cost)
+    && filterModalities.has(entry.filters.modality));
+  const validCount = entry.opportunityCount === null
+    || (typeof entry.opportunityCount === "number" && Number.isInteger(entry.opportunityCount) && entry.opportunityCount >= 0);
   return typeof entry.id === "string"
-    && typeof entry.recordedAt === "string"
+    && entry.id.length > 0
+    && entry.id.length <= 240
+    && isIsoTimestamp(entry.recordedAt)
     && events.has(entry.event as GksCertificationLogEvent)
-    && ["runtime", "backup", "fallback", "user"].includes(entry.source ?? "");
+    && sources.has(entry.source as GksCertificationLogEntry["source"])
+    && (entry.catalogUpdatedAt === null || isIsoTimestamp(entry.catalogUpdatedAt))
+    && validCount
+    && (entry.opportunityId === null
+      || (typeof entry.opportunityId === "string" && entry.opportunityId.length <= 80))
+    && (entry.reason === null || (typeof entry.reason === "string" && entry.reason.length <= 160))
+    && validFilters;
 }
 
 export function readGksCertificationLog(
