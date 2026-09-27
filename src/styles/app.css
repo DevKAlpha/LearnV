@@ -58,6 +58,12 @@
   --dark-glass-strong: rgba(36, 17, 45, 0.84);
   --dark-glass-border: rgba(246, 225, 251, 0.18);
   --dark-glass-shadow: 0 18px 42px rgba(8, 3, 12, 0.3);
+  --dark-action-start: #9b4caf;
+  --dark-action-end: #743389;
+  --dark-action-border: rgba(246, 225, 251, 0.38);
+  --dark-action-text: #fffaf7;
+  --dark-on-light: #352433;
+  --dark-muted-on-light: #5d4a59;
   --icon-glow-core: rgba(255, 250, 246, 0.94);
   --icon-glow-mid: rgba(218, 145, 225, 0.66);
   --icon-glow-wide: rgba(153, 72, 177, 0.32);
@@ -5531,6 +5537,7 @@ body :is(
 
 /* Tulip-night palette: soft plum glass with natural depth and restrained highlights. */
 :root[data-theme="dark"] .app-shell {
+  border-left-color: rgba(229, 170, 239, 0.44);
   background:
     radial-gradient(circle at 12% 0%, rgba(178, 82, 194, 0.11), transparent 30rem),
     linear-gradient(155deg, rgba(35, 16, 43, 0.96), rgba(20, 11, 25, 0.98));
@@ -5559,6 +5566,38 @@ body :is(
   border-color: rgba(246, 225, 251, 0.25);
   background: linear-gradient(145deg, rgba(113, 57, 128, 0.72), rgba(43, 22, 52, 0.78));
   box-shadow: var(--glass-highlight), 0 9px 20px rgba(8, 3, 12, 0.24);
+}
+
+:root[data-theme="dark"] .interview-chat-launcher {
+  border-color: rgba(246, 225, 251, 0.34);
+  background:
+    radial-gradient(circle at 28% 18%, rgba(255, 255, 255, 0.2), transparent 34%),
+    linear-gradient(145deg, rgba(157, 73, 177, 0.86), rgba(76, 32, 92, 0.88));
+  box-shadow:
+    var(--glass-highlight),
+    0 0 0 1px rgba(190, 111, 207, 0.14),
+    0 15px 34px rgba(13, 5, 17, 0.34);
+  color: #fff8f2;
+  -webkit-backdrop-filter: blur(14px) saturate(1.08);
+  backdrop-filter: blur(14px) saturate(1.08);
+}
+
+:root[data-theme="dark"] .interview-chat-launcher > span {
+  border: 1px solid rgba(255, 238, 253, 0.18);
+  background: rgba(255, 245, 253, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+:root[data-theme="dark"] .interview-chat-launcher:hover {
+  box-shadow:
+    var(--glass-highlight),
+    0 0 0 1px rgba(229, 170, 239, 0.2),
+    0 19px 40px rgba(18, 6, 23, 0.4),
+    0 0 24px rgba(171, 79, 191, 0.16);
+}
+
+:root[data-theme="dark"] .interview-chat-launcher:active {
+  box-shadow: var(--glass-highlight), 0 8px 18px rgba(13, 5, 17, 0.28);
 }
 
 :root[data-theme="dark"] .nav-active-pill {
@@ -5593,6 +5632,14 @@ body :is(
   box-shadow: var(--glass-highlight), var(--dark-glass-shadow);
   -webkit-backdrop-filter: var(--theme-glass-filter);
   backdrop-filter: var(--theme-glass-filter);
+}
+
+:root[data-theme="dark"] .hero-grid {
+  border-left-color: rgba(229, 170, 239, 0.36);
+  box-shadow:
+    inset 1px 0 0 rgba(255, 229, 252, 0.1),
+    var(--glass-highlight),
+    var(--dark-glass-shadow);
 }
 
 :root[data-theme="dark"] :is(
@@ -5746,6 +5793,152 @@ body :is(
 
 :root[data-theme="dark"] .interview-chat__message--candidate { background: rgba(128, 58, 150, 0.72); }
 :root[data-theme="dark"] .interview-chat__message--coach { background: rgba(74, 42, 67, 0.68); }
+
+/* Dark-mode contrast pass: distinguish controls and preserve readable pastel cards. */
+:root[data-theme="dark"] .adaptive-material {
+  --muted: var(--dark-muted-on-light);
+  color: var(--dark-on-light);
+}
+
+:root[data-theme="dark"] :is(.adaptive-material > p, .adaptive-material__meta) {
+  color: var(--dark-muted-on-light);
+}
+
+:root[data-theme="dark"] :is(
+  .gks-certification-card__priority,
+  .gks-certification-card__icon
+) {
+  border-color: rgba(53, 36, 51, 0.5);
+  color: var(--dark-on-light);
+  text-shadow: none;
+}
+
+:root[data-theme="dark"] :is(
+  .primary-button,
+  .task-card__open,
+  .quote-card__action,
+  .gks-certification-card footer a:last-child:not(:first-child),
+  .study-language-space > a,
+  .resource-card > a,
+  .resource-actions a,
+  .language-card__action,
+  .analysis-highlight a,
+  .adaptive-material > a,
+  .interview-entry > a,
+  .interview-next-button,
+  .interview-learning-bridge__actions button:last-child,
+  .interview-chat__primary,
+  .interview-chat__study-bridge button,
+  .written-entry > a,
+  .app-guide-sections a
+) {
+  border-color: var(--dark-action-border);
+  background: linear-gradient(145deg, var(--dark-action-start), var(--dark-action-end));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 9px 22px rgba(12, 4, 16, 0.28);
+  color: var(--dark-action-text);
+}
+
+:root[data-theme="dark"] :is(
+  .primary-button,
+  .quote-card__action,
+  .language-card__action,
+  .resource-card > a
+) > span {
+  color: var(--yellow);
+}
+
+:root[data-theme="dark"] .adaptive-material > a small {
+  color: #f7eafa;
+}
+
+:root[data-theme="dark"] :is(
+  .primary-button,
+  .task-card__open,
+  .quote-card__action,
+  .gks-certification-card footer a:last-child:not(:first-child),
+  .study-language-space > a,
+  .resource-card > a,
+  .resource-actions a,
+  .language-card__action,
+  .analysis-highlight a,
+  .adaptive-material > a,
+  .interview-entry > a,
+  .interview-next-button,
+  .interview-learning-bridge__actions button:last-child,
+  .interview-chat__primary,
+  .interview-chat__study-bridge button,
+  .written-entry > a,
+  .app-guide-sections a
+):hover {
+  filter: brightness(1.1) saturate(1.06);
+}
+
+:root[data-theme="dark"] :is(
+  .resource-actions button,
+  .interview-timer-controls button,
+  .interview-question-navigation > button:not(.interview-next-button),
+  .model-audio-button,
+  .test-path-expand,
+  .test-skill-tabs button,
+  .adaptive-resources__modes button,
+  .gks-video-slider__controls > button,
+  .gks-video-tabs button,
+  .reset-confirm-dialog__actions button
+) {
+  border-color: rgba(246, 225, 251, 0.3);
+  background: rgba(103, 58, 116, 0.72);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 7px 17px rgba(11, 4, 15, 0.2);
+  color: #fff8f2;
+}
+
+:root[data-theme="dark"] :is(
+  .filter-chip--active,
+  .type-chip--active,
+  .language-study-jump-nav :is(a, button).is-active,
+  .test-skill-tabs button[aria-pressed="true"],
+  .adaptive-resources__modes button[aria-pressed="true"],
+  .gks-video-tabs button[aria-selected="true"]
+) {
+  border-color: rgba(255, 238, 253, 0.46);
+  background: linear-gradient(145deg, #9b4caf, #73348a);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 3px 0 rgba(244, 204, 98, 0.72);
+  color: #fffaf7;
+}
+
+:root[data-theme="dark"] :is(
+  .session-action-bar button:not(:disabled),
+  .test-primary-action,
+  .question-audio button,
+  .record-button
+) {
+  border-color: rgba(255, 238, 253, 0.38);
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--test-accent) 72%, #4c1d59),
+    color-mix(in srgb, var(--test-accent) 52%, #2b102f)
+  );
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 9px 22px rgba(12, 4, 16, 0.28);
+  color: #fffaf7;
+}
+
+:root[data-theme="dark"] :is(.test-path-language, .answer-option--selected > span) {
+  background: color-mix(in srgb, var(--test-accent) 66%, #391342);
+  color: #fffaf7;
+}
+
+:root[data-theme="dark"] .session-action-bar button:disabled {
+  border-color: rgba(246, 225, 251, 0.16);
+  background: rgba(86, 69, 91, 0.72);
+  color: #d8cadb;
+  opacity: 0.72;
+}
+
+:root[data-theme="dark"] :is(button, a, [role="button"]):focus-visible {
+  outline: 3px solid rgba(255, 208, 94, 0.95);
+  outline-offset: 3px;
+}
 
 /* Dark-mode lighting belongs to decorative artwork, never navigation or controls. */
 :root[data-theme="dark"] .brand-tulip {
