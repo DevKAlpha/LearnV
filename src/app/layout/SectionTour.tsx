@@ -86,8 +86,9 @@ function getDefinition(pathname: string): TourDefinition {
   return {
     key: "home", title: t("Bienvenida a LearnV", "Welcome to LearnV", "LearnV에 오신 것을 환영합니다"), steps: [
       step(".hero-grid", t("Tu punto de partida", "Your starting point", "시작점"), t("Resume la ruta GKS y te lleva directamente a una sesión educativa.", "It summarises the GKS route and takes you directly to a learning session.", "GKS 경로를 요약하고 바로 학습 세션으로 안내합니다.")),
+      step(".home-today", t("Tu siguiente paso", "Your next step", "다음 단계"), t("La primera tarea pendiente aparece destacada. El resto del plan queda disponible sin recargar la pantalla.", "Your first unfinished task is highlighted. The rest of the plan stays available without crowding the screen.", "첫 번째 미완료 과제를 강조하고 나머지 계획은 화면을 복잡하게 만들지 않도록 접어 둡니다.")),
+      step(".learning-journey", t("Avance y recomendación", "Progress and recommendation", "진행 상황과 추천"), t("Después de la acción principal verás tu constancia y la recomendación que mejor encaja con tu progreso.", "After the main action, you will see your consistency and the recommendation that best fits your progress.", "주요 활동 다음에는 학습 지속 기록과 진행 상황에 맞는 추천을 확인할 수 있습니다.")),
       step(".alert-card", t("Estado de la beca", "Scholarship status", "장학금 상태"), t("Abre el radar para distinguir información vigente de referencias históricas.", "Open the radar to separate current information from historical reference.", "레이더에서 최신 정보와 과거 참고 자료를 구분하세요.")),
-      step(".section-block", t("Plan de hoy", "Today's plan", "오늘의 계획"), t("Tres tareas breves conectan directamente con materiales y prácticas. Márcalas al terminar.", "Three short tasks link directly to materials and practice. Check them when finished.", "짧은 세 과제가 자료와 연습으로 연결됩니다. 완료 후 체크하세요.")),
       step(".bottom-nav", t("Menú siempre disponible", "Always-available menu", "항상 보이는 메뉴"), t("Cambia entre Inicio, Beca, Estudiar, Documentos y Perfil desde cualquier punto.", "Move among Home, Scholarship, Study, Documents and Profile from anywhere.", "어디서든 홈, 장학금, 학습, 서류와 프로필로 이동합니다.")),
     ],
   };

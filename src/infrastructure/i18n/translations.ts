@@ -46,6 +46,10 @@ const es = {
     cycleDetails: "Ver detalles de la convocatoria",
     focus: "Tu foco",
     today: "Plan de hoy",
+    nextStep: "Empieza por aquí",
+    otherTasks: "Ver el resto del plan",
+    planCompleteTitle: "Plan de hoy completado",
+    continueLearning: "Seguir practicando",
     reminder: "Pequeño recordatorio",
     reminderStages: {
       start: "Empieza con una tarea breve. Cada sesión completada construye la base de tu candidatura.",
@@ -446,7 +450,7 @@ const en: TranslationCatalog = {
   status: { confirmed: "Confirmed", historical: "Historical reference", pending: "Verify" },
   progress: { aria: "Preparation progress", ready: "ready for today" },
   home: {
-    greeting: "안녕, future scholar!", openProfile: "Open profile", sticker: "GKS-U · Spain", title: "One clear step.\nEvery day.", intro: "Your preparation combines academic records, languages and a personal story supported by evidence.", start: "Start session", cycleAria: "Application cycle status", radar: "Official radar", cycleNote: "The 2027 GKS-U call is published. Review the current guidelines before preparing or submitting documents.", cycleDetails: "View cycle details", focus: "Your focus", today: "Today's plan", reminder: "Small reminder", reminderStages: { start: "Start with one short task. Every completed session builds the foundation of your application.", momentum: "Your path is already moving. Complete the next activity and record what you learned.", planComplete: "You completed the learning plan. Now turn that progress into evidence and documents.", strong: "Your preparation has a solid foundation. Retake the tests and strengthen the area that needs it most." },
+    greeting: "안녕, future scholar!", openProfile: "Open profile", sticker: "GKS-U · Spain", title: "One clear step.\nEvery day.", intro: "Your preparation combines academic records, languages and a personal story supported by evidence.", start: "Start session", cycleAria: "Application cycle status", radar: "Official radar", cycleNote: "The 2027 GKS-U call is published. Review the current guidelines before preparing or submitting documents.", cycleDetails: "View cycle details", focus: "Your focus", today: "Today's plan", nextStep: "Start here", otherTasks: "View the rest of the plan", planCompleteTitle: "Today's plan completed", continueLearning: "Keep practising", reminder: "Small reminder", reminderStages: { start: "Start with one short task. Every completed session builds the foundation of your application.", momentum: "Your path is already moving. Complete the next activity and record what you learned.", planComplete: "You completed the learning plan. Now turn that progress into evidence and documents.", strong: "Your preparation has a solid foundation. Retake the tests and strengthen the area that needs it most." },
   },
   tasks: { items: {
     "topik-reading-01": { title: "TOPIK I → II bridge · reading", meta: "Vocabulary, connectors and 5 graded questions" },
@@ -520,7 +524,7 @@ const ko: TranslationCatalog = {
   status: { confirmed: "확인됨", historical: "이전 자료", pending: "확인 필요" },
   progress: { aria: "준비 진행률", ready: "오늘의 준비도" },
   home: {
-    greeting: "안녕, 미래의 장학생!", openProfile: "프로필 열기", sticker: "GKS-U · 스페인", title: "명확한 한 걸음.\n매일 꾸준히.", intro: "학업 성적, 언어 능력, 그리고 근거가 있는 나만의 이야기를 함께 준비하세요.", start: "학습 시작", cycleAria: "모집 상태", radar: "공식 정보", cycleNote: "GKS-U 2027 모집 요강이 발표되었습니다. 서류 준비와 제출 전 최신 요강을 확인하세요.", cycleDetails: "모집 정보 보기", focus: "오늘의 집중", today: "오늘의 계획", reminder: "작은 알림", reminderStages: { start: "짧은 과제 하나부터 시작하세요. 완료한 학습이 지원 준비의 기초가 됩니다.", momentum: "학습 경로가 움직이기 시작했습니다. 다음 활동을 완료하고 배운 내용을 기록하세요.", planComplete: "학습 계획을 완료했습니다. 이제 그 성장을 증빙 자료와 서류로 연결하세요.", strong: "준비의 기초가 단단해졌습니다. 시험을 다시 풀고 가장 부족한 부분을 강화하세요." },
+    greeting: "안녕, 미래의 장학생!", openProfile: "프로필 열기", sticker: "GKS-U · 스페인", title: "명확한 한 걸음.\n매일 꾸준히.", intro: "학업 성적, 언어 능력, 그리고 근거가 있는 나만의 이야기를 함께 준비하세요.", start: "학습 시작", cycleAria: "모집 상태", radar: "공식 정보", cycleNote: "GKS-U 2027 모집 요강이 발표되었습니다. 서류 준비와 제출 전 최신 요강을 확인하세요.", cycleDetails: "모집 정보 보기", focus: "오늘의 집중", today: "오늘의 계획", nextStep: "여기서 시작", otherTasks: "나머지 계획 보기", planCompleteTitle: "오늘의 계획 완료", continueLearning: "계속 연습하기", reminder: "작은 알림", reminderStages: { start: "짧은 과제 하나부터 시작하세요. 완료한 학습이 지원 준비의 기초가 됩니다.", momentum: "학습 경로가 움직이기 시작했습니다. 다음 활동을 완료하고 배운 내용을 기록하세요.", planComplete: "학습 계획을 완료했습니다. 이제 그 성장을 증빙 자료와 서류로 연결하세요.", strong: "준비의 기초가 단단해졌습니다. 시험을 다시 풀고 가장 부족한 부분을 강화하세요." },
   },
   tasks: { items: {
     "topik-reading-01": { title: "TOPIK I → II 연결 · 읽기", meta: "어휘, 연결 표현과 단계별 5문항" },

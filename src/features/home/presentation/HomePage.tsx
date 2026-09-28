@@ -6,6 +6,8 @@ import { LanguageGoals } from "@/features/home/presentation/LanguageGoals";
 import { getReminderStage } from "@/domain/models/learning-reminder";
 import type { LearningJourneyController } from "@/application/controllers/useLearningJourney";
 import { LearningJourneyPanel } from "@/shared/ui/LearningJourneyPanel";
+import { buildHomeTaskPlan, type HomeTaskPlanEntry } from "@/domain/models/home-plan";
+import type { StudyTask } from "@/domain/models/gks";
 
 type Props = {
   score: number;
@@ -16,7 +18,8 @@ type Props = {
 
 export function HomePage({ score, progress, toggleTask, learning }: Props) {
   const { locale, copy } = useI18n();
-  const completedToday = dailyTasks.filter((task) => progress.completedTasks.includes(task.id)).length;
+  const taskPlan = buildHomeTaskPlan(dailyTasks, progress.completedTasks);
+  const completedToday = taskPlan.completedCount;
   const reminderStage = getReminderStage(score, completedToday, dailyTasks.length);
   const reminderText = copy.home.reminderStages[reminderStage];
   const dateLocale = { es: "es-ES", en: "en-GB", ko: "ko-KR" }[locale];
@@ -26,6 +29,32 @@ export function HomePage({ score, progress, toggleTask, learning }: Props) {
     "topik-reading-01": "/study/korean",
     "english-writing-01": "/study/english",
     "gks-story-01": "/study/interviews",
+  };
+  const primaryRoute = taskPlan.primary ? taskRoutes[taskPlan.primary.task.id] ?? "/study" : "/study";
+
+  const renderTask = ({ task, originalIndex, completed }: HomeTaskPlanEntry<StudyTask>, priority = false) => {
+    const taskCopy = copy.tasks.items[task.id as keyof typeof copy.tasks.items];
+
+    return (
+      <article className={`task-card task-card--${task.category}${completed ? " task-card--done" : ""}${priority ? " task-card--priority" : ""}`} key={task.id}>
+        <button
+          className="task-card__toggle"
+          type="button"
+          aria-pressed={completed}
+          aria-label={`${completed ? copy.common.unmark : copy.common.mark} ${taskCopy.title}`}
+          onClick={() => toggleTask(task.id)}
+        >
+          <span className="task-number">{completed ? "✓" : `0${originalIndex + 1}`}</span>
+          <span className="task-content">
+            {priority && <small className="task-content__priority">{copy.home.nextStep}</small>}
+            <strong>{taskCopy.title}</strong>
+            <small>{taskCopy.meta}</small>
+          </span>
+          <span className="task-duration">{task.duration} {copy.common.minutes}</span>
+        </button>
+        <Link className="task-card__open" to={taskRoutes[task.id] ?? "/study"} aria-label={`${copy.home.start}: ${taskCopy.title}`}>→</Link>
+      </article>
+    );
   };
 
   return (
@@ -47,10 +76,33 @@ export function HomePage({ score, progress, toggleTask, learning }: Props) {
           <span className="sticker sticker--yellow">{copy.home.sticker}</span>
           <h2 id="readiness-title">{titleLineOne}<br />{titleLineTwo}</h2>
           <p>{copy.home.intro}</p>
-          <Link to="/study" className="primary-button">{copy.home.start} <span>→</span></Link>
+          <Link to={primaryRoute} className="primary-button">{taskPlan.primary ? copy.home.start : copy.home.continueLearning} <span>→</span></Link>
         </div>
         <ProgressOrbit score={score} />
       </section>
+
+      <section className="section-block home-today" aria-labelledby="today-title">
+        <div className="section-heading">
+          <div>
+            <span className="eyebrow">{copy.home.focus}</span>
+            <h2 id="today-title">{copy.home.today}</h2>
+          </div>
+          <span className="count-pill">{completedToday}/{dailyTasks.length}</span>
+        </div>
+        {taskPlan.primary ? renderTask(taskPlan.primary, true) : (
+          <div className="home-plan-complete">
+            <span aria-hidden="true">✓</span>
+            <div><strong>{copy.home.planCompleteTitle}</strong><p>{copy.home.reminderStages.planComplete}</p></div>
+            <Link to="/study">{copy.home.continueLearning}<b aria-hidden="true">→</b></Link>
+          </div>
+        )}
+        <details className="home-plan-drawer">
+          <summary><span>{copy.home.otherTasks}</span><b>{taskPlan.remaining.length}</b><i aria-hidden="true">＋</i></summary>
+          <div className="task-list">{taskPlan.remaining.map((entry) => renderTask(entry))}</div>
+        </details>
+      </section>
+
+      <LearningJourneyPanel learning={learning} compact />
 
       <Link className="alert-card alert-card--link" to="/gks" aria-label={copy.home.cycleDetails}>
         <div className="alert-icon" aria-hidden="true">!</div>
@@ -61,43 +113,6 @@ export function HomePage({ score, progress, toggleTask, learning }: Props) {
         </div>
         <span className="alert-card__arrow" aria-hidden="true">↗</span>
       </Link>
-
-      <LearningJourneyPanel learning={learning} compact />
-
-      <section className="section-block" aria-labelledby="today-title">
-        <div className="section-heading">
-          <div>
-            <span className="eyebrow">{copy.home.focus}</span>
-            <h2 id="today-title">{copy.home.today}</h2>
-          </div>
-          <span className="count-pill">{completedToday}/{dailyTasks.length}</span>
-        </div>
-        <div className="task-list">
-          {dailyTasks.map((task, index) => {
-            const checked = progress.completedTasks.includes(task.id);
-            const taskCopy = copy.tasks.items[task.id as keyof typeof copy.tasks.items];
-            return (
-              <article className={`task-card task-card--${task.category}${checked ? " task-card--done" : ""}`} key={task.id}>
-                <button
-                  className="task-card__toggle"
-                  type="button"
-                  aria-pressed={checked}
-                  aria-label={`${checked ? copy.common.unmark : copy.common.mark} ${taskCopy.title}`}
-                  onClick={() => toggleTask(task.id)}
-                >
-                  <span className="task-number">{checked ? "✓" : `0${index + 1}`}</span>
-                  <span className="task-content">
-                    <strong>{taskCopy.title}</strong>
-                    <small>{taskCopy.meta}</small>
-                  </span>
-                  <span className="task-duration">{task.duration} {copy.common.minutes}</span>
-                </button>
-                <Link className="task-card__open" to={taskRoutes[task.id] ?? "/study"} aria-label={`${copy.home.start}: ${taskCopy.title}`}>→</Link>
-              </article>
-            );
-          })}
-        </div>
-      </section>
 
       <LanguageGoals />
 
