@@ -60,12 +60,13 @@ function getDefinition(pathname: string): TourDefinition {
     ],
   };
   if (pathname === "/study") return {
-    key: "study", title: t("Todo lo que puedes estudiar", "Everything you can study", "학습할 수 있는 모든 것"), steps: [
-      step(".page-header--study", t("Centro de preparación", "Preparation centre", "준비 센터"), t("Reúne idiomas, recursos, entrevistas y simulación escrita en una sola ruta.", "It brings languages, resources, interviews and written simulation into one route.", "언어, 자료, 면접과 서면 시뮬레이션을 한 경로에 모았습니다.")),
+    key: "study", title: t("Tu ruta de aprendizaje", "Your learning path", "나의 학습 경로"), steps: [
+      step(".page-header--study", t("Un recorrido en orden", "A path in order", "순서가 있는 경로"), t("La pantalla empieza con la ruta inicial y deja el análisis detallado para cuando lo necesites.", "The screen starts with the starter route and leaves detailed analysis for when you need it.", "시작 경로를 먼저 보여 주고 상세 분석은 필요할 때 확인하도록 구성했습니다.")),
       step(".study-start-card", t("Empieza por aquí", "Start here", "여기서 시작하세요"), t("Sigue estas tres acciones iniciales para construir una base antes de simular.", "Follow these three starter actions to build a foundation before simulating.", "시뮬레이션 전 기초를 만들기 위해 세 가지 시작 활동을 따르세요.")),
       step(".study-language-spaces", t("Idiomas separados", "Separate language spaces", "분리된 언어 공간"), t("Inglés y coreano tienen navegación, pruebas, progreso y materiales independientes.", "English and Korean have independent navigation, tests, progress and materials.", "영어와 한국어는 각각 별도의 탐색, 시험, 진행도와 자료를 가집니다.")),
-      step(".written-entry", t("Candidatura escrita", "Written application", "서면 지원"), t("Practica Personal Statement y Study Plan sin confundirlo con un examen oficial.", "Practise the Personal Statement and Study Plan without treating it as an official exam.", "공식 시험과 혼동하지 않고 자기소개서와 학업계획서를 연습합니다.")),
-      step(".interview-entry", t("Entrevistas", "Interviews", "면접"), t("Entrena respuestas con tiempo, evidencia, repreguntas y autoevaluación.", "Train timed, evidence-based answers, follow-ups and self-review.", "시간, 근거, 추가 질문과 자기 검토로 답변을 연습합니다.")),
+      step(".study-next-step", t("Tu siguiente recomendación", "Your next recommendation", "다음 추천"), t("El progreso guardado orienta la acción más útil después de elegir una ruta.", "Saved progress points to the most useful action after choosing a path.", "저장된 진행 상황이 경로 선택 후 가장 유용한 활동을 안내합니다.")),
+      step(".study-support-drawer", t("Detalle bajo demanda", "Detail on demand", "필요할 때 세부 정보"), t("El análisis y los materiales personalizados se abren solo cuando quieres consultarlos.", "Analysis and personalised materials open only when you want to review them.", "분석과 맞춤 자료는 확인하고 싶을 때만 펼쳐집니다.")),
+      step(".study-practice-labs", t("Aplicación práctica", "Applied practice", "응용 연습"), t("Después de construir la base puedes pasar a la candidatura escrita y la entrevista.", "After building the foundation, move on to the written application and interview.", "기초를 만든 뒤 서면 지원과 면접 연습으로 넘어갑니다.")),
     ],
   };
   if (pathname === "/checklist") return {

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguageTestProgress } from "@/application/controllers/useLanguageTestProgress";
 import { useI18n } from "@/application/i18n/I18nContext";
@@ -12,6 +13,8 @@ import { AdaptiveRecommendationCenter } from "@/features/study/presentation/comp
 export function StudyPage({ learning }: { learning: LearningJourneyController }) {
   const { copy } = useI18n();
   const { totals } = useLanguageTestProgress();
+  const hasLearningEvidence = learning.analysis.totalAttempts > 0;
+  const [supportOpen, setSupportOpen] = useState(false);
   const spaces = [
     {
       language: "english",
@@ -44,12 +47,6 @@ export function StudyPage({ learning }: { learning: LearningJourneyController })
         <h1>{copy.study.title}</h1>
         <p>{copy.study.intro}</p>
       </header>
-
-      <LearningJourneyPanel learning={learning} compact />
-
-      <LearningAnalysisPanel learning={learning} />
-
-      <AdaptiveRecommendationCenter learning={learning} />
 
       <section className="study-start-card" aria-labelledby="starter-route-title">
         <div className="study-start-card__copy">
@@ -104,26 +101,64 @@ export function StudyPage({ learning }: { learning: LearningJourneyController })
         </div>
       </section>
 
-      <section className="written-entry" aria-labelledby="written-entry-title">
-        <div className="written-entry__symbol" aria-hidden="true"><span>✎</span><i /></div>
-        <div>
-          <span className="eyebrow">{copy.written.entryKicker}</span>
-          <h2 id="written-entry-title">{copy.written.entryTitle}</h2>
-          <p>{copy.written.entryText}</p>
-          <ul>{copy.written.entryPoints.map((point) => <li key={point}>{point}</li>)}</ul>
-        </div>
-        <Link to="/study/written-simulator">{copy.written.entryAction}<span aria-hidden="true">→</span></Link>
-      </section>
+      <div className="study-next-step">
+        <LearningJourneyPanel learning={learning} compact />
+      </div>
 
-      <section className="interview-entry" aria-labelledby="interview-entry-title">
-        <div className="interview-entry__icon" aria-hidden="true"><span>Q</span><i /></div>
-        <div>
-          <span className="eyebrow">{copy.interview.entryKicker}</span>
-          <h2 id="interview-entry-title">{copy.interview.entryTitle}</h2>
-          <p>{copy.interview.entryText}</p>
-          <ul>{copy.interview.entryPoints.map((point) => <li key={point}>{point}</li>)}</ul>
+      <details
+        className="study-support-drawer"
+        open={supportOpen}
+        onToggle={(event) => setSupportOpen(event.currentTarget.open)}
+      >
+        <summary>
+          <span className="study-support-drawer__symbol" aria-hidden="true">⌁</span>
+          <span>
+            <small>{copy.study.supportKicker}</small>
+            <strong>{copy.study.supportTitle}</strong>
+            <em>{copy.study.supportIntro}</em>
+          </span>
+          <b>{hasLearningEvidence ? copy.study.supportReady : copy.study.supportPending}</b>
+          <i aria-hidden="true">＋</i>
+        </summary>
+        {supportOpen && (
+          <div className="study-support-drawer__content">
+            <LearningAnalysisPanel learning={learning} />
+            <AdaptiveRecommendationCenter learning={learning} />
+          </div>
+        )}
+      </details>
+
+      <section className="study-practice-labs" aria-labelledby="study-practice-labs-title">
+        <div className="section-heading">
+          <div>
+            <span className="eyebrow">{copy.study.labsKicker}</span>
+            <h2 id="study-practice-labs-title">{copy.study.labsTitle}</h2>
+          </div>
         </div>
-        <Link to="/study/interviews">{copy.interview.entryAction}<span aria-hidden="true">→</span></Link>
+        <p className="section-intro">{copy.study.labsIntro}</p>
+        <div className="study-practice-labs__grid">
+          <section className="written-entry" aria-labelledby="written-entry-title">
+            <div className="written-entry__symbol" aria-hidden="true"><span>✎</span><i /></div>
+            <div>
+              <span className="eyebrow">{copy.written.entryKicker}</span>
+              <h2 id="written-entry-title">{copy.written.entryTitle}</h2>
+              <p>{copy.written.entryText}</p>
+              <ul>{copy.written.entryPoints.map((point) => <li key={point}>{point}</li>)}</ul>
+            </div>
+            <Link to="/study/written-simulator">{copy.written.entryAction}<span aria-hidden="true">→</span></Link>
+          </section>
+
+          <section className="interview-entry" aria-labelledby="interview-entry-title">
+            <div className="interview-entry__icon" aria-hidden="true"><span>Q</span><i /></div>
+            <div>
+              <span className="eyebrow">{copy.interview.entryKicker}</span>
+              <h2 id="interview-entry-title">{copy.interview.entryTitle}</h2>
+              <p>{copy.interview.entryText}</p>
+              <ul>{copy.interview.entryPoints.map((point) => <li key={point}>{point}</li>)}</ul>
+            </div>
+            <Link to="/study/interviews">{copy.interview.entryAction}<span aria-hidden="true">→</span></Link>
+          </section>
+        </div>
       </section>
     </div>
   );
