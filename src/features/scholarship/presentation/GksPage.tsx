@@ -16,6 +16,8 @@ export function GksPage() {
   const { locale, copy } = useI18n();
   const radar = useGksRadar();
   const [videoIndex, setVideoIndex] = useState(0);
+  const [certificationsOpen, setCertificationsOpen] = useState(false);
+  const [guidanceOpen, setGuidanceOpen] = useState(false);
   const [titleLineOne, titleLineTwo] = copy.gks.title.split("\n");
   const onlineSources = radar.sourceChecks.filter((source) => source.ok).length;
   const changedSources = radar.sourceChecks.filter((source) => source.changed);
@@ -100,17 +102,104 @@ export function GksPage() {
         </div>
       </section>
 
-      <section className="gks-certifications" id="gks-certifications" aria-labelledby="gks-certifications-title">
-        <div className="gks-certifications__heading">
+      <section className="gks-pathway" aria-labelledby="gks-pathway-title">
+        <div className="section-heading">
           <div>
-            <span className="eyebrow">{copy.gks.certifications.kicker}</span>
-            <h2 id="gks-certifications-title">{copy.gks.certifications.title}</h2>
-            <p>{copy.gks.certifications.intro}</p>
+            <span className="eyebrow">{copy.gks.detailsKicker}</span>
+            <h2 id="gks-pathway-title">{copy.gks.detailsTitle}</h2>
           </div>
-          <span className="gks-certifications__cycle">GKS-U 2027</span>
+        </div>
+        <p className="section-intro">{copy.gks.intro}</p>
+        <ol>
+          <li>
+            <a href="#gks-details">
+              <b>01</b>
+              <span><strong>{copy.gks.eligibilitySummary}</strong><small>{copy.gks.eligibilityRules[0]}</small></span>
+              <i aria-hidden="true">↓</i>
+            </a>
+          </li>
+          <li>
+            <Link to="/checklist">
+              <b>02</b>
+              <span><strong>{copy.nav.documents}</strong><small>{copy.gks.nextActionText}</small></span>
+              <i aria-hidden="true">→</i>
+            </Link>
+          </li>
+          <li>
+            <a href="#gks-certifications">
+              <b>03</b>
+              <span><strong>{copy.gks.certificationsSummary}</strong><small>{copy.gks.certifications.intro}</small></span>
+              <i aria-hidden="true">↓</i>
+            </a>
+          </li>
+        </ol>
+      </section>
+
+      <section className="gks-details" id="gks-details" aria-labelledby="gks-details-title">
+        <div className="section-heading">
+          <div><span className="eyebrow">{copy.gks.detailsKicker}</span><h2 id="gks-details-title">{copy.gks.eligibilitySummary}</h2></div>
         </div>
 
-        <div className="gks-certification-grid">
+        <details className="gks-disclosure">
+          <summary><span><b>01</b>{copy.gks.eligibilitySummary}</span><i aria-hidden="true">＋</i></summary>
+          <div className="gks-disclosure__content"><ol className="rule-list">{copy.gks.eligibilityRules.map((rule, index) => <li key={rule}><span>{index + 1}</span><p>{rule}</p></li>)}</ol></div>
+        </details>
+
+        <details className="gks-disclosure">
+          <summary><span><b>02</b>{copy.gks.factsSummary}</span><i aria-hidden="true">＋</i></summary>
+          <div className="gks-disclosure__content gks-fact-list">
+            {keyFacts.map((fact) => {
+              const factCopy = copy.gks.facts[fact.id as keyof typeof copy.gks.facts];
+              return (
+                <article key={fact.id}>
+                  <span className="fact-icon" aria-hidden="true">{fact.icon}</span>
+                  <div><small>{factCopy.label}</small><strong>{fact.value}</strong><p>{factCopy.detail}</p><SourceLink sourceId={fact.sourceId} /></div>
+                  <StatusBadge status={fact.status} />
+                </article>
+              );
+            })}
+          </div>
+        </details>
+
+        <details className="gks-disclosure">
+          <summary><span><b>03</b>{copy.gks.programsSummary}</span><i aria-hidden="true">＋</i></summary>
+          <div className="gks-disclosure__content">
+            <p className="section-intro">{copy.gks.programsIntro}</p>
+            <div className="gks-program-list">
+              {targetPrograms.map((program) => {
+                const programCopy = copy.gks.programTargets[program.id];
+                return <article className={`gks-program-row program-card--${program.tone}`} key={program.id}><span aria-hidden="true">▰</span><div><strong>{programCopy.title}</strong><small>{programCopy.detail}</small></div><i>{copy.gks.programCategories[program.category]}</i></article>;
+              })}
+            </div>
+          </div>
+        </details>
+
+        <details className="gks-disclosure">
+          <summary><span><b>04</b>{copy.gks.sourcesSummary}</span><i aria-hidden="true">＋</i></summary>
+          <div className="gks-disclosure__content">
+            <p className="section-intro">{copy.gks.sourcesIntro}</p>
+            <div className="source-list source-list--compact">{sources.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.id}><span><strong>{source.title}</strong><small>{source.organization}</small></span><span aria-hidden="true">↗</span></a>)}</div>
+          </div>
+        </details>
+      </section>
+
+      <details
+        className="gks-progressive-stage gks-certifications-stage"
+        id="gks-certifications"
+        open={certificationsOpen}
+        onToggle={(event) => setCertificationsOpen(event.currentTarget.open)}
+      >
+        <summary className="gks-progressive-stage__summary">
+          <div>
+            <span className="eyebrow">{copy.gks.certifications.kicker}</span>
+            <strong id="gks-certifications-title">{copy.gks.certifications.title}</strong>
+            <p>{copy.gks.certifications.intro}</p>
+          </div>
+          <span><b>GKS-U 2027</b><i aria-hidden="true">＋</i></span>
+        </summary>
+
+        {certificationsOpen && <section className="gks-certifications" aria-labelledby="gks-certifications-title">
+          <div className="gks-certification-grid">
           {gksCertifications.map((certificate) => {
             const certificateCopy = copy.gks.certifications.items[certificate.id];
             const studyPath = certificate.id === "topik"
@@ -158,29 +247,35 @@ export function GksPage() {
               </article>
             );
           })}
-        </div>
+          </div>
 
-        <div className="gks-certifications__notes">
-          <p><strong>50%</strong>{copy.gks.certifications.noScore}</p>
-          <p>{copy.gks.certifications.bandLegend}</p>
-          <p>{copy.gks.certifications.bestOnly}</p>
-          <p>{copy.gks.certifications.validity}</p>
-        </div>
+          <div className="gks-certifications__notes">
+            <p><strong>50%</strong>{copy.gks.certifications.noScore}</p>
+            <p>{copy.gks.certifications.bandLegend}</p>
+            <p>{copy.gks.certifications.bestOnly}</p>
+            <p>{copy.gks.certifications.validity}</p>
+          </div>
 
-        <CertificationOpportunityCatalog />
-      </section>
+          <CertificationOpportunityCatalog />
+        </section>}
+      </details>
 
-      <section className="gks-video-slider" aria-labelledby="gks-video-title">
-        <div className="gks-video-slider__heading">
+      <details
+        className="gks-progressive-stage gks-guidance-stage"
+        open={guidanceOpen}
+        onToggle={(event) => setGuidanceOpen(event.currentTarget.open)}
+      >
+        <summary className="gks-progressive-stage__summary">
           <div>
             <span className="eyebrow">{copy.gks.videoKicker}</span>
-            <h2 id="gks-video-title">{copy.gks.videoTitle}</h2>
+            <strong id="gks-video-title">{copy.gks.videoTitle}</strong>
             <p>{copy.gks.videoIntro}</p>
           </div>
-          <span className="gks-video-slider__count" aria-live="polite">{videoIndex + 1} / {gksFeedbackVideos.length}</span>
-        </div>
+          <span><b>{videoIndex + 1} / {gksFeedbackVideos.length}</b><i aria-hidden="true">＋</i></span>
+        </summary>
 
-        <article
+        {guidanceOpen && <section className="gks-video-slider" aria-labelledby="gks-video-title">
+          <article
             className="gks-video-slide"
             id="gks-video-panel"
             role="tabpanel"
@@ -219,64 +314,9 @@ export function GksPage() {
           <button type="button" onClick={() => moveVideo(1)} aria-label={copy.gks.nextVideo}>→</button>
         </div>
 
-        <p className="gks-video-slider__notice">{copy.gks.videoNotice} {spainSource && <a href={spainSource.url} target="_blank" rel="noreferrer">{copy.gks.verifySpain} ↗</a>}</p>
-      </section>
-
-      <section className="gks-details" aria-labelledby="gks-details-title">
-        <div className="section-heading">
-          <div><span className="eyebrow">{copy.gks.detailsKicker}</span><h2 id="gks-details-title">{copy.gks.detailsTitle}</h2></div>
-        </div>
-
-        <details className="gks-disclosure">
-          <summary><span><b>01</b>{copy.gks.factsSummary}</span><i aria-hidden="true">＋</i></summary>
-          <div className="gks-disclosure__content gks-fact-list">
-            {keyFacts.map((fact) => {
-              const factCopy = copy.gks.facts[fact.id as keyof typeof copy.gks.facts];
-              return (
-                <article key={fact.id}>
-                  <span className="fact-icon" aria-hidden="true">{fact.icon}</span>
-                  <div><small>{factCopy.label}</small><strong>{fact.value}</strong><p>{factCopy.detail}</p><SourceLink sourceId={fact.sourceId} /></div>
-                  <StatusBadge status={fact.status} />
-                </article>
-              );
-            })}
-          </div>
-        </details>
-
-        <details className="gks-disclosure">
-          <summary><span><b>02</b>{copy.gks.eligibilitySummary}</span><i aria-hidden="true">＋</i></summary>
-          <div className="gks-disclosure__content"><ol className="rule-list">{copy.gks.eligibilityRules.map((rule, index) => <li key={rule}><span>{index + 1}</span><p>{rule}</p></li>)}</ol></div>
-        </details>
-
-        <details className="gks-disclosure">
-          <summary><span><b>03</b>{copy.gks.programsSummary}</span><i aria-hidden="true">＋</i></summary>
-          <div className="gks-disclosure__content">
-            <p className="section-intro">{copy.gks.programsIntro}</p>
-            <div className="gks-program-list">
-              {targetPrograms.map((program) => {
-                const programCopy = copy.gks.programTargets[program.id];
-                return <article className={`gks-program-row program-card--${program.tone}`} key={program.id}><span aria-hidden="true">▰</span><div><strong>{programCopy.title}</strong><small>{programCopy.detail}</small></div><i>{copy.gks.programCategories[program.category]}</i></article>;
-              })}
-            </div>
-          </div>
-        </details>
-
-        <details className="gks-disclosure">
-          <summary><span><b>04</b>{copy.gks.certificationsSummary}</span><i aria-hidden="true">＋</i></summary>
-          <div className="gks-disclosure__content">
-            <p className="section-intro">{copy.gks.certifications.intro}</p>
-            <a className="gks-certification-jump" href="#gks-certifications">{copy.gks.certifications.title}<span aria-hidden="true">↑</span></a>
-          </div>
-        </details>
-
-        <details className="gks-disclosure">
-          <summary><span><b>05</b>{copy.gks.sourcesSummary}</span><i aria-hidden="true">＋</i></summary>
-          <div className="gks-disclosure__content">
-            <p className="section-intro">{copy.gks.sourcesIntro}</p>
-            <div className="source-list source-list--compact">{sources.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.id}><span><strong>{source.title}</strong><small>{source.organization}</small></span><span aria-hidden="true">↗</span></a>)}</div>
-          </div>
-        </details>
-      </section>
+          <p className="gks-video-slider__notice">{copy.gks.videoNotice} {spainSource && <a href={spainSource.url} target="_blank" rel="noreferrer">{copy.gks.verifySpain} ↗</a>}</p>
+        </section>}
+      </details>
     </div>
   );
 }

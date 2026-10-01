@@ -52,11 +52,13 @@ function getDefinition(pathname: string): TourDefinition {
     ],
   };
   if (pathname === "/gks") return {
-    key: "scholarship", title: t("Entender el apartado Beca", "Understanding Scholarship", "장학금 메뉴 이해"), steps: [
-      step(".page-header--gks", t("Información sin rumores", "Information without rumours", "소문 없는 정보"), t("Este apartado separa convocatoria, país y ruta de aplicación para España.", "This area separates call, country and application route information for Spain.", "스페인 지원자를 위해 모집, 국가와 지원 경로 정보를 구분합니다.")),
+    key: "scholarship", title: t("Tu ruta para entender la beca", "Your path to understanding the scholarship", "장학금 이해 경로"), steps: [
+      step(".page-header--gks", t("Empieza con contexto claro", "Start with clear context", "명확한 맥락부터 시작"), t("El recorrido avanza desde el estado actual hasta los requisitos y apoyos más avanzados.", "The path moves from the current status to requirements and more advanced support.", "현재 상태에서 요건과 심화 지원까지 순서대로 안내합니다.")),
       step(".gks-daily-radar", t("Radar diario", "Daily radar", "일일 레이더"), t("Prioriza el estado más reciente, la siguiente acción y las fuentes oficiales revisadas.", "It prioritises the latest status, next action and checked official sources.", "최신 상태, 다음 행동과 확인한 공식 출처를 우선 표시합니다.")),
-      step(".gks-video-slider", t("Videos de orientación", "Guidance videos", "안내 영상"), t("Elige entre tres videos relacionados. YouTube solo se carga cuando pulsas reproducir.", "Choose among three related videos. YouTube loads only when you press play.", "관련 영상 세 개 중 선택하세요. 재생할 때만 YouTube가 로드됩니다.")),
-      step(".gks-details", t("Detalles bajo demanda", "Details on demand", "필요할 때 세부 정보"), t("Despliega únicamente requisitos, programas o fuentes que necesites consultar.", "Expand only the requirements, programmes or sources you need.", "필요한 요건, 프로그램이나 출처만 펼쳐 보세요.")),
+      step(".gks-pathway", t("Tres pasos para orientarte", "Three steps to get oriented", "세 단계 안내"), t("Comprueba primero la elegibilidad, organiza documentos y después valora certificaciones.", "Check eligibility first, organise documents and then consider certifications.", "먼저 지원 자격을 확인하고 서류를 정리한 뒤 자격증을 검토하세요.")),
+      step(".gks-details", t("Lo esencial antes del detalle", "Essentials before detail", "세부 정보 전 핵심"), t("Abre únicamente la elegibilidad, los datos base, las carreras o las fuentes que necesites.", "Open only the eligibility, core facts, majors or sources you need.", "필요한 지원 자격, 기본 정보, 전공 또는 출처만 펼쳐 보세요.")),
+      step(".gks-certifications-stage", t("Certificaciones bajo demanda", "Certifications on demand", "필요할 때 자격증"), t("La comparación y el catálogo dinámico se cargan solo cuando decides consultarlos.", "The comparison and dynamic catalogue load only when you choose to review them.", "비교와 동적 카탈로그는 확인할 때만 불러옵니다.")),
+      step(".gks-guidance-stage", t("Orientación complementaria", "Optional guidance", "보충 안내"), t("Los videos quedan al final como apoyo y se cargan únicamente al abrir esta etapa.", "Videos stay at the end as support and load only when this stage is opened.", "영상은 보충 자료로 마지막에 있으며 이 단계를 열 때만 불러옵니다.")),
     ],
   };
   if (pathname === "/study") return {
