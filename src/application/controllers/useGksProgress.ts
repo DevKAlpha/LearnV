@@ -18,7 +18,14 @@ const initialState: ProgressState = {
 function readProgress(): ProgressState {
   try {
     const stored = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY);
-    return stored ? (JSON.parse(stored) as ProgressState) : initialState;
+    if (!stored) return initialState;
+    const parsed = JSON.parse(stored) as Partial<ProgressState> | null;
+    const validIds = (value: unknown, ids: string[]) => Array.isArray(value)
+      ? [...new Set(value.filter((id): id is string => typeof id === "string" && ids.includes(id)))] : [];
+    return {
+      completedTasks: validIds(parsed?.completedTasks, dailyTasks.map((task) => task.id)),
+      completedDocuments: validIds(parsed?.completedDocuments, documents.map((document) => document.id)),
+    };
   } catch {
     return initialState;
   }
@@ -28,7 +35,7 @@ export function useGksProgress() {
   const [progress, setProgress] = useState<ProgressState>(readProgress);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); } catch { /* Progress remains available for this session. */ }
   }, [progress]);
 
   const toggleTask = (id: string) => {

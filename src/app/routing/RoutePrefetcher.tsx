@@ -14,7 +14,9 @@ function normalizePath(url: URL) {
 function preload(pathname: string) {
   if (prefetched.has(pathname)) return;
   prefetched.add(pathname);
-  preloadAppRoute(pathname);
+  void preloadAppRoute(pathname).then((loaded) => {
+    if (!loaded) prefetched.delete(pathname);
+  });
 }
 
 function likelyNextRoutes(pathname: string) {
@@ -60,19 +62,20 @@ export function RoutePrefetcher() {
     const nextRoutes = likelyNextRoutes(location.pathname);
     if (nextRoutes.length === 0 || connection?.saveData || connection?.effectiveType?.includes("2g")) return;
 
-    const run = () => nextRoutes.forEach(preload);
     const capableDesktop = window.matchMedia("(min-width: 720px) and (pointer: fine)").matches;
-    if (capableDesktop) {
-      const frame = window.requestAnimationFrame(run);
-      return () => window.cancelAnimationFrame(frame);
-    }
+    // One likely destination on mobile, two on desktop; user intent still preloads immediately.
+    const run = () => {
+      if (document.visibilityState === "visible" && navigator.onLine !== false) {
+        nextRoutes.slice(0, capableDesktop ? 2 : 1).forEach(preload);
+      }
+    };
 
     const requestIdle = (window as unknown as { requestIdleCallback?: Window["requestIdleCallback"] }).requestIdleCallback;
     if (requestIdle) {
-      const request = requestIdle(run, { timeout: 900 });
+      const request = requestIdle(run, { timeout: 1_500 });
       return () => window.cancelIdleCallback?.(request);
     }
-    const timer = setTimeout(run, 350);
+    const timer = setTimeout(run, 1_000);
     return () => clearTimeout(timer);
   }, [location.pathname]);
 

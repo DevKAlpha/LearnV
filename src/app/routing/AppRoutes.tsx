@@ -5,7 +5,14 @@ import type { LearningJourneyController } from "@/application/controllers/useLea
 import { loadWithAssetRecovery } from "@/app/routing/asset-recovery";
 import { HomePage } from "@/features/home/presentation/HomePage";
 
-const recoverable = <T,>(loader: () => Promise<T>) => () => loadWithAssetRecovery(loader);
+const recoverable = <T,>(loader: () => Promise<T>) => {
+  let pending: Promise<T> | undefined;
+  const load = () => pending ??= loader().catch((error) => {
+    pending = undefined;
+    throw error;
+  });
+  return Object.assign(() => loadWithAssetRecovery(load), { preload: load });
+};
 const loadGksPage = recoverable(() => import("@/features/scholarship/presentation/GksPage").then((module) => ({ default: module.GksPage })));
 const loadStudyPage = recoverable(() => import("@/features/study/presentation/pages/StudyPage").then((module) => ({ default: module.StudyPage })));
 const loadLanguageStudyPage = recoverable(() => import("@/features/study/presentation/pages/LanguageStudyPage").then((module) => ({ default: module.LanguageStudyPage })));
@@ -26,17 +33,22 @@ const TestSessionPage = lazy(loadTestSessionPage);
 const ChecklistPage = lazy(loadChecklistPage);
 const ProfilePage = lazy(loadProfilePage);
 
-export function preloadAppRoute(pathname: string) {
-  if (pathname === "/") return;
-  if (pathname === "/gks") return void loadGksPage();
-  if (pathname === "/study") return void loadStudyPage();
-  if (/^\/study\/(english|korean)$/.test(pathname)) return void loadLanguageStudyPage();
-  if (pathname === "/study/interviews") return void loadInterviewPrepPage();
-  if (pathname === "/study/written-simulator") return void loadWrittenSimulatorPage();
-  if (/^\/tests\/(en|ko)$/.test(pathname)) return void loadTestPathPage();
-  if (/^\/tests\/(en|ko)\/.+/.test(pathname)) return void loadTestSessionPage();
-  if (pathname === "/checklist") return void loadChecklistPage();
-  if (pathname === "/profile") return void loadProfilePage();
+export async function preloadAppRoute(pathname: string): Promise<boolean> {
+  try {
+    if (pathname === "/gks") await loadGksPage.preload();
+    else if (pathname === "/study") await loadStudyPage.preload();
+    else if (/^\/study\/(english|korean)$/.test(pathname)) await loadLanguageStudyPage.preload();
+    else if (pathname === "/study/interviews") await loadInterviewPrepPage.preload();
+    else if (pathname === "/study/written-simulator") await loadWrittenSimulatorPage.preload();
+    else if (/^\/tests\/(en|ko)$/.test(pathname)) await loadTestPathPage.preload();
+    else if (/^\/tests\/(en|ko)\/.+/.test(pathname)) await loadTestSessionPage.preload();
+    else if (pathname === "/checklist") await loadChecklistPage.preload();
+    else if (pathname === "/profile") await loadProfilePage.preload();
+    return true;
+  } catch {
+    // Speculative work must never reload the page the user is currently using.
+    return false;
+  }
 }
 
 type Progress = ReturnType<typeof useGksProgress>;

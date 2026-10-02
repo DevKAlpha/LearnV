@@ -127,7 +127,7 @@ export function SectionTour() {
 
   const closeTour = useCallback(() => {
     const seen = readSeenTours();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...seen, [definition.key]: true }));
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...seen, [definition.key]: true })); } catch { /* Closing help must not depend on storage. */ }
     setOpen(false);
     setRect(null);
     setTargetReady(false);

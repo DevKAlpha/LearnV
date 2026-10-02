@@ -14,7 +14,8 @@ type I18nContextValue = {
 const I18nContext = createContext<I18nContextValue | null>(null);
 
 function detectLocale(): Locale {
-  const saved = localStorage.getItem(STORAGE_KEY);
+  let saved;
+  try { saved = localStorage.getItem(STORAGE_KEY); } catch { /* Use the browser language. */ }
   if (saved === "es" || saved === "en" || saved === "ko") return saved;
 
   const browserLocale = navigator.language.toLowerCase();
@@ -29,7 +30,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const locale = learningLocale ?? baseLocale;
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, baseLocale);
+    try { localStorage.setItem(STORAGE_KEY, baseLocale); } catch { /* Keep the preference in memory. */ }
   }, [baseLocale]);
 
   useEffect(() => {
