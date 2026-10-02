@@ -72,10 +72,11 @@ function getDefinition(pathname: string): TourDefinition {
     ],
   };
   if (pathname === "/checklist") return {
-    key: "documents", title: t("Preparar documentos", "Preparing documents", "서류 준비"), steps: [
-      step(".page-header", t("Checklist de referencia", "Reference checklist", "참고 체크리스트"), t("Organiza documentos habituales; siempre prevalece la convocatoria vigente.", "It organises common documents; the current call always takes precedence.", "일반적인 서류를 정리하며 최신 모집 요강이 항상 우선합니다.")),
+    key: "documents", title: t("Tu ruta documental", "Your document path", "서류 준비 경로"), steps: [
+      step(".page-header", t("Preparación sin subir archivos", "Prepare without uploading files", "파일 업로드 없이 준비"), t("Organiza el estado de cada requisito; la convocatoria vigente siempre tiene prioridad.", "Track each requirement's status; the current guidelines always take priority.", "각 요건의 상태를 정리하며 최신 모집 요강이 항상 우선합니다.")),
       step(".checklist-progress", t("Progreso local", "Local progress", "기기 내 진행도"), t("El contador cambia cuando marcas documentos y permanece únicamente en este dispositivo.", "The counter changes as documents are checked and stays only on this device.", "서류를 체크하면 수치가 바뀌며 이 기기에만 저장됩니다.")),
-      step(".document-list", t("Qué preparar", "What to prepare", "준비할 내용"), t("Cada tarjeta explica el documento, su prioridad y las acciones relacionadas.", "Each card explains the document, priority and related actions.", "각 카드에 서류, 우선순위와 관련 행동이 설명되어 있습니다.")),
+      step(".document-route__heading", t("De lo sencillo a lo complejo", "From simple to complex", "쉬운 것부터 복잡한 것까지"), t("Empieza con borradores propios y deja para después las solicitudes, apostillas, traducciones y pruebas externas.", "Start with your own drafts, then move to requests, apostilles, translations and external tests.", "직접 작성할 초안부터 시작하고 발급, 아포스티유, 번역과 외부 시험은 이후에 준비하세요.")),
+      step(".document-stage", t("Etapas bajo demanda", "Stages on demand", "필요할 때 여는 단계"), t("Solo la etapa actual empieza abierta; las demás se despliegan cuando decides trabajarlas.", "Only the current stage starts open; expand the others when you decide to work on them.", "현재 단계만 먼저 열리며 다른 단계는 필요할 때 펼칠 수 있습니다.")),
     ],
   };
   if (pathname === "/profile") return {

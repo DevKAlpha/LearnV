@@ -175,6 +175,16 @@ const es = {
     listAria: "Lista de documentos",
     privacy: "Privacidad primero",
     privacyText: "Solo guardamos el estado de tus casillas en este dispositivo. No almacenamos certificados, pasaportes ni expedientes.",
+    routeKicker: "Ruta documental",
+    routeTitle: "Prepara primero lo que depende de ti",
+    routeIntro: "Avanza desde los borradores que puedes iniciar hoy hasta los documentos que requieren centros educativos, registros oficiales o una prueba externa.",
+    stageProgress: "preparados",
+    stages: {
+      drafts: { title: "Empieza por tus borradores", text: "Redacta y revisa estos documentos por tu cuenta antes de solicitar certificados externos." },
+      academic: { title: "Pídelos a tu centro educativo", text: "Solicítalos con margen porque su emisión, corrección y formato dependen de la institución." },
+      official: { title: "Reserva tiempo para los trámites oficiales", text: "Los documentos civiles pueden requerir expedición, apostilla y traducción jurada." },
+      optional: { title: "Añade evidencia de idioma si te aporta", text: "Es opcional en la guía general, pero puede puntuar o ser exigida por una universidad." },
+    },
     items: {
       application: { label: "Formulario de solicitud", detail: "Debe completarse en inglés o coreano y firmarse según la convocatoria." },
       "personal-statement": { label: "Personal Statement", detail: "Historia, motivación, preparación y vínculo verificable con el objetivo académico." },
@@ -477,6 +487,8 @@ const en: TranslationCatalog = {
   },
   checklist: {
     sticker: "Document hub", title: "Everything ready.\nNo panic.", intro: "Track preparation here; never upload personal documents to this site.", referenceFile: "Reference file", of: "of", prepared: "items prepared", listAria: "Document list", privacy: "Privacy first", privacyText: "We only save checkbox status on this device. We do not store certificates, passports or transcripts.",
+    routeKicker: "Document path", routeTitle: "Prepare what depends on you first", routeIntro: "Move from drafts you can begin today to documents that require a school, public registry or external examination.", stageProgress: "prepared",
+    stages: { drafts: { title: "Start with your drafts", text: "Write and review these documents yourself before requesting external certificates." }, academic: { title: "Request these from your school", text: "Ask early because issuing, correcting and formatting them depends on the institution." }, official: { title: "Allow time for official procedures", text: "Civil documents may require issuance, apostille and certified translation." }, optional: { title: "Add language evidence when it helps", text: "It is optional in the general guidelines, but may earn points or be required by a university." } },
     items: {
       application: { label: "Application form", detail: "Complete it in English or Korean and sign it as required by the current cycle." },
       "personal-statement": { label: "Personal Statement", detail: "Your story, motivation, preparation and verifiable link to your academic goal." },
@@ -551,6 +563,8 @@ const ko: TranslationCatalog = {
   },
   checklist: {
     sticker: "서류 센터", title: "차근차근 준비.\n걱정 없이.", intro: "준비 상태만 체크하고 개인 서류는 이 사이트에 업로드하지 마세요.", referenceFile: "참고 서류함", of: "/", prepared: "개 준비 완료", listAria: "서류 목록", privacy: "개인정보 우선", privacyText: "체크 상태만 이 기기에 저장합니다. 증명서, 여권, 성적표는 저장하지 않습니다.",
+    routeKicker: "서류 준비 경로", routeTitle: "직접 준비할 수 있는 것부터 시작하세요", routeIntro: "오늘 시작할 수 있는 초안에서 학교, 공공기관 또는 외부 시험이 필요한 서류 순서로 진행하세요.", stageProgress: "개 준비",
+    stages: { drafts: { title: "초안부터 시작하세요", text: "외부 증명서를 요청하기 전에 직접 작성하고 검토할 수 있는 서류입니다." }, academic: { title: "학교에 미리 요청하세요", text: "발급, 수정과 형식이 교육기관에 달려 있으므로 충분한 시간을 두세요." }, official: { title: "공식 절차 시간을 확보하세요", text: "가족관계 서류에는 발급, 아포스티유와 공인 번역이 필요할 수 있습니다." }, optional: { title: "도움이 될 때 언어 증빙을 추가하세요", text: "일반 요강에서는 선택 사항이지만 점수에 반영되거나 대학이 요구할 수 있습니다." } },
     items: {
       application: { label: "지원서", detail: "영어 또는 한국어로 작성하고 해당 모집 요강에 따라 서명합니다." },
       "personal-statement": { label: "자기소개서", detail: "개인 이야기, 동기, 준비 과정과 학업 목표를 뒷받침하는 근거를 담습니다." },
