@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { dailyTasks, currentCycle } from "@/infrastructure/data/gks-2026";
+import { dailyTasks } from "@/infrastructure/data/gks-2026";
 import { ProgressOrbit } from "@/shared/ui/ProgressOrbit";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { LanguageGoals } from "@/features/home/presentation/LanguageGoals";
@@ -103,16 +103,6 @@ export function HomePage({ score, progress, toggleTask, learning }: Props) {
       </section>
 
       <LearningJourneyPanel learning={learning} compact />
-
-      <Link className="alert-card alert-card--link" to="/gks" aria-label={copy.home.cycleDetails}>
-        <div className="alert-icon" aria-hidden="true">!</div>
-        <div>
-          <span className="eyebrow">{copy.home.radar}</span>
-          <strong>{currentCycle.target}</strong>
-          <p>{copy.home.cycleNote}</p>
-        </div>
-        <span className="alert-card__arrow" aria-hidden="true">↗</span>
-      </Link>
 
       <LanguageGoals />
 

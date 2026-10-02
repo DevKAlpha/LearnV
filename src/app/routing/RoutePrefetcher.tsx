@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { preloadAppRoute } from "@/app/routing/AppRoutes";
 
 const prefetched = new Set<string>();
-const primaryRoutes = ["/gks", "/study", "/checklist", "/profile"];
+const primaryRoutes = ["/study"];
 
 function normalizePath(url: URL) {
   const base = import.meta.env.BASE_URL.replace(/\/$/, "");

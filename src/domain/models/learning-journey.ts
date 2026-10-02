@@ -159,7 +159,6 @@ export function getLearningRecommendation(state: LearningJourneyState): Learning
   }
   if (!skills.application?.completions) return { id: "application", route: "/study/written-simulator" };
   if (!skills.interview?.completions) return { id: "interview", route: "/study/interviews" };
-  if (!skills.documents?.completions) return { id: "documents", route: "/checklist" };
   const last = state.recentActivities[0];
   return { id: "continue", route: last?.language === "ko" ? "/study/korean" : last?.language === "en" ? "/study/english" : "/study" };
 }

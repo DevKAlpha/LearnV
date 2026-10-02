@@ -34,9 +34,9 @@ export function StudyPage({ learning }: { learning: LearningJourneyController })
     },
   ];
   const starterSteps = [
-    { label: copy.study.stepGuide, to: "/gks" },
     { label: copy.study.stepKorean, to: "/study/korean" },
     { label: copy.study.stepEnglish, to: "/study/english" },
+    { label: copy.study.stepInterview, to: "/study/interviews" },
   ];
 
   return (

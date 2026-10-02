@@ -26,4 +26,12 @@ describe("learning journey", () => {
     const state = recordLearningEvent(createLearningJourney(), { kind: "practice", skill: "listening", language: "ko", score: 55, passed: false });
     expect(getLearningRecommendation(state)).toEqual({ id: "korean", route: "/tests/ko" });
   });
+
+  it("keeps QA recommendations inside the learning experience", () => {
+    let state = createLearningJourney();
+    state = recordLearningEvent(state, { kind: "practice", skill: "application", language: "general", score: 80, passed: true });
+    state = recordLearningEvent(state, { kind: "practice", skill: "interview", language: "general", score: 80, passed: true });
+
+    expect(getLearningRecommendation(state)).toEqual({ id: "continue", route: "/study" });
+  });
 });

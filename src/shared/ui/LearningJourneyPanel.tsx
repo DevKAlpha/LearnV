@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import type { LearningJourneyController } from "@/application/controllers/useLearningJourney";
 import { useI18n } from "@/application/i18n/I18nContext";
+import { resolveQaLearningRoute } from "@/application/qa/qa-learning-scope";
 
 type Props = {
   learning: LearningJourneyController;
@@ -34,7 +35,7 @@ export function LearningJourneyPanel({ learning, compact = false }: Props) {
 
       <div className="learning-recommendation">
         <div><span>{copy.journey.recommendation}</span><p>{recommendationText}</p></div>
-        <Link to={recommendation.route}>{copy.journey.openRecommendation}<span aria-hidden="true">→</span></Link>
+        <Link to={resolveQaLearningRoute(recommendation.route)}>{copy.journey.openRecommendation}<span aria-hidden="true">→</span></Link>
       </div>
       {!compact && <p className="learning-journey__privacy">⌁ {copy.journey.privacy}</p>}
     </section>
