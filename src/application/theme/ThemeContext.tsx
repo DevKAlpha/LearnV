@@ -28,7 +28,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     document.documentElement.style.colorScheme = theme;
     document.querySelector('meta[name="theme-color"]')?.setAttribute(
       "content",
-      theme === "dark" ? "#101722" : "#f7f1e5",
+      theme === "dark" ? "#101722" : "#fffaf1",
     );
   }, [theme]);
 

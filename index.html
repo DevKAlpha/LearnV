@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#f7f1e5" />
+    <meta name="theme-color" content="#fffaf1" />
     <script>
       (() => {
         let saved;
@@ -20,6 +20,9 @@
       #learnv-bootstrap-loader.is-visible{opacity:1;visibility:visible;pointer-events:auto}
       #learnv-bootstrap-loader::before{position:absolute;top:0;right:0;left:0;height:3px;transform-origin:left;background:linear-gradient(90deg,#a663c2,#ec2745,#ffbd20,#66834d);animation:learnv-bootstrap-progress .9s cubic-bezier(.22,1,.36,1) infinite;content:"";will-change:transform}
       [data-theme="dark"] #learnv-bootstrap-loader{background:#181219;color:#fff8f2}
+      [data-theme="light"] #learnv-bootstrap-loader{background:#fffaf1;color:#33241f}
+      [data-theme="light"] #learnv-bootstrap-loader::before{background:linear-gradient(90deg,#ffd35e,#ef8431,#df3343)}
+      [data-theme="light"] .learnv-bootstrap-books i:nth-child(3){background:#ffe0a3}
       .learnv-bootstrap-scene{display:grid;width:120px;place-items:center;gap:4px}
       .learnv-bootstrap-scene svg{width:72px;height:82px;animation:learnv-bootstrap-tulip 1.8s ease-in-out infinite;filter:drop-shadow(3px 4px 0 rgba(43,24,48,.22));will-change:transform}
       .learnv-bootstrap-books{display:grid;width:108px;gap:3px;margin-top:-5px}
