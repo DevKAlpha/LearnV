@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
+import { isAppRouteAvailable } from "@/application/qa/qa-learning-scope";
 import { createPortal } from "react-dom";
 import { NavLink, useLocation } from "react-router-dom";
 import { preloadAppRoute } from "@/app/routing/AppRoutes";
@@ -55,13 +56,16 @@ export function BottomNav() {
     { to: "/profile", icon: "profile", label: copy.nav.profile },
   ];
   const activePath = pendingPath ?? location.pathname;
+  const showReset = isWrittenSimulator && writtenSimulatorStarted;
+  const visibleItems = items.filter((item) => isAppRouteAvailable(item.to) && !(showReset && item.icon === "profile"));
 
   return <>
     <nav
       className="bottom-nav"
       aria-label={copy.nav.mainAria}
+      style={{ "--nav-item-count": visibleItems.length + Number(showReset) } as CSSProperties}
     >
-      {items.filter((item) => !(isWrittenSimulator && writtenSimulatorStarted && item.icon === "profile")).map((item) => {
+      {visibleItems.map((item) => {
         const active = activePath === item.to
           || (item.to !== "/" && activePath.startsWith(`${item.to}/`))
           || (item.to === "/study" && activePath.startsWith("/tests/"));

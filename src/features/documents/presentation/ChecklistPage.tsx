@@ -2,18 +2,7 @@ import { useState, type CSSProperties } from "react";
 import { documents } from "@/infrastructure/data/gks-2026";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { PageEmblem } from "@/shared/ui/PageEmblem";
-
-type DocumentStageId = "drafts" | "academic" | "official" | "optional";
-
-const documentStages: Array<{
-  id: DocumentStageId;
-  documentIds: string[];
-}> = [
-  { id: "drafts", documentIds: ["application", "personal-statement", "study-plan"] },
-  { id: "academic", documentIds: ["graduation", "transcript"] },
-  { id: "official", documentIds: ["family"] },
-  { id: "optional", documentIds: ["language"] },
-];
+import { getDocumentPlan, type DocumentStageId } from "@/domain/models/document-plan";
 
 type Props = {
   progress: { completedDocuments: string[] };
@@ -22,13 +11,19 @@ type Props = {
 
 export function ChecklistPage({ progress, toggleDocument }: Props) {
   const { copy } = useI18n();
-  const completed = progress.completedDocuments.length;
-  const percent = Math.round((completed / documents.length) * 100);
+  const plan = getDocumentPlan(progress.completedDocuments);
+  const completed = plan.completed;
+  const percent = Math.round((completed / plan.total) * 100);
   const [titleLineOne, titleLineTwo] = copy.checklist.title.split("\n");
-  const currentStage = documentStages.find((stage) => (
-    stage.documentIds.some((documentId) => !progress.completedDocuments.includes(documentId))
-  ))?.id ?? "drafts";
-  const [openStages, setOpenStages] = useState<DocumentStageId[]>([currentStage]);
+  const [openStages, setOpenStages] = useState<DocumentStageId[]>(() => plan.currentStage ? [plan.currentStage] : []);
+  const openStage = (id: DocumentStageId) => {
+    setOpenStages([id]);
+    requestAnimationFrame(() => {
+      const target = document.getElementById(`document-stage-${id}`);
+      target?.querySelector("summary")?.focus({ preventScroll: true });
+      target?.scrollIntoView({ block: "start", behavior: "auto" });
+    });
+  };
 
   return (
     <div className="page">
@@ -40,7 +35,7 @@ export function ChecklistPage({ progress, toggleDocument }: Props) {
       </header>
 
       <section className="checklist-progress">
-        <div><span className="eyebrow">{copy.checklist.referenceFile}</span><strong>{completed} {copy.checklist.of} {documents.length}</strong><p>{copy.checklist.prepared}</p></div>
+        <div aria-live="polite"><span className="eyebrow">{copy.checklist.referenceFile}</span><strong>{completed} {copy.checklist.of} {plan.total}</strong><p>{copy.checklist.prepared}</p></div>
         <div className="mini-progress" style={{ "--progress": `${percent * 3.6}deg` } as CSSProperties}><span>{percent}%</span></div>
       </section>
 
@@ -49,18 +44,20 @@ export function ChecklistPage({ progress, toggleDocument }: Props) {
           <span className="eyebrow">{copy.checklist.routeKicker}</span>
           <h2 id="document-route-title">{copy.checklist.routeTitle}</h2>
           <p>{copy.checklist.routeIntro}</p>
+          <p>{copy.checklist.routeTiming}</p>
           <small><b>{copy.checklist.privacy}.</b> {copy.checklist.privacyText}</small>
         </div>
 
         <div className="document-stage-list" aria-label={copy.checklist.listAria}>
-          {documentStages.map((stage, stageIndex) => {
-            const stageDocuments = documents.filter((document) => stage.documentIds.includes(document.id));
+          {plan.stages.map((stage, stageIndex) => {
+            const stageDocuments = documents.filter((document) => (stage.documentIds as readonly string[]).includes(document.id));
             const stageCompleted = stageDocuments.filter((document) => progress.completedDocuments.includes(document.id)).length;
             const isOpen = openStages.includes(stage.id);
             const stageCopy = copy.checklist.stages[stage.id];
 
             return (
               <details
+                id={`document-stage-${stage.id}`}
                 className={`document-stage document-stage--${stage.id}`}
                 open={isOpen}
                 onToggle={(event) => {
@@ -108,6 +105,11 @@ export function ChecklistPage({ progress, toggleDocument }: Props) {
                         </button>
                       );
                     })}
+                    {stageCompleted === stage.total && plan.stages[stageIndex + 1] && (
+                      <button className="primary-button document-stage__next" type="button" onClick={() => openStage(plan.stages[stageIndex + 1].id)}>
+                        {copy.checklist.nextStage}: {copy.checklist.stages[plan.stages[stageIndex + 1].id].title}<span aria-hidden="true">→</span>
+                      </button>
+                    )}
                   </div>
                 )}
               </details>

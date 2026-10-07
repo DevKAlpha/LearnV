@@ -8,6 +8,7 @@ import "@/styles/app.css";
 import "@/styles/light-theme.css";
 import "@/styles/desktop-typography.css";
 import "@/styles/spiral-learning.css";
+import "@/styles/progressive-navigation.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

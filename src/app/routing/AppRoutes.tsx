@@ -4,6 +4,7 @@ import type { useGksProgress } from "@/application/controllers/useGksProgress";
 import type { LearningJourneyController } from "@/application/controllers/useLearningJourney";
 import { loadWithAssetRecovery } from "@/app/routing/asset-recovery";
 import { HomePage } from "@/features/home/presentation/HomePage";
+import { isLearningQa, isAppRouteAvailable } from "@/application/qa/qa-learning-scope";
 
 const recoverable = <T,>(loader: () => Promise<T>) => {
   let pending: Promise<T> | undefined;
@@ -34,6 +35,7 @@ const ChecklistPage = lazy(loadChecklistPage);
 const ProfilePage = lazy(loadProfilePage);
 
 export async function preloadAppRoute(pathname: string): Promise<boolean> {
+  if (!isAppRouteAvailable(pathname)) return false;
   try {
     if (pathname === "/gks") await loadGksPage.preload();
     else if (pathname === "/study") await loadStudyPage.preload();
@@ -63,7 +65,7 @@ export function AppRoutes({ location, progress, learning }: AppRoutesProps) {
   return (
     <Routes location={location}>
       <Route path="/" element={<HomePage {...progress} learning={learning} />} />
-      <Route path="/gks" element={<GksPage />} />
+      {!isLearningQa && <Route path="/gks" element={<GksPage />} />}
       <Route path="/study" element={<StudyPage learning={learning} />} />
       <Route path="/study/english" element={<LanguageStudyPage language="en" />} />
       <Route path="/study/korean" element={<LanguageStudyPage language="ko" />} />
@@ -71,9 +73,9 @@ export function AppRoutes({ location, progress, learning }: AppRoutesProps) {
       <Route path="/study/written-simulator" element={<WrittenSimulatorPage />} />
       <Route path="/tests/:language" element={<TestPathPage />} />
       <Route path="/tests/:language/:stageId" element={<TestSessionPage />} />
-      <Route path="/checklist" element={<ChecklistPage {...progress} />} />
-      <Route path="/profile" element={<ProfilePage score={progress.score} learning={learning} />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      {!isLearningQa && <Route path="/checklist" element={<ChecklistPage {...progress} />} />}
+      {!isLearningQa && <Route path="/profile" element={<ProfilePage score={progress.score} learning={learning} />} />}
+      <Route path="*" element={<Navigate to={isLearningQa ? "/study" : "/"} replace />} />
     </Routes>
   );
 }

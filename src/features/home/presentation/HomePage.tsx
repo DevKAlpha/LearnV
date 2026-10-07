@@ -8,6 +8,7 @@ import type { LearningJourneyController } from "@/application/controllers/useLea
 import { LearningJourneyPanel } from "@/shared/ui/LearningJourneyPanel";
 import { buildHomeTaskPlan, type HomeTaskPlanEntry } from "@/domain/models/home-plan";
 import type { StudyTask } from "@/domain/models/gks";
+import { isLearningQa } from "@/application/qa/qa-learning-scope";
 
 type Props = {
   score: number;
@@ -42,16 +43,19 @@ export function HomePage({ score, progress, toggleTask, learning }: Props) {
           type="button"
           aria-pressed={completed}
           aria-label={`${completed ? copy.common.unmark : copy.common.mark} ${taskCopy.title}`}
+          title={`${completed ? copy.common.unmark : copy.common.mark} ${taskCopy.title}`}
           onClick={() => toggleTask(task.id)}
         >
           <span className="task-number">{completed ? "✓" : `0${originalIndex + 1}`}</span>
+        </button>
+        <Link className="task-card__body" to={taskRoutes[task.id] ?? "/study"}>
           <span className="task-content">
             {priority && <small className="task-content__priority">{copy.home.nextStep}</small>}
             <strong>{taskCopy.title}</strong>
             <small>{taskCopy.meta}</small>
           </span>
           <span className="task-duration">{task.duration} {copy.common.minutes}</span>
-        </button>
+        </Link>
         <Link className="task-card__open" to={taskRoutes[task.id] ?? "/study"} aria-label={`${copy.home.start}: ${taskCopy.title}`}>→</Link>
       </article>
     );
@@ -89,6 +93,7 @@ export function HomePage({ score, progress, toggleTask, learning }: Props) {
           </div>
           <span className="count-pill">{completedToday}/{dailyTasks.length}</span>
         </div>
+        <p className="section-intro">{copy.home.taskHint}</p>
         {taskPlan.primary ? renderTask(taskPlan.primary, true) : (
           <div className="home-plan-complete">
             <span aria-hidden="true">✓</span>
@@ -104,7 +109,7 @@ export function HomePage({ score, progress, toggleTask, learning }: Props) {
 
       <LearningJourneyPanel learning={learning} compact />
 
-      <Link className="alert-card alert-card--link" to="/gks" aria-label={copy.home.cycleDetails}>
+      {!isLearningQa && <Link className="alert-card alert-card--link" to="/gks" aria-label={copy.home.cycleDetails}>
         <div className="alert-icon" aria-hidden="true">!</div>
         <div>
           <span className="eyebrow">{copy.home.radar}</span>
@@ -112,7 +117,7 @@ export function HomePage({ score, progress, toggleTask, learning }: Props) {
           <p>{copy.home.cycleNote}</p>
         </div>
         <span className="alert-card__arrow" aria-hidden="true">↗</span>
-      </Link>
+      </Link>}
 
       <LanguageGoals />
 

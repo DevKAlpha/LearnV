@@ -157,6 +157,10 @@ export function getLearningRecommendation(state: LearningJourneyState): Learning
     const lastForSkill = state.recentActivities.find((activity) => activity.skill === scored[0].skill);
     return { id: lastForSkill?.language === "ko" ? "korean" : "english", route: lastForSkill?.language === "ko" ? "/tests/ko" : "/tests/en" };
   }
+  // Visits, session timers and self-marked tasks are not a language diagnostic.
+  if (scored.length === 0 && !skills.application?.completions && !skills.interview?.completions) {
+    return { id: "begin", route: "/study" };
+  }
   if (!skills.application?.completions) return { id: "application", route: "/study/written-simulator" };
   if (!skills.interview?.completions) return { id: "interview", route: "/study/interviews" };
   if (!skills.documents?.completions) return { id: "documents", route: "/checklist" };

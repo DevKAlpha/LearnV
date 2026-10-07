@@ -1,0 +1,15 @@
+/* Keep opening a task distinct from recording its completion. */
+.task-card { grid-template-columns: 44px minmax(0, 1fr) 44px; }
+.task-card__toggle { display: grid; min-height: 44px; padding: 2px; grid-template-columns: 1fr; }
+.task-card--priority .task-card__toggle { padding: 2px; }
+.task-card__body { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 64px; color: inherit; text-decoration: none; }
+.task-card__body:hover .task-content strong { text-decoration: underline; }
+.task-card__open { width: 44px; height: 44px; }
+.document-stage, .gks-details, .gks-progressive-stage { scroll-margin-top: 110px; }
+.document-stage__next { grid-column: 1 / -1; justify-self: start; text-align: left; }
+@media (max-width: 719px) {
+  .task-card { gap: 8px; }
+  .task-card__body { flex-wrap: wrap; gap: 4px; }
+  .task-card__body .task-duration { white-space: nowrap; }
+  .document-stage, .gks-details, .gks-progressive-stage { scroll-margin-top: 80px; }
+}

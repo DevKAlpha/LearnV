@@ -26,4 +26,19 @@ describe("learning journey", () => {
     const state = recordLearningEvent(createLearningJourney(), { kind: "practice", skill: "listening", language: "ko", score: 55, passed: false });
     expect(getLearningRecommendation(state)).toEqual({ id: "korean", route: "/tests/ko" });
   });
+  it("keeps a new user on the starter path after browsing, opening resources and active-time tracking", () => {
+    let state = createLearningJourney();
+    for (const event of [{ kind: "session" as const }, { kind: "session" as const, activeSeconds: 45 }, { kind: "route" as const, route: "/study" }, { kind: "resource" as const, itemId: "intro", language: "en" as const }]) {
+      state = recordLearningEvent(state, event);
+      expect(getLearningRecommendation(state)).toEqual({ id: "begin", route: "/study" });
+    }
+  });
+  it("does not skip diagnostics when a task is manually marked done", () => {
+    const state = recordLearningEvent(createLearningJourney(), { kind: "task", skill: "reading", language: "ko", passed: true });
+    expect(getLearningRecommendation(state)).toEqual({ id: "begin", route: "/study" });
+  });
+  it("offers applied practice after an actual strong language result", () => {
+    const state = recordLearningEvent(createLearningJourney(), { kind: "practice", skill: "reading", language: "en", score: 90, passed: true });
+    expect(getLearningRecommendation(state)).toEqual({ id: "application", route: "/study/written-simulator" });
+  });
 });

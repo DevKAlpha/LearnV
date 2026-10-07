@@ -1,3 +1,4 @@
+import { scopedStorageKey } from "@/infrastructure/config/app-scope";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   createLearningJourney,
@@ -12,7 +13,7 @@ import { recordLearningError, resolveLearningDiagnosticArea } from "@/infrastruc
 import type { TestProgressState } from "@/domain/models/language-test";
 import { LEARNING_JOURNEY_EVENT } from "./learningJourneyEvents";
 
-const STORAGE_KEY = "learnv-learning-journey-v1";
+const STORAGE_KEY = scopedStorageKey("learnv-learning-journey-v1");
 
 function currentDiagnosticArea() {
   return resolveLearningDiagnosticArea(window.location.pathname) ?? "study-overview";
@@ -27,7 +28,7 @@ function migrateLanguageResults(state: LearningJourneyState) {
   if (state.version >= 2) return state;
   let migrated: LearningJourneyState = { ...state, version: 2 };
   try {
-    const stored = localStorage.getItem("learnv-language-tests-v1");
+    const stored = localStorage.getItem(scopedStorageKey("learnv-language-tests-v1"));
     if (!stored) return migrated;
     const progress = JSON.parse(stored) as TestProgressState;
     const trackedItems = new Set(state.recentActivities

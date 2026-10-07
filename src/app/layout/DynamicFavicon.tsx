@@ -1,8 +1,9 @@
+import { scopedStorageKey } from "@/infrastructure/config/app-scope";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useTheme } from "@/application/theme/ThemeContext";
 
-const TEST_STORAGE_KEY = "learnv-language-tests-v1";
+const TEST_STORAGE_KEY = scopedStorageKey("learnv-language-tests-v1");
 
 type DynamicFaviconProps = {
   readiness: number;

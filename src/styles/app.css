@@ -4785,7 +4785,7 @@ html[data-theme="dark"] .document-stage > summary > i { border-color: rgba(255,2
   bottom: max(14px, env(safe-area-inset-bottom));
   left: max(14px, env(safe-area-inset-left));
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--nav-item-count, 5), minmax(0, 1fr));
   width: min(calc(100% - 28px), 560px);
   min-height: 78px;
   overflow: hidden;
@@ -5158,7 +5158,7 @@ html[data-theme="dark"] .document-stage > summary > i { border-color: rgba(255,2
     position: relative;
     inset: auto;
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(var(--nav-item-count, 5), minmax(0, 1fr));
     width: 100%;
     min-height: 0;
     gap: 3px;

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import type { LearningJourneyController } from "@/application/controllers/useLearningJourney";
 import { useI18n } from "@/application/i18n/I18nContext";
 import type { SkillAnalysis } from "@/domain/models/learning-analysis";
+import { resolveAppRoute } from "@/application/qa/qa-learning-scope";
 
 function trendSymbol(trend: SkillAnalysis["trend"]) {
   if (trend === "improving") return "↗";
@@ -55,14 +56,14 @@ export function LearningAnalysisPanel({ learning }: { learning: LearningJourneyC
               <article className="analysis-highlight analysis-highlight--priority">
                 <span>{copy.analysis.priority}</span><h3>{labelFor(analysis.priority)}</h3>
                 <p>{copy.analysis.actions[analysis.priority.skill]}</p>
-                <Link to={analysis.priority.route}>{copy.analysis.openPractice}<b aria-hidden="true">→</b></Link>
+                <Link to={resolveAppRoute(analysis.priority.route)}>{copy.analysis.openPractice}<b aria-hidden="true">→</b></Link>
               </article>
             )}
             {analysis.strongest && showStrength && (
               <article className="analysis-highlight analysis-highlight--strength">
                 <span>{copy.analysis.strength}</span><h3>{labelFor(analysis.strongest)}</h3>
                 <p>{copy.analysis.masteryLabels[analysis.strongest.mastery]} · {analysis.strongest.averageScore}/100</p>
-                <Link to={analysis.strongest.route}>{copy.analysis.openPractice}<b aria-hidden="true">→</b></Link>
+                <Link to={resolveAppRoute(analysis.strongest.route)}>{copy.analysis.openPractice}<b aria-hidden="true">→</b></Link>
               </article>
             )}
           </div>
@@ -79,7 +80,7 @@ export function LearningAnalysisPanel({ learning }: { learning: LearningJourneyC
                   <span><strong>{result.bestScore}</strong>{copy.analysis.best}</span>
                   <span><strong>{result.passRate}%</strong>{copy.analysis.passRate}</span>
                 </div>
-                <footer><span>{result.attempts} · {copy.analysis.attempts}</span><Link to={result.route}>{copy.analysis.openPractice} →</Link></footer>
+                <footer><span>{result.attempts} · {copy.analysis.attempts}</span><Link to={resolveAppRoute(result.route)}>{copy.analysis.openPractice} →</Link></footer>
               </article>
             ))}
           </div>

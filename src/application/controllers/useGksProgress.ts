@@ -1,9 +1,11 @@
+import { scopedStorageKey } from "@/infrastructure/config/app-scope";
 import { useEffect, useMemo, useState } from "react";
 import { dailyTasks, documents } from "../../infrastructure/data/gks-2026";
 import { trackLearning } from "./learningJourneyEvents";
+import { isLearningQa } from "@/application/qa/qa-learning-scope";
 
-const STORAGE_KEY = "learnv-progress-v1";
-const LEGACY_STORAGE_KEY = "gks-path-progress-v1";
+const STORAGE_KEY = scopedStorageKey("learnv-progress-v1");
+const LEGACY_STORAGE_KEY = scopedStorageKey("gks-path-progress-v1");
 
 type ProgressState = {
   completedTasks: string[];
@@ -76,7 +78,7 @@ export function useGksProgress() {
   const score = useMemo(() => {
     const taskPart = progress.completedTasks.length / dailyTasks.length;
     const documentPart = progress.completedDocuments.length / documents.length;
-    return Math.round((taskPart * 0.55 + documentPart * 0.45) * 100);
+    return Math.round((isLearningQa ? taskPart : taskPart * 0.55 + documentPart * 0.45) * 100);
   }, [progress]);
 
   return { progress, score, toggleTask, toggleDocument };

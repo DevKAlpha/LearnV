@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { preloadAppRoute } from "@/app/routing/AppRoutes";
+import { isAppRouteAvailable } from "@/application/qa/qa-learning-scope";
 
 const prefetched = new Set<string>();
 const primaryRoutes = ["/gks", "/study", "/checklist", "/profile"];
@@ -12,7 +13,7 @@ function normalizePath(url: URL) {
 }
 
 function preload(pathname: string) {
-  if (prefetched.has(pathname)) return;
+  if (!isAppRouteAvailable(pathname) || prefetched.has(pathname)) return;
   prefetched.add(pathname);
   void preloadAppRoute(pathname).then((loaded) => {
     if (!loaded) prefetched.delete(pathname);
@@ -30,7 +31,7 @@ function likelyNextRoutes(pathname: string) {
   return [...new Set([
     ...contextualRoutes,
     ...primaryRoutes.filter((route) => route !== pathname),
-  ])];
+  ])].filter((route) => isAppRouteAvailable(route));
 }
 
 export function RoutePrefetcher() {

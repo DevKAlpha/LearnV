@@ -1,3 +1,4 @@
+import { scopedStorageKey } from "@/infrastructure/config/app-scope";
 import type {
   CertificationCatalog,
   CertificationCost,
@@ -5,8 +6,8 @@ import type {
   CertificationModality,
 } from "../../domain/models/gks";
 
-export const GKS_CERTIFICATION_LOG_STORAGE_KEY = "learnv-gks-certification-log-v1";
-export const GKS_CERTIFICATION_BACKUP_STORAGE_KEY = "learnv-gks-certification-backup-v1";
+export const GKS_CERTIFICATION_LOG_STORAGE_KEY = scopedStorageKey("learnv-gks-certification-log-v1");
+export const GKS_CERTIFICATION_BACKUP_STORAGE_KEY = scopedStorageKey("learnv-gks-certification-backup-v1");
 export const GKS_CERTIFICATION_LOG_LIMIT = 100;
 
 export type GksCertificationLogEvent =

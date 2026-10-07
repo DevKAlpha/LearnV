@@ -14,7 +14,7 @@
   .app-shell .desktop-brand strong { font-size: max(18px, 1.05rem); }
   .app-shell .desktop-brand span { font-size: var(--desktop-caption-size); line-height: 1.35; }
   /* Preserve the single navigation row, giving longer labels their natural width. */
-  .app-shell .bottom-nav { grid-template-columns: repeat(5, minmax(max-content, 1fr)); }
+  .app-shell .bottom-nav { grid-template-columns: repeat(var(--nav-item-count, 5), minmax(max-content, 1fr)); }
   .app-shell .nav-label { font-size: 13px; font-weight: 850; line-height: 1.3; }
   .app-shell .language-option { font-size: 13px; }
   .app-shell .language-option small { font-size: 12px; }

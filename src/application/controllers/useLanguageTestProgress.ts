@@ -1,3 +1,4 @@
+import { scopedStorageKey } from "@/infrastructure/config/app-scope";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   emptyTestProgress,
@@ -9,7 +10,7 @@ import { practiceTestTracks } from "../../infrastructure/data/practice-tests";
 import { recordLearningError, resolveLearningDiagnosticArea } from "../../infrastructure/data/learning-error-log";
 import { trackLearning } from "./learningJourneyEvents";
 
-const STORAGE_KEY = "learnv-language-tests-v1";
+const STORAGE_KEY = scopedStorageKey("learnv-language-tests-v1");
 
 function readProgress(): TestProgressState {
   try {

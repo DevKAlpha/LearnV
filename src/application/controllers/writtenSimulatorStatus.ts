@@ -1,4 +1,5 @@
-export const WRITTEN_SIMULATOR_STORAGE_KEY = "learnv-written-simulator-v1";
+import { scopedStorageKey } from "@/infrastructure/config/app-scope";
+export const WRITTEN_SIMULATOR_STORAGE_KEY = scopedStorageKey("learnv-written-simulator-v1");
 export const WRITTEN_SIMULATOR_STATE_EVENT = "learnv:written-state";
 
 export function hasActiveWrittenSimulator() {

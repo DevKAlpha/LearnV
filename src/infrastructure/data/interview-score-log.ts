@@ -1,3 +1,4 @@
+import { scopedStorageKey } from "@/infrastructure/config/app-scope";
 import type { Locale } from "@/domain/models/i18n";
 import type {
   InterviewPersonalityId,
@@ -6,7 +7,7 @@ import type {
 } from "@/domain/models/interview-chatbot";
 import { recordLearningError } from "./learning-error-log";
 
-export const INTERVIEW_SCORE_LOG_STORAGE_KEY = "learnv-interview-score-log-v1";
+export const INTERVIEW_SCORE_LOG_STORAGE_KEY = scopedStorageKey("learnv-interview-score-log-v1");
 export const INTERVIEW_SCORE_LOG_LIMIT = 200;
 
 type ScoreLogStorage = Pick<Storage, "getItem" | "setItem">;

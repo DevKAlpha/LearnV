@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import type { LearningJourneyController } from "@/application/controllers/useLearningJourney";
 import { useI18n } from "@/application/i18n/I18nContext";
+import { isLearningQa, resolveAppRoute } from "@/application/qa/qa-learning-scope";
 
 type Props = {
   learning: LearningJourneyController;
@@ -11,7 +12,7 @@ export function LearningJourneyPanel({ learning, compact = false }: Props) {
   const { copy } = useI18n();
   const { journey, recommendation, activeMinutes, practicedSkills } = learning;
   const streakUnit = journey.currentStreak === 1 ? copy.journey.day : copy.journey.days;
-  const recommendationText = copy.journey.recommendations[recommendation.id];
+  const recommendationText = copy.journey.recommendations[isLearningQa && recommendation.id === "documents" ? "continue" : recommendation.id];
 
   return (
     <section className={`learning-journey${compact ? " learning-journey--compact" : ""}`} aria-labelledby={`learning-journey-title${compact ? "-compact" : ""}`}>
@@ -34,7 +35,7 @@ export function LearningJourneyPanel({ learning, compact = false }: Props) {
 
       <div className="learning-recommendation">
         <div><span>{copy.journey.recommendation}</span><p>{recommendationText}</p></div>
-        <Link to={recommendation.route}>{copy.journey.openRecommendation}<span aria-hidden="true">→</span></Link>
+        <Link to={resolveAppRoute(recommendation.route)}>{copy.journey.openRecommendation}<span aria-hidden="true">→</span></Link>
       </div>
       {!compact && <p className="learning-journey__privacy">⌁ {copy.journey.privacy}</p>}
     </section>
