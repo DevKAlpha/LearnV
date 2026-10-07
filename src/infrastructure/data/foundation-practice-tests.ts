@@ -277,11 +277,11 @@ function productionTask(language: TestLanguage, skill: FoundationSkill, seedItem
   const isKo = language === "ko";
   const prompts: Record<FoundationSkill, string> = {
     reading: isKo
-      ? `다음 글을 한두 문장으로 요약하고 답의 근거 표현 두 개를 쓰세요: ${seedItem.passage}`
-      : `Summarise this text in two sentences and cite two clues supporting your interpretation: ${seedItem.passage}`,
+      ? `‘${seedItem.title}’: 아래 글을 한두 문장으로 요약하고 근거 표현 두 개를 쓰세요.`
+      : `${seedItem.title}: summarise the text below in two sentences and cite two supporting clues.`,
     grammar: isKo
-      ? `다음 문법 원리를 사용해 서로 연결된 문장 세 개를 쓰세요: ${seedItem.rule}`
-      : `Write three connected sentences that apply this grammar principle: ${seedItem.rule}`,
+      ? `‘${seedItem.title}’: 아래 원리를 사용해 서로 연결된 문장 세 개를 쓰세요.`
+      : `${seedItem.title}: write three connected sentences using the principle below.`,
     vocabulary: isKo
       ? `핵심 어휘를 실제 상황에 사용하는 짧은 대화나 설명을 쓰세요: ${seedItem.focus}`
       : `Write a short real-life exchange or explanation using the target vocabulary: ${seedItem.focus}`,
@@ -300,6 +300,7 @@ function productionTask(language: TestLanguage, skill: FoundationSkill, seedItem
   return {
     mode: "writing",
     prompt: prompts[skill],
+    context: skill === "grammar" ? `${seedItem.passage}\n${seedItem.rule}` : seedItem.passage,
     instructions: isKo
       ? "먼저 도움 없이 작성하고, 아래 기준으로 내용과 언어를 확인한 뒤 문제로 이동하세요."
       : "Write without support first, check meaning and form against the criteria, then continue to the questions.",

@@ -1,8 +1,11 @@
+import { scopedStorageKey } from "@/infrastructure/config/app-scope";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import { useLocation } from "react-router-dom";
 import type { Locale, LocalizedText } from "@/domain/models/i18n";
 import { localize } from "@/domain/models/i18n";
+import { isLearningQa } from "@/application/qa/qa-learning-scope";
+import { TESTS_PER_LANGUAGE, TESTS_PER_SKILL } from "@/infrastructure/data/practice-tests";
 
 type TourStep = { selector: string; title: LocalizedText; text: LocalizedText };
 type TourDefinition = { key: string; title: LocalizedText; steps: TourStep[] };
@@ -10,9 +13,9 @@ type HighlightRect = { top: number; left: number; width: number; height: number 
 
 const t = (es: string, en: string, ko: string): LocalizedText => ({ es, en, ko });
 const step = (selector: string, title: LocalizedText, text: LocalizedText): TourStep => ({ selector, title, text });
-const STORAGE_KEY = "learnv-section-tours-v1";
+const STORAGE_KEY = scopedStorageKey("learnv-section-tours-v1");
 
-function getDefinition(pathname: string): TourDefinition {
+export function getDefinition(pathname: string): TourDefinition {
   if (/^\/tests\/(en|ko)\/.+/.test(pathname)) return {
     key: "practice", title: t("Cómo completar una práctica", "How to complete a practice", "연습 완료 방법"), steps: [
       step(".session-topbar", t("Progreso de sesión", "Session progress", "세션 진행"), t("Aquí ves el avance, el intento y el tiempo. El cronómetro solo aparece desde el segundo intento.", "See progress, attempt and time here. The timer starts from the second attempt.", "진행도, 응시 횟수와 시간을 확인합니다. 타이머는 두 번째 응시부터 시작됩니다.")),
@@ -24,7 +27,7 @@ function getDefinition(pathname: string): TourDefinition {
   if (/^\/tests\/(en|ko)$/.test(pathname)) return {
     key: "test-path", title: t("Tu recorrido de pruebas", "Your test path", "시험 학습 경로"), steps: [
       step(".test-path-header", t("Objetivo y progreso", "Target and progress", "목표와 진행도"), t("Resume el nivel de partida, la meta, pruebas superadas e intentos realizados.", "This summarises your starting point, target, passed tests and attempts.", "시작 수준, 목표, 통과한 시험과 응시 횟수를 요약합니다.")),
-      step(".test-skill-tabs", t("Tres habilidades", "Three skills", "세 가지 기능"), t("Cambia entre Escritura, Listening y Pronunciación sin recorrer una página interminable.", "Switch between Writing, Listening and Pronunciation without a very long page.", "긴 페이지를 이동하지 않고 쓰기, 듣기와 발음을 전환합니다.")),
+      step(".test-skill-tabs", t("Seis habilidades", "Six skills", "여섯 가지 기능"), t("Elige Lectura, Gramática, Vocabulario, Escritura, Listening o Pronunciación. Trabaja una habilidad cada vez.", "Choose Reading, Grammar, Vocabulary, Writing, Listening or Pronunciation. Work on one skill at a time.", "읽기, 문법, 어휘, 쓰기, 듣기 또는 발음을 선택하고 한 번에 한 기능을 연습하세요.")),
       step(".test-skill-section", t("Avance procedural", "Procedural progress", "단계별 진행"), t("Completa la prueba disponible para abrir la siguiente. Puedes repetir cualquier etapa desbloqueada.", "Complete the available test to unlock the next one. Any unlocked stage can be repeated.", "현재 시험을 완료하면 다음 단계가 열립니다. 열린 단계는 다시 연습할 수 있습니다.")),
     ],
   };
@@ -32,7 +35,7 @@ function getDefinition(pathname: string): TourDefinition {
     key: pathname.endsWith("english") ? "english-space" : "korean-space", title: t("Tu espacio de idioma", "Your language space", "언어 학습 공간"), steps: [
       step(".language-study-hero", t("Resumen del espacio", "Space summary", "학습 공간 요약"), t("Aquí ves el objetivo, las pruebas superadas y los recursos disponibles para este idioma.", "See the target, passed tests and available resources for this language.", "이 언어의 목표, 통과한 시험과 사용 가능한 자료를 확인합니다.")),
       step(".language-study-jump-nav", t("Navegación rápida", "Quick navigation", "빠른 이동"), t("El sombreado sigue la sección visible: pruebas o materiales. También puedes cambiar de idioma.", "The highlight follows the visible section: tests or materials. You can also switch language.", "현재 보이는 시험 또는 자료 메뉴가 강조됩니다. 언어도 바꿀 수 있습니다.")),
-      step(".test-hub", t("Prácticas guiadas", "Guided practice", "안내형 연습"), t("Abre el recorrido de 60 actividades: veinte por cada habilidad.", "Open the 60-activity path: twenty for each skill.", "기능별 20개씩 총 60개 활동 경로를 엽니다.")),
+      step(".test-hub", t("Prácticas guiadas", "Guided practice", "안내형 연습"), t(`Abre el recorrido de ${TESTS_PER_LANGUAGE} actividades: ${TESTS_PER_SKILL} por cada una de las seis habilidades. Empieza por una, sin intentar hacerlas todas de golpe.`, `Open the ${TESTS_PER_LANGUAGE}-activity path: ${TESTS_PER_SKILL} for each of six skills. Start with one, not all at once.`, `여섯 기능별 ${TESTS_PER_SKILL}개씩 총 ${TESTS_PER_LANGUAGE}개 활동 경로입니다. 한 번에 모두 하지 말고 하나부터 시작하세요.`)),
       step(".resource-library", t("Biblioteca con tareas", "Task-based library", "과제형 자료실"), t("Cada recurso indica qué hacer, cuánto tiempo reservar, si requiere cuenta y permite marcarlo como completado.", "Each resource tells you what to do, time needed, account access and lets you mark it complete.", "각 자료에는 할 일, 예상 시간, 계정 필요 여부와 완료 표시가 있습니다.")),
     ],
   };
@@ -64,7 +67,7 @@ function getDefinition(pathname: string): TourDefinition {
   if (pathname === "/study") return {
     key: "study", title: t("Tu ruta de aprendizaje", "Your learning path", "나의 학습 경로"), steps: [
       step(".page-header--study", t("Un recorrido en orden", "A path in order", "순서가 있는 경로"), t("La pantalla empieza con la ruta inicial y deja el análisis detallado para cuando lo necesites.", "The screen starts with the starter route and leaves detailed analysis for when you need it.", "시작 경로를 먼저 보여 주고 상세 분석은 필요할 때 확인하도록 구성했습니다.")),
-      step(".study-start-card", t("Empieza por aquí", "Start here", "여기서 시작하세요"), t("Sigue estas tres acciones iniciales para construir una base antes de simular.", "Follow these three starter actions to build a foundation before simulating.", "시뮬레이션 전 기초를 만들기 위해 세 가지 시작 활동을 따르세요.")),
+      step(".study-start-card", t("Empieza por aquí", "Start here", "여기서 시작하세요"), t("Sigue estas acciones iniciales para construir una base antes de simular.", "Follow these starter actions to build a foundation before simulating.", "시뮬레이션 전 기초를 만들기 위해 시작 활동을 따르세요.")),
       step(".study-language-spaces", t("Idiomas separados", "Separate language spaces", "분리된 언어 공간"), t("Inglés y coreano tienen navegación, pruebas, progreso y materiales independientes.", "English and Korean have independent navigation, tests, progress and materials.", "영어와 한국어는 각각 별도의 탐색, 시험, 진행도와 자료를 가집니다.")),
       step(".study-next-step", t("Tu siguiente recomendación", "Your next recommendation", "다음 추천"), t("El progreso guardado orienta la acción más útil después de elegir una ruta.", "Saved progress points to the most useful action after choosing a path.", "저장된 진행 상황이 경로 선택 후 가장 유용한 활동을 안내합니다.")),
       step(".study-support-drawer", t("Detalle bajo demanda", "Detail on demand", "필요할 때 세부 정보"), t("El análisis y los materiales personalizados se abren solo cuando quieres consultarlos.", "Analysis and personalised materials open only when you want to review them.", "분석과 맞춤 자료는 확인하고 싶을 때만 펼쳐집니다.")),
@@ -93,7 +96,7 @@ function getDefinition(pathname: string): TourDefinition {
       step(".home-today", t("Tu siguiente paso", "Your next step", "다음 단계"), t("La primera tarea pendiente aparece destacada. El resto del plan queda disponible sin recargar la pantalla.", "Your first unfinished task is highlighted. The rest of the plan stays available without crowding the screen.", "첫 번째 미완료 과제를 강조하고 나머지 계획은 화면을 복잡하게 만들지 않도록 접어 둡니다.")),
       step(".learning-journey", t("Avance y recomendación", "Progress and recommendation", "진행 상황과 추천"), t("Después de la acción principal verás tu constancia y la recomendación que mejor encaja con tu progreso.", "After the main action, you will see your consistency and the recommendation that best fits your progress.", "주요 활동 다음에는 학습 지속 기록과 진행 상황에 맞는 추천을 확인할 수 있습니다.")),
       step(".alert-card", t("Estado de la beca", "Scholarship status", "장학금 상태"), t("Abre el radar para distinguir información vigente de referencias históricas.", "Open the radar to separate current information from historical reference.", "레이더에서 최신 정보와 과거 참고 자료를 구분하세요.")),
-      step(".bottom-nav", t("Menú siempre disponible", "Always-available menu", "항상 보이는 메뉴"), t("Cambia entre Inicio, Beca, Estudiar, Documentos y Perfil desde cualquier punto.", "Move among Home, Scholarship, Study, Documents and Profile from anywhere.", "어디서든 홈, 장학금, 학습, 서류와 프로필로 이동합니다.")),
+      step(".bottom-nav", t("Menú siempre disponible", "Always-available menu", "항상 보이는 메뉴"), isLearningQa ? t("Esta versión QA permite navegar entre Inicio y Estudio. Incluye las prácticas, los materiales y el chatbot de entrevista.", "This QA version includes Home and Study, with practice, materials and the interview chatbot.", "QA 버전에서는 홈과 학습, 연습 문제, 자료와 면접 챗봇을 사용할 수 있습니다.") : t("Cambia entre Inicio, Beca, Estudiar, Documentos y Perfil desde cualquier punto.", "Move among Home, Scholarship, Study, Documents and Profile from anywhere.", "어디서든 홈, 장학금, 학습, 서류와 프로필로 이동합니다.")),
     ],
   };
 }
@@ -127,7 +130,7 @@ export function SectionTour() {
 
   const closeTour = useCallback(() => {
     const seen = readSeenTours();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...seen, [definition.key]: true }));
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...seen, [definition.key]: true })); } catch { /* Closing help must not depend on storage. */ }
     setOpen(false);
     setRect(null);
     setTargetReady(false);

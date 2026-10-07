@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { useI18n } from "@/application/i18n/I18nContext";
+import { isAppRouteAvailable } from "@/application/qa/qa-learning-scope";
 
 export function AppGuide() {
   const { copy, locale } = useI18n();
@@ -44,7 +45,7 @@ export function AppGuide() {
               <ul>{copy.guide.controls.map((control) => <li key={control}>{control}</li>)}</ul>
             </div>
             <nav className="app-guide-sections" aria-label={copy.guide.title}>
-              {copy.guide.sections.map((section, index) => (
+              {copy.guide.sections.filter((section) => isAppRouteAvailable(section.to)).map((section, index) => (
                 <article key={section.to}>
                   <span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
                   <div><strong>{section.title}</strong><p>{section.text}</p></div>

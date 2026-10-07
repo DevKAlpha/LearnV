@@ -1,3 +1,4 @@
+import { scopedStorageKey } from "@/infrastructure/config/app-scope";
 import { useMemo, useState } from "react";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { localize } from "@/domain/models/i18n";
@@ -21,7 +22,7 @@ export function ResourceLibrary({ language }: ResourceLibraryProps) {
   const [type, setType] = useState<TypeFilter>("all");
   const [completed, setCompleted] = useState<string[]>(() => {
     try {
-      const parsed: unknown = JSON.parse(localStorage.getItem("learnv-resource-progress-v1") ?? "[]");
+      const parsed: unknown = JSON.parse(localStorage.getItem(scopedStorageKey("learnv-resource-progress-v1")) ?? "[]");
       if (!Array.isArray(parsed) || !parsed.every((item) => typeof item === "string")) throw new Error("Invalid resource progress shape");
       return parsed;
     } catch (error) {
@@ -69,7 +70,7 @@ export function ResourceLibrary({ language }: ResourceLibraryProps) {
     setCompleted((current) => {
       const next = current.includes(id) ? current.filter((item) => item !== id) : [...current, id];
       try {
-        localStorage.setItem("learnv-resource-progress-v1", JSON.stringify(next));
+        localStorage.setItem(scopedStorageKey("learnv-resource-progress-v1"), JSON.stringify(next));
       } catch (error) {
         recordLearningError({
           area: language === "ko" ? "korean-learning" : "english-learning",

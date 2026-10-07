@@ -1,3 +1,6 @@
+import { isLearningQa } from "@/infrastructure/config/app-scope";
+export { isLearningQa };
+
 const QA_STUDY_ROUTES = [
   /^\/study$/,
   /^\/study\/(english|korean|interviews|written-simulator)$/,
@@ -17,4 +20,12 @@ export function isQaLearningRoute(pathname: string) {
 
 export function resolveQaLearningRoute(pathname: string) {
   return isQaLearningRoute(pathname) ? normalizePathname(pathname) : "/study";
+}
+
+export function isAppRouteAvailable(pathname: string, qa = isLearningQa) {
+  return !qa || isQaLearningRoute(pathname);
+}
+
+export function resolveAppRoute(pathname: string, qa = isLearningQa) {
+  return qa ? resolveQaLearningRoute(pathname) : pathname;
 }

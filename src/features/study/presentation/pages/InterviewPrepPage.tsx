@@ -1,3 +1,4 @@
+import { scopedStorageKey } from "@/infrastructure/config/app-scope";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { openInterviewChatbot } from "@/application/controllers/interviewChatbotEvents";
@@ -13,7 +14,7 @@ import { LiteYouTube } from "@/shared/ui/LiteYouTube";
 
 type Category = "all" | "motivation" | "academic" | "adaptation" | "contribution";
 type SavedPractice = Record<string, { answer: string; checked: boolean[] }>;
-const INTERVIEW_STORAGE_KEY = "learnv-interview-practice-v1";
+const INTERVIEW_STORAGE_KEY = scopedStorageKey("learnv-interview-practice-v1");
 
 function readSavedPractice(): SavedPractice {
   try {

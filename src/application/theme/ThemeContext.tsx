@@ -13,7 +13,8 @@ type ThemeContextValue = {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 function detectTheme(): Theme {
-  const saved = localStorage.getItem(STORAGE_KEY);
+  let saved;
+  try { saved = localStorage.getItem(STORAGE_KEY); } catch { /* System preferences still work without storage. */ }
   if (saved === "light" || saved === "dark") return saved;
   return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
@@ -22,12 +23,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(detectTheme);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, theme);
+    try { localStorage.setItem(STORAGE_KEY, theme); } catch { /* Keep the preference in memory. */ }
     document.documentElement.dataset.theme = theme;
     document.documentElement.style.colorScheme = theme;
     document.querySelector('meta[name="theme-color"]')?.setAttribute(
       "content",
-      theme === "dark" ? "#101722" : "#f7f1e5",
+      theme === "dark" ? "#101722" : "#fffaf1",
     );
   }, [theme]);
 

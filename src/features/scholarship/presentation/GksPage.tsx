@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { useGksRadar } from "@/application/controllers/useGksRadar";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { currentCycle, gksCertifications, keyFacts, sources, targetPrograms } from "@/infrastructure/data/gks-2026";
@@ -8,7 +8,7 @@ import { LiteYouTube } from "@/shared/ui/LiteYouTube";
 import { StatusBadge } from "@/shared/ui/StatusBadge";
 import { Link } from "react-router-dom";
 import { BrandMark } from "@/shared/ui/BrandMark";
-import { CertificationOpportunityCatalog } from "./CertificationOpportunityCatalog";
+const CertificationOpportunityCatalog = lazy(() => import("./CertificationOpportunityCatalog").then((module) => ({ default: module.CertificationOpportunityCatalog })));
 
 const dateLocales = { es: "es-ES", en: "en-GB", ko: "ko-KR" } as const;
 
@@ -18,6 +18,22 @@ export function GksPage() {
   const [videoIndex, setVideoIndex] = useState(0);
   const [certificationsOpen, setCertificationsOpen] = useState(false);
   const [guidanceOpen, setGuidanceOpen] = useState(false);
+  const [eligibilityOpen, setEligibilityOpen] = useState(false);
+  useEffect(() => {
+    const openHashTarget = () => {
+      if (window.location.hash === "#gks-certifications") setCertificationsOpen(true);
+      if (window.location.hash === "#gks-details" || window.location.hash === "#gks-eligibility") setEligibilityOpen(true);
+    };
+    openHashTarget();
+    window.addEventListener("hashchange", openHashTarget);
+    return () => window.removeEventListener("hashchange", openHashTarget);
+  }, []);
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (!["#gks-certifications", "#gks-details", "#gks-eligibility"].includes(hash)) return;
+    const frame = requestAnimationFrame(() => document.getElementById(hash.slice(1))?.scrollIntoView({ block: "start", behavior: "auto" }));
+    return () => cancelAnimationFrame(frame);
+  }, [certificationsOpen, eligibilityOpen]);
   const [titleLineOne, titleLineTwo] = copy.gks.title.split("\n");
   const onlineSources = radar.sourceChecks.filter((source) => source.ok).length;
   const changedSources = radar.sourceChecks.filter((source) => source.changed);
@@ -112,7 +128,7 @@ export function GksPage() {
         <p className="section-intro">{copy.gks.intro}</p>
         <ol>
           <li>
-            <a href="#gks-details">
+            <a href="#gks-details" onClick={() => setEligibilityOpen(true)}>
               <b>01</b>
               <span><strong>{copy.gks.eligibilitySummary}</strong><small>{copy.gks.eligibilityRules[0]}</small></span>
               <i aria-hidden="true">↓</i>
@@ -126,7 +142,7 @@ export function GksPage() {
             </Link>
           </li>
           <li>
-            <a href="#gks-certifications">
+            <a href="#gks-certifications" onClick={() => setCertificationsOpen(true)}>
               <b>03</b>
               <span><strong>{copy.gks.certificationsSummary}</strong><small>{copy.gks.certifications.intro}</small></span>
               <i aria-hidden="true">↓</i>
@@ -140,7 +156,7 @@ export function GksPage() {
           <div><span className="eyebrow">{copy.gks.detailsKicker}</span><h2 id="gks-details-title">{copy.gks.eligibilitySummary}</h2></div>
         </div>
 
-        <details className="gks-disclosure">
+        <details className="gks-disclosure" id="gks-eligibility" open={eligibilityOpen} onToggle={(event) => setEligibilityOpen(event.currentTarget.open)}>
           <summary><span><b>01</b>{copy.gks.eligibilitySummary}</span><i aria-hidden="true">＋</i></summary>
           <div className="gks-disclosure__content"><ol className="rule-list">{copy.gks.eligibilityRules.map((rule, index) => <li key={rule}><span>{index + 1}</span><p>{rule}</p></li>)}</ol></div>
         </details>
@@ -256,7 +272,7 @@ export function GksPage() {
             <p>{copy.gks.certifications.validity}</p>
           </div>
 
-          <CertificationOpportunityCatalog />
+          <Suspense fallback={<p role="status">{copy.common.loadingContent}</p>}><CertificationOpportunityCatalog /></Suspense>
         </section>}
       </details>
 

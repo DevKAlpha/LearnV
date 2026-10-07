@@ -190,8 +190,8 @@ input:focus-visible + span {
 }
 
 .route-reveal-item {
-  opacity: 0;
-  transform: translate3d(0, 10px, 0);
+  opacity: 1;
+  transform: none;
   backface-visibility: hidden;
   transition: opacity 360ms cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms), transform 360ms cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms);
 }
@@ -207,7 +207,7 @@ input:focus-visible + span {
 }
 
 @keyframes route-stage-in {
-  from { opacity: 0; transform: translate3d(0, 6px, 0); }
+  from { opacity: 0.92; transform: translate3d(0, 4px, 0); }
   to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 

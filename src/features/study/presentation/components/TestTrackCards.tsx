@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useLanguageTestProgress } from "@/application/controllers/useLanguageTestProgress";
 import { useI18n } from "@/application/i18n/I18nContext";
 import type { TestLanguage } from "@/domain/models/language-test";
-import { TESTS_PER_LANGUAGE } from "@/infrastructure/data/practice-tests";
+import { TESTS_PER_LANGUAGE, TESTS_PER_SKILL } from "@/infrastructure/data/practice-tests";
 
 type TestTrackCardsProps = {
   languages?: TestLanguage[];
@@ -47,7 +47,7 @@ export function TestTrackCards({ languages = ["en", "ko"] }: TestTrackCardsProps
               <strong>{totals[track.language]}/{TESTS_PER_LANGUAGE}</strong>
             </div>
             <div className="test-track-card__footer">
-              <small>{copy.tests.thirtyTests}</small>
+              <small>{copy.tests.thirtyTests.replace("{total}", String(TESTS_PER_LANGUAGE)).replace("{perSkill}", String(TESTS_PER_SKILL))}</small>
               <Link to={`/tests/${track.language}`} onClick={() => setLocale(track.language)}>
                 {copy.tests.openPath}<span aria-hidden="true">→</span>
               </Link>

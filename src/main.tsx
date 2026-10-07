@@ -5,6 +5,10 @@ import "@fontsource-variable/noto-sans-kr/wght.css";
 import { App } from "@/app/App";
 import { AppProviders } from "@/app/providers/AppProviders";
 import "@/styles/app.css";
+import "@/styles/light-theme.css";
+import "@/styles/desktop-typography.css";
+import "@/styles/spiral-learning.css";
+import "@/styles/progressive-navigation.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

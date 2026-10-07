@@ -69,7 +69,7 @@ function masteryFor(score: number): LearningMastery {
 function routeFor(skill: LearningSkill, language: LearningLanguage) {
   if (skill === "application") return "/study/written-simulator";
   if (skill === "interview") return "/study/interviews";
-  if (skill === "documents") return "/study";
+  if (skill === "documents") return "/checklist";
   if (language === "en" || language === "ko") return `/tests/${language}`;
   return "/study";
 }

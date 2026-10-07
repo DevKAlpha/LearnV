@@ -21,9 +21,11 @@ export function createRecoveryUrl(href: string, stamp: number) {
 }
 
 function recentlyRecovered(now: number) {
+  const urlAttempt = Number(new URL(window.location.href).searchParams.get(ASSET_RECOVERY_QUERY));
+  if (urlAttempt > 0 && now - urlAttempt < RECOVERY_COOLDOWN_MS) return true;
   try {
     const previousAttempt = Number(window.sessionStorage.getItem(ASSET_RECOVERY_STORAGE_KEY));
-    return Number.isFinite(previousAttempt) && now - previousAttempt < RECOVERY_COOLDOWN_MS;
+    return previousAttempt > 0 && Number.isFinite(previousAttempt) && now - previousAttempt < RECOVERY_COOLDOWN_MS;
   } catch {
     return new URL(window.location.href).searchParams.has(ASSET_RECOVERY_QUERY);
   }
@@ -32,6 +34,7 @@ function recentlyRecovered(now: number) {
 /** Refreshes stale hashed assets once, while preventing reload loops on a real outage. */
 export function recoverFromAssetFailure(error: unknown, force = false) {
   if (!force && !resemblesAssetFailure(error)) return false;
+  if (!force && typeof navigator !== "undefined" && navigator.onLine === false) return false;
   const now = Date.now();
   const area = resolveLearningDiagnosticArea(window.location.pathname);
   if (!force && recentlyRecovered(now)) {
@@ -70,7 +73,7 @@ export async function loadWithAssetRecovery<T>(loader: () => Promise<T>) {
     });
     return await Promise.race([loader(), timeoutFailure]);
   } catch (error) {
-    if (recoverFromAssetFailure(error)) return await new Promise<T>(() => undefined);
+    recoverFromAssetFailure(error);
     throw error;
   } finally {
     window.clearTimeout(timeout);

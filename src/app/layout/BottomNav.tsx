@@ -1,4 +1,5 @@
 import { useEffect, useState, type CSSProperties } from "react";
+import { isAppRouteAvailable } from "@/application/qa/qa-learning-scope";
 import { createPortal } from "react-dom";
 import { NavLink, useLocation } from "react-router-dom";
 import { preloadAppRoute } from "@/app/routing/AppRoutes";
@@ -49,18 +50,20 @@ export function BottomNav() {
   }, [resetDialogOpen]);
   const items: Array<{ to: string; icon: AppIconName; label: string; end?: boolean }> = [
     { to: "/", icon: "home", label: copy.nav.home, end: true },
+    { to: "/gks", icon: "scholarship", label: copy.nav.gks },
     { to: "/study", icon: "study", label: copy.nav.study },
+    { to: "/checklist", icon: "checklist", label: copy.nav.documents },
+    { to: "/profile", icon: "profile", label: copy.nav.profile },
   ];
   const activePath = pendingPath ?? location.pathname;
   const showReset = isWrittenSimulator && writtenSimulatorStarted;
-  const visibleItems = items.filter((item) => !(showReset && item.icon === "profile"));
-  const navStyle = { "--nav-item-count": visibleItems.length + Number(showReset) } as CSSProperties;
+  const visibleItems = items.filter((item) => isAppRouteAvailable(item.to) && !(showReset && item.icon === "profile"));
 
   return <>
     <nav
       className="bottom-nav"
       aria-label={copy.nav.mainAria}
-      style={navStyle}
+      style={{ "--nav-item-count": visibleItems.length + Number(showReset) } as CSSProperties}
     >
       {visibleItems.map((item) => {
         const active = activePath === item.to
@@ -94,7 +97,7 @@ export function BottomNav() {
         </NavLink>
         );
       })}
-      {showReset && (
+      {isWrittenSimulator && writtenSimulatorStarted && (
         <button
           className="nav-item written-nav-reset"
           type="button"

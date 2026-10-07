@@ -6,12 +6,15 @@ import {
   getAttemptQuestions,
   gradeAttempt,
   isStageUnlocked,
+  listeningReadiness,
   type TestResult,
 } from "@/domain/models/language-test";
 import { practiceTestTracks as languageTestTracks } from "@/infrastructure/data/practice-tests";
 import { recordLearningError } from "@/infrastructure/data/learning-error-log";
 import { AppIcon } from "@/shared/ui/AppIcon";
 import { LiteYouTube } from "@/shared/ui/LiteYouTube";
+import { SpiralLearningNote } from "../components/SpiralLearningNote";
+import { ScriptListeningPractice } from "../components/ScriptListeningPractice";
 
 function formatTime(seconds: number) {
   const minutes = Math.floor(seconds / 60);
@@ -46,6 +49,8 @@ export function TestSessionPage() {
   const [microphoneError, setMicrophoneError] = useState(false);
   const [speakingPractised, setSpeakingPractised] = useState(false);
   const [mediaReviewed, setMediaReviewed] = useState(false);
+  const [scriptPlayed, setScriptPlayed] = useState(false);
+  const [scriptTranscript, setScriptTranscript] = useState(false);
   const [recordingReviewed, setRecordingReviewed] = useState(false);
   const [checklistChecks, setChecklistChecks] = useState<boolean[]>(() => stage.productionTask.checklist.map(() => false));
   const [showExitDialog, setShowExitDialog] = useState(false);
@@ -64,13 +69,14 @@ export function TestSessionPage() {
     ? wordCount >= stage.productionTask.minimumWords && wordCount <= (stage.productionTask.maximumWords ?? Number.POSITIVE_INFINITY)
     : writtenResponse.trim().length >= minimumCharacters;
   const checklistComplete = checklistChecks.every(Boolean);
+  const listening = listeningReadiness(stage.productionTask, mediaReviewed, checklistComplete, scriptPlayed, scriptTranscript);
   const productionVerified = stage.productionTask.mode === "listening"
-    ? mediaReviewed && checklistComplete
+    ? listening.verified
     : stage.productionTask.mode === "writing"
       ? meetsWritingLength && checklistComplete
       : Boolean(recordingUrl && recordingReviewed && checklistComplete);
   const canContinueProduction = stage.productionTask.mode === "listening"
-    ? mediaReviewed && checklistComplete
+    ? listening.canContinue
     : stage.productionTask.mode === "writing"
     ? meetsWritingLength && checklistComplete
     : Boolean((recordingUrl && recordingReviewed && checklistComplete) || (speakingPractised && checklistComplete));
@@ -88,6 +94,8 @@ export function TestSessionPage() {
     setWrittenResponse("");
     setSpeakingPractised(false);
     setMediaReviewed(false);
+    setScriptPlayed(false);
+    setScriptTranscript(false);
     setRecordingReviewed(false);
     setChecklistChecks(stage.productionTask.checklist.map(() => false));
     setShowExitDialog(false);
@@ -259,6 +267,8 @@ export function TestSessionPage() {
     setWrittenResponse("");
     setSpeakingPractised(false);
     setMediaReviewed(false);
+    setScriptPlayed(false);
+    setScriptTranscript(false);
     setRecordingReviewed(false);
     setChecklistChecks(stage.productionTask.checklist.map(() => false));
     setMicrophoneError(false);
@@ -277,7 +287,7 @@ export function TestSessionPage() {
     const mastered = [...new Set(result.questions.filter((item) => item.correct).map((item) => item.question.skill))];
     const improvements = [...new Set(result.questions.filter((item) => !item.correct).map((item) => item.question.improvement))];
     const sessionLesson = result.questions.find((item) => !item.correct)?.question ?? result.questions[0]?.question;
-    const nextStage = track.stages[stageIndex + 1];
+    const nextStage = track.stages.find((candidate) => candidate.skill === stage.skill && candidate.order === stage.order + 1);
 
     return (
       <div className={`page test-result-page test-result-page--${language}`} id="test-session-top">
@@ -353,6 +363,7 @@ export function TestSessionPage() {
           ))}
         </section>
 
+        {result.passed && nextStage && <SpiralLearningNote stage={nextStage} next />}
         <p className="test-disclaimer">◎ {copy.tests.nonOfficial}</p>
         <div className="result-actions">
           {result.passed && nextStage && <Link className="test-primary-action" to={`/tests/${language}/${nextStage.id}`}>{copy.tests.nextTest}<span>→</span></Link>}
@@ -384,7 +395,9 @@ export function TestSessionPage() {
           <AppIcon name={stage.productionTask.mode === "speaking" ? "speaking" : stage.productionTask.mode === "listening" ? "listening" : "writing"} />
         </span>
         <h1>{stage.productionTask.prompt}</h1>
+        {stage.productionTask.context && <blockquote className="question-passage production-context">{stage.productionTask.context}</blockquote>}
         <p className="production-instructions">{stage.productionTask.instructions}</p>
+        <SpiralLearningNote stage={stage} />
         {timed && stage.productionTask.retakeInstruction && <p className="production-retake-instruction"><strong>{language === "ko" ? "재시도 조건" : "Retake constraint"}:</strong> {stage.productionTask.retakeInstruction}</p>}
 
         {stage.productionTask.mode === "writing" ? (
@@ -417,6 +430,8 @@ export function TestSessionPage() {
                 <small>{language === "ko" ? `권장 구간 · ${stage.media.excerptMinutes ?? 3}분` : `Recommended excerpt · ${stage.media.excerptMinutes ?? 3} min`}</small>
               </div>
             </article>
+          ) : stage.productionTask.listeningScript ? (
+            <ScriptListeningPractice key={`${stage.id}-${runNumber}`} script={stage.productionTask.listeningScript} language={language} stageId={stage.id} onCompleted={() => setScriptPlayed(true)} onTranscript={() => setScriptTranscript(true)} />
           ) : (
             <div className="listening-ready-card">
               <span aria-hidden="true"><AppIcon name="listening" /></span>
@@ -455,9 +470,9 @@ export function TestSessionPage() {
 
         <aside className="production-checklist">
           <strong>{copy.tests.productionChecklist}</strong>
-          <div>{stage.productionTask.checklist.map((item, index) => <label key={item}><input type="checkbox" checked={checklistChecks[index]} onChange={(event) => setChecklistChecks((current) => current.map((value, itemIndex) => itemIndex === index ? event.target.checked : value))} /><span>{item}</span></label>)}</div>
+          <div>{stage.productionTask.checklist.map((item, index) => <label key={item}><input type="checkbox" checked={checklistChecks[index]} onChange={(event) => setChecklistChecks((current) => current.map((value, itemIndex) => itemIndex === index ? event.target.checked : value))} /><span>{index === 2 && stage.learningBridge ? copy.tests.spiralCheck : item}</span></label>)}</div>
         </aside>
-        {stage.productionTask.mode === "listening" && <label className="production-evidence-check"><input type="checkbox" checked={mediaReviewed} onChange={(event) => setMediaReviewed(event.target.checked)} /><span>{language === "ko" ? "권장 구간을 듣고 답의 근거를 메모했습니다." : "I listened to the recommended excerpt and noted evidence for my answer."}</span></label>}
+        {stage.productionTask.mode === "listening" && <label className="production-evidence-check"><input type="checkbox" checked={mediaReviewed} onChange={(event) => setMediaReviewed(event.target.checked)} /><span>{scriptTranscript && !scriptPlayed ? copy.tests.transcriptPractice : language === "ko" ? "권장 구간을 듣고 답의 근거를 메모했습니다." : "I listened to the recommended excerpt and noted evidence for my answer."}</span></label>}
         <p className="production-privacy">{copy.tests.productionNotice}</p>
       </main>
       ) : (

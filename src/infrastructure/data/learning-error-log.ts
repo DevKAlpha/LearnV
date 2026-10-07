@@ -1,3 +1,4 @@
+import { scopedStorageKey } from "@/infrastructure/config/app-scope";
 export const LEARNING_DIAGNOSTIC_AREAS = [
   "study-overview",
   "english-learning",
@@ -41,7 +42,7 @@ export type LearningErrorLogInput = {
 type DiagnosticStorage = Pick<Storage, "getItem" | "setItem">;
 
 export const LEARNING_ERROR_LOG_LIMIT = 100;
-const STORAGE_PREFIX = "learnv-learning-error-log-v1";
+const STORAGE_PREFIX = scopedStorageKey("learnv-learning-error-log-v1");
 const SENSITIVE_CONTEXT_KEY = /answer|audio|content|document|draft|password|response|text|token|transcript/i;
 
 export function learningErrorStorageKey(area: LearningDiagnosticArea) {

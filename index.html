@@ -3,10 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#f7f1e5" />
+    <meta name="theme-color" content="#fffaf1" />
     <script>
       (() => {
-        const saved = localStorage.getItem("learnv-theme-v1");
+        let saved;
+        try { saved = localStorage.getItem("learnv-theme-v1"); } catch { /* Fall back to the system theme. */ }
         const theme = saved === "light" || saved === "dark"
           ? saved
           : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
@@ -19,6 +20,9 @@
       #learnv-bootstrap-loader.is-visible{opacity:1;visibility:visible;pointer-events:auto}
       #learnv-bootstrap-loader::before{position:absolute;top:0;right:0;left:0;height:3px;transform-origin:left;background:linear-gradient(90deg,#a663c2,#ec2745,#ffbd20,#66834d);animation:learnv-bootstrap-progress .9s cubic-bezier(.22,1,.36,1) infinite;content:"";will-change:transform}
       [data-theme="dark"] #learnv-bootstrap-loader{background:#181219;color:#fff8f2}
+      [data-theme="light"] #learnv-bootstrap-loader{background:#fffaf1;color:#33241f}
+      [data-theme="light"] #learnv-bootstrap-loader::before{background:linear-gradient(90deg,#ffd35e,#ef8431,#df3343)}
+      [data-theme="light"] .learnv-bootstrap-books i:nth-child(3){background:#ffe0a3}
       .learnv-bootstrap-scene{display:grid;width:120px;place-items:center;gap:4px}
       .learnv-bootstrap-scene svg{width:72px;height:82px;animation:learnv-bootstrap-tulip 1.8s ease-in-out infinite;filter:drop-shadow(3px 4px 0 rgba(43,24,48,.22));will-change:transform}
       .learnv-bootstrap-books{display:grid;width:108px;gap:3px;margin-top:-5px}
@@ -45,7 +49,7 @@
   </head>
   <body>
     <div id="learnv-bootstrap-loader" role="status" aria-label="Cargando LearnV">
-      <div class="learnv-bootstrap-scene" aria-hidden="true">
+      <div class="learnv-bootstrap-scene">
         <svg viewBox="0 0 72 82" fill="none"><path d="M35 48v29" stroke="#557645" stroke-width="5" stroke-linecap="round"/><path d="M34 65c-10-7-18-4-22 4 9 4 17 3 22-4Z" fill="#78965a" stroke="#2d3927" stroke-width="2"/><path d="M38 59c8-7 15-6 20 0-7 5-14 5-20 0Z" fill="#91aa6e" stroke="#2d3927" stroke-width="2"/><path d="M36 52C21 52 10 41 11 25c8 1 15 5 20 12-1-11 1-21 5-31 5 10 7 20 5 31 5-7 12-11 20-12 1 16-10 27-25 27Z" fill="#b86bd2" stroke="#2b1830" stroke-width="2.6" stroke-linejoin="round"/><path d="M36 52c-9-3-14-11-13-25 6 4 10 9 13 17 3-8 7-13 13-17 1 14-4 22-13 25Z" fill="#a85bc5" fill-opacity=".58" stroke="#2b1830" stroke-width="1.8"/></svg>
         <div class="learnv-bootstrap-books"><i></i><i></i><i></i></div>
         <strong>LearnV</strong>
@@ -54,7 +58,8 @@
     </div>
     <script>
       (() => {
-        const locale = localStorage.getItem("learnv-locale-v1");
+        let locale;
+        try { locale = localStorage.getItem("learnv-locale-v1"); } catch { /* Fall back to Spanish. */ }
         const labels = {
           es: { loading: "Cargando LearnV", recovering: "Actualizando LearnV…", stalled: "No pudimos completar la carga", retry: "Reintentar" },
           en: { loading: "Loading LearnV", recovering: "Refreshing LearnV…", stalled: "We could not finish loading", retry: "Retry" },
@@ -65,8 +70,19 @@
         const loader = document.getElementById("learnv-bootstrap-loader");
         const status = loader?.querySelector("strong");
         const retry = loader?.querySelector("button");
+        const startedAt = Date.now();
+        let recovering = false;
+        let fallbackTimer;
+        const isReady = () => document.documentElement.dataset.learnvReady === "true";
+        const release = () => {
+          clearTimeout(window.__learnvBootstrapLoaderTimer);
+          clearTimeout(fallbackTimer);
+          loader?.remove();
+          document.documentElement.classList.remove("app-visual-loading");
+        };
         loader?.setAttribute("aria-label", labels[activeLocale].loading);
         const showFallback = () => {
+          if (isReady()) { release(); return; }
           if (!loader?.isConnected) return;
           loader.classList.add("is-visible", "is-stalled");
           document.documentElement.classList.add("app-visual-loading");
@@ -74,10 +90,14 @@
           if (retry) retry.hidden = false;
         };
         const recoverAssetOnce = (force = false) => {
-          let recentAttempt = false;
+          if (isReady()) { release(); return; }
+          if (recovering) return;
+          if (navigator.onLine === false && !force) { showFallback(); return; }
+          const urlAttempt = Number(new URL(location.href).searchParams.get("learnv-recover"));
+          let recentAttempt = urlAttempt > 0 && Date.now() - urlAttempt < 30_000;
           try {
             const previousAttempt = Number(sessionStorage.getItem("learnv-asset-recovery-v1"));
-            recentAttempt = Number.isFinite(previousAttempt) && Date.now() - previousAttempt < 30_000;
+            recentAttempt ||= previousAttempt > 0 && Number.isFinite(previousAttempt) && Date.now() - previousAttempt < 30_000;
             if (!recentAttempt || force) sessionStorage.setItem("learnv-asset-recovery-v1", Date.now().toString());
           } catch {
             recentAttempt = location.search.includes("learnv-recover=");
@@ -86,6 +106,7 @@
             showFallback();
             return;
           }
+          recovering = true;
           if (status) status.textContent = labels[activeLocale].recovering;
           const recoveryUrl = new URL(location.href);
           recoveryUrl.searchParams.set("learnv-recover", Date.now().toString());
@@ -112,11 +133,25 @@
           document.documentElement.classList.add("app-visual-loading");
           loader.classList.add("is-visible");
         }, 260);
-        const fallbackTimer = window.setTimeout(showFallback, 6_000);
+        // Timers may be frozen while a mobile tab is discarded. Check elapsed wall time on return.
+        const checkResume = () => {
+          if (document.visibilityState !== "visible") return;
+          if (isReady()) { release(); return; }
+          if (Date.now() - startedAt >= 6_000) recoverAssetOnce();
+        };
+        const onOnline = () => { if (!isReady()) recoverAssetOnce(); };
+        fallbackTimer = window.setTimeout(() => recoverAssetOnce(), 6_000);
+        addEventListener("pageshow", checkResume);
+        addEventListener("online", onOnline);
+        document.addEventListener("visibilitychange", checkResume);
         window.__learnvBootstrapCleanup = () => {
+          clearTimeout(window.__learnvBootstrapLoaderTimer);
           clearTimeout(fallbackTimer);
           removeEventListener("error", onAssetError, true);
           removeEventListener("unhandledrejection", onUnhandledRejection);
+          removeEventListener("pageshow", checkResume);
+          removeEventListener("online", onOnline);
+          document.removeEventListener("visibilitychange", checkResume);
         };
       })();
     </script>

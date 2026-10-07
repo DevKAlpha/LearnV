@@ -1,0 +1,24 @@
+.spiral-learning-note {
+  margin-block: 1.25rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--line, currentColor);
+  border-inline-start: 4px solid currentColor;
+  border-radius: 1rem;
+  color: inherit;
+  background: color-mix(in srgb, currentColor 4%, transparent);
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.spiral-learning-note > strong { font-size: 1rem; }
+.spiral-learning-note p { margin-block: .5rem; font-size: .95rem; }
+.spiral-learning-note p > span:not([aria-hidden]) { font-weight: 750; }
+.spiral-learning-note summary { cursor: pointer; font-size: .9rem; text-decoration: underline; text-underline-offset: .2em; }
+.script-listening-practice { padding-block: 1rem; line-height: 1.65; }
+.script-listening-actions { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-block: 1rem; }
+.script-listening-actions button { min-height: 44px; }
+.production-stage > .question-passage.production-context {
+  margin-block: 1rem;
+  font-size: 1rem;
+  line-height: 1.65;
+  white-space: pre-line;
+}

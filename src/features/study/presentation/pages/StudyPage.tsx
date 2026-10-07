@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguageTestProgress } from "@/application/controllers/useLanguageTestProgress";
 import { useI18n } from "@/application/i18n/I18nContext";
@@ -7,8 +7,10 @@ import { TESTS_PER_LANGUAGE } from "@/infrastructure/data/practice-tests";
 import { PageEmblem } from "@/shared/ui/PageEmblem";
 import type { LearningJourneyController } from "@/application/controllers/useLearningJourney";
 import { LearningJourneyPanel } from "@/shared/ui/LearningJourneyPanel";
-import { LearningAnalysisPanel } from "@/features/study/presentation/components/LearningAnalysisPanel";
-import { AdaptiveRecommendationCenter } from "@/features/study/presentation/components/AdaptiveRecommendationCenter";
+import { isLearningQa } from "@/application/qa/qa-learning-scope";
+
+const LearningAnalysisPanel = lazy(() => import("@/features/study/presentation/components/LearningAnalysisPanel").then((module) => ({ default: module.LearningAnalysisPanel })));
+const AdaptiveRecommendationCenter = lazy(() => import("@/features/study/presentation/components/AdaptiveRecommendationCenter").then((module) => ({ default: module.AdaptiveRecommendationCenter })));
 
 export function StudyPage({ learning }: { learning: LearningJourneyController }) {
   const { copy } = useI18n();
@@ -34,9 +36,9 @@ export function StudyPage({ learning }: { learning: LearningJourneyController })
     },
   ];
   const starterSteps = [
+    ...(!isLearningQa ? [{ label: copy.study.stepGuide, to: "/gks" }] : []),
     { label: copy.study.stepKorean, to: "/study/korean" },
     { label: copy.study.stepEnglish, to: "/study/english" },
-    { label: copy.study.stepInterview, to: "/study/interviews" },
   ];
 
   return (
@@ -53,7 +55,7 @@ export function StudyPage({ learning }: { learning: LearningJourneyController })
           <span className="eyebrow">{copy.study.startHere}</span>
           <small>{copy.study.weekOne}</small>
           <h2 id="starter-route-title">{copy.study.weekTitle}</h2>
-          <p>{copy.study.weekText}</p>
+          <p>{isLearningQa ? copy.study.qaWeekText : copy.study.weekText}</p>
         </div>
         <ol className="starter-steps">
           {starterSteps.map((step, index) => (
@@ -122,8 +124,10 @@ export function StudyPage({ learning }: { learning: LearningJourneyController })
         </summary>
         {supportOpen && (
           <div className="study-support-drawer__content">
-            <LearningAnalysisPanel learning={learning} />
-            <AdaptiveRecommendationCenter learning={learning} />
+            <Suspense fallback={<p role="status">{copy.common.loadingContent}</p>}>
+              <LearningAnalysisPanel learning={learning} />
+              <AdaptiveRecommendationCenter learning={learning} />
+            </Suspense>
           </div>
         )}
       </details>
