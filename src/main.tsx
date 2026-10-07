@@ -7,6 +7,7 @@ import { AppProviders } from "@/app/providers/AppProviders";
 import "@/styles/app.css";
 import "@/styles/light-theme.css";
 import "@/styles/desktop-typography.css";
+import "@/styles/spiral-learning.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

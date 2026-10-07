@@ -12,6 +12,16 @@ export type ProductionTask = {
   maximumWords?: number;
   targetSeconds?: number;
   retakeInstruction?: string;
+  listeningScript?: string;
+  context?: string;
+};
+
+export type LearningBridge = {
+  previousStageId: string;
+  previousTitle: string;
+  recall: string;
+  application: string;
+  example: string;
 };
 
 export type ListeningMedia = {
@@ -54,6 +64,7 @@ export type TestStage = {
   estimatedMinutes: number;
   passScore: number;
   media?: ListeningMedia;
+  learningBridge?: LearningBridge;
   productionTask: ProductionTask;
   questions: TestQuestion[];
   challengeQuestions: TestQuestion[];
@@ -94,6 +105,26 @@ export type TestResult = {
 };
 
 export const emptyTestProgress: TestProgressState = { en: {}, ko: {} };
+
+export function writingLengthFromPrompt(prompt: string): { minimum: number; maximum: number } | undefined {
+  const match = prompt.match(/(\d+)(?:[–~\-](\d+))?\s*(?:-?words?\b|자)/u);
+  if (!match) return undefined;
+  const target = Number(match[1]);
+  return match[2]
+    ? { minimum: target, maximum: Number(match[2]) }
+    : { minimum: target, maximum: target + Math.max(10, Math.ceil(target * 0.1)) };
+}
+
+export function listeningReadiness(
+  task: ProductionTask,
+  reviewed: boolean,
+  checklistComplete: boolean,
+  scriptPlayed: boolean,
+  transcriptUsed: boolean,
+): { canContinue: boolean; verified: boolean } {
+  const verified = reviewed && checklistComplete && (!task.listeningScript || scriptPlayed);
+  return { verified, canContinue: verified || Boolean(task.listeningScript && reviewed && checklistComplete && transcriptUsed) };
+}
 
 export function getAttemptQuestions(stage: TestStage, attemptNumber: number): TestQuestion[] {
   if (attemptNumber <= 1) return stage.questions;

@@ -8,6 +8,9 @@ import type {
   TestTrack,
 } from "../../domain/models/language-test";
 import { buildFoundationStages } from "./foundation-practice-tests";
+import { writingLengthFromPrompt } from "../../domain/models/language-test";
+import { buildExtensionStages } from "./extension-practice-tests";
+import { connectPracticeStages } from "./spiral-practice";
 
 type LegacyTestSkill = Extract<TestSkill, "writing" | "listening" | "pronunciation">;
 type RawTestQuestion = Omit<TestQuestion, "optionFeedback" | "lesson" | "example" | "transfer">;
@@ -288,9 +291,9 @@ function buildStages(language: TestLanguage, skill: LegacyTestSkill, seeds: Leve
         : skill === "pronunciation"
           ? (isKo ? ["핵심어가 들림", "의미 단위로 자연스럽게 쉼", "녹음을 듣고 한 가지를 수정함"] : ["Key words are audible", "Pauses follow meaning units", "One point is revised after playback"])
           : (isKo ? ["모든 요구 사항에 답함", "구체적인 근거나 예시가 있음", "문어체와 연결을 검토함"] : ["Every part of the task is answered", "Evidence or a concrete example is included", "Register and cohesion are reviewed"]),
-      minimumCharacters: skill === "writing" ? (isKo ? 60 + index * 18 : 320 + index * 45) : undefined,
-      minimumWords: skill === "writing" && !isKo ? 100 + Math.min(index * 10, 90) : undefined,
-      maximumWords: skill === "writing" && !isKo ? 120 + Math.min(index * 10, 100) : undefined,
+      minimumCharacters: skill === "writing" ? (isKo ? writingLengthFromPrompt(seed.prompt)?.minimum ?? 80 : 320) : undefined,
+      minimumWords: skill === "writing" && !isKo ? writingLengthFromPrompt(seed.prompt)?.minimum ?? 100 : undefined,
+      maximumWords: skill === "writing" && !isKo ? writingLengthFromPrompt(seed.prompt)?.maximum ?? 120 : undefined,
       targetSeconds: skill === "pronunciation" ? 45 + Math.min(index * 8, 75) : undefined,
       retakeInstruction: skill === "writing"
         ? (isKo ? "재시도: 같은 주장을 유지하되 반대 관점 한 문장과 구체적인 근거를 추가하세요." : "Retake: preserve your claim, add one counterpoint and one verifiable detail.")
@@ -318,7 +321,8 @@ function makeTrack(language: TestLanguage): TestTrack {
     target: isKo ? "TOPIK I 기반 → TOPIK II 3급" : "B1/B2 foundation → C1 readiness",
     sourceLabel: isKo ? "TOPIK official learning and IBT practice · pronunciation is GKS interview preparation" : "IELTS official Academic test format · adapted as non-official GKS preparation",
     sourceUrl: isKo ? "https://www.topik.go.kr/" : "https://ielts.org/organisations/ielts-for-organisations/test-types/ielts-academic-test/academic-test-format-in-detail",
-    stages: [...reading, ...grammar, ...vocabulary, ...writing, ...listening, ...pronunciation],
+    stages: [reading, grammar, vocabulary, writing, listening, pronunciation].flatMap((stages) =>
+      connectPracticeStages(language, [...stages, ...buildExtensionStages(language, stages[0].skill)])),
   };
 }
 
@@ -327,5 +331,5 @@ export const practiceTestTracks: Record<TestLanguage, TestTrack> = {
   ko: makeTrack("ko"),
 };
 
-export const TESTS_PER_SKILL = 20;
-export const TESTS_PER_LANGUAGE = 120;
+export const TESTS_PER_SKILL = practiceTestTracks.en.stages.filter((stage) => stage.skill === "reading").length;
+export const TESTS_PER_LANGUAGE = practiceTestTracks.en.stages.length;

@@ -110,6 +110,7 @@ export function TestPathPage() {
                 </span>
                 <strong>{stage.title}</strong>
                 <span>{stage.focus}</span>
+                {skillIndex === currentIndex && stage.learningBridge && <em>{copy.tests.spiralPrevious}: {stage.learningBridge.recall}</em>}
                 {unlocked ? (
                   <em>{stageProgress ? copy.tests.retakeAttempt : copy.tests.firstAttempt}</em>
                 ) : <em>{copy.tests.unlockHint}</em>}
