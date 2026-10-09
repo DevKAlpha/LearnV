@@ -9,6 +9,7 @@ import "@/styles/light-theme.css";
 import "@/styles/desktop-typography.css";
 import "@/styles/spiral-learning.css";
 import "@/styles/progressive-navigation.css";
+import "@/styles/qa-preview.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

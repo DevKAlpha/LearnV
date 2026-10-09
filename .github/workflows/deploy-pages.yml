@@ -6,6 +6,10 @@ on:
   schedule:
     - cron: "17 6 * * *"
   workflow_dispatch:
+  workflow_run:
+    workflows: [Validate learning QA]
+    branches: [qa]
+    types: [completed]
 
 permissions:
   contents: read
@@ -14,13 +18,20 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/checkout@v4
+        with:
+          ref: qa
+          path: .qa-source
       - uses: pnpm/action-setup@v4
         with:
           version: 11.19.0
@@ -28,6 +39,9 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            .qa-source/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
       - name: Validate architecture
         run: pnpm run check:architecture
@@ -37,6 +51,18 @@ jobs:
         run: pnpm gks:update
       - name: Build production bundle
         run: pnpm build
+        env:
+          VITE_APP_SCOPE: full
+      - name: Install QA dependencies
+        working-directory: .qa-source
+        run: pnpm install --frozen-lockfile
+      - name: Validate latest QA candidate
+        working-directory: .qa-source
+        run: pnpm run check:architecture && pnpm test && pnpm run build:qa
+        env:
+          VITE_APP_SCOPE: learning-qa
+      - name: Assemble production and isolated QA preview
+        run: node scripts/assemble-pages.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
