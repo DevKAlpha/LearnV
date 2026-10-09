@@ -47,7 +47,7 @@ export function useGksRadar() {
     const controller = new AbortController();
     let active = true;
     const timeout = window.setTimeout(() => controller.abort(), 2_500);
-    const radarUrl = new URL("data/gks-radar.json", document.baseURI);
+    const radarUrl = new URL(`${import.meta.env.BASE_URL}data/gks-radar.json`, window.location.origin);
     fetch(radarUrl, {
       cache: "no-cache",
       signal: controller.signal,

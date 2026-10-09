@@ -4,6 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#fffaf1" />
+    <script data-learnv-route-restore>
+      (() => {
+        const saved = new URLSearchParams(location.search).get("learnv-route");
+        if (!saved || !saved.startsWith("/") || saved.startsWith("//") || /[\\\u0000-\u001f]/.test(saved)) return;
+        try {
+          const base = "%BASE_URL%";
+          const restored = new URL(saved, location.origin);
+          if (restored.origin !== location.origin || !(restored.pathname === base.slice(0, -1) || restored.pathname.startsWith(base))) return;
+          restored.searchParams.delete("learnv-route");
+          history.replaceState(null, "", restored.pathname + restored.search + restored.hash);
+        } catch { /* Ignore invalid route parameters, never block startup. */ }
+      })();
+    </script>
     <script>
       (() => {
         let saved;

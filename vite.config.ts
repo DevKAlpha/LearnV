@@ -1,16 +1,9 @@
-import { defineConfig, loadEnv } from "vite";
+import { loadEnv } from "vite";
+import { configDefaults, defineConfig } from "vitest/config";
 import { execFileSync } from "node:child_process";
 import react from "@vitejs/plugin-react";
 import { fileURLToPath, URL } from "node:url";
-
-function githubPagesBase() {
-  if (!process.env.GITHUB_ACTIONS) return "/";
-
-  const repository = process.env.GITHUB_REPOSITORY?.split("/")[1];
-  const account = process.env.GITHUB_REPOSITORY_OWNER;
-
-  return repository === `${account}.github.io` ? "/" : `/${repository ?? "LearnV"}/`;
-}
+import { pagesBase } from "./scripts/pages-paths.mjs";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "VITE_");
@@ -21,10 +14,23 @@ export default defineConfig(({ mode }) => {
   }
   const scope = process.env.VITE_APP_SCOPE || env.VITE_APP_SCOPE || (mode === "full" ? "full" : mode === "qa" || branch === "qa" ? "learning-qa" : "full");
   if (scope !== "full" && scope !== "learning-qa") throw new Error(`Invalid VITE_APP_SCOPE: ${scope}`);
+  const base = pagesBase({ actions: process.env.GITHUB_ACTIONS, repository: process.env.GITHUB_REPOSITORY, owner: process.env.GITHUB_REPOSITORY_OWNER, scope, override: process.env.VITE_BASE_PATH || env.VITE_BASE_PATH });
+  let revision = "local";
+  try { revision = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(); } catch { /* Source archive. */ }
   return {
-    define: { "import.meta.env.VITE_APP_SCOPE": JSON.stringify(scope) },
-    plugins: [react()],
-    base: githubPagesBase(),
+    define: { "import.meta.env.VITE_APP_SCOPE": JSON.stringify(scope), "import.meta.env.VITE_BUILD_SHA": JSON.stringify(revision) },
+    plugins: [react(), {
+      name: "learnv-deployment-identity",
+      transformIndexHtml(html) {
+        return { html: scope === "learning-qa" ? html.replace("<title>LearnV", "<title>QA · LearnV") : html, tags: [
+          { tag: "meta", attrs: { name: "learnv-scope", content: scope }, injectTo: "head" },
+          { tag: "meta", attrs: { name: "learnv-base", content: base }, injectTo: "head" },
+          { tag: "meta", attrs: { name: "learnv-revision", content: revision }, injectTo: "head" },
+        ] };
+      },
+    }],
+    base,
+    test: { exclude: [...configDefaults.exclude, ".qa-source/**", "dist-qa-pages-validation/**"] },
     resolve: {
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),
