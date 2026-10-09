@@ -1,0 +1,4 @@
+.qa-preview-notice { display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; padding:.7rem 1.25rem; background:#fff0b8; color:#422d17; border-block:1px solid #bf9346; font:600 .85rem/1.5 system-ui,sans-serif; }
+.qa-preview-notice strong { padding:.15rem .5rem; border:1px solid currentColor; border-radius:.4rem; }
+.qa-preview-notice code { margin-inline-start:auto; font-size:.85rem; }
+[data-theme="dark"] .qa-preview-notice { background:#392841; color:#fff0ca; border-color:#bca180; }

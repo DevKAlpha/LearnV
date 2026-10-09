@@ -17,6 +17,8 @@ import { VisualReadinessGate } from "@/app/routing/VisualReadinessGate";
 import { BrandMark } from "@/shared/ui/BrandMark";
 import { ThemeToggle } from "@/shared/ui/ThemeToggle";
 import { InterviewChatbotLauncher } from "@/features/interview-chatbot/presentation/InterviewChatbotLauncher";
+import { isLearningQa } from "@/infrastructure/config/app-scope";
+import { QaPreviewNotice } from "@/app/layout/QaPreviewNotice";
 
 const SectionTour = lazy(() => import("@/app/layout/SectionTour").then((module) => ({ default: module.SectionTour })));
 
@@ -76,6 +78,7 @@ export function App() {
       </header>
 
       <main id="main-content" className="main-content">
+        {isLearningQa && <QaPreviewNotice />}
         <VisualReadinessGate
           key={location.pathname}
           label={copy.common.loading}
