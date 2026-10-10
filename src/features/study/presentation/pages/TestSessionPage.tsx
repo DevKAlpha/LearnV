@@ -15,6 +15,8 @@ import { AppIcon } from "@/shared/ui/AppIcon";
 import { LiteYouTube } from "@/shared/ui/LiteYouTube";
 import { SpiralLearningNote } from "../components/SpiralLearningNote";
 import { ScriptListeningPractice } from "../components/ScriptListeningPractice";
+import { LearningAudioPlayer } from "../components/LearningAudioPlayer";
+import { learningVoiceCopy } from "@/infrastructure/i18n/learning-voice-copy";
 
 function formatTime(seconds: number) {
   const minutes = Math.floor(seconds / 60);
@@ -30,7 +32,7 @@ export function TestSessionPage() {
   const invalidStage = requestedIndex < 0;
   const stageIndex = invalidStage ? 0 : requestedIndex;
   const stage = track.stages[stageIndex];
-  const { copy } = useI18n();
+  const { copy, locale } = useI18n();
   const { progress, recordAttempt } = useLanguageTestProgress();
   const trackProgress = progress[language];
   const stageProgress = trackProgress[stage.id];
@@ -41,7 +43,6 @@ export function TestSessionPage() {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [result, setResult] = useState<TestResult | null>(null);
   const [secondsLeft, setSecondsLeft] = useState(stage.estimatedMinutes * 60);
-  const [audioFallback, setAudioFallback] = useState(false);
   const [productionDone, setProductionDone] = useState(false);
   const [writtenResponse, setWrittenResponse] = useState("");
   const [recordingUrl, setRecordingUrl] = useState<string | null>(null);
@@ -89,7 +90,6 @@ export function TestSessionPage() {
     setAnswers({});
     setResult(null);
     setSecondsLeft(stage.estimatedMinutes * 60);
-    setAudioFallback(false);
     setProductionDone(false);
     setWrittenResponse("");
     setSpeakingPractised(false);
@@ -166,36 +166,7 @@ export function TestSessionPage() {
       return;
     }
     setQuestionIndex((current) => current + 1);
-    setAudioFallback(false);
     document.getElementById("test-session-top")?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const playAudio = () => {
-    if (!question.audioText || !("speechSynthesis" in window)) {
-      setAudioFallback(true);
-      recordLearningError({
-        area: language === "ko" ? "korean-learning" : "english-learning",
-        severity: "warning",
-        code: "speech-synthesis-unavailable",
-        context: { stageId: stage.id, questionId: question.id },
-      });
-      return;
-    }
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(question.audioText);
-    utterance.lang = language === "ko" ? "ko-KR" : "en-GB";
-    utterance.rate = runNumber > 1 ? 1.03 : 0.94;
-    utterance.onerror = (event) => {
-      setAudioFallback(true);
-      recordLearningError({
-        area: language === "ko" ? "korean-learning" : "english-learning",
-        severity: "warning",
-        code: "speech-synthesis-failed",
-        message: "Speech synthesis could not play the learning prompt.",
-        context: { stageId: stage.id, questionId: question.id, eventType: event.error },
-      });
-    };
-    window.speechSynthesis.speak(utterance);
   };
 
   const startRecording = async () => {
@@ -262,7 +233,6 @@ export function TestSessionPage() {
     setAnswers({});
     setResult(null);
     setSecondsLeft(stage.estimatedMinutes * 60);
-    setAudioFallback(false);
     setProductionDone(false);
     setWrittenResponse("");
     setSpeakingPractised(false);
@@ -428,6 +398,7 @@ export function TestSessionPage() {
                 <p>{stage.media.creator}</p>
                 <a href={stage.media.sourceUrl} target="_blank" rel="noreferrer">{copy.tests.openYoutube} ↗</a>
                 <small>{language === "ko" ? `권장 구간 · ${stage.media.excerptMinutes ?? 3}분` : `Recommended excerpt · ${stage.media.excerptMinutes ?? 3} min`}</small>
+                <small>{learningVoiceCopy[locale].external}</small>
               </div>
             </article>
           ) : stage.productionTask.listeningScript ? (
@@ -441,14 +412,7 @@ export function TestSessionPage() {
           )
         ) : (
           <div className="speaking-recorder">
-            <button type="button" className="model-audio-button" onClick={() => {
-              if (!("speechSynthesis" in window)) return;
-              window.speechSynthesis.cancel();
-              const utterance = new SpeechSynthesisUtterance(stage.questions[0]?.passage ?? stage.productionTask.prompt);
-              utterance.lang = language === "ko" ? "ko-KR" : "en-GB";
-              utterance.rate = 0.88;
-              window.speechSynthesis.speak(utterance);
-            }}>▶ {language === "ko" ? "발음 모델 듣기" : "Listen to a pronunciation model"}</button>
+            <LearningAudioPlayer text={stage.questions[0]?.passage ?? stage.productionTask.prompt} language={language} stageId={stage.id} label={learningVoiceCopy[locale].model} disabled={isRecording} />
             <div className={isRecording ? "recording-status recording-status--active" : "recording-status"}>
               <span aria-hidden="true" />
               <strong>{isRecording ? copy.tests.recording : `${stage.productionTask.targetSeconds ?? 60}s`}</strong>
@@ -483,10 +447,7 @@ export function TestSessionPage() {
         </div>
         {question.passage && <blockquote className="question-passage">{question.passage}</blockquote>}
         {question.audioText && (
-          <div className="question-audio">
-            <button type="button" onClick={playAudio}><span aria-hidden="true">▶</span>{copy.tests.playAudio}</button>
-            {audioFallback && <p><small>{copy.tests.audioUnavailable}</small>{question.audioText}</p>}
-          </div>
+          <LearningAudioPlayer key={question.id} text={question.audioText} language={language} stageId={stage.id} questionId={question.id} />
         )}
         <h1>{question.prompt}</h1>
         <div className="answer-options" role="radiogroup" aria-label={question.prompt}>

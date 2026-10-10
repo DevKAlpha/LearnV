@@ -10,6 +10,7 @@ import "@/styles/desktop-typography.css";
 import "@/styles/spiral-learning.css";
 import "@/styles/progressive-navigation.css";
 import "@/styles/qa-preview.css";
+import "@/styles/learning-audio.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
