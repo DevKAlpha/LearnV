@@ -1,5 +1,6 @@
 import { useI18n } from "@/application/i18n/I18nContext";
 import { Link } from "react-router-dom";
+import { LanguageCulture } from "@/shared/ui/LanguageCulture";
 
 export function LanguageGoals() {
   const { copy } = useI18n();
@@ -16,14 +17,16 @@ export function LanguageGoals() {
           <span className="reference-pill">{copy.study.reference2026}</span>
           <div className="language-grid">
             <article className="language-card language-card--korean">
-              <div className="language-title"><span>한</span><div><small>{copy.study.korean}</small><strong>{copy.study.koreanGoal}</strong></div></div>
+              <LanguageCulture language="ko" />
+              <div className="language-title"><div><small>{copy.study.korean}</small><strong>{copy.study.koreanGoal}</strong></div></div>
               {copy.study.bands.topik.map((band) => (
                 <div className="band-row" key={band.label}><strong>{band.label}</strong><span>{band.note}</span><b>{band.score}</b></div>
               ))}
               <Link className="language-card__action" to="/study/korean">{copy.study.openSpace}<span aria-hidden="true">→</span></Link>
             </article>
             <article className="language-card language-card--english">
-              <div className="language-title"><span>A+</span><div><small>{copy.study.english}</small><strong>{copy.study.englishGoal}</strong></div></div>
+              <LanguageCulture language="en" />
+              <div className="language-title"><div><small>{copy.study.english}</small><strong>{copy.study.englishGoal}</strong></div></div>
               {copy.study.bands.english.map((band) => (
                 <div className="band-row" key={band.label}><strong>{band.label}</strong><span>{band.note}</span><b>{band.score}</b></div>
               ))}
