@@ -6,6 +6,7 @@ import { isStageUnlocked, type TestSkill } from "@/domain/models/language-test";
 import { practiceTestTracks as languageTestTracks, TESTS_PER_LANGUAGE, TESTS_PER_SKILL } from "@/infrastructure/data/practice-tests";
 import { recordLearningError } from "@/infrastructure/data/learning-error-log";
 import { AppIcon, type AppIconName } from "@/shared/ui/AppIcon";
+import { LanguageCulture } from "@/shared/ui/LanguageCulture";
 
 export function TestPathPage() {
   const { language: languageParam } = useParams();
@@ -52,6 +53,7 @@ export function TestPathPage() {
     <div className={`page test-path-page test-path-page--${language}`}>
       <header className="test-path-header">
         <Link className="test-back-link" to={`/study/${language === "en" ? "english" : "korean"}`}><span aria-hidden="true">←</span>{copy.tests.backLibrary}</Link>
+        <LanguageCulture language={language} variant="badge" />
         <span className="eyebrow">{copy.tests.pathKicker}</span>
         <div className="test-path-heading">
           <div>

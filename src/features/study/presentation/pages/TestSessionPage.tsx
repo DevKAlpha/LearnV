@@ -17,6 +17,7 @@ import { SpiralLearningNote } from "../components/SpiralLearningNote";
 import { ScriptListeningPractice } from "../components/ScriptListeningPractice";
 import { LearningAudioPlayer } from "../components/LearningAudioPlayer";
 import { learningVoiceCopy } from "@/infrastructure/i18n/learning-voice-copy";
+import { LanguageCulture } from "@/shared/ui/LanguageCulture";
 
 function formatTime(seconds: number) {
   const minutes = Math.floor(seconds / 60);
@@ -262,6 +263,7 @@ export function TestSessionPage() {
     return (
       <div className={`page test-result-page test-result-page--${language}`} id="test-session-top">
         <header className="result-hero">
+          <LanguageCulture language={language} variant="badge" />
           <span className="eyebrow">{copy.tests.resultKicker}</span>
           <span className="result-hero__icon" aria-hidden="true"><AppIcon name={result.passed ? "test" : "refresh"} /></span>
           <h1>{copy.tests.resultTitle}</h1>
@@ -346,6 +348,7 @@ export function TestSessionPage() {
 
   return (
     <div className={`page test-session-page test-session-page--${language}`} id="test-session-top">
+      <LanguageCulture language={language} variant="badge" />
       <header className="session-topbar">
         <button className="session-exit-button" type="button" aria-label={copy.tests.sessionExit} onClick={() => setShowExitDialog(true)}>×</button>
         <div className="session-progress" aria-label={`${currentStep} ${copy.tests.of} ${totalSteps}`}><span style={{ width: `${(currentStep / totalSteps) * 100}%` }} /></div>

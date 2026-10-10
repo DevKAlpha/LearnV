@@ -8,6 +8,7 @@ import { TESTS_PER_LANGUAGE } from "@/infrastructure/data/practice-tests";
 import { ResourceLibrary } from "@/features/study/presentation/components/ResourceLibrary";
 import { TestTrackCards } from "@/features/study/presentation/components/TestTrackCards";
 import { AppIcon } from "@/shared/ui/AppIcon";
+import { LanguageCulture } from "@/shared/ui/LanguageCulture";
 
 type LanguageStudyPageProps = {
   language: TestLanguage;
@@ -57,6 +58,7 @@ export function LanguageStudyPage({ language }: LanguageStudyPageProps) {
             <p>{isEnglish ? copy.study.englishSpaceText : copy.study.koreanSpaceText}</p>
           </div>
         </div>
+        <LanguageCulture language={language} variant="hero" />
         <div className="language-study-facts">
           <span><strong>{totals[language]}/{TESTS_PER_LANGUAGE}</strong>{copy.study.testsPassed}</span>
           <span><strong>{resourceCount}</strong>{copy.study.resourcesAvailable}</span>

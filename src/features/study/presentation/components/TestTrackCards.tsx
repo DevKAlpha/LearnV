@@ -3,6 +3,7 @@ import { useLanguageTestProgress } from "@/application/controllers/useLanguageTe
 import { useI18n } from "@/application/i18n/I18nContext";
 import type { TestLanguage } from "@/domain/models/language-test";
 import { TESTS_PER_LANGUAGE, TESTS_PER_SKILL } from "@/infrastructure/data/practice-tests";
+import { LanguageCulture } from "@/shared/ui/LanguageCulture";
 
 type TestTrackCardsProps = {
   languages?: TestLanguage[];
@@ -14,13 +15,12 @@ export function TestTrackCards({ languages = ["en", "ko"] }: TestTrackCardsProps
 
   const tracks: Array<{
     language: TestLanguage;
-    symbol: string;
     title: string;
     description: string;
     target: string;
   }> = [
-    { language: "en", symbol: "A+", title: copy.tests.englishTitle, description: copy.tests.englishDescription, target: copy.tests.englishTarget },
-    { language: "ko", symbol: "가", title: copy.tests.koreanTitle, description: copy.tests.koreanDescription, target: copy.tests.koreanTarget },
+    { language: "en", title: copy.tests.englishTitle, description: copy.tests.englishDescription, target: copy.tests.englishTarget },
+    { language: "ko", title: copy.tests.koreanTitle, description: copy.tests.koreanDescription, target: copy.tests.koreanTarget },
   ];
 
   return (
@@ -36,9 +36,7 @@ export function TestTrackCards({ languages = ["en", "ko"] }: TestTrackCardsProps
       <div className="test-track-grid">
         {tracks.filter((track) => languages.includes(track.language)).map((track) => (
           <article className={`test-track-card test-track-card--${track.language}`} key={track.language}>
-            <div className="test-track-card__top">
-              <span className="test-track-symbol" aria-hidden="true">{track.symbol}</span>
-            </div>
+            <LanguageCulture language={track.language} />
             <span className="test-track-target">{track.target}</span>
             <h3>{track.title}</h3>
             <p>{track.description}</p>

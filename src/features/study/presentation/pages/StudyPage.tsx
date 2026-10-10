@@ -8,6 +8,7 @@ import { PageEmblem } from "@/shared/ui/PageEmblem";
 import type { LearningJourneyController } from "@/application/controllers/useLearningJourney";
 import { LearningJourneyPanel } from "@/shared/ui/LearningJourneyPanel";
 import { isLearningQa } from "@/application/qa/qa-learning-scope";
+import { LanguageCulture } from "@/shared/ui/LanguageCulture";
 
 const LearningAnalysisPanel = lazy(() => import("@/features/study/presentation/components/LearningAnalysisPanel").then((module) => ({ default: module.LearningAnalysisPanel })));
 const AdaptiveRecommendationCenter = lazy(() => import("@/features/study/presentation/components/AdaptiveRecommendationCenter").then((module) => ({ default: module.AdaptiveRecommendationCenter })));
@@ -21,7 +22,6 @@ export function StudyPage({ learning }: { learning: LearningJourneyController })
     {
       language: "english",
       code: "en" as const,
-      symbol: "A+",
       title: copy.study.englishSpaceTitle,
       text: copy.study.englishSpaceText,
       target: copy.study.englishSpaceTarget,
@@ -29,7 +29,6 @@ export function StudyPage({ learning }: { learning: LearningJourneyController })
     {
       language: "korean",
       code: "ko" as const,
-      symbol: "한",
       title: copy.study.koreanSpaceTitle,
       text: copy.study.koreanSpaceText,
       target: copy.study.koreanSpaceTarget,
@@ -86,10 +85,8 @@ export function StudyPage({ learning }: { learning: LearningJourneyController })
             const resourceCount = learningResources.filter((resource) => resource.languages.includes(space.code)).length;
             return (
               <article className={`study-language-space study-language-space--${space.code}`} key={space.code}>
-                <div className="study-language-space__top">
-                  <span aria-hidden="true">{space.symbol}</span>
-                  <small>{space.target}</small>
-                </div>
+                <LanguageCulture language={space.code} />
+                <div className="study-language-space__top"><small>{space.target}</small></div>
                 <h3>{space.title}</h3>
                 <p>{space.text}</p>
                 <div className="study-language-space__stats">

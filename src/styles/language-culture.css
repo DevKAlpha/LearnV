@@ -1,0 +1,57 @@
+/* Cultural identity stays local to language items; no global scaling or images. */
+.language-culture {
+  --culture-ink: #263e59; --culture-accent: #bf6845; --culture-paper: #fffdf4;
+  --culture-building: #e6d0ad; --culture-skyline: #aac3cf; --culture-sun: #f4cf74;
+  display: grid; grid-template-columns: minmax(0,1fr) minmax(88px,34%); align-items: center;
+  gap: 12px; min-width: 0; color: var(--culture-ink); padding-block: 12px;
+}
+.language-culture[data-language="ko"] {
+  --culture-ink: #27564b; --culture-accent: #c05951; --culture-building: #efdac3;
+  --culture-skyline: #a7c6b6; --culture-sun: #f0c17f;
+}
+.language-culture__copy { display: grid; gap: 10px; min-width: 0; }
+.language-culture__identity { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; line-height: 1.4; }
+.language-culture__identity b { padding: 3px 7px; border: 1px solid currentColor; border-radius: 6px; font-size: 12px; letter-spacing: .08em; }
+.language-culture__identity strong { font-size: 16px; font-weight: 850; }
+.language-culture__identity > span { font-size: 13px; }
+.language-culture__greeting { display: grid; gap: 2px; }
+.language-culture__greeting strong { font-size: clamp(20px,2.2vw,28px); font-weight: 800; line-height: 1.4; letter-spacing: -.025em; overflow-wrap: anywhere; }
+.language-culture__greeting span, .language-culture__motifs { font-size: 13px; font-weight: 650; line-height: 1.5; overflow-wrap: anywhere; }
+.language-culture__art { display: block; width: 100%; max-width: 280px; height: auto; justify-self: end; overflow: visible; }
+.culture-art__line, .culture-art__letter { stroke: var(--culture-ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.culture-art__letter { stroke-width: 3; }
+.culture-art__ground { opacity: .45; }
+.culture-art__sun { fill: var(--culture-sun); }
+.culture-art__skyline { fill: var(--culture-skyline); opacity: .75; }
+.culture-art__building { fill: var(--culture-building); stroke: var(--culture-ink); stroke-width: 2; stroke-linejoin: round; }
+.culture-art__accent, .culture-art__roof { fill: var(--culture-accent); stroke: var(--culture-ink); stroke-width: 2; stroke-linejoin: round; }
+.culture-art__paper { fill: var(--culture-paper); stroke: var(--culture-ink); stroke-width: 2; stroke-linejoin: round; }
+.culture-art__plant { fill: var(--culture-skyline); stroke: var(--culture-ink); stroke-width: 2; }
+.language-culture--hero { margin-top: 20px; padding: 18px; border: 1px solid color-mix(in srgb,var(--culture-ink) 30%,transparent); border-radius: 18px; background: color-mix(in srgb,var(--culture-paper) 75%,transparent); }
+.language-culture--hero .language-culture__art { max-width: 240px; }
+.app-shell .page .language-culture__detail { grid-column: 1 / -1; margin: 0; font-size: 14px; line-height: 1.6; color: inherit; max-width: 65ch; }
+.language-culture--badge { display: inline-flex; padding: 7px 10px; border: 1px solid color-mix(in srgb,var(--culture-ink) 40%,transparent); border-radius: 12px; background: var(--culture-paper); }
+.language-culture--badge .language-culture__identity strong { font-size: 14px; }
+.study-language-space .language-culture + h3 { margin-top: 12px; }
+.test-track-card .language-culture { margin-bottom: 12px; }
+.test-track-card .test-track-target { margin-top: 0; }
+.language-card .language-title { display: block; margin-top: 10px; }
+.test-path-header > .language-culture, .test-session-page > .language-culture, .result-hero > .language-culture { margin-bottom: 16px; }
+[data-theme="dark"] .language-culture {
+  --culture-ink: #edf3ff; --culture-paper: #30253e; --culture-building: #826b85;
+  --culture-skyline: #6a91a2; --culture-accent: #cc8b71; --culture-sun: #e0bd73;
+}
+[data-theme="dark"] .language-culture[data-language="ko"] {
+  --culture-ink: #e1f6ed; --culture-paper: #30253e; --culture-building: #857c76;
+  --culture-skyline: #64978a; --culture-accent: #cb807e;
+}
+@media (max-width: 380px) {
+  .language-culture { grid-template-columns: minmax(0,1fr) 80px; gap: 8px; }
+  .language-culture--hero { padding: 12px; }
+  .language-culture--hero .language-culture__art { align-self: start; margin-top: 10px; }
+}
+@media (min-width: 900px) {
+  .language-culture--hero { grid-template-columns: minmax(0,1fr) 220px; }
+  .language-culture__greeting span, .language-culture__motifs { font-size: 14px; }
+  .app-shell .page .language-culture__detail { font-size: 16px; }
+}
