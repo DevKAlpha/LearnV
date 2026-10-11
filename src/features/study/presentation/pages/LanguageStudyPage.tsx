@@ -9,6 +9,7 @@ import { ResourceLibrary } from "@/features/study/presentation/components/Resour
 import { TestTrackCards } from "@/features/study/presentation/components/TestTrackCards";
 import { AppIcon } from "@/shared/ui/AppIcon";
 import { LanguageCulture } from "@/shared/ui/LanguageCulture";
+import { getMotionScrollBehavior } from "@/shared/ui/motion-preferences";
 
 type LanguageStudyPageProps = {
   language: TestLanguage;
@@ -23,7 +24,7 @@ export function LanguageStudyPage({ language }: LanguageStudyPageProps) {
   const [activeSection, setActiveSection] = useState<"tests" | "materials">("tests");
   const scrollToSection = (id: "language-tests" | "language-materials") => {
     setActiveSection(id === "language-tests" ? "tests" : "materials");
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.getElementById(id)?.scrollIntoView({ behavior: getMotionScrollBehavior(), block: "start" });
   };
 
   useEffect(() => {

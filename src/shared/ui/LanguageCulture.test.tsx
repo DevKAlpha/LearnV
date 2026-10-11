@@ -24,6 +24,7 @@ describe.each(["es", "en", "ko"] as const)("language identity in %s", (locale) =
         expect(html).toMatch(/<svg[^>]*aria-hidden="true"[^>]*focusable="false"/);
         expect(html).toContain(languageCultureCopy[locale][language].greetingMeaning);
         expect(html).toContain(language === "en" ? "Hello!" : "안녕하세요");
+        expect(html).toContain(language === "en" ? 'class="culture-art__book"' : 'class="culture-art__hangul"');
       }
       expect(html.includes(languageCultureCopy[locale][language].detail)).toBe(variant === "hero");
     }
