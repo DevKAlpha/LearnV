@@ -8,6 +8,7 @@ export type ProductionTask = {
   instructions: string;
   checklist: string[];
   minimumCharacters?: number;
+  maximumCharacters?: number;
   minimumWords?: number;
   maximumWords?: number;
   targetSeconds?: number;
@@ -115,6 +116,15 @@ export function writingLengthFromPrompt(prompt: string): { minimum: number; maxi
     : { minimum: target, maximum: target + Math.max(10, Math.ceil(target * 0.1)) };
 }
 
+export function meetsWritingRequirements(language: TestLanguage, task: ProductionTask, response: string): boolean {
+  const draft = response.trim();
+  if (language === "en" && task.minimumWords) {
+    const words = draft ? draft.split(/\s+/u).length : 0;
+    return words >= task.minimumWords && words <= (task.maximumWords ?? Number.POSITIVE_INFINITY);
+  }
+  return draft.length >= (task.minimumCharacters ?? 0) && draft.length <= (task.maximumCharacters ?? Number.POSITIVE_INFINITY);
+}
+
 export function listeningReadiness(
   task: ProductionTask,
   reviewed: boolean,
@@ -144,7 +154,7 @@ export function isStageUnlocked(
   const skillStages = stages.filter((candidate) => candidate.skill === stage.skill);
   const skillIndex = skillStages.findIndex((candidate) => candidate.id === stage.id);
   if (skillIndex <= 0) return true;
-  return Boolean(progress[skillStages[skillIndex - 1].id]?.passed);
+  return progress[skillStages[skillIndex - 1].id]?.passed === true;
 }
 
 export function gradeAttempt(

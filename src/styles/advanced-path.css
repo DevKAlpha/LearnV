@@ -1,0 +1,19 @@
+.advanced-path-notice {
+  display: grid;
+  gap: .65rem;
+  margin-block: 1.25rem;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  border-inline-start-width: 3px;
+  border-radius: 1rem;
+  background: color-mix(in srgb, currentColor 4%, transparent);
+  color: inherit;
+  overflow-wrap: anywhere;
+}
+.advanced-path-notice p { margin: 0; max-width: 75ch; }
+.advanced-path-notice small, .advanced-path-label { font-size: .9rem; line-height: 1.6; color: inherit; }
+.advanced-path-notice .test-back-link { margin: .25rem 0 0; justify-self: start; }
+.advanced-path-notice summary { cursor: pointer; font-size: .9rem; font-weight: 700; }
+.advanced-path-notice details[open] summary { margin-bottom: .5rem; }
+.advanced-path-notice summary:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+.production-context { white-space: pre-line; }
