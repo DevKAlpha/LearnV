@@ -1,9 +1,14 @@
 import { useI18n } from "@/application/i18n/I18nContext";
 import { Link } from "react-router-dom";
 import { LanguageCulture } from "@/shared/ui/LanguageCulture";
+import { useLanguageTestProgress } from "@/application/controllers/useLanguageTestProgress";
+import { getLanguagePathSummary as getLanguagePath } from "@/infrastructure/data/language-path-summary";
+import { advancedPathCopy } from "@/infrastructure/i18n/advanced-path-copy";
 
 export function LanguageGoals() {
-  const { copy } = useI18n();
+  const { copy, locale } = useI18n();
+  const { progress } = useLanguageTestProgress();
+  const advancedCopy = advancedPathCopy[locale];
 
   return (
     <section className="objectives-section">
@@ -18,6 +23,7 @@ export function LanguageGoals() {
           <div className="language-grid">
             <article className="language-card language-card--korean">
               <LanguageCulture language="ko" />
+              {getLanguagePath("ko", progress.ko).advancedUnlocked && <p className="advanced-path-label">{advancedCopy.current}: {advancedCopy.koreanTitle}</p>}
               <div className="language-title"><div><small>{copy.study.korean}</small><strong>{copy.study.koreanGoal}</strong></div></div>
               {copy.study.bands.topik.map((band) => (
                 <div className="band-row" key={band.label}><strong>{band.label}</strong><span>{band.note}</span><b>{band.score}</b></div>
@@ -26,6 +32,7 @@ export function LanguageGoals() {
             </article>
             <article className="language-card language-card--english">
               <LanguageCulture language="en" />
+              {getLanguagePath("en", progress.en).advancedUnlocked && <p className="advanced-path-label">{advancedCopy.current}: {advancedCopy.title}</p>}
               <div className="language-title"><div><small>{copy.study.english}</small><strong>{copy.study.englishGoal}</strong></div></div>
               {copy.study.bands.english.map((band) => (
                 <div className="band-row" key={band.label}><strong>{band.label}</strong><span>{band.note}</span><b>{band.score}</b></div>

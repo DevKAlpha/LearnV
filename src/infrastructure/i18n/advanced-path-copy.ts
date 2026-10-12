@@ -1,0 +1,32 @@
+export const advancedPathCopy = {
+  es: {
+    title: "Práctica C1 · reto avanzado", koreanTitle: "Coreano avanzado · reto C1 interno",
+    intro: "Has completado tu ruta inicial. Ahora aplica lo aprendido a matices, argumentos y situaciones más exigentes.",
+    notice: "Esta etapa es de práctica, no acredita un nivel. En coreano, C1 describe la complejidad interna del reto y no equivale a un grado TOPIK.",
+    foundation: "Repasar ruta inicial", advanced: "Continuar reto avanzado", criteria: "80 % para aprobar + tarea de producción y revisión",
+    finished: "Reto avanzado completado. Repite una actividad para afinar un punto concreto; tu progreso se conserva.",
+    upcoming: "Al aprobar toda esta ruta se activará automáticamente una nueva etapa avanzada.",
+    goal: "Inferencia, precisión, síntesis y defensa de argumentos", current: "Etapa actual", baseDone: "Ruta inicial completada", archive: "Estás repasando la ruta inicial; el reto avanzado sigue disponible.",
+    scope: "Alcance de esta práctica",
+  },
+  en: {
+    title: "C1 practice · advanced challenge", koreanTitle: "Advanced Korean · internal C1 challenge",
+    intro: "Your foundation path is complete. Apply what you learned to nuance, arguments and more demanding situations.",
+    notice: "This is practice, not a certified level. For Korean, C1 describes internal challenge complexity, not an equivalent TOPIK grade.",
+    foundation: "Review foundation path", advanced: "Continue advanced challenge", criteria: "80% to pass + productive task and review",
+    finished: "Advanced challenge complete. Repeat an activity to refine one specific skill; your progress is kept.",
+    upcoming: "Passing this entire path automatically activates a new advanced stage.",
+    goal: "Inference, precision, synthesis and defending arguments", current: "Current stage", baseDone: "Foundation path completed", archive: "You are reviewing the foundation path; advanced practice is still available.",
+    scope: "What this practice level means",
+  },
+  ko: {
+    title: "C1 연습 · 심화 도전", koreanTitle: "한국어 심화 · 내부 C1 도전",
+    intro: "기초 경로를 모두 마쳤습니다. 배운 내용을 뉘앙스, 논증, 더 복잡한 상황에 적용하세요.",
+    notice: "연습 단계이며 공인 수준을 인증하지 않습니다. 한국어의 C1은 내부 도전 난도를 뜻하며 TOPIK 등급과 동등하지 않습니다.",
+    foundation: "기초 경로 복습", advanced: "심화 도전 계속하기", criteria: "80% 이상 + 수행 과제 및 검토",
+    finished: "심화 도전을 마쳤습니다. 한 가지 능력을 다듬기 위해 활동을 반복하세요. 기존 진도는 유지됩니다.",
+    upcoming: "이 경로를 모두 통과하면 새로운 심화 단계가 자동으로 열립니다.",
+    goal: "추론, 정밀한 표현, 종합 및 논증", current: "현재 단계", baseDone: "기초 경로 완료", archive: "기초 경로를 복습 중입니다. 심화 연습은 계속 이용할 수 있습니다.",
+    scope: "이 연습 단계의 의미",
+  },
+} as const;

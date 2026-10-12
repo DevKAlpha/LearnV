@@ -6,15 +6,20 @@ import { useI18n } from "@/application/i18n/I18nContext";
 import { BrandMark } from "@/shared/ui/BrandMark";
 import type { LearningJourneyController } from "@/application/controllers/useLearningJourney";
 import { LearningJourneyPanel } from "@/shared/ui/LearningJourneyPanel";
+import { getLanguagePathSummary as getLanguagePath } from "@/infrastructure/data/language-path-summary";
+import { advancedPathCopy } from "@/infrastructure/i18n/advanced-path-copy";
 
 export function ProfilePage({ score, learning }: { score: number; learning: LearningJourneyController }) {
-  const { copy } = useI18n();
+  const { copy, locale } = useI18n();
   const { progress, totals } = useLanguageTestProgress();
+  const englishPath = getLanguagePath("en", progress.en);
+  const koreanPath = getLanguagePath("ko", progress.ko);
+  const advancedCopy = advancedPathCopy[locale];
   const [creditTaps, setCreditTaps] = useState(0);
   const easterEggVisible = creditTaps >= 5;
 
   const averageBestScore = (language: "en" | "ko") => {
-    const attempts = Object.values(progress[language]);
+    const attempts = getLanguagePath(language, progress[language]).track.stages.flatMap((stage) => progress[language][stage.id] ? [progress[language][stage.id]] : []);
     if (attempts.length === 0) return null;
     return Math.round(attempts.reduce((total, stage) => total + stage.bestScore, 0) / attempts.length);
   };
@@ -56,9 +61,10 @@ export function ProfilePage({ score, learning }: { score: number; learning: Lear
       <section className="profile-fields">
         <div className="profile-field"><small>{copy.profile.nationality}</small><strong>{copy.profile.nationalityValue}</strong></div>
         <div className="profile-field"><small>{copy.profile.major}</small><strong>{copy.profile.majorValue}</strong></div>
-        <div className="profile-field"><small>{copy.profile.korean}</small><strong>{koreanLevel}{koreanScore !== null && <em> · {totals.ko}/5 {copy.profile.testsCompleted}</em>}</strong></div>
-        <div className="profile-field"><small>{copy.profile.english}</small><strong>{englishLevel}{englishScore !== null && <em> · {totals.en}/5 {copy.profile.testsCompleted}</em>}</strong></div>
+        <div className="profile-field"><small>{copy.profile.korean}</small><strong>{koreanPath.advancedUnlocked ? advancedCopy.koreanTitle : koreanLevel}{(koreanScore !== null || koreanPath.advancedUnlocked) && <em> · {koreanPath.advancedUnlocked ? koreanPath.completed : totals.ko}/{koreanPath.track.stages.length} {copy.profile.testsCompleted}</em>}</strong></div>
+        <div className="profile-field"><small>{copy.profile.english}</small><strong>{englishPath.advancedUnlocked ? advancedCopy.title : englishLevel}{(englishScore !== null || englishPath.advancedUnlocked) && <em> · {englishPath.advancedUnlocked ? englishPath.completed : totals.en}/{englishPath.track.stages.length} {copy.profile.testsCompleted}</em>}</strong></div>
       </section>
+      {(englishPath.advancedUnlocked || koreanPath.advancedUnlocked) && <p className="advanced-path-notice">{advancedCopy.notice}</p>}
 
       <LearningJourneyPanel learning={learning} />
 

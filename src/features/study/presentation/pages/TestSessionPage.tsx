@@ -5,11 +5,13 @@ import { useI18n } from "@/application/i18n/I18nContext";
 import {
   getAttemptQuestions,
   gradeAttempt,
-  isStageUnlocked,
   listeningReadiness,
+  meetsWritingRequirements,
   type TestResult,
 } from "@/domain/models/language-test";
 import { practiceTestTracks as languageTestTracks } from "@/infrastructure/data/practice-tests";
+import { getLanguageStage, getNextLanguageStage, getLanguagePath, isLanguageStageUnlocked } from "@/infrastructure/data/language-paths";
+import { advancedPathCopy } from "@/infrastructure/i18n/advanced-path-copy";
 import { recordLearningError } from "@/infrastructure/data/learning-error-log";
 import { AppIcon } from "@/shared/ui/AppIcon";
 import { LiteYouTube } from "@/shared/ui/LiteYouTube";
@@ -18,6 +20,7 @@ import { ScriptListeningPractice } from "../components/ScriptListeningPractice";
 import { LearningAudioPlayer } from "../components/LearningAudioPlayer";
 import { learningVoiceCopy } from "@/infrastructure/i18n/learning-voice-copy";
 import { LanguageCulture } from "@/shared/ui/LanguageCulture";
+import { getMotionScrollBehavior } from "@/shared/ui/motion-preferences";
 
 function formatTime(seconds: number) {
   const minutes = Math.floor(seconds / 60);
@@ -28,16 +31,17 @@ export function TestSessionPage() {
   const { language: languageParam, stageId } = useParams();
   const language = languageParam === "ko" ? "ko" : "en";
   const invalidLanguage = languageParam !== "en" && languageParam !== "ko";
-  const track = languageTestTracks[language];
-  const requestedIndex = track.stages.findIndex((stage) => stage.id === stageId);
-  const invalidStage = requestedIndex < 0;
-  const stageIndex = invalidStage ? 0 : requestedIndex;
-  const stage = track.stages[stageIndex];
+  const requestedStage = getLanguageStage(language, stageId ?? "");
+  const invalidStage = !requestedStage;
+  const stage = requestedStage ?? languageTestTracks[language].stages[0];
   const { copy, locale } = useI18n();
   const { progress, recordAttempt } = useLanguageTestProgress();
   const trackProgress = progress[language];
   const stageProgress = trackProgress[stage.id];
-  const unlocked = isStageUnlocked(track.stages, stageIndex, trackProgress);
+  const unlocked = isLanguageStageUnlocked(language, stage.id, trackProgress);
+  const path = getLanguagePath(language, trackProgress);
+  const advancedCopy = advancedPathCopy[locale];
+  const isAdvancedStage = stage.id.startsWith(`${language}-c1-`);
   const [runNumber, setRunNumber] = useState(() => (stageProgress?.attempts ?? 0) + 1);
   const questions = useMemo(() => getAttemptQuestions(stage, runNumber), [stage, runNumber]);
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -67,9 +71,7 @@ export function TestSessionPage() {
   const selectedFeedback = selectedAnswer === undefined ? null : question.optionFeedback[selectedAnswer];
   const minimumCharacters = stage.productionTask.minimumCharacters ?? 0;
   const wordCount = writtenResponse.trim() ? writtenResponse.trim().split(/\s+/u).length : 0;
-  const meetsWritingLength = language === "en" && stage.productionTask.minimumWords
-    ? wordCount >= stage.productionTask.minimumWords && wordCount <= (stage.productionTask.maximumWords ?? Number.POSITIVE_INFINITY)
-    : writtenResponse.trim().length >= minimumCharacters;
+  const meetsWritingLength = meetsWritingRequirements(language, stage.productionTask, writtenResponse);
   const checklistComplete = checklistChecks.every(Boolean);
   const listening = listeningReadiness(stage.productionTask, mediaReviewed, checklistComplete, scriptPlayed, scriptTranscript);
   const productionVerified = stage.productionTask.mode === "listening"
@@ -128,7 +130,7 @@ export function TestSessionPage() {
     const graded = gradeAttempt(language, stage, questions, answers, productionVerified);
     recordAttempt(language, stage.id, graded.score, graded.passed);
     setResult(graded);
-    document.getElementById("test-session-top")?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("test-session-top")?.scrollIntoView({ behavior: getMotionScrollBehavior() });
   }, [answers, language, productionVerified, questions, recordAttempt, stage]);
 
   useEffect(() => {
@@ -167,7 +169,7 @@ export function TestSessionPage() {
       return;
     }
     setQuestionIndex((current) => current + 1);
-    document.getElementById("test-session-top")?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("test-session-top")?.scrollIntoView({ behavior: getMotionScrollBehavior() });
   };
 
   const startRecording = async () => {
@@ -225,7 +227,7 @@ export function TestSessionPage() {
   const continueFromProduction = () => {
     if (!canContinueProduction) return;
     setProductionDone(true);
-    document.getElementById("test-session-top")?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("test-session-top")?.scrollIntoView({ behavior: getMotionScrollBehavior() });
   };
 
   const restartTest = () => {
@@ -251,14 +253,15 @@ export function TestSessionPage() {
       return null;
     });
     finishedRef.current = false;
-    document.getElementById("test-session-top")?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("test-session-top")?.scrollIntoView({ behavior: getMotionScrollBehavior() });
   };
 
   if (result) {
     const mastered = [...new Set(result.questions.filter((item) => item.correct).map((item) => item.question.skill))];
     const improvements = [...new Set(result.questions.filter((item) => !item.correct).map((item) => item.question.improvement))];
     const sessionLesson = result.questions.find((item) => !item.correct)?.question ?? result.questions[0]?.question;
-    const nextStage = track.stages.find((candidate) => candidate.skill === stage.skill && candidate.order === stage.order + 1);
+    const nextStage = getNextLanguageStage(language, stage.id, trackProgress);
+    const promoted = result.passed && !isAdvancedStage && path.advancedUnlocked;
 
     return (
       <div className={`page test-result-page test-result-page--${language}`} id="test-session-top">
@@ -268,6 +271,8 @@ export function TestSessionPage() {
           <span className="result-hero__icon" aria-hidden="true"><AppIcon name={result.passed ? "test" : "refresh"} /></span>
           <h1>{copy.tests.resultTitle}</h1>
           <p>{result.passed ? copy.tests.resultPass : copy.tests.resultRetry}</p>
+          {promoted && <aside className="advanced-path-notice" role="status"><strong>{language === "en" ? advancedCopy.title : advancedCopy.koreanTitle}</strong><p>{advancedCopy.intro}</p><small>{advancedCopy.notice}</small></aside>}
+          {isAdvancedStage && path.complete && <p role="status">{advancedCopy.finished}</p>}
           <div className="result-score-row">
             <div><strong>{result.score}</strong><small>/ 100 · {copy.tests.score}</small></div>
             <div><strong>{result.productionVerified ? "✓" : "!"}</strong><small>{result.productionVerified ? (language === "ko" ? "수행 증거 확인" : "Evidence verified") : (language === "ko" ? "수행 증거 부족" : "Evidence incomplete")}</small></div>
@@ -340,7 +345,7 @@ export function TestSessionPage() {
         <div className="result-actions">
           {result.passed && nextStage && <Link className="test-primary-action" to={`/tests/${language}/${nextStage.id}`}>{copy.tests.nextTest}<span>→</span></Link>}
           <button className="test-secondary-action" type="button" onClick={restartTest}>{copy.tests.repeatTest}<span>↻</span></button>
-          <Link className="test-text-action" to={`/tests/${language}`}>{copy.tests.backPath}</Link>
+          <Link className="test-text-action" to={`/tests/${language}${!isAdvancedStage && !promoted ? "?phase=foundation" : ""}`}>{copy.tests.backPath}</Link>
         </div>
       </div>
     );
@@ -349,6 +354,7 @@ export function TestSessionPage() {
   return (
     <div className={`page test-session-page test-session-page--${language}`} id="test-session-top">
       <LanguageCulture language={language} variant="badge" />
+      {isAdvancedStage && !productionDone && <aside className="advanced-path-notice"><strong>{language === "en" ? advancedCopy.title : advancedCopy.koreanTitle}</strong><p>{advancedCopy.criteria}</p><details><summary>{advancedCopy.scope}</summary><small>{advancedCopy.notice}</small></details></aside>}
       <header className="session-topbar">
         <button className="session-exit-button" type="button" aria-label={copy.tests.sessionExit} onClick={() => setShowExitDialog(true)}>×</button>
         <div className="session-progress" aria-label={`${currentStep} ${copy.tests.of} ${totalSteps}`}><span style={{ width: `${(currentStep / totalSteps) * 100}%` }} /></div>
@@ -383,7 +389,7 @@ export function TestSessionPage() {
             />
             <div>
               <span>{language === "en" ? `${wordCount} words` : `${writtenResponse.trim().length} ${copy.tests.characters}`}</span>
-              <strong>{language === "en" && stage.productionTask.minimumWords ? `${stage.productionTask.minimumWords}–${stage.productionTask.maximumWords} words` : `${copy.tests.minimum} · ${minimumCharacters}`}</strong>
+              <strong>{language === "en" && stage.productionTask.minimumWords ? `${stage.productionTask.minimumWords}–${stage.productionTask.maximumWords} words` : stage.productionTask.maximumCharacters ? `${minimumCharacters}–${stage.productionTask.maximumCharacters} ${copy.tests.characters}` : `${copy.tests.minimum} · ${minimumCharacters}`}</strong>
             </div>
           </div>
         ) : stage.productionTask.mode === "listening" ? (

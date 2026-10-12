@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { useLanguageTestProgress } from "@/application/controllers/useLanguageTestProgress";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { learningResources } from "@/infrastructure/data/learning-resources";
-import { TESTS_PER_LANGUAGE } from "@/infrastructure/data/practice-tests";
+import { getLanguagePathSummary as getLanguagePath } from "@/infrastructure/data/language-path-summary";
+import { advancedPathCopy } from "@/infrastructure/i18n/advanced-path-copy";
 import { PageEmblem } from "@/shared/ui/PageEmblem";
 import type { LearningJourneyController } from "@/application/controllers/useLearningJourney";
 import { LearningJourneyPanel } from "@/shared/ui/LearningJourneyPanel";
@@ -14,8 +15,9 @@ const LearningAnalysisPanel = lazy(() => import("@/features/study/presentation/c
 const AdaptiveRecommendationCenter = lazy(() => import("@/features/study/presentation/components/AdaptiveRecommendationCenter").then((module) => ({ default: module.AdaptiveRecommendationCenter })));
 
 export function StudyPage({ learning }: { learning: LearningJourneyController }) {
-  const { copy } = useI18n();
-  const { totals } = useLanguageTestProgress();
+  const { copy, locale } = useI18n();
+  const { totals, progress } = useLanguageTestProgress();
+  const advancedCopy = advancedPathCopy[locale];
   const hasLearningEvidence = learning.analysis.totalAttempts > 0;
   const [supportOpen, setSupportOpen] = useState(false);
   const spaces = [
@@ -82,15 +84,17 @@ export function StudyPage({ learning }: { learning: LearningJourneyController })
         <p className="section-intro">{copy.study.spacesIntro}</p>
         <div className="study-language-spaces__grid">
           {spaces.map((space) => {
+            const path = getLanguagePath(space.code, progress[space.code]);
+            const advanced = path.phase === "advanced";
             const resourceCount = learningResources.filter((resource) => resource.languages.includes(space.code)).length;
             return (
               <article className={`study-language-space study-language-space--${space.code}`} key={space.code}>
                 <LanguageCulture language={space.code} />
-                <div className="study-language-space__top"><small>{space.target}</small></div>
-                <h3>{space.title}</h3>
-                <p>{space.text}</p>
+                <div className="study-language-space__top"><small>{advanced ? advancedCopy.goal : space.target}</small></div>
+                <h3>{advanced ? (space.code === "en" ? advancedCopy.title : advancedCopy.koreanTitle) : space.title}</h3>
+                <p>{advanced ? advancedCopy.intro : space.text}</p>
                 <div className="study-language-space__stats">
-                  <span><b>{totals[space.code]}/{TESTS_PER_LANGUAGE}</b>{copy.study.testsPassed}</span>
+                  <span><b>{advanced ? path.completed : totals[space.code]}/{path.track.stages.length}</b>{copy.study.testsPassed}</span>
                   <span><b>{resourceCount}</b>{copy.study.resourcesAvailable}</span>
                 </div>
                 <Link to={`/study/${space.language}`}>{copy.study.openSpace}<span aria-hidden="true">→</span></Link>

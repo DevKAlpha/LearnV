@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link, Navigate, useParams, useSearchParams } from "react-router-dom";
 import { useLanguageTestProgress } from "@/application/controllers/useLanguageTestProgress";
 import { useI18n } from "@/application/i18n/I18nContext";
-import { isStageUnlocked, type TestSkill } from "@/domain/models/language-test";
-import { practiceTestTracks as languageTestTracks, TESTS_PER_LANGUAGE, TESTS_PER_SKILL } from "@/infrastructure/data/practice-tests";
+import { type TestSkill } from "@/domain/models/language-test";
+import { getLanguagePath, isLanguageStageUnlocked } from "@/infrastructure/data/language-paths";
+import { advancedPathCopy } from "@/infrastructure/i18n/advanced-path-copy";
 import { recordLearningError } from "@/infrastructure/data/learning-error-log";
 import { AppIcon, type AppIconName } from "@/shared/ui/AppIcon";
 import { LanguageCulture } from "@/shared/ui/LanguageCulture";
@@ -12,13 +13,17 @@ export function TestPathPage() {
   const { language: languageParam } = useParams();
   const language = languageParam === "ko" ? "ko" : "en";
   const invalidLanguage = languageParam !== "en" && languageParam !== "ko";
-  const { copy } = useI18n();
-  const { progress, totals } = useLanguageTestProgress();
-  const track = languageTestTracks[language];
+  const { copy, locale } = useI18n();
+  const { progress } = useLanguageTestProgress();
+  const [searchParams] = useSearchParams();
   const trackProgress = progress[language];
-  const attemptCount = Object.values(trackProgress).reduce((total, stage) => total + stage.attempts, 0);
+  const path = getLanguagePath(language, trackProgress, searchParams.get("phase") === "foundation" ? "foundation" : undefined);
+  const track = path.track;
+  const advancedCopy = advancedPathCopy[locale];
+  const attemptCount = track.stages.reduce((total, stage) => total + (trackProgress[stage.id]?.attempts ?? 0), 0);
   const [activeSkill, setActiveSkill] = useState<TestSkill>("reading");
   const [showAll, setShowAll] = useState(false);
+  useEffect(() => { setActiveSkill("reading"); setShowAll(false); }, [language, path.phase]);
   const labels: Record<TestSkill, string> = {
     reading: copy.tests.reading,
     grammar: copy.tests.grammar,
@@ -59,13 +64,18 @@ export function TestPathPage() {
           <div>
             <span className="test-path-language">{track.shortLabel}</span>
             <h1>{track.label}</h1>
-            <p>{copy.tests.pathIntro}</p>
+            <p>{path.phase === "advanced" ? advancedCopy.intro : copy.tests.pathIntro}</p>
           </div>
-          <div className="test-path-score" aria-label={`${totals[language]} ${copy.tests.completed}`}>
-            <strong>{totals[language]}/{TESTS_PER_LANGUAGE}</strong>
+          <div className="test-path-score" aria-label={`${path.completed} ${copy.tests.completed}`}>
+            <strong>{path.completed}/{track.stages.length}</strong>
             <small>{copy.tests.completed}</small>
           </div>
         </div>
+        <aside className="advanced-path-notice" aria-label={advancedCopy.current}>
+          {path.phase === "advanced" ? <><strong>{language === "en" ? advancedCopy.title : advancedCopy.koreanTitle}</strong><p>{path.complete ? advancedCopy.finished : advancedCopy.criteria}</p><details><summary>{advancedCopy.scope}</summary><small>{advancedCopy.notice}</small></details></>
+            : <p>{path.advancedUnlocked ? advancedCopy.archive : advancedCopy.upcoming}</p>}
+          {path.advancedUnlocked && <Link className="test-back-link" to={`/tests/${language}${path.phase === "advanced" ? "?phase=foundation" : ""}`}>{path.phase === "advanced" ? advancedCopy.foundation : advancedCopy.advanced}<span aria-hidden="true">→</span></Link>}
+        </aside>
         <div className="test-stat-row">
           <span><b>◆</b>{track.target}</span>
           <span><b>↻</b>{attemptCount} {copy.tests.attempts}</span>
@@ -76,7 +86,8 @@ export function TestPathPage() {
         <nav className="test-skill-tabs" aria-label={copy.tests.pathTitle}>
           {skillOrder.map((skill) => {
             const completed = track.stages.filter((stage) => stage.skill === skill && trackProgress[stage.id]?.passed).length;
-            return <button key={skill} type="button" aria-pressed={activeSkill === skill} onClick={() => { setActiveSkill(skill); setShowAll(false); }}><AppIcon name={icons[skill]} /><span>{labels[skill]}</span><small>{completed}/{TESTS_PER_SKILL}</small></button>;
+            const skillTotal = track.stages.filter((stage) => stage.skill === skill).length;
+            return <button key={skill} type="button" aria-pressed={activeSkill === skill} onClick={() => { setActiveSkill(skill); setShowAll(false); }}><AppIcon name={icons[skill]} /><span>{labels[skill]}</span><small>{completed}/{skillTotal}</small></button>;
           })}
         </nav>
         {([activeSkill] as TestSkill[]).map((skill) => {
@@ -88,13 +99,12 @@ export function TestPathPage() {
           return <section className={`test-skill-section test-skill-section--${skill}`} key={skill}>
             <header className="test-skill-header">
               <span aria-hidden="true"><AppIcon name={icons[skill]} /></span>
-              <div><small>{completed}/{TESTS_PER_SKILL} {copy.tests.completed}</small><h2>{labels[skill]}</h2><p>{copy.tests.skillDescriptions[skill]}</p></div>
+              <div><small>{completed}/{skillStages.length} {copy.tests.completed}</small><h2>{labels[skill]}</h2><p>{path.phase === "advanced" ? advancedCopy.goal : copy.tests.skillDescriptions[skill]}</p></div>
             </header>
             <div className="test-map">
         {visibleStages.map((stage) => {
           const skillIndex = skillStages.findIndex((candidate) => candidate.id === stage.id);
-          const index = track.stages.findIndex((candidate) => candidate.id === stage.id);
-          const unlocked = isStageUnlocked(track.stages, index, trackProgress);
+          const unlocked = isLanguageStageUnlocked(language, stage.id, trackProgress);
           const stageProgress = trackProgress[stage.id];
           const passed = Boolean(stageProgress?.passed);
           const stateLabel = passed ? copy.tests.passed : unlocked ? copy.tests.current : copy.tests.locked;
@@ -130,7 +140,7 @@ export function TestPathPage() {
           );
         })}
             </div>
-            <button className="test-path-expand" type="button" onClick={() => setShowAll((current) => !current)}>{showAll ? (language === "ko" ? "현재 단계만 보기" : "Show current steps") : (language === "ko" ? `${TESTS_PER_SKILL}개 단계 모두 보기` : `Show all ${TESTS_PER_SKILL} steps`)}</button>
+            {skillStages.length > 3 && <button className="test-path-expand" type="button" onClick={() => setShowAll((current) => !current)}>{showAll ? (language === "ko" ? "현재 단계만 보기" : "Show current steps") : (language === "ko" ? `${skillStages.length}개 단계 모두 보기` : `Show all ${skillStages.length} steps`)}</button>}
           </section>;
         })}
       </main>

@@ -19,7 +19,7 @@ vi.mock("@/application/qa/qa-learning-scope", async (original) => {
   const actual = await original<typeof import("@/application/qa/qa-learning-scope")>();
   return { ...actual, get isLearningQa() { return scenario.qa; }, resolveAppRoute: (path: string) => actual.resolveAppRoute(path, scenario.qa) };
 });
-vi.mock("@/application/controllers/useLanguageTestProgress", () => ({ useLanguageTestProgress: () => ({ totals: { en: 0, ko: 0 } }) }));
+vi.mock("@/application/controllers/useLanguageTestProgress", () => ({ useLanguageTestProgress: () => ({ totals: { en: 0, ko: 0 }, progress: { en: {}, ko: {} } }) }));
 vi.mock("@/application/controllers/useGksRadar", () => ({ useGksRadar: () => ({ checkedAt: "2026-10-07T12:00:00Z", sourceChecks: [], callDetected: false, isLoading: false }) }));
 
 const learning = {

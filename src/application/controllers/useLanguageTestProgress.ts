@@ -2,11 +2,12 @@ import { scopedStorageKey } from "@/infrastructure/config/app-scope";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   emptyTestProgress,
-  type StageProgress,
   type TestLanguage,
   type TestProgressState,
 } from "../../domain/models/language-test";
 import { practiceTestTracks } from "../../infrastructure/data/practice-tests";
+import { getLanguageStageMetadata as getLanguageStage, isLanguageStageMetadataUnlocked as isLanguageStageUnlocked } from "../../infrastructure/data/language-path-summary";
+import { normalizeTestProgress, saveStageAttempt } from "../../domain/models/language-path";
 import { recordLearningError, resolveLearningDiagnosticArea } from "../../infrastructure/data/learning-error-log";
 import { trackLearning } from "./learningJourneyEvents";
 
@@ -18,7 +19,7 @@ function readProgress(): TestProgressState {
     if (!stored) return emptyTestProgress;
     const parsed = JSON.parse(stored) as Partial<TestProgressState>;
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("Invalid language progress shape");
-    return { en: parsed.en ?? {}, ko: parsed.ko ?? {} };
+    return normalizeTestProgress(parsed);
   } catch (error) {
     recordLearningError({
       area: resolveLearningDiagnosticArea(window.location.pathname) ?? "study-overview",
@@ -48,30 +49,24 @@ export function useLanguageTestProgress() {
   }, [progress]);
 
   const recordAttempt = useCallback((language: TestLanguage, stageId: string, score: number, passed: boolean) => {
-    const skill = practiceTestTracks[language].stages.find((stage) => stage.id === stageId)?.skill;
-    if (skill) trackLearning({ kind: "practice", itemId: stageId, language, skill, score, passed });
-    else recordLearningError({
-      area: language === "ko" ? "korean-learning" : "english-learning",
-      severity: "warning",
-      code: "test-stage-skill-not-found",
-      context: { stageId, score, passed },
-    });
-    setProgress((current) => {
-      const previous = current[language][stageId];
-      const nextStage: StageProgress = {
-        attempts: (previous?.attempts ?? 0) + 1,
-        bestScore: Math.max(previous?.bestScore ?? 0, score),
-        lastScore: score,
-        passed: Boolean(previous?.passed) || passed,
-        lastCompletedAt: new Date().toISOString(),
-      };
-      const next = {
-        ...current,
-        [language]: { ...current[language], [stageId]: nextStage },
-      };
-      return next;
-    });
-  }, []);
+    const stage = getLanguageStage(language, stageId);
+    if (!stage) {
+      recordLearningError({
+        area: language === "ko" ? "korean-learning" : "english-learning",
+        severity: "warning",
+        code: "test-stage-skill-not-found",
+        context: { stageId, score, passed },
+      });
+      return;
+    }
+    if (!Number.isFinite(score) || score < 0 || score > 100 || !isLanguageStageUnlocked(language, stageId, progress[language])) {
+      recordLearningError({ area: language === "ko" ? "korean-learning" : "english-learning", severity: "warning", code: "invalid-or-locked-test-attempt", context: { stageId, score } });
+      return;
+    }
+    const verifiedPass = passed && score >= stage.passScore;
+    trackLearning({ kind: "practice", itemId: stageId, language, skill: stage.skill, score, passed: verifiedPass });
+    setProgress((current) => saveStageAttempt(current, language, stage, score, verifiedPass, new Date().toISOString()));
+  }, [progress]);
 
   const totals = useMemo(() => ({
     en: practiceTestTracks.en.stages.filter((stage) => progress.en[stage.id]?.passed).length,
