@@ -32,6 +32,7 @@ export function isLanguageStageMetadataUnlocked(language: TestLanguage, stageId:
   if (!hasCompletedTrack(foundation, progress)) return false;
   const stage = advancedStageMetadata[language].find((candidate) => candidate.id === stageId);
   if (!stage) return false;
-  const previous = advancedStageMetadata[language].find((candidate) => candidate.skill === stage.skill && candidate.order === stage.order - 1);
-  return !previous || progress[previous.id]?.passed === true;
+  return advancedStageMetadata[language]
+    .filter((candidate) => candidate.skill === stage.skill && candidate.order < stage.order)
+    .every((previous) => progress[previous.id]?.passed === true);
 }

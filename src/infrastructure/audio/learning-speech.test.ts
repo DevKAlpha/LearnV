@@ -53,4 +53,32 @@ describe("owned, bounded study playback", () => {
     player.play({ ...options, text: "  " }); expect(options.onFailure).toHaveBeenCalledWith("study-audio-empty");
     expect(vi.getTimerCount()).toBe(0);
   });
+  it("an idle player's cleanup must not cancel another player's audio", () => {
+    const { engine, player, utterances, options } = fixture();
+    const idle = createLearningSpeech(engine, (text) => ({ text } as SpeechSynthesisUtterance));
+    player.play(options);
+    engine.cancel.mockClear();
+    idle.stop();
+    expect(engine.cancel).not.toHaveBeenCalled();
+    utterances[0].onend?.({} as SpeechSynthesisEvent);
+    utterances[1].onend?.({} as SpeechSynthesisEvent);
+    expect(options.onComplete).toHaveBeenCalledTimes(1);
+  });
+  it("transfers ownership immediately without stale errors or false listening evidence", () => {
+    const { engine, player, utterances, options } = fixture();
+    const interrupted = vi.fn();
+    const other = createLearningSpeech(engine, (text) => ({ text } as SpeechSynthesisUtterance));
+    player.play({ ...options, onInterrupted: interrupted });
+    const oldEnd = utterances[0].onend;
+    const completed = vi.fn();
+    other.play({ ...options, text: "Another player.", onComplete: completed });
+    expect(interrupted).toHaveBeenCalledTimes(1);
+    oldEnd?.call(utterances[0], {} as SpeechSynthesisEvent);
+    expect(options.onComplete).not.toHaveBeenCalled();
+    player.stop();
+    utterances[1].onend?.({} as SpeechSynthesisEvent);
+    vi.runAllTimers();
+    expect(completed).toHaveBeenCalledTimes(1);
+    expect(options.onFailure).not.toHaveBeenCalled();
+  });
 });

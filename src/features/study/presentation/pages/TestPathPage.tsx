@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useParams, useSearchParams } from "react-router-dom";
 import { useLanguageTestProgress } from "@/application/controllers/useLanguageTestProgress";
 import { useI18n } from "@/application/i18n/I18nContext";
@@ -8,6 +8,7 @@ import { advancedPathCopy } from "@/infrastructure/i18n/advanced-path-copy";
 import { recordLearningError } from "@/infrastructure/data/learning-error-log";
 import { AppIcon, type AppIconName } from "@/shared/ui/AppIcon";
 import { LanguageCulture } from "@/shared/ui/LanguageCulture";
+import { scrollToLearningTop } from "@/shared/ui/motion-preferences";
 
 export function TestPathPage() {
   const { language: languageParam } = useParams();
@@ -23,7 +24,13 @@ export function TestPathPage() {
   const attemptCount = track.stages.reduce((total, stage) => total + (trackProgress[stage.id]?.attempts ?? 0), 0);
   const [activeSkill, setActiveSkill] = useState<TestSkill>("reading");
   const [showAll, setShowAll] = useState(false);
-  useEffect(() => { setActiveSkill("reading"); setShowAll(false); }, [language, path.phase]);
+  const phaseKey = `${language}:${path.phase}`;
+  const previousPhase = useRef(phaseKey);
+  useEffect(() => {
+    setActiveSkill("reading"); setShowAll(false);
+    if (previousPhase.current !== phaseKey) scrollToLearningTop();
+    previousPhase.current = phaseKey;
+  }, [phaseKey]);
   const labels: Record<TestSkill, string> = {
     reading: copy.tests.reading,
     grammar: copy.tests.grammar,
@@ -82,7 +89,7 @@ export function TestPathPage() {
         </div>
       </header>
 
-      <main className="test-skill-sections" aria-label={copy.tests.pathTitle}>
+      <section className="test-skill-sections" aria-label={copy.tests.pathTitle}>
         <nav className="test-skill-tabs" aria-label={copy.tests.pathTitle}>
           {skillOrder.map((skill) => {
             const completed = track.stages.filter((stage) => stage.skill === skill && trackProgress[stage.id]?.passed).length;
@@ -143,7 +150,7 @@ export function TestPathPage() {
             {skillStages.length > 3 && <button className="test-path-expand" type="button" onClick={() => setShowAll((current) => !current)}>{showAll ? (language === "ko" ? "현재 단계만 보기" : "Show current steps") : (language === "ko" ? `${skillStages.length}개 단계 모두 보기` : `Show all ${skillStages.length} steps`)}</button>}
           </section>;
         })}
-      </main>
+      </section>
 
       <aside className="test-source-note">
         <span>◎</span>

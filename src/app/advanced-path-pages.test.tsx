@@ -27,6 +27,8 @@ describe.each(["es", "en", "ko"] as const)("advanced navigation in %s", (locale)
     scenario.progress[language] = complete(language);
     const html = pathHtml(`/tests/${language}`);
     expect(html).toContain("0/18");
+    expect(html).not.toContain("<main"); // The route already lives inside the app's main landmark.
+    expect(html).toContain('class="test-skill-sections"');
     expect(html).toContain("0/3");
     expect(html).toContain(advancedPathCopy[locale].notice);
     expect(html).toContain(`href="/tests/${language}/${language}-c1-reading-01"`);
@@ -57,6 +59,7 @@ describe.each(["es", "en", "ko"] as const)("advanced navigation in %s", (locale)
     scenario.locale = locale;
     scenario.progress[language] = complete(language);
     const html = sessionHtml(`/tests/${language}/${language}-c1-writing-01`);
+    expect(html).not.toContain("<main");
     expect(html).toContain(advancedPathCopy[locale].criteria);
     expect(html).toContain(advancedPathCopy[locale].notice);
     expect(html).toContain(language === "en" ? "220–260 words" : "500–700");

@@ -13,7 +13,12 @@ export function observeLearningVoices(engine: CatalogEngine, update: (voices: Sp
     if (settled) clearTimeout(timeout);
     update(voices, !settled);
   };
-  engine.addEventListener("voiceschanged", refresh);
+  let listening = false;
+  try { engine.addEventListener("voiceschanged", refresh); listening = true; }
+  catch { /* Enumeration and bounded fallback still work in restricted engines. */ }
   refresh();
-  return () => { active = false; clearTimeout(timeout); engine.removeEventListener("voiceschanged", refresh); };
+  return () => {
+    active = false; clearTimeout(timeout);
+    try { if (listening) engine.removeEventListener("voiceschanged", refresh); } catch { /* Cleanup must not break navigation. */ }
+  };
 }

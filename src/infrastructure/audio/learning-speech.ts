@@ -2,21 +2,34 @@ import { learningSpeechChunks } from "@/domain/models/learning-voice";
 
 type Utterance = Pick<SpeechSynthesisUtterance, "text" | "voice" | "lang" | "rate" | "pitch" | "volume" | "onstart" | "onend" | "onerror">;
 type Engine = { cancel: () => void; speak: (utterance: Utterance) => void; resume: () => void; paused: boolean };
-type Options = { text: string; voice: SpeechSynthesisVoice; rate: number; onComplete: () => void; onFailure: (code: string) => void };
+type Options = { text: string; voice: SpeechSynthesisVoice; rate: number; onComplete: () => void; onFailure: (code: string) => void; onInterrupted?: () => void };
+
+// SpeechSynthesis.cancel() is global to its engine, not to an utterance/player.
+const owners = new WeakMap<object, () => void>();
 
 /** One owned playback, bounded startup/completion, and no stale callbacks after stop. */
-export function createLearningSpeech(engine: Engine, makeUtterance: (text: string) => Utterance) {
+export function createLearningSpeech(engine: Engine, makeUtterance: (text: string) => Utterance, ownerKey: object = engine) {
   let generation = 0;
   let timer: ReturnType<typeof setTimeout> | undefined;
   let current: Utterance | null = null;
+  let onInterrupted: (() => void) | undefined;
+  const interrupt = () => { const notify = onInterrupted; stop(); notify?.(); };
   const stop = () => {
     generation++; clearTimeout(timer);
     if (current) { current.onstart = null; current.onend = null; current.onerror = null; }
     current = null;
-    try { engine.cancel(); } catch { /* Broken engines must not block navigation. */ }
+    onInterrupted = undefined;
+    if (owners.get(ownerKey) === interrupt) {
+      owners.delete(ownerKey);
+      try { engine.cancel(); } catch { /* Broken engines must not block navigation. */ }
+    }
   };
   const play = (options: Options) => {
     stop();
+    owners.get(ownerKey)?.();
+    owners.set(ownerKey, interrupt);
+    onInterrupted = options.onInterrupted;
+    try { engine.cancel(); } catch { /* Clear stale browser queues only on explicit play. */ }
     const run = generation;
     const chunks = learningSpeechChunks(options.text);
     let index = 0;
@@ -26,7 +39,10 @@ export function createLearningSpeech(engine: Engine, makeUtterance: (text: strin
     };
     const next = () => {
       if (generation !== run) return;
-      if (index === chunks.length) { current = null; clearTimeout(timer); options.onComplete(); return; }
+      if (index === chunks.length) {
+        current = null; clearTimeout(timer); owners.delete(ownerKey); onInterrupted = undefined;
+        options.onComplete(); return;
+      }
       try {
         const utterance = makeUtterance(chunks[index++]);
         current = utterance;

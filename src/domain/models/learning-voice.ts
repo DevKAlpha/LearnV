@@ -51,7 +51,7 @@ export function sanitizeVoicePreference(value: unknown, language: TestLanguage):
 
 /** Short utterances avoid long browser queues; punctuation, words and order are retained. */
 export function learningSpeechChunks(text: string, limit = 260): string[] {
-  if (limit < 40) throw new Error("Speech chunk limit is too small");
+  if (!Number.isSafeInteger(limit) || limit < 40) throw new Error("Speech chunk limit must be a finite integer of at least 40");
   const sentences = text.trim().split(/(?<=[.!?。！？])\s+(?=[\p{Lu}\p{Script=Hangul}“"])/u);
   return sentences.flatMap((sentence) => {
     const words = sentence.trim().split(/\s+/u);
@@ -59,8 +59,12 @@ export function learningSpeechChunks(text: string, limit = 260): string[] {
     for (const word of words) {
       if (current && current.length + word.length + 1 > limit) { chunks.push(current); current = ""; }
       if (word.length > limit) {
-        const characters = Array.from(word);
-        while (characters.length) chunks.push(characters.splice(0, limit).join(""));
+        let piece = "";
+        for (const character of word) {
+          if (piece.length + character.length > limit) { chunks.push(piece); piece = ""; }
+          piece += character;
+        }
+        if (piece) chunks.push(piece);
       } else current = current ? `${current} ${word}` : word;
     }
     if (current) chunks.push(current);
