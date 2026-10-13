@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { getMotionScrollBehavior } from "./motion-preferences";
+import { getMotionScrollBehavior, scrollToLearningTop } from "./motion-preferences";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -12,6 +12,10 @@ describe("language navigation motion preference", () => {
   it("keeps smooth navigation when motion is allowed", () => {
     vi.stubGlobal("window", { matchMedia: () => ({ matches: false }) });
     expect(getMotionScrollBehavior()).toBe("smooth");
+  });
+  it("also avoids smooth scrolling on a slow-update display", () => {
+    vi.stubGlobal("window", { matchMedia: (query: string) => ({ matches: query === "(update: slow)" }) });
+    expect(getMotionScrollBehavior()).toBe("auto");
   });
   it("rechecks changed preferences rather than caching them", () => {
     let reduced = false;
@@ -27,5 +31,11 @@ describe("language navigation motion preference", () => {
   it("does not require a browser when rendering on the server", () => {
     vi.stubGlobal("window", undefined);
     expect(getMotionScrollBehavior()).toBe("auto");
+  });
+  it.each([false, true])("brings the phase header back into view with reduced motion %s", (reduced) => {
+    const scrollTo = vi.fn();
+    vi.stubGlobal("window", { scrollTo, matchMedia: () => ({ matches: reduced }) });
+    scrollToLearningTop();
+    expect(scrollTo).toHaveBeenCalledWith({ top: 0, left: 0, behavior: reduced ? "auto" : "smooth" });
   });
 });

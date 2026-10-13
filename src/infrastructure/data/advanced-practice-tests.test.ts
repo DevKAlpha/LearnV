@@ -72,6 +72,15 @@ describe.each(["en", "ko"] as const)("automatic advanced path: %s", (language) =
     expect(isLanguageStageUnlocked(language, "unknown", progress)).toBe(false);
     expect(getLanguageStage(language, `${language === "en" ? "ko" : "en"}-c1-reading-01`)).toBeUndefined();
   });
+  it("does not unlock later steps from an isolated restored pass with missing earlier steps", () => {
+    const stages = advanced.stages.filter((stage) => stage.skill === "reading");
+    const progress = { ...complete(language), [stages[1].id]: passed };
+    expect(isLanguageStageUnlocked(language, stages[2].id, progress)).toBe(false);
+    expect(isLanguageStageMetadataUnlocked(language, stages[2].id, progress)).toBe(false);
+    const base = foundation.stages.filter((stage) => stage.skill === "reading");
+    // Foundation keeps its v1 immediate-prerequisite policy for restored legacy progress.
+    expect(isLanguageStageUnlocked(language, base[2].id, { [base[1].id]: passed })).toBe(true);
+  });
   it("promotes immediately on the last foundation success, regardless of which skill finishes last", () => {
     for (const last of foundation.stages.filter((stage) => stage.order === 22)) {
       const progress = complete(language);
@@ -169,6 +178,21 @@ describe.each(["en", "ko"] as const)("written advanced production: %s", (languag
 });
 
 describe("safe completion and persistence boundaries", () => {
+  it("repairs inconsistent saved scores without promoting invalid passes or retaining unknown payloads", () => {
+    const base = practiceTestTracks.en.stages[0];
+    const advanced = advancedPracticeTracks.en.stages[0];
+    const restored = normalizeTestProgress({ en: {
+      [base.id]: { ...passed, bestScore: 40, lastScore: 40, privateDraft: "not part of progress" },
+      [advanced.id]: { ...passed, bestScore: 75, lastScore: 75 },
+      recovered: { ...passed, bestScore: 70, lastScore: 100, passed: false },
+      invalidDate: { ...passed, lastCompletedAt: "invalid" },
+    } }, (language, id) => getLanguageStageMetadata(language, id)?.passScore);
+    expect(restored.en[base.id]).toMatchObject({ passed: false, attempts: 1, bestScore: 40 });
+    expect(restored.en[base.id]).not.toHaveProperty("privateDraft");
+    expect(restored.en[advanced.id].passed).toBe(false);
+    expect(restored.en.recovered).toMatchObject({ passed: false, bestScore: 100 });
+    expect(restored.en).not.toHaveProperty("invalidDate");
+  });
   it("rejects malformed success markers without discarding valid neighbouring results", () => {
     const progress = normalizeTestProgress({ en: { valid: passed, string: { ...passed, passed: "true" }, missing: { passed: true }, null: null, badScore: { ...passed, bestScore: 101 }, badAttempts: { ...passed, attempts: -1 } }, ko: [] });
     expect(progress).toEqual({ en: { valid: passed }, ko: {} });

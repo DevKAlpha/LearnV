@@ -63,4 +63,11 @@ describe("speech phrasing", () => {
     expect(learningSpeechChunks(text).join("")).toBe(text);
     expect(() => learningSpeechChunks("Test", 0)).toThrow();
   });
+  it("also bounds UTF-16 length for long unspaced text containing emoji", () => {
+    const text = "한🙂".repeat(200);
+    const chunks = learningSpeechChunks(text);
+    expect(chunks.every((chunk) => chunk.length <= 260)).toBe(true);
+    expect(chunks.join("")).toBe(text);
+    expect(chunks.every((chunk) => !/^[\uDC00-\uDFFF]|[\uD800-\uDBFF]$/u.test(chunk))).toBe(true);
+  });
 });

@@ -25,10 +25,19 @@ export function LearningAudioPlayer({ text, language, stageId, questionId, label
     player.current = createLearningSpeech({
       speak: (utterance) => engine.speak(utterance as SpeechSynthesisUtterance),
       cancel: () => engine.cancel(), resume: () => engine.resume(), get paused() { return engine.paused; },
-    }, (value) => new SpeechSynthesisUtterance(value));
-    return () => { player.current?.stop(); player.current = null; };
+    }, (value) => new SpeechSynthesisUtterance(value), engine);
+    const suspend = () => { player.current?.stop(); setStatus("idle"); };
+    const visibility = () => { if (document.visibilityState === "hidden") suspend(); };
+    window.addEventListener("pagehide", suspend);
+    document.addEventListener("visibilitychange", visibility);
+    return () => {
+      window.removeEventListener("pagehide", suspend);
+      document.removeEventListener("visibilitychange", visibility);
+      player.current?.stop(); player.current = null;
+    };
   }, [controls.supported]);
   useEffect(() => { player.current?.stop(); setStatus("idle"); setTranscript(false); }, [text, language, stageId, questionId]);
+  useEffect(() => { player.current?.stop(); setStatus("idle"); }, [controls.preference.accent, controls.preference.voiceURI, controls.preference.pace]);
   useEffect(() => { if (disabled) { player.current?.stop(); setStatus("idle"); } }, [disabled]);
   const stop = () => { player.current?.stop(); setStatus("idle"); };
   const reveal = () => { stop(); setTranscript(true); callbacks.current.onTranscript?.(); };
@@ -39,6 +48,7 @@ export function LearningAudioPlayer({ text, language, stageId, questionId, label
     setStatus("playing");
     player.current.play({ text, voice: controls.voice, rate: voicePaces[controls.preference.pace],
       onComplete: () => { setStatus("finished"); callbacks.current.onCompleted?.(); },
+      onInterrupted: () => setStatus("idle"),
       onFailure: (code) => {
         setStatus("failed"); setTranscript(true); callbacks.current.onTranscript?.();
         recordLearningError({ area: language === "ko" ? "korean-learning" : "english-learning", severity: "warning", code, context: { stageId, questionId, language, accent: controls.voice?.lang, pace: controls.preference.pace } });

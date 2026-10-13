@@ -38,4 +38,14 @@ describe("late device voice discovery", () => {
     expect(sample.update).toHaveBeenLastCalledWith([], false);
     sample.stop();
   });
+  it("survives unavailable voice-event registration and throwing listener cleanup", () => {
+    vi.useFakeTimers(); const update = vi.fn();
+    const engine = { getVoices: vi.fn(() => []), addEventListener: vi.fn<() => void>(() => { throw new Error("restricted"); }), removeEventListener: vi.fn<() => void>(() => { throw new Error("cleanup"); }) };
+    const stop = observeLearningVoices(engine, update);
+    vi.advanceTimersByTime(3000); expect(update).toHaveBeenLastCalledWith([], false);
+    expect(stop).not.toThrow(); expect(vi.getTimerCount()).toBe(0);
+    engine.addEventListener.mockImplementation(() => {});
+    const cleanup = observeLearningVoices(engine, update); expect(cleanup).not.toThrow();
+    expect(engine.removeEventListener).toHaveBeenCalled(); expect(vi.getTimerCount()).toBe(0);
+  });
 });
