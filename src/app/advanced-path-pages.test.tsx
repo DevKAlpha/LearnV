@@ -29,6 +29,12 @@ describe.each(["es", "en", "ko"] as const)("advanced navigation in %s", (locale)
     expect(html).toContain("0/18");
     expect(html).not.toContain("<main"); // The route already lives inside the app's main landmark.
     expect(html).toContain('class="test-skill-sections"');
+    expect(html).toContain(`test-path-page--advanced`);
+    expect(html).toContain('class="test-map"');
+    expect(html).toContain('class="test-path-connector"');
+    expect(html.match(/class="test-path-c1-label">C1<\/span>/g)).toHaveLength(2);
+    expect(html).toContain('aria-current="step"');
+    expect(html).toContain('class="test-map-node test-map-node--locked" aria-disabled="true"');
     expect(html).toContain("0/3");
     expect(html).toContain(advancedPathCopy[locale].notice);
     expect(html).toContain(`href="/tests/${language}/${language}-c1-reading-01"`);
@@ -37,6 +43,8 @@ describe.each(["es", "en", "ko"] as const)("advanced navigation in %s", (locale)
     expect(html).not.toContain("test-path-expand"); // Only a few steps, no lengthy advanced wall.
     const archive = pathHtml(`/tests/${language}?phase=foundation`);
     expect(archive).toContain("132/132");
+    expect(archive).toContain("test-path-page--foundation");
+    expect(archive).not.toContain('class="test-path-c1-label"');
     expect(archive).toContain(advancedPathCopy[locale].archive);
     expect(archive).toContain(`href="/tests/${language}/${language}-reading-22"`);
     expect(archive).not.toContain(`href="/tests/${language}/${language}-c1-reading-01"`);
@@ -67,6 +75,20 @@ describe.each(["es", "en", "ko"] as const)("advanced navigation in %s", (locale)
     expect(html).toContain("disabled=\"\"");
     expect(html).toContain("language-culture--badge"); // Keep the existing badge; no extra hero animation in exercises.
   });
+});
+
+it.each(["en", "ko"] as const)("keeps the foundation route ordered and its cultural art decorative for %s", (language) => {
+  scenario.locale = "es";
+  const html = pathHtml(`/tests/${language}`);
+  expect(html).toContain("test-path-page--foundation");
+  expect(html).toContain('class="test-map"');
+  expect(html).toContain('class="test-path-culture-accent"');
+  expect(html).toContain('aria-hidden="true" focusable="false"');
+  expect(html).not.toContain('class="test-path-c1-label"');
+  expect(html).toContain('aria-current="step"');
+  expect(html).toContain(`href="/tests/${language}/${language}-reading-01"`);
+  expect(html).not.toContain(`href="/tests/${language}/${language}-reading-02"`);
+  expect(html.indexOf(`${language}-reading-01`)).toBeLessThan(html.indexOf("test-map-node--locked"));
 });
 
 it("retains advanced completion and replay links rather than resetting to the initial chain", () => {
