@@ -14,6 +14,7 @@ import "@/styles/learning-audio.css";
 import "@/styles/language-culture.css";
 import "@/styles/language-motion.css";
 import "@/styles/advanced-path.css";
+import "@/styles/learning-path.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

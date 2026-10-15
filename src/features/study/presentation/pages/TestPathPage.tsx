@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Link, Navigate, useParams, useSearchParams } from "react-router-dom";
 import { useLanguageTestProgress } from "@/application/controllers/useLanguageTestProgress";
 import { useI18n } from "@/application/i18n/I18nContext";
@@ -9,6 +9,23 @@ import { recordLearningError } from "@/infrastructure/data/learning-error-log";
 import { AppIcon, type AppIconName } from "@/shared/ui/AppIcon";
 import { LanguageCulture } from "@/shared/ui/LanguageCulture";
 import { scrollToLearningTop } from "@/shared/ui/motion-preferences";
+
+const pathPositions = [28, 70, 48, 76, 32, 53] as const;
+const mobilePathPositions = [34, 65, 49, 65, 34, 50] as const;
+const pathShapes = ["round", "arch", "soft-square", "petal"] as const;
+
+function PathCultureAccent({ language, variant }: { language: "en" | "ko"; variant: number }) {
+  const artwork = language === "ko" ? [
+    <><path d="M10 57h94M21 55V35l36-22 36 22v20M16 36h82M37 55V40h40v15M47 55V43h20v12" /><path d="M57 13v-7M29 55l-5 9M84 55l6 9" /></>,
+    <><path d="M20 62c12-17 27-22 40-10 14-20 31-16 42 8M14 65h92M72 19v31M65 24l7-9 7 9M74 16h17" /><circle cx="29" cy="28" r="8" /></>,
+    <><rect x="22" y="18" width="75" height="50" rx="6" /><path d="M35 32h19m-9-9v25m19-16h20m-20 10h20M33 57h52" /></>,
+  ] : [
+    <><path d="M18 64h88M30 62V26h45v36M75 42h19v20M35 33h9m8 0h9m-26 9h9m8 0h9m-26 9h9m8 0h9M87 42V25M81 26h12" /><circle cx="86" cy="15" r="6" /></>,
+    <><path d="M14 54c17-8 30-8 45 0 15-8 28-8 45 0v10c-16-7-29-7-45 0-16-7-29-7-45 0V54ZM59 53V22M19 30c11-7 23-7 35 0m10 0c11-7 23-7 35 0M19 30v20m35-20v20m10-20v20m35-20v20" /></>,
+    <><path d="M18 54h70a13 13 0 0 1-13 12H32a14 14 0 0 1-14-12ZM88 56c18-2 20-18 2-19M37 32c-8-8 5-10 0-18m18 18c-8-8 5-10 0-18m18 18c-8-8 5-10 0-18" /></>,
+  ];
+  return <svg className="test-path-culture-accent" viewBox="0 0 120 80" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">{artwork[variant % artwork.length]}</svg>;
+}
 
 export function TestPathPage() {
   const { language: languageParam } = useParams();
@@ -62,7 +79,7 @@ export function TestPathPage() {
   if (invalidLanguage) return <Navigate to="/study" replace />;
 
   return (
-    <div className={`page test-path-page test-path-page--${language}`}>
+    <div className={`page test-path-page test-path-page--${language} test-path-page--${path.phase}`}>
       <header className="test-path-header">
         <Link className="test-back-link" to={`/study/${language === "en" ? "english" : "korean"}`}><span aria-hidden="true">←</span>{copy.tests.backLibrary}</Link>
         <LanguageCulture language={language} variant="badge" />
@@ -108,13 +125,18 @@ export function TestPathPage() {
               <span aria-hidden="true"><AppIcon name={icons[skill]} /></span>
               <div><small>{completed}/{skillStages.length} {copy.tests.completed}</small><h2>{labels[skill]}</h2><p>{path.phase === "advanced" ? advancedCopy.goal : copy.tests.skillDescriptions[skill]}</p></div>
             </header>
-            <div className="test-map">
-        {visibleStages.map((stage) => {
+            <ol className="test-map">
+        {visibleStages.map((stage, visibleIndex) => {
           const skillIndex = skillStages.findIndex((candidate) => candidate.id === stage.id);
           const unlocked = isLanguageStageUnlocked(language, stage.id, trackProgress);
           const stageProgress = trackProgress[stage.id];
           const passed = Boolean(stageProgress?.passed);
           const stateLabel = passed ? copy.tests.passed : unlocked ? copy.tests.current : copy.tests.locked;
+          const position = pathPositions[skillIndex % pathPositions.length];
+          const nextPosition = pathPositions[(skillIndex + 1) % pathPositions.length];
+          const mobilePosition = mobilePathPositions[skillIndex % mobilePathPositions.length];
+          const nextMobilePosition = mobilePathPositions[(skillIndex + 1) % mobilePathPositions.length];
+          const itemStyle = { "--path-x": position, "--path-mobile-x": mobilePosition } as CSSProperties;
           const content = (
             <>
               <span className="test-node-ring">
@@ -123,7 +145,7 @@ export function TestPathPage() {
                 {!unlocked && <i aria-hidden="true"><AppIcon name="lock" /></i>}
               </span>
               <span className="test-node-copy">
-                <small>{String(skillIndex + 1).padStart(2, "0")} · {stateLabel}</small>
+                <small>{path.phase === "advanced" && <span className="test-path-c1-label">C1</span>}{String(skillIndex + 1).padStart(2, "0")} · {stateLabel}</small>
                 <span className={`test-mode-pill test-mode-pill--${stage.productionTask.mode}`}>
                   {labels[skill]}
                 </span>
@@ -138,15 +160,15 @@ export function TestPathPage() {
             </>
           );
 
-          return unlocked ? (
-            <Link className={`test-map-node test-map-node--${passed ? "passed" : "open"}`} to={`/tests/${language}/${stage.id}`} key={stage.id}>
-              {content}
-            </Link>
-          ) : (
-            <div className="test-map-node test-map-node--locked" aria-disabled="true" key={stage.id}>{content}</div>
-          );
+          return <li className={`test-path-step test-path-step--${pathShapes[skillIndex % pathShapes.length]}`} style={itemStyle} key={stage.id}>
+            {visibleIndex < visibleStages.length - 1 && <svg className="test-path-connector" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d={`M ${position} 0 C ${position} 48, ${nextPosition} 52, ${nextPosition} 100`} /></svg>}
+            {visibleIndex < visibleStages.length - 1 && <svg className="test-path-connector test-path-connector--mobile" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d={`M ${mobilePosition} 0 C ${mobilePosition} 48, ${nextMobilePosition} 52, ${nextMobilePosition} 100`} /></svg>}
+            {(showAll ? visibleIndex < 16 && visibleIndex % 5 === 0 : visibleIndex === 0) && <span className="test-path-decoration"><PathCultureAccent language={language} variant={skillIndex} /></span>}
+            {unlocked ? <Link className={`test-map-node test-map-node--${passed ? "passed" : "open"}`} aria-current={skillIndex === currentIndex && !passed ? "step" : undefined} to={`/tests/${language}/${stage.id}`}>{content}</Link>
+              : <div className="test-map-node test-map-node--locked" aria-disabled="true">{content}</div>}
+          </li>;
         })}
-            </div>
+            </ol>
             {skillStages.length > 3 && <button className="test-path-expand" type="button" onClick={() => setShowAll((current) => !current)}>{showAll ? (language === "ko" ? "현재 단계만 보기" : "Show current steps") : (language === "ko" ? `${skillStages.length}개 단계 모두 보기` : `Show all ${skillStages.length} steps`)}</button>}
           </section>;
         })}
