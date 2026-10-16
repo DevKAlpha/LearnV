@@ -31,8 +31,8 @@ describe.each(["es", "en", "ko"] as const)("advanced navigation in %s", (locale)
     expect(html).toContain('class="test-skill-sections"');
     expect(html).toContain(`test-path-page--advanced`);
     expect(html).toContain('class="test-map"');
-    expect(html).toContain('class="test-path-connector"');
-    expect(html.match(/class="test-path-c1-label">C1<\/span>/g)).toHaveLength(2);
+    expect(html).toContain('class="test-path-connector test-path-connector--open"');
+    expect(html.match(/class="test-path-c1-label">C1<\/span>/g)).toHaveLength(3);
     expect(html).toContain('aria-current="step"');
     expect(html).toContain('class="test-map-node test-map-node--locked" aria-disabled="true"');
     expect(html).toContain("0/3");
@@ -89,6 +89,23 @@ it.each(["en", "ko"] as const)("keeps the foundation route ordered and its cultu
   expect(html).toContain(`href="/tests/${language}/${language}-reading-01"`);
   expect(html).not.toContain(`href="/tests/${language}/${language}-reading-02"`);
   expect(html.indexOf(`${language}-reading-01`)).toBeLessThan(html.indexOf("test-map-node--locked"));
+});
+
+it.each(["en", "ko"] as const)("restores a requested skill with correct list numbers and linked expansion controls for %s", (language) => {
+  scenario.locale = "es";
+  const stages = practiceTestTracks[language].stages.filter((stage) => stage.skill === "grammar");
+  scenario.progress[language] = Object.fromEntries(stages.slice(0, 8).map((stage) => [stage.id, { attempts: 1, bestScore: 90, lastScore: 90, passed: true, lastCompletedAt: "2026-10-15T12:00:00Z" }]));
+  const html = pathHtml(`/tests/${language}?skill=grammar`);
+  expect(html).toContain(`id="learning-path-${language}-foundation-grammar-heading"`);
+  expect(html).toContain('start="8" role="list"');
+  expect(html).toContain('value="8"');
+  expect(html).toContain('value="9"');
+  expect(html).toContain('value="10"');
+  expect(html).toContain('aria-expanded="false"');
+  expect(html).toContain(`aria-controls="learning-path-${language}-foundation-grammar"`);
+  expect(html).toContain("Ver las 22 actividades");
+  expect(html).not.toContain(`href="/tests/${language}/${language}-grammar-10"`);
+  expect(html).toContain(`href="/tests/${language}/${language}-grammar-09"`);
 });
 
 it("retains advanced completion and replay links rather than resetting to the initial chain", () => {

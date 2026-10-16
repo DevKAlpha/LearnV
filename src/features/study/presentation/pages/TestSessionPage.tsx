@@ -22,6 +22,7 @@ import { learningVoiceCopy } from "@/infrastructure/i18n/learning-voice-copy";
 import { LanguageCulture } from "@/shared/ui/LanguageCulture";
 import { getMotionScrollBehavior } from "@/shared/ui/motion-preferences";
 import { createLearningRecording } from "@/infrastructure/audio/learning-recording";
+import { getLanguagePathHref } from "../components/learning-path-layout";
 
 function formatTime(seconds: number) {
   const minutes = Math.floor(seconds / 60);
@@ -336,7 +337,7 @@ export function TestSessionPage() {
         <div className="result-actions">
           {result.passed && nextStage && <Link className="test-primary-action" to={`/tests/${language}/${nextStage.id}`}>{copy.tests.nextTest}<span>→</span></Link>}
           <button className="test-secondary-action" type="button" onClick={restartTest}>{copy.tests.repeatTest}<span>↻</span></button>
-          <Link className="test-text-action" to={`/tests/${language}${!isAdvancedStage && !promoted ? "?phase=foundation" : ""}`}>{copy.tests.backPath}</Link>
+          <Link className="test-text-action" to={getLanguagePathHref(language, stage.skill, !isAdvancedStage && !promoted ? "foundation" : "advanced")}>{copy.tests.backPath}</Link>
         </div>
       </div>
     );
@@ -484,7 +485,7 @@ export function TestSessionPage() {
           <section role="dialog" aria-modal="true" aria-labelledby="test-exit-title">
             <h2 id="test-exit-title">{language === "ko" ? "연습을 종료할까요?" : "Leave this practice?"}</h2>
             <p>{language === "ko" ? "현재 답변과 녹음은 저장되지 않습니다." : "Your current answers and recording are not saved."}</p>
-            <div><button type="button" onClick={() => setShowExitDialog(false)}>{language === "ko" ? "계속 연습" : "Keep practising"}</button><Link to={`/tests/${language}`}>{language === "ko" ? "종료" : "Leave"}</Link></div>
+            <div><button type="button" onClick={() => setShowExitDialog(false)}>{language === "ko" ? "계속 연습" : "Keep practising"}</button><Link to={getLanguagePathHref(language, stage.skill, isAdvancedStage ? "advanced" : "foundation")}>{language === "ko" ? "종료" : "Leave"}</Link></div>
           </section>
         </div>
       )}
