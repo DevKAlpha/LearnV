@@ -9,7 +9,7 @@ import { LearningJourneyPanel } from "@/shared/ui/LearningJourneyPanel";
 import { buildHomeTaskPlan, type HomeTaskPlanEntry } from "@/domain/models/home-plan";
 import type { StudyTask } from "@/domain/models/gks";
 import { isLearningQa } from "@/application/qa/qa-learning-scope";
-import { StorybookArt } from "@/shared/ui/StorybookArt";
+import { SceneArt } from "@/shared/ui/SceneArt";
 import { storybookCopy } from "@/infrastructure/i18n/storybook-copy";
 
 type Props = {
@@ -21,6 +21,7 @@ type Props = {
 
 export function HomePage({ score, progress, toggleTask, learning }: Props) {
   const { locale, copy } = useI18n();
+  const story = storybookCopy[locale];
   const taskPlan = buildHomeTaskPlan(dailyTasks, progress.completedTasks);
   const completedToday = taskPlan.completedCount;
   const reminderStage = getReminderStage(score, completedToday, dailyTasks.length);
@@ -85,10 +86,15 @@ export function HomePage({ score, progress, toggleTask, learning }: Props) {
           <Link to={primaryRoute} className="primary-button">{taskPlan.primary ? copy.home.start : copy.home.continueLearning} <span>→</span></Link>
         </div>
         <div className="story-cover">
-          <span className="story-cover__languages" aria-hidden="true">EN <i>↔</i> 한</span>
-          <StorybookArt />
-          <p className="story-cover__caption">{storybookCopy[locale].atlas}</p>
-          <ProgressOrbit score={score} />
+          <div className="story-panels" aria-hidden="true">
+            <figure className="story-panel story-panel--reader"><SceneArt scene="reader" eager /><figcaption><b>01</b>{story.reader}</figcaption></figure>
+            <figure className="story-panel story-panel--seoul"><SceneArt scene="seoul" /><figcaption>{story.seoul}</figcaption></figure>
+            <figure className="story-panel story-panel--desk"><SceneArt scene="desk" /><figcaption>{story.desk}</figcaption></figure>
+          </div>
+          <div className="story-cover__footer">
+            <div><span className="story-cover__languages" aria-hidden="true">EN <i>↔</i> 한</span><p className="story-cover__caption">{story.atlas}</p></div>
+            <ProgressOrbit score={score} />
+          </div>
         </div>
       </section>
 
@@ -112,6 +118,16 @@ export function HomePage({ score, progress, toggleTask, learning }: Props) {
           <summary><span>{copy.home.otherTasks}</span><b>{taskPlan.remaining.length}</b><i aria-hidden="true">＋</i></summary>
           <div className="task-list">{taskPlan.remaining.map((entry) => renderTask(entry))}</div>
         </details>
+      </section>
+
+      <section className="story-shelf" aria-labelledby="story-shelf-title">
+        <div className="section-heading"><div><span className="eyebrow">{story.shelfKicker}</span><h2 id="story-shelf-title">{story.shelf}</h2></div></div>
+        <div className="story-shelf__grid">
+          {(["en", "ko"] as const).map((language, index) => <Link className={`story-volume story-volume--${language}`} to={`/study/${language === "en" ? "english" : "korean"}`} key={language}>
+            <div className="story-volume__art"><SceneArt scene={language === "en" ? "london" : "seoul"} /><span>{story.volume} {String(index + 1).padStart(2, "0")}</span></div>
+            <div className="story-volume__copy"><span lang={language}>{language === "en" ? "English" : "한국어"}</span><strong>{language === "en" ? copy.study.englishSpaceTitle : copy.study.koreanSpaceTitle}</strong><small>{language === "en" ? copy.study.englishSpaceTarget : copy.study.koreanSpaceTarget}</small><b>{copy.study.openSpace}<i aria-hidden="true">↗</i></b></div>
+          </Link>)}
+        </div>
       </section>
 
       <LearningJourneyPanel learning={learning} compact />

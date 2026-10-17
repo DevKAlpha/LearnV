@@ -63,7 +63,7 @@ export function LanguageStudyPage({ language }: LanguageStudyPageProps) {
             <p>{advanced ? advancedCopy.intro : isEnglish ? copy.study.englishSpaceText : copy.study.koreanSpaceText}</p>
           </div>
         </div>
-        <LanguageCulture language={language} variant="hero" />
+        <LanguageCulture language={language} variant="hero" illustrated />
         <div className="language-study-facts">
           <span><strong>{advanced ? path.completed : totals[language]}/{path.track.stages.length}</strong>{copy.study.testsPassed}</span>
           <span><strong>{resourceCount}</strong>{copy.study.resourcesAvailable}</span>

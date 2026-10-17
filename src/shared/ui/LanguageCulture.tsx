@@ -1,6 +1,7 @@
 import { useI18n } from "@/application/i18n/I18nContext";
 import type { TestLanguage } from "@/domain/models/language-test";
 import { languageCultureCopy } from "@/infrastructure/i18n/language-culture-copy";
+import { SceneArt } from "./SceneArt";
 
 /** Decorative original vectors, not flags or a claim to represent every culture. */
 function CultureIllustration({ language }: { language: TestLanguage }) {
@@ -41,11 +42,11 @@ function CultureIllustration({ language }: { language: TestLanguage }) {
   </svg>;
 }
 
-export function LanguageCulture({ language, variant = "card" }: { language: TestLanguage; variant?: "card" | "hero" | "badge" }) {
+export function LanguageCulture({ language, variant = "card", illustrated = false }: { language: TestLanguage; variant?: "card" | "hero" | "badge"; illustrated?: boolean }) {
   const { locale } = useI18n();
   const copy = languageCultureCopy[locale][language];
   const endonym = language === "en" ? "English" : "한국어";
-  return <div className={`language-culture language-culture--${variant}`} data-language={language}>
+  return <div className={`language-culture language-culture--${variant}${illustrated && variant !== "badge" ? " language-culture--illustrated" : ""}`} data-language={language}>
     <div className="language-culture__copy">
       <span className="language-culture__identity"><b>{language.toUpperCase()}</b><strong lang={language}>{endonym}</strong>{copy.name !== endonym && <span>{copy.name}</span>}</span>
       {variant !== "badge" && <>
@@ -53,7 +54,7 @@ export function LanguageCulture({ language, variant = "card" }: { language: Test
         <span className="language-culture__motifs">{variant === "hero" ? copy.context : copy.motifs}</span>
       </>}
     </div>
-    {variant !== "badge" && <CultureIllustration language={language} />}
+    {variant !== "badge" && (illustrated ? <SceneArt scene={language === "en" ? "london" : "seoul"} className="language-culture__scene" eager={variant === "hero"} /> : <CultureIllustration language={language} />)}
     {variant === "hero" && <p className="language-culture__detail">{copy.detail}</p>}
   </div>;
 }

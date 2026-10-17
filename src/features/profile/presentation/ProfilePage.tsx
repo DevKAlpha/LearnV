@@ -8,6 +8,7 @@ import type { LearningJourneyController } from "@/application/controllers/useLea
 import { LearningJourneyPanel } from "@/shared/ui/LearningJourneyPanel";
 import { getLanguagePathSummary as getLanguagePath } from "@/infrastructure/data/language-path-summary";
 import { advancedPathCopy } from "@/infrastructure/i18n/advanced-path-copy";
+import { SceneArt } from "@/shared/ui/SceneArt";
 
 export function ProfilePage({ score, learning }: { score: number; learning: LearningJourneyController }) {
   const { copy, locale } = useI18n();
@@ -47,11 +48,14 @@ export function ProfilePage({ score, learning }: { score: number; learning: Lear
 
   return (
     <div className="page profile-page">
-      <header className="profile-hero">
-        <div className="profile-avatar"><BrandMark /></div>
-        <span className="eyebrow">{copy.profile.local}</span>
-        <h1>{copy.profile.title}</h1>
-        <p>{copy.profile.intro}</p>
+      <header className="profile-hero story-masthead">
+        <div className="story-masthead__copy">
+          <div className="profile-avatar"><BrandMark /></div>
+          <span className="eyebrow">{copy.profile.local}</span>
+          <h1>{copy.profile.title}</h1>
+          <p>{copy.profile.intro}</p>
+        </div>
+        <div className="story-masthead__art"><SceneArt scene="garden" eager /><span aria-hidden="true">✦ / 05</span></div>
       </header>
 
       <Link className="profile-score" to="/study" aria-label={copy.home.start}>

@@ -7,6 +7,8 @@ import { HomePage } from "@/features/home/presentation/HomePage";
 import { StudyPage } from "@/features/study/presentation/pages/StudyPage";
 import { ChecklistPage } from "@/features/documents/presentation/ChecklistPage";
 import { GksPage } from "@/features/scholarship/presentation/GksPage";
+import { ProfilePage } from "@/features/profile/presentation/ProfilePage";
+import { storybookCopy } from "@/infrastructure/i18n/storybook-copy";
 import { getDefinition } from "@/app/layout/SectionTour";
 import { documentStages } from "@/domain/models/document-plan";
 import { TESTS_PER_LANGUAGE, TESTS_PER_SKILL } from "@/infrastructure/data/practice-tests";
@@ -35,6 +37,22 @@ const hasOrder = (html: string, markers: string[]) => {
 };
 
 describe.each(["es", "en", "ko"] as const)("progressive first visit in %s", (locale) => {
+  it("renders illustrated panels, working language volumes and distinct section scenes", () => {
+    scenario.locale = locale; scenario.qa = false;
+    const home = render(<HomePage score={37} progress={{ completedTasks: [] }} toggleTask={() => {}} learning={learning} />);
+    expect(home).toContain(storybookCopy[locale].shelf);
+    hasOrder(home, ["hero-copy", "story-panels", "story-cover__footer", "home-today", "story-shelf"]);
+    for (const language of ["english", "korean"]) expect(home).toContain(`href="/study/${language}"`);
+    const study = render(<StudyPage learning={learning} />);
+    for (const scene of ["reader", "london", "seoul", "desk", "journey", "garden"]) expect(study).toContain(`illustrations/storybook/${scene}.svg`);
+    expect(study).toContain('class="study-volume-art"');
+    expect(study).not.toContain('class="study-character');
+    expect(render(<GksPage />)).toContain('illustrations/storybook/journey.svg');
+    expect(render(<ChecklistPage progress={{ completedDocuments: [] }} toggleDocument={() => {}} />)).toContain('illustrations/storybook/desk.svg');
+    const profile = render(<ProfilePage score={37} learning={learning} />);
+    expect(profile).toContain('illustrations/storybook/garden.svg');
+    expect(profile).toContain('class="profile-avatar"');
+  });
   it("keeps the home action ahead of support, scholarship status and objectives", () => {
     scenario.locale = locale; scenario.qa = false;
     const html = render(<HomePage score={0} progress={{ completedTasks: [] }} toggleTask={() => {}} learning={learning} />);

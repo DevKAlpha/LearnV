@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { readFileSync } from "node:fs";
 import { StoryFolio } from "@/shared/ui/StoryFolio";
-import { StorybookArt } from "@/shared/ui/StorybookArt";
+import { SceneArt, sceneNames } from "@/shared/ui/SceneArt";
 import { translations } from "@/infrastructure/i18n/translations";
 import { storybookCopy } from "@/infrastructure/i18n/storybook-copy";
 
@@ -25,12 +25,27 @@ it("does not add chrome to exercises or restricted QA links", () => {
   for (const pathname of ["/tests/en", "/tests/ko/ko-reading-01", "/study/written-simulator"])
     expect(renderToStaticMarkup(<StoryFolio pathname={pathname} />)).toBe("");
 });
-it("keeps the new atlas vector-only, decorative and bounded", () => {
-  const html = renderToStaticMarkup(<StorybookArt />);
-  expect(html).toContain('viewBox="0 0 480 340"');
-  expect(html).toContain('aria-hidden="true" focusable="false"');
-  expect(html.length).toBeLessThan(6_000);
-  expect(html).not.toMatch(/<(?:image|filter|script|animate|text)\b|https?:|data:/);
+it.each(sceneNames)("keeps %s a local, bounded, decorative vector loaded independently", (scene) => {
+  const html = renderToStaticMarkup(<SceneArt scene={scene} />);
+  expect(html).toContain('alt=""');
+  expect(html).toContain('aria-hidden="true"');
+  expect(html).toContain('loading="lazy"');
+  expect(html).toContain('decoding="async"');
+  expect(html).toContain(`illustrations/storybook/${scene}.svg`);
+  const svg = readFileSync(new URL(`../../public/illustrations/storybook/${scene}.svg`, import.meta.url), "utf8");
+  expect(svg.length).toBeLessThan(12_000);
+  expect(svg).toMatch(/viewBox="0 0 \d+ \d+"/);
+  expect(svg).not.toMatch(/<(?:image|filter|script|animate|text|foreignObject)\b|href=|data:|@import/);
+  expect(svg).toMatch(/stroke="#[234][0-9a-f]{5}"/);
+});
+it("prioritises only explicitly eager illustrations and restores the original display family", () => {
+  const html = renderToStaticMarkup(<SceneArt scene="reader" eager />);
+  expect(html).toContain('loading="eager"');
+  expect(html).toContain('fetchPriority="high"');
+  const css = readFileSync(new URL("../styles/storybook.css", import.meta.url), "utf8");
+  expect(css).not.toMatch(/Georgia|Times New Roman|serif;/);
+  expect(css).toContain('font-family: var(--font-display)');
+  expect(css).toContain(':is(.brand-mark,.mobile-brand__mark) { display: grid; place-items: center; padding: 0; }');
 });
 it("uses no remote texture, persistent compositor hint or looping page animation", () => {
   const css = readFileSync(new URL("../styles/storybook.css", import.meta.url), "utf8");
