@@ -26,3 +26,9 @@ Son referencias visuales, no una representación exhaustiva de las culturas angl
 5. Actualizar las pruebas de la colección si cambia el número de diseños. Presupuesto actual: menos de 3 KiB por archivo y 25 KiB para el conjunto; los 12 diseños actuales suman 16.079 bytes.
 
 Los elementos `img` son decorativos (`alt=""`, `aria-hidden`), tienen dimensiones explícitas, `loading="lazy"`, `decoding="async"` y no interceptan pulsaciones. Se resuelven desde `BASE_URL`, tanto en producción como en `/qa/`.
+
+## Brillo y nitidez
+
+El brillo es estático y se aplica mediante dos `drop-shadow` CSS: un borde luminoso fino y un halo exterior. No se desenfoca la ilustración original, no se anima el filtro ni se crea una capa permanente con `will-change`. El tema oscuro usa violeta, el claro un ámbar suave y C1 un halo dorado; en móvil el radio baja a 6 px. Con colores forzados o pantallas de actualización lenta se omite el efecto.
+
+Los originales siguen siendo vectores, no PNG ampliados ni versiones reducidas. Su `viewBox` conserva el detalle a distintos tamaños y densidades de pantalla; `image-rendering: auto` evita forzar un acabado pixelado. Aumentar una supuesta resolución en píxeles no añade detalle a un SVG. Para añadir detalle real hay que modificar sus formas, no generar copias 2x o 4x. El brillo no cambia los tamaños ni la posición de las decoraciones y no añade bytes a los archivos SVG.

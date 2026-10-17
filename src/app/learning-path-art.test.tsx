@@ -43,3 +43,19 @@ it("keeps the complete original SVG collection within its static-asset budget", 
   }
   expect(totalBytes).toBeLessThan(25_600);
 });
+
+it("adds a bounded static halo without blurring or rasterizing the original illustration", () => {
+  const css = readFileSync(new URL("../styles/learning-path.css", import.meta.url), "utf8");
+  const artRule = css.match(/\.test-path-page \.test-path-culture-accent \{([^}]+)\}/)![1];
+  expect(artRule.match(/drop-shadow\(/g)).toHaveLength(2);
+  expect(artRule).toContain("image-rendering: auto");
+  expect(artRule).not.toMatch(/\bblur\(|pixelated|crisp-edges|animation:|transition:|will-change:|transform:/);
+});
+
+it("provides lightweight mobile and accessibility fallbacks for the halo", () => {
+  const css = readFileSync(new URL("../styles/learning-path.css", import.meta.url), "utf8");
+  const mobile = css.slice(css.indexOf("@media (max-width: 640px)"), css.indexOf("@media (max-width: 900px)"));
+  expect(mobile).toContain("--path-art-bloom: 6px");
+  expect(mobile).toContain(':root[data-theme="dark"] .test-path-page .test-path-decoration');
+  expect(css).toMatch(/@media \(forced-colors: active\), \(update: slow\)\s*\{\s*\.test-path-page \.test-path-culture-accent \{ filter: none; \}/);
+});

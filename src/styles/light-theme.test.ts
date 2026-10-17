@@ -33,7 +33,7 @@ describe("tulip daylight theme", () => {
   it("changes appearance only, preserving layout, type sizes and interaction", () => {
     const allowed = new Set([
       "color", "background", "border-color", "border-left-color", "box-shadow",
-      "-webkit-backdrop-filter", "backdrop-filter", "opacity",
+      "-webkit-backdrop-filter", "backdrop-filter", "opacity", "filter",
     ]);
     const properties = [...css.matchAll(/(?:[;{]\s*)([-\w]+)\s*:/g)].map((match) => match[1]);
     expect(properties.filter((property) => !property.startsWith("--") && !allowed.has(property))).toEqual([]);
@@ -69,5 +69,26 @@ describe("tulip daylight theme", () => {
     expect(css).toMatch(/\.question-feedback--review\s*\{ border-left-color: var\(--yellow\)/);
     expect(css).toMatch(/\.document-card--done\s*\{\s*border-color: var\(--green\)/);
     expect(css).not.toMatch(/\.written-(?:question|rubric) label\s*[,)]/);
+  });
+
+  it("limits tulip highlight contrast changes to the light profile avatar", () => {
+    const selector = ':root[data-theme="light"] .profile-avatar .brand-tulip';
+    const rule = [...css.matchAll(/([^{}]+)\{([^{}]+)\}/g)]
+      .find((match) => match[1].trim() === selector)![2];
+    for (const token of ["--tulip-petal-light", "--tulip-petal-mid", "--tulip-petal-deep"]) {
+      const value = rule.match(new RegExp(`${token}:\\s*(#[\\da-f]{6})`))![1];
+      expect(contrast("#fffaf6", value)).toBeGreaterThan(contrast("#fffaf6", "#efd8f7"));
+      expect([...css.matchAll(/([^{}]+)\{([^{}]+)\}/g)].filter((match) => match[2].includes(`${token}:`)))
+        .toHaveLength(1);
+    }
+    for (const filtered of css.matchAll(/([^{}]+)\{([^{}]*\bfilter:[^{}]*)\}/g)) {
+      // Do not confuse backdrop-filter declarations with the avatar filter.
+      if (/(?:^|;)\s*filter:/.test(filtered[2])) expect(filtered[1].trim()).toBe(selector);
+    }
+    expect(rule).not.toMatch(/animation:|transition:|width:|height:|transform:/);
+    const mark = readFileSync(new URL("../shared/ui/BrandMark.tsx", import.meta.url), "utf8");
+    expect(mark).toContain('var(--tulip-petal-light, #efd8f7)');
+    expect(mark).toContain('var(--tulip-petal-mid, #c88be0)');
+    expect(mark).toContain('var(--tulip-petal-deep, #8342a5)');
   });
 });
