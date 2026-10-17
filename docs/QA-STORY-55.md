@@ -1,6 +1,6 @@
 # Historia 55 · recorrido de actividades
 
-Revisión: 15 de octubre de 2026.
+Revisión: 16 de octubre de 2026.
 
 ## Historia refinada
 
@@ -12,11 +12,12 @@ Como estudiante de inglés o coreano, quiero reconocer mi siguiente actividad en
 2. La vista inicial muestra tres actividades próximas al paso actual. Una cadena de tres actividades, como C1, se muestra completa desde el principio. La ruta inicial permite consultar las 22 actividades de la destreza.
 3. Los estados superado, disponible y bloqueado se distinguen mediante texto y símbolos. Solo las actividades desbloqueadas tienen enlace. C1 conserva su color dorado en los tres estados y lleva una etiqueta textual.
 4. La numeración visible y la lista accesible coinciden, incluso cuando la ventana comienza por una actividad intermedia. Hay un único paso actual; al completar toda la cadena se ofrecen enlaces de repaso.
-5. Las ilustraciones son decorativas, no interceptan pulsaciones y aparecen en el lado libre del nodo. La vista compacta muestra una; la ruta completa de 22 actividades muestra cinco, espaciadas cada cinco pasos.
+5. Las ilustraciones son decorativas, no interceptan pulsaciones y aparecen en el lado libre del nodo. La vista compacta muestra una; la ruta completa de 22 actividades muestra seis escenas distintas, espaciadas cada cuatro pasos. Hay seis diseños originales por idioma.
 6. Los controles de expansión indican su estado y la lista que controlan. Contraer devuelve el foco al paso actual y respeta la preferencia de movimiento reducido.
 7. La destreza seleccionada se conserva al recargar, salir de una práctica, volver desde resultados o alternar entre el repaso inicial y C1.
 8. Los nodos y textos caben en los anchos comprobados; los selectores de destreza no permanecen sobre el camino en móvil, tableta o pantallas de poca altura.
 9. El recorrido usa SVG y CSS. No incorpora imágenes remotas, mediciones continuas del diseño ni animaciones permanentes.
+10. Las etiquetas bajo los emblemas muestran estado, título y mejor resultado cuando existe. El paso actual ofrece la preparación y el recordatorio de aprendizaje en un desplegable independiente del enlace; no se truncan los títulos para reducir su tamaño.
 
 ## Hallazgos y reparaciones
 
@@ -54,3 +55,13 @@ La adaptación a movimiento reducido se verifica en las pruebas de las preferenc
 Los datos de avance utilizados para estados intermedios y C1 proceden de una página temporal de preparación local, retirada antes de la entrega.
 
 Resultado final: `pnpm run validate` correcto (arquitectura, 414 pruebas en 47 archivos y compilación de producción); `pnpm run build:qa` correcto. Vite mantiene el aviso ya existente sobre el tamaño del paquete inicial, de unos 620 kB; no impide compilar. Se borraron los resultados ficticios del origen local de prueba.
+
+## Ajuste de tarjetas e ilustraciones · 16 de octubre
+
+- Etiquetas de escritorio limitadas a 240 px de ancho; los primeros títulos de inglés ocupan unos 56 px de alto. Se elimina la repetición de la destreza y los textos secundarios permanentes, sin recortar el título ni la mejor puntuación.
+- «Antes de empezar» conserva el foco didáctico, el tipo de intento y el aprendizaje que se vuelve a aplicar. Solo se ofrece en el paso actual disponible; es un `details` nativo fuera del enlace, con un área de pulsación mínima de 44 px y apertura mediante teclado.
+- Colección de 12 SVG a color, con volúmenes y referencias culturales. Los archivos suman 16.079 bytes sin compresión HTTP, se cargan de forma diferida y no añaden una librería de ilustración al JavaScript de la aplicación. SVGO se usa solo en desarrollo.
+- Pruebas adicionales: seis escenas distintas por destreza e idioma, existencia y presupuesto de archivos, ausencia de recursos remotos y contenido ejecutable, rutas de producción y QA, y separación entre consejos y navegación. Véase `src/app/learning-path-art.test.tsx` y `src/app/advanced-path-pages.test.tsx`.
+- Navegador local aislado (`127.0.0.1:5187`): comprobados temas claro y oscuro, inglés y coreano, apertura/cierre de consejos sin navegar, expansión de 22 pasos, seis escenas distintas y bloqueos sin enlace. Acceso al primer ejercicio coreano y salida por su diálogo.
+- Comprobados escritorio de 1280 px, tableta de 768 px, móvil de 390 px y C1 coreano a 320 px: sin desbordamiento horizontal ni títulos recortados en las vistas revisadas; C1 conserva el dorado y sus tres pasos. Los datos ficticios C1 se retiraron después de la prueba. La consola de la pestaña de comprobación no registró errores.
+- Validación completa: arquitectura, 431 pruebas en 48 archivos y compilaciones de producción y QA correctas. Se mantiene el aviso previo del paquete inicial de aproximadamente 620 kB.

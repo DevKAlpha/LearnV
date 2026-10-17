@@ -73,11 +73,7 @@ export function LearningPathMap({ language, phase, skill, stages, progress, icon
           </span>
           <span className="test-node-copy">
             <small>{phase === "advanced" && <span className="test-path-c1-label">C1</span>}{String(index + 1).padStart(2, "0")} · {stateLabel}</small>
-            <span className={`test-mode-pill test-mode-pill--${stage.productionTask.mode}`}>{label}</span>
             <strong>{stage.title}</strong>
-            <span>{stage.focus}</span>
-            {index === currentIndex && !passed && stage.learningBridge && <em>{copy.tests.spiralPrevious}: {stage.learningBridge.recall}</em>}
-            <em>{unlocked ? result ? copy.tests.retakeAttempt : copy.tests.firstAttempt : copy.tests.unlockHint}</em>
             {result && <b>{copy.tests.best} · {result.bestScore}%</b>}
           </span>
         </>;
@@ -87,9 +83,19 @@ export function LearningPathMap({ language, phase, skill, stages, progress, icon
             <svg className={`test-path-connector test-path-connector--${state}`} viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d={`M ${placement.x} 0 C ${placement.x} 48, ${next.x} 52, ${next.x} 100`} /></svg>
             <svg className={`test-path-connector test-path-connector--mobile test-path-connector--${state}`} viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d={`M ${placement.mobileX} 0 C ${placement.mobileX} 48, ${next.mobileX} 52, ${next.mobileX} 100`} /></svg>
           </>}
-          {(expanded ? index % 5 === 0 : visibleIndex === 0) && <span className="test-path-decoration" data-side={placement.decorationSide} aria-hidden="true"><PathCultureAccent language={language} variant={index} /></span>}
-          {unlocked ? <Link className={`test-map-node test-map-node--${state}`} aria-current={index === currentIndex && !passed ? "step" : undefined} to={`/tests/${language}/${stage.id}`}>{content}</Link>
-            : <div className="test-map-node test-map-node--locked" aria-disabled="true">{content}</div>}
+          {(expanded ? index % 4 === 0 : visibleIndex === 0) && <span className="test-path-decoration" data-side={placement.decorationSide} aria-hidden="true"><PathCultureAccent language={language} skill={skill} stageIndex={index} /></span>}
+          <div className="test-path-stop">
+            {unlocked ? <Link className={`test-map-node test-map-node--${state}`} aria-current={index === currentIndex && !passed ? "step" : undefined} to={`/tests/${language}/${stage.id}`}>{content}</Link>
+              : <div className="test-map-node test-map-node--locked" aria-disabled="true" aria-label={`${stage.title} · ${stateLabel}. ${copy.tests.unlockHint}`}>{content}</div>}
+            {index === currentIndex && !passed && unlocked && <details className="test-path-preparation">
+              <summary>{text.preparation}</summary>
+              <div>
+                <strong>{stage.focus}</strong>
+                <p>{result ? copy.tests.retakeAttempt : copy.tests.firstAttempt}</p>
+                {stage.learningBridge && <p>{copy.tests.spiralPrevious}: {stage.learningBridge.recall}</p>}
+              </div>
+            </details>}
+          </div>
         </li>;
       })}
     </ol>
