@@ -22,6 +22,7 @@ describe.each(["es", "en", "ko"] as const)("culture identity integration in %s",
     expect(hub).toContain(`${language === "en" ? 6 : 3}/${TESTS_PER_LANGUAGE}`);
     expect(hub).toContain('id="language-tests"');
     expect(hub).toContain('id="language-materials"');
+    expect(hub).toContain(`illustrations/storybook/${language === "en" ? "london" : "seoul"}.svg`);
     const path = renderToStaticMarkup(<MemoryRouter initialEntries={[`/tests/${language}`]}><Routes><Route path="/tests/:language" element={<TestPathPage />} /></Routes></MemoryRouter>);
     expect(path).toContain(`data-language="${language}"`);
     expect(path).toContain('language-culture--badge');

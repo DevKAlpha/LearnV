@@ -3,6 +3,7 @@ import { documents } from "@/infrastructure/data/gks-2026";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { PageEmblem } from "@/shared/ui/PageEmblem";
 import { getDocumentPlan, type DocumentStageId } from "@/domain/models/document-plan";
+import { SceneArt } from "@/shared/ui/SceneArt";
 
 type Props = {
   progress: { completedDocuments: string[] };
@@ -26,12 +27,15 @@ export function ChecklistPage({ progress, toggleDocument }: Props) {
   };
 
   return (
-    <div className="page">
-      <header className="page-header page-header--decorated">
-        <PageEmblem icon="checklist" tone="green" />
-        <span className="sticker sticker--green">{copy.checklist.sticker}</span>
-        <h1>{titleLineOne}<br />{titleLineTwo}</h1>
-        <p>{copy.checklist.intro}</p>
+    <div className="page page--dossier">
+      <header className="page-header page-header--decorated story-masthead">
+        <div className="story-masthead__copy">
+          <PageEmblem icon="checklist" tone="green" />
+          <span className="sticker sticker--green">{copy.checklist.sticker}</span>
+          <h1>{titleLineOne}<br />{titleLineTwo}</h1>
+          <p>{copy.checklist.intro}</p>
+        </div>
+        <div className="story-masthead__art"><SceneArt scene="desk" eager /><span aria-hidden="true">✎ / 04</span></div>
       </header>
 
       <section className="checklist-progress">
