@@ -19,6 +19,7 @@ import { ThemeToggle } from "@/shared/ui/ThemeToggle";
 import { InterviewChatbotLauncher } from "@/features/interview-chatbot/presentation/InterviewChatbotLauncher";
 import { isLearningQa } from "@/infrastructure/config/app-scope";
 import { QaPreviewNotice } from "@/app/layout/QaPreviewNotice";
+import { StoryFolio } from "@/shared/ui/StoryFolio";
 
 const SectionTour = lazy(() => import("@/app/layout/SectionTour").then((module) => ({ default: module.SectionTour })));
 
@@ -49,7 +50,7 @@ export function App() {
   }, []);
 
   return (
-    <div className="app-shell">
+    <div className="app-shell app-shell--storybook">
       <ScrollToTop />
       <RoutePrefetcher />
       <DynamicFavicon readiness={progress.score} />
@@ -79,6 +80,7 @@ export function App() {
 
       <main id="main-content" className="main-content">
         {isLearningQa && <QaPreviewNotice />}
+        <StoryFolio pathname={location.pathname} />
         <VisualReadinessGate
           key={location.pathname}
           label={copy.common.loading}

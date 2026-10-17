@@ -1,0 +1,145 @@
+/* Story 56: illustrated editorial pages. No remote textures or animated filters. */
+.app-shell--storybook {
+  --story-ink: var(--ink);
+  --story-edge: color-mix(in srgb, var(--story-ink) 28%, var(--paper));
+  --story-faint: color-mix(in srgb, var(--story-ink) 8%, transparent);
+  --story-shadow: 3px 4px 0 color-mix(in srgb, var(--ink) 20%, transparent);
+  background-color: var(--cream);
+  background-image: radial-gradient(var(--story-faint) .55px, transparent .55px);
+  background-size: 7px 7px;
+}
+:root[data-theme="dark"] .app-shell--storybook { --story-ink: #fff8f2; }
+.story-folio {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: min(calc(100% - 40px), 1052px);
+  margin: 16px auto 0;
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--story-edge);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: .06em;
+}
+.story-folio__chapter { display: flex; align-items: center; gap: 10px; }
+.story-folio__chapter b { padding: 6px 8px; border: 1px solid var(--story-edge); background: var(--paper); color: var(--story-ink); font-variant-numeric: tabular-nums; }
+.story-folio__edition { display: flex; align-items: center; gap: 14px; }
+.story-folio__edition i { color: var(--purple); font-style: normal; }
+.app-shell--storybook .page { background: transparent; }
+.app-shell--storybook .page :is(.hero-copy h2, .page-header h1, .profile-hero h1) {
+  font-family: Georgia, "Times New Roman", "Noto Sans KR Variable", serif;
+  font-weight: 700;
+  letter-spacing: -.05em;
+  line-height: 1.04;
+  text-wrap: balance;
+}
+.app-shell--storybook .page :is(.hero-copy h2, .page-header h1, .profile-hero h1):lang(ko) { font-family: var(--font-display); letter-spacing: -.045em; }
+.app-shell--storybook .page :is(.page-header, .profile-hero) { position: relative; margin-bottom: 28px; padding-bottom: 26px; border-bottom: 1px solid var(--story-edge); }
+.app-shell--storybook .page .page-header h1 { font-size: clamp(2.25rem, 5.5vw, 3.8rem); }
+.app-shell--storybook .page :is(.section-heading h2, .document-route h2, .learning-journey h2) { letter-spacing: -.045em; }
+.app-shell--storybook .section-heading { align-items: end; padding-bottom: 12px; border-bottom: 1px solid var(--story-edge); }
+.app-shell--storybook :is(.page-header, .hero-copy) > .sticker { border-radius: 5px 5px 10px 5px; box-shadow: 2px 2px 0 var(--story-edge); }
+.app-shell--storybook .hero-grid {
+  gap: 16px;
+  padding: 28px;
+  border: 1px solid var(--story-edge);
+  border-left: 6px solid var(--purple);
+  border-radius: 6px 26px 26px 6px;
+  background: linear-gradient(115deg, var(--paper) 32%, color-mix(in srgb, var(--yellow) 10%, var(--paper)));
+  box-shadow: var(--story-shadow), 0 12px 28px rgba(40, 22, 32, .06);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.app-shell--storybook .hero-grid::before { inset: 10px; height: auto; border: 1px solid var(--story-faint); border-radius: 0 16px 16px 0; background: none; }
+.app-shell--storybook .hero-grid::after { top: 0; right: 24px; bottom: auto; width: 20px; height: 35px; border: 0; border-radius: 0; background: var(--hot-pink); opacity: .85; clip-path: polygon(0 0,100% 0,100% 100%,50% 80%,0 100%); }
+.app-shell--storybook .hero-copy h2 { margin-top: 24px; font-size: clamp(2.5rem, 5.5vw, 4.4rem); }
+.app-shell--storybook .hero-copy .primary-button { border-radius: 7px; box-shadow: 3px 3px 0 var(--yellow); }
+.story-cover { position: relative; display: grid; align-content: center; min-width: 0; padding: 24px 0 28px; }
+.story-cover__languages { position: absolute; top: 4px; right: 8px; padding: 6px 10px; border: 1px solid var(--story-edge); border-radius: 5px; color: var(--story-ink); background: var(--paper); font-size: 12px; font-weight: 850; }
+.story-cover__languages i { margin-inline: 7px; color: var(--muted); font-style: normal; }
+.storybook-art { display: block; width: 100%; height: auto; overflow: visible; }
+.storybook-art__ink { stroke: #493144; }
+.storybook-art__wash { fill: color-mix(in srgb, var(--blue) 18%, var(--paper)); }
+.storybook-art__page { fill: #fff8e5; }
+.storybook-art__cover { fill: #9f659e; }
+.storybook-art__sun { fill: #f6c557; }
+.storybook-art__rose { fill: #df887b; }
+.storybook-art__petal { fill: #bc7bd4; }
+.storybook-art__green { fill: #9fb999; }
+.storybook-art__sky { fill: #dce8e2; }
+.storybook-art__roof { fill: #7da7a1; }
+.story-cover__caption { max-width: 65%; margin: -12px 0 0 15px; color: var(--muted); font-size: 12px !important; font-weight: 750; }
+.app-shell--storybook .story-cover .progress-orbit { position: absolute; right: -2px; bottom: -6px; width: 120px; height: 120px; margin: 0; }
+.app-shell--storybook .story-cover .orbit-segment { inset: 10px; border-width: 11px; }
+.app-shell--storybook .story-cover .orbit-center { inset: 28px; background: var(--paper); box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.app-shell--storybook .story-cover .orbit-center strong { font-size: 28px; letter-spacing: -.05em; }
+.app-shell--storybook .story-cover .orbit-center span { max-width: 56px; margin-top: 2px; font-size: 8px; line-height: 1.25; text-align: center; }
+.app-shell--storybook .story-cover .orbit-chip { width: 21px; height: 21px; font-size: 9px; box-shadow: 1px 2px 0 var(--story-edge); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.app-shell--storybook .story-cover .orbit-chip--top { top: -1px; left: 50px; }
+.app-shell--storybook .story-cover .orbit-chip--right { top: 50px; right: -1px; }
+.app-shell--storybook .story-cover .orbit-chip--bottom { bottom: -1px; left: 50px; }
+.app-shell--storybook .story-cover .orbit-chip--left { top: 50px; left: -1px; }
+.app-shell--storybook :is(.study-start-card, .learning-journey, .document-route, .language-study-hero, .test-path-header, .profile-score, .gks-daily-radar) {
+  border-radius: 7px 24px 24px 7px;
+  box-shadow: var(--story-shadow);
+}
+.app-shell--storybook :is(.study-language-space, .resource-card, .document-stage, .gks-pathway, .interview-entry, .written-entry) { border-radius: 10px 20px 20px 10px; box-shadow: var(--story-shadow); }
+.app-shell--storybook .study-language-space { border-left-width: 5px; }
+.app-shell--storybook .study-language-space--en { border-left-color: var(--orange); }
+.app-shell--storybook .study-language-space--ko { border-left-color: var(--purple); }
+.app-shell--storybook .resource-card { border-top: 3px solid var(--story-edge); }
+.app-shell--storybook .task-card--priority { border-left: 5px solid var(--purple); }
+.app-shell--storybook .test-skill-header { border-radius: 5px 18px 18px 5px; border-left: 4px solid var(--test-accent); box-shadow: var(--story-shadow); }
+/* Paper surfaces replace the most expensive always-composited glass, not its identity. */
+:root .app-shell--storybook .bottom-nav { border-radius: 15px; background: color-mix(in srgb, var(--paper) 94%, transparent); box-shadow: 0 5px 16px rgba(40,22,32,.12); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); will-change: auto; }
+:root .app-shell--storybook .bottom-nav::before,
+:root .app-shell--storybook .bottom-nav::after { content: none; }
+:root .app-shell--storybook .nav-active-pill { border-radius: 9px; box-shadow: inset 0 -3px 0 var(--yellow); }
+:root .app-shell--storybook .nav-item { border-radius: 9px; }
+.app-shell--storybook .route-stage { animation: story-page-enter 160ms ease-out; }
+@keyframes story-page-enter { from { opacity: .94; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+@media (min-width: 720px) { .app-shell--storybook .hero-grid { grid-template-columns: 1.1fr .9fr; align-items: center; } }
+@media (min-width: 900px) {
+  .app-shell--storybook { border-color: var(--story-edge); border-radius: 10px 26px 26px 10px; box-shadow: 4px 0 0 var(--paper), 5px 0 0 var(--story-edge), 9px 0 0 var(--paper), 10px 0 0 var(--story-edge), 0 14px 36px rgba(40,22,32,.1); }
+  :root .app-shell--storybook .app-chrome { grid-template-columns: minmax(110px, auto) minmax(0, 1fr) auto; gap: 12px; padding-inline: 20px; border-radius: 8px 24px 0 0; background: var(--paper); box-shadow: 0 4px 12px rgba(40,22,32,.05); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .app-shell--storybook .desktop-brand span { max-width: 130px; font-size: 11px; }
+  .app-shell--storybook .desktop-brand .brand-mark { width: 44px; height: 44px; flex-basis: 44px; }
+  :root .app-shell--storybook .bottom-nav { grid-template-columns: repeat(var(--nav-item-count,5), minmax(0,1fr)); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .app-shell--storybook .nav-label { font-size: 12px; }
+  .app-shell--storybook .nav-item { padding-inline: 3px; }
+  .app-shell--storybook .nav-item__motion { gap: 6px; min-width: 0; }
+  .app-shell--storybook .language-option small { display: none; }
+  .app-shell--storybook .language-option { min-width: 36px; min-height: 36px; padding-inline: 7px; }
+  .app-shell--storybook .app-toolbar__controls { gap: 8px; }
+}
+@media (min-width: 900px) and (max-width: 1100px) {
+  :root .app-shell--storybook .app-chrome { gap: 8px; padding-inline: 14px; }
+  .app-shell--storybook .desktop-brand span { display: none; }
+  .app-shell--storybook .desktop-brand { gap: 6px; }
+  .app-shell--storybook .nav-item__motion { flex-direction: column; gap: 2px; }
+  .app-shell--storybook .nav-symbol .app-icon { width: 17px; height: 17px; }
+  .app-shell--storybook .nav-label { font-size: 11px; }
+}
+@media (max-width: 719px) {
+  .story-folio { width: calc(100% - 36px); margin-top: 6px; padding-bottom: 8px; }
+  .story-folio__edition { display: none; }
+  .app-shell--storybook .hero-grid { padding: 24px 20px 20px; gap: 10px; }
+  .app-shell--storybook .hero-copy h2 { font-size: clamp(2.3rem, 10vw, 3.4rem); }
+  .story-cover { width: min(100%, 330px); margin: 0 auto; padding: 12px 0 25px; }
+  .story-cover__languages { top: 0; font-size: 10px; }
+  .story-cover__caption { font-size: 10px !important; }
+  .app-shell--storybook .story-cover .progress-orbit { right: auto; left: 0; bottom: -3px; }
+  .story-cover__caption { max-width: none; margin-left: 128px; }
+  .app-shell--storybook .page :is(.page-header, .profile-hero) { margin-bottom: 20px; padding-bottom: 20px; }
+}
+@media (prefers-reduced-motion: reduce), (update: slow) {
+  .app-shell--storybook .route-stage { animation: none; }
+  :root .app-shell--storybook .bottom-nav { -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+@media (forced-colors: active) {
+  .app-shell--storybook { background-image: none; }
+  .storybook-art { display: none; }
+  .story-cover { min-height: 145px; }
+}

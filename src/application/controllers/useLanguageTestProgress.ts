@@ -5,7 +5,7 @@ import {
   type TestLanguage,
   type TestProgressState,
 } from "../../domain/models/language-test";
-import { practiceTestTracks } from "../../infrastructure/data/practice-tests";
+import { foundationStageMetadata } from "../../infrastructure/data/practice-test-metadata";
 import { getLanguageStageMetadata as getLanguageStage, isLanguageStageMetadataUnlocked as isLanguageStageUnlocked } from "../../infrastructure/data/language-path-summary";
 import { mergeTestProgress, normalizeTestProgress, saveStageAttempt } from "../../domain/models/language-path";
 import { recordLearningError, resolveLearningDiagnosticArea } from "../../infrastructure/data/learning-error-log";
@@ -75,8 +75,8 @@ export function useLanguageTestProgress() {
   }, []);
 
   const totals = useMemo(() => ({
-    en: practiceTestTracks.en.stages.filter((stage) => progress.en[stage.id]?.passed).length,
-    ko: practiceTestTracks.ko.stages.filter((stage) => progress.ko[stage.id]?.passed).length,
+    en: foundationStageMetadata.en.filter((stage) => progress.en[stage.id]?.passed).length,
+    ko: foundationStageMetadata.ko.filter((stage) => progress.ko[stage.id]?.passed).length,
   }), [progress]);
 
   return { progress, totals, recordAttempt };
