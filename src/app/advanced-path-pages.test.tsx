@@ -116,3 +116,19 @@ it("retains advanced completion and replay links rather than resetting to the in
   expect(html).toContain(advancedPathCopy.es.finished);
   expect(html).toContain("href=\"/tests/en/en-c1-reading-03\"");
 });
+
+it.each(["en", "ko"] as const)("keeps compact labels and preparation separate from exercise links for %s", (language) => {
+  scenario.locale = "es";
+  const stages = practiceTestTracks[language].stages.filter((stage) => stage.skill === "reading");
+  scenario.progress[language][stages[0].id] = { attempts: 1, bestScore: 90, lastScore: 90, passed: true, lastCompletedAt: "2026-10-16T12:00:00Z" };
+  scenario.progress[language][stages[1].id] = { attempts: 1, bestScore: 40, lastScore: 40, passed: false, lastCompletedAt: "2026-10-16T12:00:00Z" };
+  const html = pathHtml(`/tests/${language}`);
+  expect(html.match(/<details class="test-path-preparation">/g)).toHaveLength(1);
+  expect(html).toContain('</a><details class="test-path-preparation"><summary>Antes de empezar</summary>');
+  expect(html).toContain(stages[1].focus);
+  expect(html).toContain(translations.es.tests.retakeAttempt);
+  expect(html).toContain(stages[1].learningBridge!.recall);
+  expect(html).toContain(`${translations.es.tests.best} · 40%`);
+  expect(html).not.toContain('class="test-mode-pill"');
+  expect(html).not.toMatch(/<a\b[^>]*>(?:(?!<\/a>)[\s\S])*<details/);
+});
