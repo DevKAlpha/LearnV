@@ -145,7 +145,7 @@ export function getAttemptQuestions(stage: TestStage, attemptNumber: number): Te
 }
 
 export function isStageUnlocked(
-  stages: TestStage[],
+  stages: readonly Pick<TestStage, "id" | "skill">[],
   stageIndex: number,
   progress: Record<string, StageProgress>,
 ): boolean {

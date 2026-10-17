@@ -1,18 +1,16 @@
-import { isStageUnlocked, type StageProgress, type TestLanguage, type TestSkill } from "../../domain/models/language-test";
+import { isStageUnlocked, type StageProgress, type TestLanguage } from "../../domain/models/language-test";
 import { hasCompletedTrack, type LanguagePathPhase } from "../../domain/models/language-path";
-import { practiceTestTracks } from "./practice-tests";
+import { foundationStageMetadata, advancedStageMetadata } from "./practice-test-metadata";
+export { ADVANCED_TESTS_PER_SKILL, advancedStageMetadata } from "./practice-test-metadata";
 
-export const ADVANCED_TESTS_PER_SKILL = 3;
-const skills: TestSkill[] = ["reading", "grammar", "vocabulary", "writing", "listening", "pronunciation"];
-export const advancedStageMetadata = Object.fromEntries((["en", "ko"] as const).map((language) => [language,
-  skills.flatMap((skill) => Array.from({ length: ADVANCED_TESTS_PER_SKILL }, (_, index) => ({
-    id: `${language}-c1-${skill}-${String(index + 1).padStart(2, "0")}`, skill, order: index + 1, passScore: 80,
-  }))),
-])) as Record<TestLanguage, Array<{ id: string; skill: TestSkill; order: number; passScore: number }>>;
+const stagesById = {
+  en: new Map([...foundationStageMetadata.en, ...advancedStageMetadata.en].map((stage) => [stage.id, stage])),
+  ko: new Map([...foundationStageMetadata.ko, ...advancedStageMetadata.ko].map((stage) => [stage.id, stage])),
+};
 
 /** Entry pages need IDs/counters only. Full advanced texts stay in the lazy test-page graph. */
 export function getLanguagePathSummary(language: TestLanguage, progress: Record<string, StageProgress>, requested?: LanguagePathPhase) {
-  const foundation = practiceTestTracks[language];
+  const foundation = { stages: foundationStageMetadata[language] };
   const advancedUnlocked = hasCompletedTrack(foundation, progress);
   const phase: LanguagePathPhase = advancedUnlocked && requested !== "foundation" ? "advanced" : "foundation";
   const stages = phase === "advanced" ? advancedStageMetadata[language] : foundation.stages;
@@ -21,12 +19,11 @@ export function getLanguagePathSummary(language: TestLanguage, progress: Record<
 }
 
 export function getLanguageStageMetadata(language: TestLanguage, stageId: string) {
-  return practiceTestTracks[language].stages.find((stage) => stage.id === stageId)
-    ?? advancedStageMetadata[language].find((stage) => stage.id === stageId);
+  return stagesById[language].get(stageId);
 }
 
 export function isLanguageStageMetadataUnlocked(language: TestLanguage, stageId: string, progress: Record<string, StageProgress>) {
-  const foundation = practiceTestTracks[language];
+  const foundation = { stages: foundationStageMetadata[language] };
   const baseIndex = foundation.stages.findIndex((stage) => stage.id === stageId);
   if (baseIndex >= 0) return isStageUnlocked(foundation.stages, baseIndex, progress);
   if (!hasCompletedTrack(foundation, progress)) return false;

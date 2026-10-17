@@ -3,11 +3,11 @@ import { isStageUnlocked, type StageProgress, type TestLanguage, type TestProgre
 export type LanguagePathPhase = "foundation" | "advanced";
 
 /** Completion is derived from known IDs, never a stored level flag or a raw count. */
-export function completedStages(track: TestTrack, progress: Record<string, StageProgress>): number {
+export function completedStages(track: { stages: readonly Pick<TestStage, "id">[] }, progress: Record<string, StageProgress>): number {
   return track.stages.filter((stage) => progress[stage.id]?.passed === true).length;
 }
 
-export function hasCompletedTrack(track: TestTrack, progress: Record<string, StageProgress>): boolean {
+export function hasCompletedTrack(track: { stages: readonly Pick<TestStage, "id">[] }, progress: Record<string, StageProgress>): boolean {
   return track.stages.length > 0 && completedStages(track, progress) === track.stages.length;
 }
 

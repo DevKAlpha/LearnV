@@ -9,6 +9,8 @@ import { LearningJourneyPanel } from "@/shared/ui/LearningJourneyPanel";
 import { buildHomeTaskPlan, type HomeTaskPlanEntry } from "@/domain/models/home-plan";
 import type { StudyTask } from "@/domain/models/gks";
 import { isLearningQa } from "@/application/qa/qa-learning-scope";
+import { StorybookArt } from "@/shared/ui/StorybookArt";
+import { storybookCopy } from "@/infrastructure/i18n/storybook-copy";
 
 type Props = {
   score: number;
@@ -82,7 +84,12 @@ export function HomePage({ score, progress, toggleTask, learning }: Props) {
           <p>{copy.home.intro}</p>
           <Link to={primaryRoute} className="primary-button">{taskPlan.primary ? copy.home.start : copy.home.continueLearning} <span>→</span></Link>
         </div>
-        <ProgressOrbit score={score} />
+        <div className="story-cover">
+          <span className="story-cover__languages" aria-hidden="true">EN <i>↔</i> 한</span>
+          <StorybookArt />
+          <p className="story-cover__caption">{storybookCopy[locale].atlas}</p>
+          <ProgressOrbit score={score} />
+        </div>
       </section>
 
       <section className="section-block home-today" aria-labelledby="today-title">
