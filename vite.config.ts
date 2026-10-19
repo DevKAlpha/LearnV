@@ -37,6 +37,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
+      manifest: true,
       target: "es2022",
       cssCodeSplit: true,
       sourcemap: true,
