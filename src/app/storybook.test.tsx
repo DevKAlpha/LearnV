@@ -36,7 +36,25 @@ it.each(sceneNames)("keeps %s a local, bounded, decorative vector loaded indepen
   expect(svg.length).toBeLessThan(12_000);
   expect(svg).toMatch(/viewBox="0 0 \d+ \d+"/);
   expect(svg).not.toMatch(/<(?:image|filter|script|animate|text|foreignObject)\b|href=|data:|@import/);
+  expect(svg).not.toMatch(/\bon\w+\s*=|javascript:/i);
   expect(svg).toMatch(/stroke="#[234][0-9a-f]{5}"/);
+});
+describe.each(["/", "/LearnV/", "/LearnV/qa/"])("illustrations deployed under %s", (base) => {
+  it.each(sceneNames)("keeps %s under the deployment prefix with the SVG's actual aspect ratio", (scene) => {
+    vi.stubEnv("BASE_URL", base);
+    try {
+      const html = renderToStaticMarkup(<SceneArt scene={scene} />);
+      const svg = readFileSync(new URL(`../../public/illustrations/storybook/${scene}.svg`, import.meta.url), "utf8");
+      const [, width, height] = svg.match(/viewBox="0 0 (\d+) (\d+)"/)!;
+      expect(html).toContain(`src="${base}illustrations/storybook/${scene}.svg"`);
+      expect(html).toContain(`width="${width}" height="${height}"`);
+      expect(html).not.toMatch(/tabindex=|role=|title=/i);
+    } finally { vi.unstubAllEnvs(); }
+  });
+});
+it("keeps all six scene transfers inside their combined size budget", () => {
+  const bytes = sceneNames.reduce((total, scene) => total + readFileSync(new URL(`../../public/illustrations/storybook/${scene}.svg`, import.meta.url)).byteLength, 0);
+  expect(bytes).toBeLessThan(20_000);
 });
 it("prioritises only explicitly eager illustrations and restores the original display family", () => {
   const html = renderToStaticMarkup(<SceneArt scene="reader" eager />);
@@ -53,4 +71,39 @@ it("uses no remote texture, persistent compositor hint or looping page animation
   expect(css).toContain("prefers-reduced-motion: reduce");
   expect(css).toContain("forced-colors: active");
   expect(css).toContain('--story-ink: #fff8f2');
+});
+it("keeps the flat hero rule strong enough to override both legacy theme rules", () => {
+  const css = readFileSync(new URL("../styles/storybook.css", import.meta.url), "utf8");
+  const rule = css.match(/:root \.app-shell--storybook \.hero-grid\s*\{([^}]+)\}/)?.[1];
+  expect(rule).toContain("backdrop-filter: none");
+  expect(rule).toContain("background: var(--paper)");
+  expect(css).toContain("grid-template-columns: 44px minmax(0,1fr) auto");
+  expect(css).toContain(".desktop-brand > div:last-child { display: none; }");
+});
+it("gives cultural text the full column when its old thumbnail is hidden", () => {
+  const css = readFileSync(new URL("../styles/storybook.css", import.meta.url), "utf8");
+  const rule = css.match(/\.study-language-space \.language-culture\s*\{([^}]+)\}/)?.[1];
+  expect(rule).toContain("grid-template-columns: minmax(0,1fr)");
+});
+it("keeps the starter illustration away from full-width tablet and mobile steps", () => {
+  const css = readFileSync(new URL("../styles/storybook.css", import.meta.url), "utf8");
+  expect(css).toMatch(/@media \(max-width: 899px\)\s*\{\s*\.study-start-illustration\s*\{\s*display: none;/);
+  expect(css).toMatch(/@media \(min-width: 720px\) and \(max-width: 899px\)\s*\{\s*:root \.app-shell--storybook \.study-start-card \{ padding-inline-end: 24px;/);
+});
+it("gives language volumes a contrasting keyboard focus ring in either theme", () => {
+  const css = readFileSync(new URL("../styles/storybook.css", import.meta.url), "utf8");
+  const rule = css.match(/:root \.app-shell--storybook \.story-volume:focus-visible\s*\{([^}]+)\}/)?.[1];
+  expect(rule).toContain("outline: 3px solid var(--story-ink)");
+  expect(rule).toContain("outline-offset: 5px");
+});
+it("collapses decorative frames in forced colours without hiding progress or actions", () => {
+  const css = readFileSync(new URL("../styles/storybook.css", import.meta.url), "utf8");
+  const forced = css.slice(css.lastIndexOf("@media (forced-colors: active)"));
+  for (const art of [".story-panels", ".story-masthead__art", ".study-volume-art", ".story-lab-art", ".story-volume__art", ".language-culture__scene"])
+    expect(forced).toContain(art);
+  expect(forced).toContain("display: none");
+  expect(forced).toContain("grid-template-columns: minmax(0,1fr)");
+  expect(forced).toContain("outline-color: Highlight");
+  expect(forced).toContain(".study-start-card { padding-inline-end: 24px; }");
+  expect(forced).not.toMatch(/progress-orbit|primary-button|nav-item|profile-score|__copy/);
 });
