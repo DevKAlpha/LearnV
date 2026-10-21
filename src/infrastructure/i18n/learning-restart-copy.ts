@@ -1,0 +1,47 @@
+export const learningRestartCopy = {
+  es: {
+    kicker: "Módulo 00 · vuelve a la base", title: { en: "Retoma inglés desde B1", ko: "Retoma coreano desde TOPIK I" },
+    intro: "¿Hace tiempo que no practicas? Recupera confianza con tres microlecciones antes de la ruta completa.",
+    level: { en: "Repaso B1 · 10–15 min a tu ritmo", ko: "Repaso inicial TOPIK I · 10–15 min a tu ritmo" },
+    scope: "Es un repaso breve, no un curso completo ni una certificación. Es opcional y no cambia tus resultados, desbloqueos ni intentos de la ruta existente.",
+    start: "Empezar el repaso", resume: "Continuar el repaso", review: "Volver a repasar", close: "Cerrar repaso", completed: "microlecciones completadas",
+    how: "Cómo se aprende aquí", method: [
+      "Observa el ejemplo y lee la explicación. Prueba una respuesta; equivocarte no resta puntos.",
+      "Comprueba, entiende el feedback y aplica la idea en tu cuaderno. Puedes repetir sin límite ni cronómetro.",
+      "Después abre la ruta completa: seis habilidades, tarea propia + revisión + preguntas. Se aprueba con 80 % y la revisión de producción; se desbloquea el siguiente ejercicio de esa habilidad. Repetir conserva tu mejor resultado.",
+    ],
+    help: "Idioma de las ayudas", lesson: "Microlección", example: "Ejemplo", check: "Comprobar respuesta", choose: "Elige una respuesta antes de comprobar.",
+    correct: "¡Bien! Idea recuperada.", retry: "Todavía no. Vuelve al ejemplo y prueba otra opción.", apply: "Llévalo a tu práctica", next: "Siguiente microlección", done: "Repaso completado", doneText: "Ya conoces la dinámica. Continúa con una actividad de la ruta existente o vuelve a repasar cuando lo necesites.",
+    path: "Abrir la ruta completa", saved: "Se guarda solo el avance en este dispositivo. Tus respuestas de práctica no se almacenan.", unsaved: "No se pudo guardar en este navegador. Puedes seguir, pero el avance se perderá al salir.",
+  },
+  en: {
+    kicker: "Module 00 · back to basics", title: { en: "Restart English from B1", ko: "Restart Korean from TOPIK I" },
+    intro: "Been away from learning? Rebuild confidence with three micro-lessons before the full path.",
+    level: { en: "B1 refresher · 10–15 min at your pace", ko: "TOPIK I starter refresher · 10–15 min at your pace" },
+    scope: "A short refresher, not a full course or a certification. Optional: it does not change results, unlocks or attempts in your existing path.",
+    start: "Start refresher", resume: "Continue refresher", review: "Review again", close: "Close refresher", completed: "micro-lessons completed",
+    how: "How learning works here", method: [
+      "Look at the example and read the explanation. Try an answer; mistakes do not cost points.",
+      "Check, understand the feedback and apply the idea in your notebook. Repeat without limits or a timer.",
+      "Then open the full path: six skills, your own task + review + questions. Pass with 80% and the production review; the next exercise in that skill unlocks. Repeating keeps your best result.",
+    ],
+    help: "Help language", lesson: "Micro-lesson", example: "Example", check: "Check answer", choose: "Choose an answer before checking.",
+    correct: "Well done! Idea refreshed.", retry: "Not yet. Look at the example and try another option.", apply: "Put it into practice", next: "Next micro-lesson", done: "Refresher complete", doneText: "You know how it works now. Continue with one activity in the existing path or review again whenever you need.",
+    path: "Open the full path", saved: "Only completion is saved on this device. Practice answers are not stored.", unsaved: "This browser could not save your progress. You can continue, but it will be lost when you leave.",
+  },
+  ko: {
+    kicker: "모듈 00 · 기초로 돌아가기", title: { en: "B1부터 영어 다시 시작하기", ko: "TOPIK I부터 한국어 다시 시작하기" },
+    intro: "학습을 잠시 쉬었나요? 전체 경로 전에 짧은 세 수업으로 자신감을 되찾으세요.",
+    level: { en: "B1 복습 · 내 속도로 10–15분", ko: "TOPIK I 기초 복습 · 내 속도로 10–15분" },
+    scope: "전체 과정이나 자격 인증이 아닌 짧은 복습입니다. 선택 사항이며 기존 경로의 결과, 잠금 해제와 응시 횟수를 바꾸지 않습니다.",
+    start: "복습 시작", resume: "복습 계속하기", review: "다시 복습하기", close: "복습 닫기", completed: "개 수업 완료",
+    how: "학습은 이렇게 진행돼요", method: [
+      "예문과 설명을 읽고 답을 골라 보세요. 틀려도 감점은 없습니다.",
+      "정답을 확인하고 피드백을 이해한 뒤 공책에 적용해 보세요. 시간제한 없이 반복할 수 있습니다.",
+      "이후 전체 경로에서 여섯 기능을 연습합니다. 직접 수행한 과제 + 검토 + 문항으로 구성되며 80%와 수행 검토를 충족하면 같은 기능의 다음 활동이 열립니다. 반복해도 최고 결과는 유지됩니다.",
+    ],
+    help: "도움말 언어", lesson: "짧은 수업", example: "예문", check: "답 확인", choose: "확인하기 전에 답을 선택하세요.",
+    correct: "잘했어요! 핵심을 되찾았어요.", retry: "아직 아니에요. 예문을 보고 다른 답을 골라 보세요.", apply: "직접 적용하기", next: "다음 수업", done: "복습 완료", doneText: "학습 방식을 익혔습니다. 기존 경로에서 한 활동을 시작하거나 필요할 때 다시 복습하세요.",
+    path: "전체 경로 열기", saved: "완료한 수업만 이 기기에 저장합니다. 연습 답변은 저장하지 않습니다.", unsaved: "이 브라우저에서 저장하지 못했습니다. 계속할 수 있지만 나가면 진행 상황이 사라집니다.",
+  },
+} as const;

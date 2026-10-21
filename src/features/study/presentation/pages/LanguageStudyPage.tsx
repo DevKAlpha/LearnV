@@ -8,6 +8,7 @@ import { getLanguagePathSummary as getLanguagePath } from "@/infrastructure/data
 import { advancedPathCopy } from "@/infrastructure/i18n/advanced-path-copy";
 import { ResourceLibrary } from "@/features/study/presentation/components/ResourceLibrary";
 import { TestTrackCards } from "@/features/study/presentation/components/TestTrackCards";
+import { LanguageRestartModule } from "@/features/study/presentation/components/LanguageRestartModule";
 import { AppIcon } from "@/shared/ui/AppIcon";
 import { LanguageCulture } from "@/shared/ui/LanguageCulture";
 import { getMotionScrollBehavior } from "@/shared/ui/motion-preferences";
@@ -77,6 +78,7 @@ export function LanguageStudyPage({ language }: LanguageStudyPageProps) {
       </nav>
 
       <div id="language-tests">
+        <LanguageRestartModule key={language} language={language} />
         <TestTrackCards languages={[language]} />
       </div>
       <ResourceLibrary language={language} />
