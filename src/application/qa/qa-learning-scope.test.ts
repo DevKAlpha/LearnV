@@ -32,7 +32,7 @@ describe("QA learning scope", () => {
   });
   it("normalizes allowed QA paths and isolates progress without migrating or deleting production data", () => {
     expect(resolveAppRoute("/study/korean/", true)).toBe("/study/korean");
-    for (const key of ["learnv-progress-v1", "learnv-language-tests-v1", "learnv-learning-journey-v1", "learnv-resource-progress-v1", "learnv-written-simulator-v1", "learnv-interview-practice-v1", "learnv-interview-score-log-v1"]) {
+    for (const key of ["learnv-progress-v1", "learnv-language-tests-v1", "learnv-learning-journey-v1", "learnv-resource-progress-v1", "learnv-written-simulator-v1", "learnv-interview-practice-v1", "learnv-interview-score-log-v1", "learnv-restart-v1:en", "learnv-restart-v1:ko"]) {
       expect(scopedStorageKey(key, true)).toBe(`qa:${key}`);
       expect(scopedStorageKey(key, false)).toBe(key);
     }

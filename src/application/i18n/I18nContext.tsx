@@ -5,6 +5,7 @@ import { translations, type TranslationCatalog } from "../../infrastructure/i18n
 const STORAGE_KEY = "learnv-locale-v1";
 
 type I18nContextValue = {
+  baseLocale: Locale;
   locale: Locale;
   setLocale: (locale: Locale) => void;
   setLearningLocale: (locale: Locale | null) => void;
@@ -39,11 +40,12 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   }, [locale]);
 
   const value = useMemo(() => ({
+    baseLocale,
     locale,
     setLocale: setBaseLocale,
     setLearningLocale,
     copy: translations[locale],
-  }), [locale]);
+  }), [locale, baseLocale]);
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
