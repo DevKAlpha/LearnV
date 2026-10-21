@@ -5,7 +5,7 @@ import { useLocation } from "react-router-dom";
 import type { Locale, LocalizedText } from "@/domain/models/i18n";
 import { localize } from "@/domain/models/i18n";
 import { isLearningQa } from "@/application/qa/qa-learning-scope";
-import { TESTS_PER_LANGUAGE, TESTS_PER_SKILL } from "@/infrastructure/data/practice-tests";
+import { TESTS_PER_LANGUAGE, TESTS_PER_SKILL } from "@/infrastructure/data/practice-test-metadata";
 
 type TourStep = { selector: string; title: LocalizedText; text: LocalizedText };
 type TourDefinition = { key: string; title: LocalizedText; steps: TourStep[] };

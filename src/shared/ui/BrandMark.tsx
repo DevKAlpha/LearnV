@@ -21,9 +21,9 @@ export function BrandMark({ className, showLetter = true, ...props }: BrandMarkP
     >
       <defs>
         <linearGradient id={gradientId} x1="18" y1="9" x2="54" y2="55" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#efd8f7" />
-          <stop offset="0.42" stopColor="#c88be0" />
-          <stop offset="1" stopColor="#8342a5" />
+          <stop stopColor="var(--tulip-petal-light, #efd8f7)" />
+          <stop offset="0.42" stopColor="var(--tulip-petal-mid, #c88be0)" />
+          <stop offset="1" stopColor="var(--tulip-petal-deep, #8342a5)" />
         </linearGradient>
         <linearGradient id={highlightId} x1="20" y1="18" x2="46" y2="49" gradientUnits="userSpaceOnUse">
           <stop stopColor="#fff" stopOpacity="0.92" />

@@ -302,6 +302,16 @@
 :root[data-theme="light"] .orbit-chip--top { background: #ffc4b0; }
 :root[data-theme="light"] .route-loader { background: var(--cream); }
 
+/* Only the profile avatar: deeper petals make its white highlights visible on cream. */
+:root[data-theme="light"] .profile-avatar .brand-tulip {
+  --tulip-petal-light: #d8b3ea;
+  --tulip-petal-mid: #b875d0;
+  --tulip-petal-deep: #81429d;
+  filter: drop-shadow(0 0 1px rgba(99, 45, 121, .32))
+    drop-shadow(0 0 8px rgba(151, 88, 176, .28))
+    drop-shadow(3px 5px 0 rgba(55, 31, 59, .18));
+}
+
 @media (min-width: 900px) {
   :root[data-theme="light"] .app-chrome :is(.app-toolbar, .test-theme-toolbar) {
     background: transparent;

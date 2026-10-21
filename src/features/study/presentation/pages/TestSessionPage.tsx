@@ -5,16 +5,24 @@ import { useI18n } from "@/application/i18n/I18nContext";
 import {
   getAttemptQuestions,
   gradeAttempt,
-  isStageUnlocked,
   listeningReadiness,
+  meetsWritingRequirements,
   type TestResult,
 } from "@/domain/models/language-test";
 import { practiceTestTracks as languageTestTracks } from "@/infrastructure/data/practice-tests";
+import { getLanguageStage, getNextLanguageStage, getLanguagePath, isLanguageStageUnlocked } from "@/infrastructure/data/language-paths";
+import { advancedPathCopy } from "@/infrastructure/i18n/advanced-path-copy";
 import { recordLearningError } from "@/infrastructure/data/learning-error-log";
 import { AppIcon } from "@/shared/ui/AppIcon";
 import { LiteYouTube } from "@/shared/ui/LiteYouTube";
 import { SpiralLearningNote } from "../components/SpiralLearningNote";
 import { ScriptListeningPractice } from "../components/ScriptListeningPractice";
+import { LearningAudioPlayer } from "../components/LearningAudioPlayer";
+import { learningVoiceCopy } from "@/infrastructure/i18n/learning-voice-copy";
+import { LanguageCulture } from "@/shared/ui/LanguageCulture";
+import { getMotionScrollBehavior } from "@/shared/ui/motion-preferences";
+import { createLearningRecording } from "@/infrastructure/audio/learning-recording";
+import { getLanguagePathHref } from "../components/learning-path-layout";
 
 function formatTime(seconds: number) {
   const minutes = Math.floor(seconds / 60);
@@ -25,27 +33,28 @@ export function TestSessionPage() {
   const { language: languageParam, stageId } = useParams();
   const language = languageParam === "ko" ? "ko" : "en";
   const invalidLanguage = languageParam !== "en" && languageParam !== "ko";
-  const track = languageTestTracks[language];
-  const requestedIndex = track.stages.findIndex((stage) => stage.id === stageId);
-  const invalidStage = requestedIndex < 0;
-  const stageIndex = invalidStage ? 0 : requestedIndex;
-  const stage = track.stages[stageIndex];
-  const { copy } = useI18n();
+  const requestedStage = getLanguageStage(language, stageId ?? "");
+  const invalidStage = !requestedStage;
+  const stage = requestedStage ?? languageTestTracks[language].stages[0];
+  const { copy, locale } = useI18n();
   const { progress, recordAttempt } = useLanguageTestProgress();
   const trackProgress = progress[language];
   const stageProgress = trackProgress[stage.id];
-  const unlocked = isStageUnlocked(track.stages, stageIndex, trackProgress);
+  const unlocked = isLanguageStageUnlocked(language, stage.id, trackProgress);
+  const path = getLanguagePath(language, trackProgress);
+  const advancedCopy = advancedPathCopy[locale];
+  const isAdvancedStage = stage.id.startsWith(`${language}-c1-`);
   const [runNumber, setRunNumber] = useState(() => (stageProgress?.attempts ?? 0) + 1);
   const questions = useMemo(() => getAttemptQuestions(stage, runNumber), [stage, runNumber]);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [result, setResult] = useState<TestResult | null>(null);
   const [secondsLeft, setSecondsLeft] = useState(stage.estimatedMinutes * 60);
-  const [audioFallback, setAudioFallback] = useState(false);
   const [productionDone, setProductionDone] = useState(false);
   const [writtenResponse, setWrittenResponse] = useState("");
   const [recordingUrl, setRecordingUrl] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
+  const [recordingPending, setRecordingPending] = useState(false);
   const [microphoneError, setMicrophoneError] = useState(false);
   const [speakingPractised, setSpeakingPractised] = useState(false);
   const [mediaReviewed, setMediaReviewed] = useState(false);
@@ -55,9 +64,7 @@ export function TestSessionPage() {
   const [checklistChecks, setChecklistChecks] = useState<boolean[]>(() => stage.productionTask.checklist.map(() => false));
   const [showExitDialog, setShowExitDialog] = useState(false);
   const finishedRef = useRef(false);
-  const recorderRef = useRef<MediaRecorder | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const recordingChunksRef = useRef<Blob[]>([]);
+  const recordingRef = useRef<ReturnType<typeof createLearningRecording> | null>(null);
   const timed = runNumber > 1;
   const question = questions[questionIndex];
   const selectedAnswer = answers[question.id];
@@ -65,21 +72,19 @@ export function TestSessionPage() {
   const selectedFeedback = selectedAnswer === undefined ? null : question.optionFeedback[selectedAnswer];
   const minimumCharacters = stage.productionTask.minimumCharacters ?? 0;
   const wordCount = writtenResponse.trim() ? writtenResponse.trim().split(/\s+/u).length : 0;
-  const meetsWritingLength = language === "en" && stage.productionTask.minimumWords
-    ? wordCount >= stage.productionTask.minimumWords && wordCount <= (stage.productionTask.maximumWords ?? Number.POSITIVE_INFINITY)
-    : writtenResponse.trim().length >= minimumCharacters;
+  const meetsWritingLength = meetsWritingRequirements(language, stage.productionTask, writtenResponse);
   const checklistComplete = checklistChecks.every(Boolean);
   const listening = listeningReadiness(stage.productionTask, mediaReviewed, checklistComplete, scriptPlayed, scriptTranscript);
   const productionVerified = stage.productionTask.mode === "listening"
     ? listening.verified
     : stage.productionTask.mode === "writing"
       ? meetsWritingLength && checklistComplete
-      : Boolean(recordingUrl && recordingReviewed && checklistComplete);
+    : Boolean(!isRecording && !recordingPending && recordingUrl && recordingReviewed && checklistComplete);
   const canContinueProduction = stage.productionTask.mode === "listening"
     ? listening.canContinue
     : stage.productionTask.mode === "writing"
     ? meetsWritingLength && checklistComplete
-    : Boolean((recordingUrl && recordingReviewed && checklistComplete) || (speakingPractised && checklistComplete));
+    : Boolean(!isRecording && !recordingPending && ((recordingUrl && recordingReviewed && checklistComplete) || (speakingPractised && checklistComplete)));
   const totalSteps = questions.length + 1;
   const currentStep = productionDone ? questionIndex + 2 : 1;
 
@@ -89,7 +94,6 @@ export function TestSessionPage() {
     setAnswers({});
     setResult(null);
     setSecondsLeft(stage.estimatedMinutes * 60);
-    setAudioFallback(false);
     setProductionDone(false);
     setWrittenResponse("");
     setSpeakingPractised(false);
@@ -101,21 +105,42 @@ export function TestSessionPage() {
     setShowExitDialog(false);
     setMicrophoneError(false);
     setIsRecording(false);
+    setRecordingPending(false);
     setRecordingUrl((current) => {
       if (current) URL.revokeObjectURL(current);
       return null;
     });
-    if (recorderRef.current?.state === "recording") recorderRef.current.stop();
-    streamRef.current?.getTracks().forEach((track) => track.stop());
+    recordingRef.current?.dispose();
     finishedRef.current = false;
-    window.speechSynthesis?.cancel();
   }, [stage.id]);
 
-  useEffect(() => () => {
-    window.speechSynthesis?.cancel();
-    if (recorderRef.current?.state === "recording") recorderRef.current.stop();
-    streamRef.current?.getTracks().forEach((track) => track.stop());
-  }, []);
+  useEffect(() => {
+    const recorder = createLearningRecording({
+      getStream: () => navigator.mediaDevices.getUserMedia({ audio: true }),
+      makeRecorder: (stream) => new MediaRecorder(stream),
+      onPending: () => { setRecordingPending(true); setRecordingReviewed(false); },
+      onStarted: () => {
+        setRecordingPending(false); setIsRecording(true); setSpeakingPractised(false);
+        setRecordingUrl((current) => { if (current) URL.revokeObjectURL(current); return null; });
+      },
+      onRecorded: (recording) => {
+        setRecordingUrl(URL.createObjectURL(recording)); setRecordingReviewed(false); setIsRecording(false);
+      },
+      onFailure: (code, error) => {
+        setMicrophoneError(true); setRecordingPending(false); setIsRecording(false);
+        recordLearningError({ area: language === "ko" ? "korean-learning" : "english-learning", severity: "warning", code, error, context: { stageId: stage.id } });
+      },
+    });
+    recordingRef.current = recorder;
+    const suspend = () => { recorder.dispose(); setRecordingPending(false); setIsRecording(false); };
+    const visibility = () => { if (document.visibilityState === "hidden") suspend(); };
+    window.addEventListener("pagehide", suspend);
+    document.addEventListener("visibilitychange", visibility);
+    return () => {
+      window.removeEventListener("pagehide", suspend); document.removeEventListener("visibilitychange", visibility);
+      recorder.dispose(); if (recordingRef.current === recorder) recordingRef.current = null;
+    };
+  }, [stage.id, language]);
 
   useEffect(() => () => {
     if (recordingUrl) URL.revokeObjectURL(recordingUrl);
@@ -127,7 +152,7 @@ export function TestSessionPage() {
     const graded = gradeAttempt(language, stage, questions, answers, productionVerified);
     recordAttempt(language, stage.id, graded.score, graded.passed);
     setResult(graded);
-    document.getElementById("test-session-top")?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("test-session-top")?.scrollIntoView({ behavior: getMotionScrollBehavior() });
   }, [answers, language, productionVerified, questions, recordAttempt, stage]);
 
   useEffect(() => {
@@ -166,36 +191,7 @@ export function TestSessionPage() {
       return;
     }
     setQuestionIndex((current) => current + 1);
-    setAudioFallback(false);
-    document.getElementById("test-session-top")?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const playAudio = () => {
-    if (!question.audioText || !("speechSynthesis" in window)) {
-      setAudioFallback(true);
-      recordLearningError({
-        area: language === "ko" ? "korean-learning" : "english-learning",
-        severity: "warning",
-        code: "speech-synthesis-unavailable",
-        context: { stageId: stage.id, questionId: question.id },
-      });
-      return;
-    }
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(question.audioText);
-    utterance.lang = language === "ko" ? "ko-KR" : "en-GB";
-    utterance.rate = runNumber > 1 ? 1.03 : 0.94;
-    utterance.onerror = (event) => {
-      setAudioFallback(true);
-      recordLearningError({
-        area: language === "ko" ? "korean-learning" : "english-learning",
-        severity: "warning",
-        code: "speech-synthesis-failed",
-        message: "Speech synthesis could not play the learning prompt.",
-        context: { stageId: stage.id, questionId: question.id, eventType: event.error },
-      });
-    };
-    window.speechSynthesis.speak(utterance);
+    document.getElementById("test-session-top")?.scrollIntoView({ behavior: getMotionScrollBehavior() });
   };
 
   const startRecording = async () => {
@@ -211,49 +207,17 @@ export function TestSessionPage() {
       return;
     }
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      streamRef.current = stream;
-      recordingChunksRef.current = [];
-      if (recordingUrl) URL.revokeObjectURL(recordingUrl);
-      setRecordingUrl(null);
-      const recorder = new MediaRecorder(stream);
-      recorderRef.current = recorder;
-      recorder.ondataavailable = (event) => {
-        if (event.data.size > 0) recordingChunksRef.current.push(event.data);
-      };
-      recorder.onstop = () => {
-        const recording = new Blob(recordingChunksRef.current, { type: recorder.mimeType || "audio/webm" });
-        setRecordingUrl(URL.createObjectURL(recording));
-        setRecordingReviewed(false);
-        setIsRecording(false);
-        stream.getTracks().forEach((track) => track.stop());
-      };
-      recorder.start();
-      setSpeakingPractised(false);
-      setIsRecording(true);
-    } catch (error) {
-      setMicrophoneError(true);
-      setIsRecording(false);
-      streamRef.current?.getTracks().forEach((track) => track.stop());
-      recordLearningError({
-        area: language === "ko" ? "korean-learning" : "english-learning",
-        severity: "warning",
-        code: "microphone-start-failed",
-        error,
-        context: { stageId: stage.id },
-      });
-    }
+    await recordingRef.current?.start();
   };
 
   const stopRecording = () => {
-    if (recorderRef.current?.state === "recording") recorderRef.current.stop();
+    recordingRef.current?.stop();
   };
 
   const continueFromProduction = () => {
     if (!canContinueProduction) return;
     setProductionDone(true);
-    document.getElementById("test-session-top")?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("test-session-top")?.scrollIntoView({ behavior: getMotionScrollBehavior() });
   };
 
   const restartTest = () => {
@@ -262,7 +226,6 @@ export function TestSessionPage() {
     setAnswers({});
     setResult(null);
     setSecondsLeft(stage.estimatedMinutes * 60);
-    setAudioFallback(false);
     setProductionDone(false);
     setWrittenResponse("");
     setSpeakingPractised(false);
@@ -273,29 +236,33 @@ export function TestSessionPage() {
     setChecklistChecks(stage.productionTask.checklist.map(() => false));
     setMicrophoneError(false);
     setIsRecording(false);
-    if (recorderRef.current?.state === "recording") recorderRef.current.stop();
-    streamRef.current?.getTracks().forEach((track) => track.stop());
+    setRecordingPending(false);
+    recordingRef.current?.dispose();
     setRecordingUrl((current) => {
       if (current) URL.revokeObjectURL(current);
       return null;
     });
     finishedRef.current = false;
-    document.getElementById("test-session-top")?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("test-session-top")?.scrollIntoView({ behavior: getMotionScrollBehavior() });
   };
 
   if (result) {
     const mastered = [...new Set(result.questions.filter((item) => item.correct).map((item) => item.question.skill))];
     const improvements = [...new Set(result.questions.filter((item) => !item.correct).map((item) => item.question.improvement))];
     const sessionLesson = result.questions.find((item) => !item.correct)?.question ?? result.questions[0]?.question;
-    const nextStage = track.stages.find((candidate) => candidate.skill === stage.skill && candidate.order === stage.order + 1);
+    const nextStage = getNextLanguageStage(language, stage.id, trackProgress);
+    const promoted = result.passed && !isAdvancedStage && path.advancedUnlocked;
 
     return (
       <div className={`page test-result-page test-result-page--${language}`} id="test-session-top">
         <header className="result-hero">
+          <LanguageCulture language={language} variant="badge" />
           <span className="eyebrow">{copy.tests.resultKicker}</span>
           <span className="result-hero__icon" aria-hidden="true"><AppIcon name={result.passed ? "test" : "refresh"} /></span>
           <h1>{copy.tests.resultTitle}</h1>
           <p>{result.passed ? copy.tests.resultPass : copy.tests.resultRetry}</p>
+          {promoted && <aside className="advanced-path-notice" role="status"><strong>{language === "en" ? advancedCopy.title : advancedCopy.koreanTitle}</strong><p>{advancedCopy.intro}</p><small>{advancedCopy.notice}</small></aside>}
+          {isAdvancedStage && path.complete && <p role="status">{advancedCopy.finished}</p>}
           <div className="result-score-row">
             <div><strong>{result.score}</strong><small>/ 100 · {copy.tests.score}</small></div>
             <div><strong>{result.productionVerified ? "✓" : "!"}</strong><small>{result.productionVerified ? (language === "ko" ? "수행 증거 확인" : "Evidence verified") : (language === "ko" ? "수행 증거 부족" : "Evidence incomplete")}</small></div>
@@ -331,6 +298,8 @@ export function TestSessionPage() {
           <span className="eyebrow">{copy.tests.productiveTask}</span>
           <h2 id="production-review-title">{stage.productionTask.mode === "speaking" ? copy.tests.pronunciation : stage.productionTask.mode === "listening" ? copy.tests.listening : copy.tests.writing}</h2>
           <p>{stage.productionTask.prompt}</p>
+          {!result.productionVerified && stage.productionTask.mode === "listening" && stage.productionTask.listeningScript && !scriptPlayed && <p role="status">{copy.tests.transcriptOnlyNotice}</p>}
+          {!result.productionVerified && stage.productionTask.mode === "speaking" && <p role="status">{learningVoiceCopy[locale].recordingEvidenceNotice}</p>}
           {stage.productionTask.mode === "writing" && writtenResponse && (
             <blockquote><small>{copy.tests.yourDraft}</small>{writtenResponse}</blockquote>
           )}
@@ -368,7 +337,7 @@ export function TestSessionPage() {
         <div className="result-actions">
           {result.passed && nextStage && <Link className="test-primary-action" to={`/tests/${language}/${nextStage.id}`}>{copy.tests.nextTest}<span>→</span></Link>}
           <button className="test-secondary-action" type="button" onClick={restartTest}>{copy.tests.repeatTest}<span>↻</span></button>
-          <Link className="test-text-action" to={`/tests/${language}`}>{copy.tests.backPath}</Link>
+          <Link className="test-text-action" to={getLanguagePathHref(language, stage.skill, !isAdvancedStage && !promoted ? "foundation" : "advanced")}>{copy.tests.backPath}</Link>
         </div>
       </div>
     );
@@ -376,6 +345,8 @@ export function TestSessionPage() {
 
   return (
     <div className={`page test-session-page test-session-page--${language}`} id="test-session-top">
+      <LanguageCulture language={language} variant="badge" />
+      {isAdvancedStage && !productionDone && <aside className="advanced-path-notice"><strong>{language === "en" ? advancedCopy.title : advancedCopy.koreanTitle}</strong><p>{advancedCopy.criteria}</p><details><summary>{advancedCopy.scope}</summary><small>{advancedCopy.notice}</small></details></aside>}
       <header className="session-topbar">
         <button className="session-exit-button" type="button" aria-label={copy.tests.sessionExit} onClick={() => setShowExitDialog(true)}>×</button>
         <div className="session-progress" aria-label={`${currentStep} ${copy.tests.of} ${totalSteps}`}><span style={{ width: `${(currentStep / totalSteps) * 100}%` }} /></div>
@@ -386,7 +357,7 @@ export function TestSessionPage() {
       </header>
 
       {!productionDone ? (
-      <main className="question-stage production-stage">
+      <section className="question-stage production-stage" aria-labelledby="production-stage-title">
         <div className="question-meta">
           <span>{copy.tests.productiveTask} · {stage.productionTask.mode === "speaking" ? copy.tests.pronunciation : stage.productionTask.mode === "listening" ? copy.tests.listening : copy.tests.writing}</span>
           <span>{copy.tests.attempt} {runNumber}</span>
@@ -394,7 +365,7 @@ export function TestSessionPage() {
         <span className={`production-mode-icon production-mode-icon--${stage.productionTask.mode}`} aria-hidden="true">
           <AppIcon name={stage.productionTask.mode === "speaking" ? "speaking" : stage.productionTask.mode === "listening" ? "listening" : "writing"} />
         </span>
-        <h1>{stage.productionTask.prompt}</h1>
+        <h1 id="production-stage-title">{stage.productionTask.prompt}</h1>
         {stage.productionTask.context && <blockquote className="question-passage production-context">{stage.productionTask.context}</blockquote>}
         <p className="production-instructions">{stage.productionTask.instructions}</p>
         <SpiralLearningNote stage={stage} />
@@ -410,7 +381,7 @@ export function TestSessionPage() {
             />
             <div>
               <span>{language === "en" ? `${wordCount} words` : `${writtenResponse.trim().length} ${copy.tests.characters}`}</span>
-              <strong>{language === "en" && stage.productionTask.minimumWords ? `${stage.productionTask.minimumWords}–${stage.productionTask.maximumWords} words` : `${copy.tests.minimum} · ${minimumCharacters}`}</strong>
+              <strong>{language === "en" && stage.productionTask.minimumWords ? `${stage.productionTask.minimumWords}–${stage.productionTask.maximumWords} words` : stage.productionTask.maximumCharacters ? `${minimumCharacters}–${stage.productionTask.maximumCharacters} ${copy.tests.characters}` : `${copy.tests.minimum} · ${minimumCharacters}`}</strong>
             </div>
           </div>
         ) : stage.productionTask.mode === "listening" ? (
@@ -428,6 +399,7 @@ export function TestSessionPage() {
                 <p>{stage.media.creator}</p>
                 <a href={stage.media.sourceUrl} target="_blank" rel="noreferrer">{copy.tests.openYoutube} ↗</a>
                 <small>{language === "ko" ? `권장 구간 · ${stage.media.excerptMinutes ?? 3}분` : `Recommended excerpt · ${stage.media.excerptMinutes ?? 3} min`}</small>
+                <small>{learningVoiceCopy[locale].external}</small>
               </div>
             </article>
           ) : stage.productionTask.listeningScript ? (
@@ -441,14 +413,7 @@ export function TestSessionPage() {
           )
         ) : (
           <div className="speaking-recorder">
-            <button type="button" className="model-audio-button" onClick={() => {
-              if (!("speechSynthesis" in window)) return;
-              window.speechSynthesis.cancel();
-              const utterance = new SpeechSynthesisUtterance(stage.questions[0]?.passage ?? stage.productionTask.prompt);
-              utterance.lang = language === "ko" ? "ko-KR" : "en-GB";
-              utterance.rate = 0.88;
-              window.speechSynthesis.speak(utterance);
-            }}>▶ {language === "ko" ? "발음 모델 듣기" : "Listen to a pronunciation model"}</button>
+            <LearningAudioPlayer text={stage.questions[0]?.passage ?? stage.productionTask.prompt} language={language} stageId={stage.id} label={learningVoiceCopy[locale].model} disabled={isRecording || recordingPending} />
             <div className={isRecording ? "recording-status recording-status--active" : "recording-status"}>
               <span aria-hidden="true" />
               <strong>{isRecording ? copy.tests.recording : `${stage.productionTask.targetSeconds ?? 60}s`}</strong>
@@ -456,7 +421,7 @@ export function TestSessionPage() {
             {isRecording ? (
               <button type="button" className="record-button record-button--stop" onClick={stopRecording}>{copy.tests.stopRecording}</button>
             ) : (
-              <button type="button" className="record-button" onClick={startRecording}>{recordingUrl ? copy.tests.recordAgain : copy.tests.startRecording}</button>
+              <button type="button" className="record-button" disabled={recordingPending} onClick={startRecording}>{recordingPending ? learningVoiceCopy[locale].recordingPending : recordingUrl ? copy.tests.recordAgain : copy.tests.startRecording}</button>
             )}
             {recordingUrl && <audio controls src={recordingUrl} aria-label={copy.tests.playRecording} />}
             {recordingUrl && <label className="practice-without-recording"><input type="checkbox" checked={recordingReviewed} onChange={(event) => setRecordingReviewed(event.target.checked)} /><span>{language === "ko" ? "녹음을 다시 듣고 한 가지 개선점을 찾았습니다." : "I listened back and identified one improvement."}</span></label>}
@@ -474,21 +439,18 @@ export function TestSessionPage() {
         </aside>
         {stage.productionTask.mode === "listening" && <label className="production-evidence-check"><input type="checkbox" checked={mediaReviewed} onChange={(event) => setMediaReviewed(event.target.checked)} /><span>{scriptTranscript && !scriptPlayed ? copy.tests.transcriptPractice : language === "ko" ? "권장 구간을 듣고 답의 근거를 메모했습니다." : "I listened to the recommended excerpt and noted evidence for my answer."}</span></label>}
         <p className="production-privacy">{copy.tests.productionNotice}</p>
-      </main>
+      </section>
       ) : (
-      <main className="question-stage">
+      <section className="question-stage" aria-labelledby="review-stage-title">
         <div className="question-meta">
           <span>{copy.tests.question} {questionIndex + 1} {copy.tests.of} {questions.length}</span>
           <span>{copy.tests.attempt} {runNumber} · {question.skill}</span>
         </div>
         {question.passage && <blockquote className="question-passage">{question.passage}</blockquote>}
         {question.audioText && (
-          <div className="question-audio">
-            <button type="button" onClick={playAudio}><span aria-hidden="true">▶</span>{copy.tests.playAudio}</button>
-            {audioFallback && <p><small>{copy.tests.audioUnavailable}</small>{question.audioText}</p>}
-          </div>
+          <LearningAudioPlayer key={question.id} text={question.audioText} language={language} stageId={stage.id} questionId={question.id} />
         )}
-        <h1>{question.prompt}</h1>
+        <h1 id="review-stage-title">{question.prompt}</h1>
         <div className="answer-options" role="radiogroup" aria-label={question.prompt}>
           {question.options.map((option, optionIndex) => (
             <label className={`${selectedAnswer === optionIndex ? "answer-option answer-option--selected" : "answer-option"}${selectedAnswer !== undefined ? " answer-option--locked" : ""}`} key={option}>
@@ -509,7 +471,7 @@ export function TestSessionPage() {
             </dl>
           </aside>
         )}
-      </main>
+      </section>
       )}
 
       <footer className="session-action-bar">
@@ -523,7 +485,7 @@ export function TestSessionPage() {
           <section role="dialog" aria-modal="true" aria-labelledby="test-exit-title">
             <h2 id="test-exit-title">{language === "ko" ? "연습을 종료할까요?" : "Leave this practice?"}</h2>
             <p>{language === "ko" ? "현재 답변과 녹음은 저장되지 않습니다." : "Your current answers and recording are not saved."}</p>
-            <div><button type="button" onClick={() => setShowExitDialog(false)}>{language === "ko" ? "계속 연습" : "Keep practising"}</button><Link to={`/tests/${language}`}>{language === "ko" ? "종료" : "Leave"}</Link></div>
+            <div><button type="button" onClick={() => setShowExitDialog(false)}>{language === "ko" ? "계속 연습" : "Keep practising"}</button><Link to={getLanguagePathHref(language, stage.skill, isAdvancedStage ? "advanced" : "foundation")}>{language === "ko" ? "종료" : "Leave"}</Link></div>
           </section>
         </div>
       )}

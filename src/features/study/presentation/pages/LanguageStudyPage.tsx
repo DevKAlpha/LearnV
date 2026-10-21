@@ -4,25 +4,31 @@ import { useLanguageTestProgress } from "@/application/controllers/useLanguageTe
 import { useI18n } from "@/application/i18n/I18nContext";
 import type { TestLanguage } from "@/domain/models/language-test";
 import { learningResources } from "@/infrastructure/data/learning-resources";
-import { TESTS_PER_LANGUAGE } from "@/infrastructure/data/practice-tests";
+import { getLanguagePathSummary as getLanguagePath } from "@/infrastructure/data/language-path-summary";
+import { advancedPathCopy } from "@/infrastructure/i18n/advanced-path-copy";
 import { ResourceLibrary } from "@/features/study/presentation/components/ResourceLibrary";
 import { TestTrackCards } from "@/features/study/presentation/components/TestTrackCards";
 import { AppIcon } from "@/shared/ui/AppIcon";
+import { LanguageCulture } from "@/shared/ui/LanguageCulture";
+import { getMotionScrollBehavior } from "@/shared/ui/motion-preferences";
 
 type LanguageStudyPageProps = {
   language: TestLanguage;
 };
 
 export function LanguageStudyPage({ language }: LanguageStudyPageProps) {
-  const { copy } = useI18n();
-  const { totals } = useLanguageTestProgress();
+  const { copy, locale } = useI18n();
+  const { totals, progress } = useLanguageTestProgress();
+  const path = getLanguagePath(language, progress[language]);
+  const advanced = path.phase === "advanced";
+  const advancedCopy = advancedPathCopy[locale];
   const isEnglish = language === "en";
   const resourceCount = learningResources.filter((resource) => resource.languages.includes(language)).length;
   const otherLanguage = isEnglish ? "korean" : "english";
   const [activeSection, setActiveSection] = useState<"tests" | "materials">("tests");
   const scrollToSection = (id: "language-tests" | "language-materials") => {
     setActiveSection(id === "language-tests" ? "tests" : "materials");
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.getElementById(id)?.scrollIntoView({ behavior: getMotionScrollBehavior(), block: "start" });
   };
 
   useEffect(() => {
@@ -53,12 +59,13 @@ export function LanguageStudyPage({ language }: LanguageStudyPageProps) {
           <span className="language-study-symbol" aria-hidden="true">{isEnglish ? "A+" : "한"}</span>
           <div>
             <span className="eyebrow">{copy.study.independentSpace}</span>
-            <h1>{isEnglish ? copy.study.englishSpaceTitle : copy.study.koreanSpaceTitle}</h1>
-            <p>{isEnglish ? copy.study.englishSpaceText : copy.study.koreanSpaceText}</p>
+            <h1>{advanced ? (isEnglish ? advancedCopy.title : advancedCopy.koreanTitle) : isEnglish ? copy.study.englishSpaceTitle : copy.study.koreanSpaceTitle}</h1>
+            <p>{advanced ? advancedCopy.intro : isEnglish ? copy.study.englishSpaceText : copy.study.koreanSpaceText}</p>
           </div>
         </div>
+        <LanguageCulture language={language} variant="hero" illustrated />
         <div className="language-study-facts">
-          <span><strong>{totals[language]}/{TESTS_PER_LANGUAGE}</strong>{copy.study.testsPassed}</span>
+          <span><strong>{advanced ? path.completed : totals[language]}/{path.track.stages.length}</strong>{copy.study.testsPassed}</span>
           <span><strong>{resourceCount}</strong>{copy.study.resourcesAvailable}</span>
         </div>
       </header>

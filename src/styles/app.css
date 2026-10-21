@@ -85,7 +85,7 @@ html {
 
 body {
   margin: 0;
-  min-width: 320px;
+  min-width: min(320px, 100%);
   min-height: 100vh;
   overflow-x: clip;
   background:
@@ -4222,13 +4222,6 @@ html[data-theme="dark"] .document-stage > summary > i { border-color: rgba(255,2
 
 .test-map-node--locked { filter: grayscale(1); opacity: 0.62; }
 .test-map-node--locked .test-node-core { background: #c8c8c4; color: #747471; }
-.test-map-node--open .test-node-ring { animation: node-pulse 2.3s ease-in-out infinite; }
-
-@keyframes node-pulse {
-  0%, 100% { box-shadow: 0 13px 28px rgba(35,39,51,0.15), 0 0 0 0 var(--test-soft); }
-  50% { box-shadow: 0 13px 28px rgba(35,39,51,0.15), 0 0 0 10px transparent; }
-}
-
 .test-source-note {
   display: flex;
   align-items: center;

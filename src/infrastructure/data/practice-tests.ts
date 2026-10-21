@@ -331,5 +331,4 @@ export const practiceTestTracks: Record<TestLanguage, TestTrack> = {
   ko: makeTrack("ko"),
 };
 
-export const TESTS_PER_SKILL = practiceTestTracks.en.stages.filter((stage) => stage.skill === "reading").length;
-export const TESTS_PER_LANGUAGE = practiceTestTracks.en.stages.length;
+export { TESTS_PER_SKILL, TESTS_PER_LANGUAGE } from "./practice-test-metadata";

@@ -8,6 +8,7 @@ import { LiteYouTube } from "@/shared/ui/LiteYouTube";
 import { StatusBadge } from "@/shared/ui/StatusBadge";
 import { Link } from "react-router-dom";
 import { BrandMark } from "@/shared/ui/BrandMark";
+import { SceneArt } from "@/shared/ui/SceneArt";
 const CertificationOpportunityCatalog = lazy(() => import("./CertificationOpportunityCatalog").then((module) => ({ default: module.CertificationOpportunityCatalog })));
 
 const dateLocales = { es: "es-ES", en: "en-GB", ko: "ko-KR" } as const;
@@ -57,13 +58,14 @@ export function GksPage() {
 
   return (
     <div className="page page--gks-radar" data-visual-pending={radar.isLoading ? "true" : undefined}>
-      <header className="page-header page-header--gks">
-        <div>
+      <header className="page-header page-header--gks story-masthead">
+        <div className="story-masthead__copy">
           <span className="sticker sticker--pink">{copy.gks.sticker}</span>
           <h1>{titleLineOne}<br />{titleLineTwo}</h1>
           <p>{copy.gks.intro}</p>
+          <div className="tulip-mark" aria-hidden="true"><BrandMark showLetter={false} /></div>
         </div>
-        <div className="tulip-mark" aria-hidden="true"><BrandMark showLetter={false} /></div>
+        <div className="story-masthead__art"><SceneArt scene="journey" eager /><span aria-hidden="true">GKS / 02</span></div>
       </header>
 
       <section className="gks-daily-radar" aria-labelledby="daily-radar-title">
