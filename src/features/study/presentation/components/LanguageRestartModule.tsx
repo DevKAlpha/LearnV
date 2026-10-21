@@ -1,36 +1,42 @@
 import { useEffect, useId, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useI18n } from "@/application/i18n/I18nContext";
 import type { Locale } from "@/domain/models/i18n";
 import type { TestLanguage } from "@/domain/models/language-test";
 import { restartAnswerIsCorrect } from "@/domain/models/learning-restart";
-import { restartLessons } from "@/infrastructure/data/learning-restart-lessons";
-import { readRestartProgress, restartStorageKey, saveRestartLesson } from "@/infrastructure/data/learning-restart-progress";
+import { restartLessons, restartTargetId } from "@/infrastructure/data/learning-restart-lessons";
+import { getLanguageStageMetadata } from "@/infrastructure/data/language-path-summary";
+import { readRestartHelpLocale, readRestartProgress, restartStorageKey, saveRestartHelpLocale, saveRestartLesson } from "@/infrastructure/data/learning-restart-progress";
 import { learningRestartCopy } from "@/infrastructure/i18n/learning-restart-copy";
 import { SceneArt } from "@/shared/ui/SceneArt";
+import { RestartToolCard } from "./RestartToolCard";
 import "@/styles/learning-restart.css";
 
 /** Keyed by language in the parent: a language switch never reuses another draft. */
 export function LanguageRestartModule({ language }: { language: TestLanguage }) {
   const { baseLocale, locale } = useI18n();
-  const [helpLocale, setHelpLocale] = useState<Locale>(baseLocale ?? locale);
+  const [helpLocale, setHelpLocale] = useState<Locale>(() => readRestartHelpLocale(language, baseLocale ?? locale));
   const copy = learningRestartCopy[helpLocale];
   const lessons = restartLessons[language];
+  const [searchParams] = useSearchParams();
+  const requested = lessons.findIndex((item) => item.id === searchParams.get("intro"));
   const [completed, setCompleted] = useState(() => readRestartProgress(language));
-  const [open, setOpen] = useState(false);
-  const [active, setActive] = useState(() => Math.max(0, lessons.findIndex((lesson) => !completed.includes(lesson.id))));
+  const [open, setOpen] = useState(requested >= 0);
+  const [active, setActive] = useState(() => requested >= 0 ? requested : Math.max(0, lessons.findIndex((lesson) => !completed.includes(lesson.id))));
   const [selected, setSelected] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
   const [saved, setSaved] = useState(true);
   const heading = useRef<HTMLHeadingElement>(null);
   const methodHeading = useRef<HTMLHeadingElement>(null);
   const opening = useRef(false);
-  const focusLesson = useRef(false);
+  const focusLesson = useRef(requested >= 0);
   const id = useId();
   const lesson = lessons[active];
   const help = lesson.help[helpLocale];
   const correct = checked && restartAnswerIsCorrect(lesson.correctIndex, selected);
   const complete = completed.length === lessons.length;
+  const targetId = restartTargetId(language, lesson);
+  const passScore = getLanguageStageMetadata(language, targetId)!.passScore;
 
   useEffect(() => {
     const sync = (event: StorageEvent) => {
@@ -69,7 +75,7 @@ export function LanguageRestartModule({ language }: { language: TestLanguage }) 
       <div className="learning-restart__art"><SceneArt scene={language === "en" ? "reader" : "seoul"} /></div>
     </div>
     <div className="learning-restart__toolbar">
-      <label>{copy.help}<select value={helpLocale} onChange={(event) => setHelpLocale(event.target.value as Locale)}>
+      <label>{copy.help}<select value={helpLocale} onChange={(event) => { const next = event.target.value as Locale; setHelpLocale(next); saveRestartHelpLocale(language, next); }}>
         <option value="es">Español</option><option value="en">English</option><option value="ko">한국어</option>
       </select></label>
       <span className="learning-restart__progress"><progress max={lessons.length} value={completed.length} aria-label={copy.completed} /><b>{completed.length}/{lessons.length}</b> {copy.completed}</span>
@@ -81,7 +87,7 @@ export function LanguageRestartModule({ language }: { language: TestLanguage }) 
     {open && <div id={`${id}-body`} className="learning-restart__body">
       <aside className="learning-restart__method" aria-labelledby={`${id}-method`}>
         <h3 id={`${id}-method`} ref={methodHeading} tabIndex={-1}>{copy.how}</h3>
-        <ol>{copy.method.map((step) => <li key={step}>{step}</li>)}</ol>
+        <ol>{copy.method.map((step) => <li key={step}>{step.replace("{score}", String(passScore))}</li>)}</ol>
       </aside>
       <nav className="learning-restart__lessons" aria-label={copy.lesson}>
         {lessons.map((item, index) => <button type="button" key={item.id} aria-current={active === index ? "step" : undefined} onClick={() => chooseLesson(index)}>
@@ -92,6 +98,8 @@ export function LanguageRestartModule({ language }: { language: TestLanguage }) 
         <span className="eyebrow">{copy.lesson} {active + 1}/{lessons.length}</span>
         <h3 ref={heading} tabIndex={-1}>{help.title}</h3>
         <p>{help.lesson}</p>
+        <p className="learning-restart__connection"><strong>{copy.usedIn}: </strong><span lang={language}>{lesson.targetTitle}</span></p>
+        <RestartToolCard lesson={lesson} locale={helpLocale} language={language} />
         <figure><figcaption>{copy.example}</figcaption><blockquote lang={language}>{lesson.example}</blockquote></figure>
         <fieldset><legend>{help.question}</legend>
           {lesson.options.map((option, index) => <label key={option} className={selected === index ? "is-selected" : ""}>
@@ -105,7 +113,7 @@ export function LanguageRestartModule({ language }: { language: TestLanguage }) 
           {checked && <div className={`learning-restart__feedback${correct ? " is-correct" : ""}`}>
             <strong>{correct ? copy.correct : copy.retry}</strong>
             <p>{help.feedback}</p>
-            {correct && <><h4>{copy.apply}</h4><p>{help.transfer}</p></>}
+            {correct && <><h4>{copy.apply}</h4><p>{help.transfer}</p><Link className="learning-restart__action" to={`/tests/${language}/${targetId}`}>{copy.applyNow}<span aria-hidden="true">→</span></Link></>}
           </div>}
         </div>
         {correct && active < lessons.length - 1 && <button className="learning-restart__action" type="button" onClick={() => chooseLesson(active + 1)}>{copy.next}<span aria-hidden="true">→</span></button>}

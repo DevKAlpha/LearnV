@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { completeRestartLesson, normalizeRestartProgress, restartAnswerIsCorrect, restartLessonIds } from "@/domain/models/learning-restart";
-import { restartLessons } from "./learning-restart-lessons";
-import { readRestartProgress, restartStorageKey, saveRestartLesson } from "./learning-restart-progress";
+import { getRestartLessonForStage, restartLessons, restartTargetId } from "./learning-restart-lessons";
+import { practiceTestTracks } from "./practice-tests";
+import { isStageUnlocked } from "@/domain/models/language-test";
+import { readRestartHelpLocale, readRestartProgress, restartStorageKey, saveRestartHelpLocale, saveRestartLesson } from "./learning-restart-progress";
 
 const environment = vi.hoisted(() => ({ qa: false }));
 vi.mock("@/infrastructure/config/app-scope", () => ({ scopedStorageKey: (key: string) => environment.qa ? `qa:${key}` : key }));
@@ -34,6 +36,31 @@ describe.each(["en", "ko"] as const)("story 57 refresher %s", (language) => {
     expect(saveRestartLesson(language, "meaning", [], storage).progress).toEqual(restartLessonIds);
     expect([...values.keys()]).toEqual([restartStorageKey(language)]);
   });
+  it("connects three concise tools to real, initially unlocked activities without copying their answers", () => {
+    const stages = practiceTestTracks[language].stages;
+    expect(restartLessons[language].map((lesson) => lesson.skill)).toEqual(["reading", "grammar", "writing"]);
+    for (const lesson of restartLessons[language]) {
+      const id = restartTargetId(language, lesson);
+      const index = stages.findIndex((stage) => stage.id === id);
+      expect(index).toBeGreaterThanOrEqual(0);
+      expect(isStageUnlocked(stages, index, {})).toBe(true);
+      const stage = stages[index];
+      expect(stage.title).toBe(lesson.targetTitle);
+      expect(stage.skill).toBe(lesson.skill);
+      expect(stage.passScore).toBe(70);
+      expect(stage.productionTask.mode).toBe("writing");
+      expect(lesson.example).not.toBe(stage.productionTask.context);
+      expect(lesson.frame).toContain("…");
+      expect(getRestartLessonForStage(language, id)).toBe(lesson);
+      for (const locale of ["es", "en", "ko"] as const) {
+        expect(lesson.help[locale].lesson.length).toBeLessThan(300);
+        expect(lesson.help[locale].tool.length).toBeLessThan(220);
+        expect(lesson.help[locale].transfer).toContain(lesson.targetTitle);
+      }
+    }
+    for (const id of [`${language}-reading-02`, `${language}-c1-writing-01`, "unknown"])
+      expect(getRestartLessonForStage(language, id)).toBeUndefined();
+  });
 });
 
 it.each([null, {}, "meaning", 7, ["unknown"], [null, {}, 3]].map((input) => [input]))("rejects malformed saved progress %j", (input) => {
@@ -65,4 +92,19 @@ it("merges a stale view and preserves working state when storage is unavailable"
   expect(readRestartProgress("en", denied)).toEqual([]);
   expect(saveRestartLesson("en", "form", ["meaning"], denied)).toEqual({ saved: false, progress: ["meaning", "form"] });
   expect(readRestartProgress("ko", { getItem: () => "bad JSON" })).toEqual([]);
+});
+it("carries help preferences across intro and practice without leaking languages, QA scope or corrupt data", () => {
+  const values = new Map<string, string>();
+  const storage = { getItem: (key: string) => values.get(key) ?? null, setItem: (key: string, value: string) => values.set(key, value) };
+  saveRestartHelpLocale("en", "es", storage);
+  expect(readRestartHelpLocale("en", "en", storage)).toBe("es");
+  expect(readRestartHelpLocale("ko", "ko", storage)).toBe("ko");
+  expect(readRestartProgress("en", storage)).toEqual([]);
+  environment.qa = true;
+  expect(readRestartHelpLocale("en", "en", storage)).toBe("en");
+  saveRestartHelpLocale("en", "ko", storage);
+  expect(readRestartHelpLocale("en", "en", storage)).toBe("ko");
+  expect(readRestartHelpLocale("ko", "es", { getItem: () => "invalid" })).toBe("es");
+  expect(readRestartHelpLocale("en", "es", { getItem: () => { throw new Error("denied"); } })).toBe("es");
+  expect(() => saveRestartHelpLocale("en", "es", { setItem: () => { throw new Error("denied"); } })).not.toThrow();
 });

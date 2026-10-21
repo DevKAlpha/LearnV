@@ -1,6 +1,6 @@
 # Historia 57 · Retomar inglés B1 y coreano TOPIK I
 
-Revisión: 20 de octubre de 2026. Implementación en `story57-learning-restart`, a partir del QA sincronizado `65e82f5`. Este informe documenta la validación local previa a su publicación.
+Entrega original: 20 de octubre de 2026, rama `story57-learning-restart`, a partir del QA sincronizado `65e82f5`. Las secciones iniciales conservan esa validación. El ajuste del 21 de octubre se documenta al final y sustituye el contenido pedagógico original.
 
 ## Alcance y ubicación
 
@@ -37,3 +37,23 @@ Servidor estático local con prefijo `/LearnV/qa/`, no solo servidor de desarrol
 - Se reutilizan los SVG locales con el prefijo QA; no se añaden imágenes bitmap ni animaciones. No hay errores de consola de la app durante el recorrido.
 
 La verificación manual no sustituye una auditoría completa de accesibilidad ni una evaluación pedagógica de un curso B1/TOPIK I completo. No se declara una mejora de velocidad medida con Lighthouse.
+
+## Ajuste del 21 de octubre · herramientas que se usan en la ruta
+
+Implementación en `story57-intro-bridge`, desde producción `8a2bc85`, preparada para integrar en `main`. Se mantienen tres microlecciones por idioma, con orientación de 6–8 minutos (estimación, no límite). Se sustituyen temas genéricos por un puente directo hacia las primeras actividades:
+
+| Herramienta | Inglés | Coreano |
+| --- | --- | --- |
+| Lugar, acción y pistas del texto | `en-reading-01` · Read a campus notice | `ko-reading-01` · 표지판 읽기 |
+| Elegir una forma a partir de una señal | `en-grammar-01` · Routine or action now | `ko-grammar-01` · 이에요/예요 선택 |
+| Idea/objetivo → razón/acción → ejemplo | `en-writing-01` · A focused paragraph | `ko-writing-01` · TOPIK I 문장 연결 |
+
+- Cada lección enseña una regla, una plantilla breve y un ejemplo distinto del ejercicio real; después de comprobar una respuesta correcta permite aplicar la herramienta en su actividad concreta. Las seis actividades existen y están disponibles desde el inicio; no se evita ningún bloqueo.
+- `RestartToolCard` es el mismo componente y los mismos datos en ambos módulos. En la actividad aparece plegado bajo «Tras tu borrador», solo durante la producción del primer intento; desaparece durante las preguntas y no se ofrece en reintentos cronometrados, otras actividades o el reto C1. No modifica criterios ni inserta texto o respuestas.
+- Volver al repaso abre la microlección correcta en otra pestaña para conservar el borrador. El parámetro `intro` solo acepta los tres IDs conocidos; no añade rutas nuevas.
+- Se conserva el progreso de la introducción y de la ruta. Ahora también se guarda la preferencia de ayuda en `learnv-restart-v1:<idioma>:help`, igualmente aislada con `qa:`; las respuestas y borradores no se almacenan.
+- Se corrige el umbral descrito en la introducción: proviene de los metadatos reales de la ruta inicial (70 %), en lugar del 80 % del reto avanzado. Se acortan las instrucciones a tres frases operativas.
+- Automatización final: 534 pruebas en 53 archivos, arquitectura, TypeScript y builds completo/QA. Las regresiones nuevas verifican títulos/IDs reales, desbloqueo inicial, igualdad exacta de las fichas en tres idiomas, límites de longitud, protección de reintentos, enlace de regreso, preferencias aisladas y parámetros inválidos.
+- Manual, bundle QA local: inglés → lectura con la misma ficha en español; borrador intacto al consultar y volver en otra pestaña; ausencia de ayuda al pasar a las preguntas. Coreano → gramática con la misma ficha y conexión de escritura a `ko-writing-01`. Progreso de la ruta conservado (0/132); ayudas y repaso siguen separados por idioma. Móvil 320 px sin desbordamiento de la ficha; tableta 768 px, claro y oscuro. No se enviaron resultados de prueba ni se usó micrófono.
+
+No se han añadido dependencias, imágenes, animaciones ni cambios de despliegue. Las fichas se comparten entre chunks de páginas diferidas; los bancos de preguntas siguen fuera del JavaScript inicial.

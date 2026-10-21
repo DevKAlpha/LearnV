@@ -1,18 +1,24 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { readFileSync } from "node:fs";
 import { LanguageStudyPage } from "@/features/study/presentation/pages/LanguageStudyPage";
 import { LanguageRestartModule } from "@/features/study/presentation/components/LanguageRestartModule";
 import { translations } from "@/infrastructure/i18n/translations";
 import { learningRestartCopy } from "@/infrastructure/i18n/learning-restart-copy";
 import { getDefinition } from "@/app/layout/SectionTour";
+import { RestartToolCard } from "@/features/study/presentation/components/RestartToolCard";
+import { RestartToolNote } from "@/features/study/presentation/components/RestartToolNote";
+import { TestSessionPage } from "@/features/study/presentation/pages/TestSessionPage";
+import { restartLessons, restartTargetId } from "@/infrastructure/data/learning-restart-lessons";
+import { getLanguageStageMetadata } from "@/infrastructure/data/language-path-summary";
+import type { TestProgressState } from "@/domain/models/language-test";
 
-const scenario = vi.hoisted(() => ({ locale: "es" as "es" | "en" | "ko", baseLocale: "es" as "es" | "en" | "ko", progress: [] as string[] }));
+const scenario = vi.hoisted(() => ({ locale: "es" as "es" | "en" | "ko", baseLocale: "es" as "es" | "en" | "ko", progress: { en: {}, ko: {} } as TestProgressState }));
 vi.mock("@/application/i18n/I18nContext", () => ({ useI18n: () => ({ locale: scenario.locale, baseLocale: scenario.baseLocale, copy: translations[scenario.locale], setLocale: vi.fn() }) }));
-vi.mock("@/application/controllers/useLanguageTestProgress", () => ({ useLanguageTestProgress: () => ({ totals: { en: 6, ko: 3 }, progress: { en: {}, ko: {} } }) }));
+vi.mock("@/application/controllers/useLanguageTestProgress", () => ({ useLanguageTestProgress: () => ({ totals: { en: 6, ko: 3 }, progress: scenario.progress, recordAttempt: vi.fn() }) }));
 const render = (node: React.ReactNode) => renderToStaticMarkup(<MemoryRouter>{node}</MemoryRouter>);
-afterEach(() => { vi.unstubAllGlobals(); });
+afterEach(() => { vi.unstubAllGlobals(); scenario.progress = { en: {}, ko: {} }; });
 
 describe.each(["es", "en", "ko"] as const)("restart module with %s help", (locale) => {
   it.each(["en", "ko"] as const)("appears before the existing %s track without resetting progress or eagerly mounting the exercise", (language) => {
@@ -28,6 +34,43 @@ describe.each(["es", "en", "ko"] as const)("restart module with %s help", (local
     expect(html).toContain(`href="/tests/${language}"`);
     for (const route of ["/gks", "/profile", "/checklist"]) expect(html).not.toContain(`href="${route}"`);
   });
+  it.each(["en", "ko"] as const)("teaches and reuses the exact same %s tools, with valid practice and return links", (language) => {
+    scenario.locale = language; scenario.baseLocale = locale;
+    for (const lesson of restartLessons[language]) {
+      const route = `/study/${language === "en" ? "english" : "korean"}?intro=${lesson.id}`;
+      const intro = renderToStaticMarkup(<MemoryRouter initialEntries={[route]}><LanguageRestartModule language={language} /></MemoryRouter>);
+      const tool = renderToStaticMarkup(<RestartToolCard lesson={lesson} locale={locale} language={language} />);
+      expect(intro).toContain(tool);
+      expect(intro).toContain(lesson.help[locale].title);
+      expect(intro).toContain(lesson.targetTitle);
+      const score = getLanguageStageMetadata(language, restartTargetId(language, lesson))!.passScore;
+      expect(intro).toContain(learningRestartCopy[locale].method[2].replace("{score}", String(score)));
+      expect(intro).not.toContain("{score}");
+      const note = render(<RestartToolNote language={language} stageId={restartTargetId(language, lesson)} />);
+      expect(note).toContain(tool);
+      expect(note).toContain(`?intro=${lesson.id}#language-tests`);
+      expect(note).not.toContain('open=""');
+      expect(note).toContain('target="_blank"');
+      expect(note).toContain('rel="noopener noreferrer"');
+    }
+  });
+});
+it.each(["en", "ko"] as const)("limits %s tool support to first-attempt production, not retakes or unrelated activities", (language) => {
+  scenario.locale = language; scenario.baseLocale = "es";
+  const session = (id: string) => renderToStaticMarkup(<MemoryRouter initialEntries={[`/tests/${language}/${id}`]}><Routes><Route path="/tests/:language/:stageId" element={<TestSessionPage />} /></Routes></MemoryRouter>);
+  for (const lesson of restartLessons[language]) {
+    const id = restartTargetId(language, lesson);
+    expect(session(id)).toContain('class="restart-tool-note"');
+    scenario.progress[language][id] = { attempts: 1, bestScore: 0, lastScore: 0, passed: false, lastCompletedAt: "2026-10-21T12:00:00Z" };
+    expect(session(id)).not.toContain('class="restart-tool-note"');
+  }
+  expect(render(<RestartToolNote language={language} stageId={`${language}-reading-02`} />)).toBe("");
+});
+it("ignores an invalid deep-link lesson instead of mounting unknown content", () => {
+  scenario.locale = "en"; scenario.baseLocale = "es";
+  const html = renderToStaticMarkup(<MemoryRouter initialEntries={["/study/english?intro=unknown"]}><LanguageRestartModule language="en" /></MemoryRouter>);
+  expect(html).toContain('aria-expanded="false"');
+  expect(html).not.toContain('class="learning-restart__exercise"');
 });
 it("restores independent completion and offers review instead of deleting progress", () => {
   scenario.locale = "ko"; scenario.baseLocale = "es";

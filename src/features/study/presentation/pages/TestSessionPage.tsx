@@ -23,6 +23,7 @@ import { LanguageCulture } from "@/shared/ui/LanguageCulture";
 import { getMotionScrollBehavior } from "@/shared/ui/motion-preferences";
 import { createLearningRecording } from "@/infrastructure/audio/learning-recording";
 import { getLanguagePathHref } from "../components/learning-path-layout";
+import { RestartToolNote } from "../components/RestartToolNote";
 
 function formatTime(seconds: number) {
   const minutes = Math.floor(seconds / 60);
@@ -368,6 +369,7 @@ export function TestSessionPage() {
         <h1 id="production-stage-title">{stage.productionTask.prompt}</h1>
         {stage.productionTask.context && <blockquote className="question-passage production-context">{stage.productionTask.context}</blockquote>}
         <p className="production-instructions">{stage.productionTask.instructions}</p>
+        {!timed && <RestartToolNote key={stage.id} language={language} stageId={stage.id} />}
         <SpiralLearningNote stage={stage} />
         {timed && stage.productionTask.retakeInstruction && <p className="production-retake-instruction"><strong>{language === "ko" ? "재시도 조건" : "Retake constraint"}:</strong> {stage.productionTask.retakeInstruction}</p>}
 
