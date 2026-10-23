@@ -57,3 +57,35 @@ Implementación en `story57-intro-bridge`, desde producción `8a2bc85`, preparad
 - Manual, bundle QA local: inglés → lectura con la misma ficha en español; borrador intacto al consultar y volver en otra pestaña; ausencia de ayuda al pasar a las preguntas. Coreano → gramática con la misma ficha y conexión de escritura a `ko-writing-01`. Progreso de la ruta conservado (0/132); ayudas y repaso siguen separados por idioma. Móvil 320 px sin desbordamiento de la ficha; tableta 768 px, claro y oscuro. No se enviaron resultados de prueba ni se usó micrófono.
 
 No se han añadido dependencias, imágenes, animaciones ni cambios de despliegue. Las fichas se comparten entre chunks de páginas diferidas; los bancos de preguntas siguen fuera del JavaScript inicial.
+
+## Auditoría del 22 de octubre · historia 57
+
+Base `c506b60`, rama de trabajo `story57-validation`. Publicación en producción mediante integración en `main`; el QA remoto conserva su rama independiente y no se actualiza con esta entrega.
+
+### Reparaciones
+
+- El botón de abrir/cerrar conserva un destino real para `aria-controls` incluso con el repaso plegado. El panel vacío queda oculto y los ejercicios siguen sin montarse hasta abrirlo.
+- La preferencia del idioma de ayuda devuelve el resultado del guardado y muestra un aviso traducido si el almacenamiento falla. Cambiar la ayuda sigue funcionando en memoria; no se afirma que esa preferencia se haya guardado.
+- Repetir la selección de la microlección actual lleva el foco al título, igual que seleccionar otra. Cada pregunta tiene su propio fieldset al cambiar de lección.
+- Una frase breve por idioma aclara los conocimientos previos: comprensión de frases cotidianas para retomar B1 y lectura de Hangul para TOPIK I. No se amplía el repaso de tres microlecciones.
+
+### Verificación automatizada
+
+- `pnpm run validate`: arquitectura, **540 pruebas en 53 archivos**, TypeScript, build completo y presupuesto inicial. `git diff --check`, sin errores.
+- `VITE_BASE_PATH=/LearnV/qa/ pnpm run build:qa`: build restringido y fallback SPA correctos. Sin dependencias, rutas ni permisos nuevos.
+- Nuevas regresiones: destino accesible abierto/cerrado en los tres idiomas de ayuda, ejercicios diferidos, requisitos previos y revisión de un repaso completado sin respuestas preseleccionadas ni crédito en la ruta.
+- Persistencia: ambos idiomas × producción/QA × tres ayudas; almacenamiento corrupto, IDs desconocidos/duplicados, cuotas agotadas, recuperación y guardado de progreso independiente del idioma de ayuda. Las pruebas existentes cubren las seis conexiones reales, actividades inicialmente desbloqueadas, fichas idénticas en ambos módulos y ausencia de ayudas en reintentos.
+- JavaScript inicial: producción **418 167 B / 137 650 B gzip**; QA **418 153 B / 137 836 B gzip**. El tamaño sin comprimir no aumenta frente a la base. Las adiciones permanecen en páginas diferidas; los bancos de preguntas siguen diferidos. No es una medición de latencia de navegación.
+
+### Recorrido manual sobre QA compilado
+
+Servidor Pages-like local con base `/LearnV/qa/` y origen de pruebas separado, sin modificar datos de producción:
+
+- Inglés y coreano: fallo sin crédito → reintento correcto → siguiente microlección → 3/3; se comprueban el bloqueo del botón sin respuesta, feedback y enlaces hacia actividades reales.
+- Cambio de idioma: coreano comienza en 0/3 tras terminar inglés. Regreso a inglés conserva 3/3. La ruta permanece en 0/132; terminar el repaso no aprueba ninguna actividad.
+- Ayudas en español, inglés y coreano; recarga conserva avance y ayuda por idioma, pero no selecciona respuestas. El repaso completado permite volver a practicar.
+- Cerrar deja el panel oculto sin ejercicios; reabrir funciona. Espacio activa las respuestas nativas de gramática. Abrir enfoca la explicación y elegir una lección enfoca su título, incluso si ya era la actual.
+- Escritura coreana: enlace a `ko-writing-01`, ficha idéntica en español y regreso a `?intro=use` en nueva pestaña. El borrador permanece intacto en la actividad original. Al pasar a las preguntas, la ficha desaparece. No se finalizó ni envió un resultado, ni se solicitó micrófono.
+- Móvil 320 px (ayudas española, inglesa y coreana), tableta 768 px y escritorio 1280 px, temas claro y oscuro: sin desbordamiento horizontal en las vistas revisadas. Consolas de ambas pestañas sin errores ni advertencias.
+
+Límites: almacenamiento denegado/cuota agotada y reintentos se verificaron automáticamente; no se cambió la configuración de privacidad del navegador. La revisión de teclado y estructura semántica no sustituye una auditoría con lector de pantalla ni una certificación pedagógica completa.

@@ -26,6 +26,7 @@ export function LanguageRestartModule({ language }: { language: TestLanguage }) 
   const [selected, setSelected] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
   const [saved, setSaved] = useState(true);
+  const [helpSaved, setHelpSaved] = useState(true);
   const heading = useRef<HTMLHeadingElement>(null);
   const methodHeading = useRef<HTMLHeadingElement>(null);
   const opening = useRef(false);
@@ -53,6 +54,7 @@ export function LanguageRestartModule({ language }: { language: TestLanguage }) 
   }, [open, active]);
 
   const chooseLesson = (index: number) => {
+    if (index === active) heading.current?.focus();
     setActive(index); setSelected(null); setChecked(false); focusLesson.current = true;
   };
   const check = () => {
@@ -75,7 +77,7 @@ export function LanguageRestartModule({ language }: { language: TestLanguage }) 
       <div className="learning-restart__art"><SceneArt scene={language === "en" ? "reader" : "seoul"} /></div>
     </div>
     <div className="learning-restart__toolbar">
-      <label>{copy.help}<select value={helpLocale} onChange={(event) => { const next = event.target.value as Locale; setHelpLocale(next); saveRestartHelpLocale(language, next); }}>
+      <label>{copy.help}<select value={helpLocale} onChange={(event) => { const next = event.target.value as Locale; setHelpLocale(next); setHelpSaved(saveRestartHelpLocale(language, next)); }}>
         <option value="es">Español</option><option value="en">English</option><option value="ko">한국어</option>
       </select></label>
       <span className="learning-restart__progress"><progress max={lessons.length} value={completed.length} aria-label={copy.completed} /><b>{completed.length}/{lessons.length}</b> {copy.completed}</span>
@@ -83,8 +85,11 @@ export function LanguageRestartModule({ language }: { language: TestLanguage }) 
         {open ? copy.close : complete ? copy.review : completed.length ? copy.resume : copy.start}<span aria-hidden="true">{open ? "−" : "→"}</span>
       </button>
     </div>
+    {!helpSaved && <p className="learning-restart__scope" role="status">{copy.helpUnsaved}</p>}
     <p className="learning-restart__scope">{copy.scope}</p>
-    {open && <div id={`${id}-body`} className="learning-restart__body">
+    <p className="learning-restart__scope">{copy.prerequisite[language]}</p>
+    <div id={`${id}-body`} className="learning-restart__body" hidden={!open}>
+    {open && <>
       <aside className="learning-restart__method" aria-labelledby={`${id}-method`}>
         <h3 id={`${id}-method`} ref={methodHeading} tabIndex={-1}>{copy.how}</h3>
         <ol>{copy.method.map((step) => <li key={step}>{step.replace("{score}", String(passScore))}</li>)}</ol>
@@ -101,7 +106,7 @@ export function LanguageRestartModule({ language }: { language: TestLanguage }) 
         <p className="learning-restart__connection"><strong>{copy.usedIn}: </strong><span lang={language}>{lesson.targetTitle}</span></p>
         <RestartToolCard lesson={lesson} locale={helpLocale} language={language} />
         <figure><figcaption>{copy.example}</figcaption><blockquote lang={language}>{lesson.example}</blockquote></figure>
-        <fieldset><legend>{help.question}</legend>
+        <fieldset key={lesson.id}><legend>{help.question}</legend>
           {lesson.options.map((option, index) => <label key={option} className={selected === index ? "is-selected" : ""}>
             <input type="radio" name={`${id}-answer`} checked={selected === index} onChange={() => { setSelected(index); setChecked(false); }} />
             <span lang={language}>{option}</span>
@@ -120,6 +125,7 @@ export function LanguageRestartModule({ language }: { language: TestLanguage }) 
       </div>
       {complete && <div className="learning-restart__finish"><h3>{copy.done}</h3><p>{copy.doneText}</p><Link className="learning-restart__action" to={`/tests/${language}`}>{copy.path}<span aria-hidden="true">→</span></Link></div>}
       <p className="learning-restart__scope" role={saved ? undefined : "status"}>{saved ? copy.saved : copy.unsaved}</p>
-    </div>}
+    </>}
+    </div>
   </section>;
 }

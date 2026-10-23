@@ -4,6 +4,8 @@ export const learningRestartCopy = {
     intro: "Tres herramientas breves para resolver las primeras actividades de lectura, gramática y escritura de tu ruta.",
     level: { en: "Puente B1 · 6–8 min a tu ritmo", ko: "Puente TOPIK I · 6–8 min a tu ritmo" },
     scope: "Es un repaso breve, no un curso completo ni una certificación. Es opcional y no cambia tus resultados, desbloqueos ni intentos de la ruta existente.",
+    prerequisite: { en: "Para retomar B1: parte de que ya comprendes frases cotidianas; no empieza desde cero.", ko: "Para retomar TOPIK I: parte de que ya lees Hangul. Si aún no, repasa primero sus letras y bloques silábicos." },
+    helpUnsaved: "La ayuda cambia en esta vista, pero no se pudo guardar su idioma para la próxima visita.",
     start: "Empezar el repaso", resume: "Continuar el repaso", review: "Volver a repasar", close: "Cerrar repaso", completed: "microlecciones completadas",
     how: "Cómo se aprende aquí", method: [
       "Aprende una herramienta, pruébala y revisa el feedback. Sin cronómetro ni penalizaciones.",
@@ -20,6 +22,8 @@ export const learningRestartCopy = {
     intro: "Three short tools for the first reading, grammar and writing activities in your path.",
     level: { en: "B1 bridge · 6–8 min at your pace", ko: "TOPIK I bridge · 6–8 min at your pace" },
     scope: "A short refresher, not a full course or a certification. Optional: it does not change results, unlocks or attempts in your existing path.",
+    prerequisite: { en: "To restart at B1: you should already understand everyday sentences; this does not start from zero.", ko: "To restart TOPIK I: you should already read Hangul. If not, review its letters and syllable blocks first." },
+    helpUnsaved: "Help changes in this view, but its language could not be saved for your next visit.",
     start: "Start refresher", resume: "Continue refresher", review: "Review again", close: "Close refresher", completed: "micro-lessons completed",
     how: "How learning works here", method: [
       "Learn one tool, try it and read the feedback. No timer or penalties.",
@@ -36,6 +40,8 @@ export const learningRestartCopy = {
     intro: "경로의 첫 읽기·문법·쓰기 활동에 쓰는 세 가지 도구를 짧게 익히세요.",
     level: { en: "B1 연결 학습 · 내 속도로 6–8분", ko: "TOPIK I 연결 학습 · 내 속도로 6–8분" },
     scope: "전체 과정이나 자격 인증이 아닌 짧은 복습입니다. 선택 사항이며 기존 경로의 결과, 잠금 해제와 응시 횟수를 바꾸지 않습니다.",
+    prerequisite: { en: "B1 복습은 일상 문장을 이미 이해하는 학습자를 위한 과정입니다. 처음부터 시작하는 수업은 아닙니다.", ko: "TOPIK I 복습은 한글을 이미 읽는 학습자를 위한 과정입니다. 아직 어렵다면 글자와 음절부터 복습하세요." },
+    helpUnsaved: "이 화면의 도움말 언어는 바뀌었지만 다음 방문을 위해 저장하지 못했습니다.",
     start: "복습 시작", resume: "복습 계속하기", review: "다시 복습하기", close: "복습 닫기", completed: "개 수업 완료",
     how: "학습은 이렇게 진행돼요", method: [
       "도구 하나를 익히고 연습한 뒤 피드백을 읽으세요. 시간제한이나 감점은 없습니다.",

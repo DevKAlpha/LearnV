@@ -106,5 +106,31 @@ it("carries help preferences across intro and practice without leaking languages
   expect(readRestartHelpLocale("en", "en", storage)).toBe("ko");
   expect(readRestartHelpLocale("ko", "es", { getItem: () => "invalid" })).toBe("es");
   expect(readRestartHelpLocale("en", "es", { getItem: () => { throw new Error("denied"); } })).toBe("es");
-  expect(() => saveRestartHelpLocale("en", "es", { setItem: () => { throw new Error("denied"); } })).not.toThrow();
+  expect(saveRestartHelpLocale("en", "es", { setItem: () => { throw new Error("denied"); } })).toBe(false);
+});
+
+describe.each([false, true])("restart persistence (QA=%s)", (qa) => {
+  it.each(["en", "ko"] as const)("reports preference writes and recovers %s from corrupt or denied storage", (language) => {
+    environment.qa = qa;
+    const values = new Map<string, string>();
+    const storage = { getItem: (key: string) => values.get(key) ?? null, setItem: (key: string, value: string) => values.set(key, value) };
+    for (const locale of ["es", "en", "ko"] as const) {
+      expect(saveRestartHelpLocale(language, locale, storage)).toBe(true);
+      expect(readRestartHelpLocale(language, "es", storage)).toBe(locale);
+    }
+    expect([...values.keys()]).toEqual([`${restartStorageKey(language)}:help`]);
+    for (const corrupt of ["", "null", "{}", "[", '"meaning"', '["form","form",null,"unknown"]']) {
+      values.set(restartStorageKey(language), corrupt);
+      expect(readRestartProgress(language, storage)).toEqual(corrupt.includes('"form"') ? ["form"] : []);
+      const saved = saveRestartLesson(language, "meaning", [], storage);
+      expect(saved.saved).toBe(true);
+      expect(saved.progress).toContain("meaning");
+      expect(readRestartProgress(language, storage)).toEqual(saved.progress);
+    }
+    values.set(restartStorageKey(language), '["form"]');
+    const quotaExceeded = { getItem: storage.getItem, setItem: () => { throw new Error("QuotaExceededError"); } };
+    expect(saveRestartHelpLocale(language, "en", quotaExceeded)).toBe(false);
+    expect(saveRestartLesson(language, "use", ["meaning"], quotaExceeded)).toEqual({ saved: false, progress: ["meaning", "form", "use"] });
+    expect(readRestartHelpLocale(language, "es", storage)).toBe("ko");
+  });
 });
