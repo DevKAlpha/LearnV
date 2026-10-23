@@ -13,8 +13,8 @@ export function readRestartHelpLocale(language: TestLanguage, fallback: Locale, 
   } catch { return fallback; }
 }
 export function saveRestartHelpLocale(language: TestLanguage, locale: Locale, storage?: Pick<Storage, "setItem">) {
-  try { (storage ?? localStorage).setItem(`${restartStorageKey(language)}:help`, locale); }
-  catch { /* In-memory help still works if browser storage is blocked. */ }
+  try { (storage ?? localStorage).setItem(`${restartStorageKey(language)}:help`, locale); return true; }
+  catch { return false; /* In-memory help still works if browser storage is blocked. */ }
 }
 
 export function readRestartProgress(language: TestLanguage, storage?: Pick<Storage, "getItem">): RestartProgress {

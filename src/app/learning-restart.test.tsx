@@ -28,7 +28,11 @@ describe.each(["es", "en", "ko"] as const)("restart module with %s help", (local
     expect(html).toContain(learningRestartCopy[locale].title[language]);
     expect(html).toContain(`lang="${locale}"`);
     expect(html).toContain('aria-expanded="false"');
+    const bodyId = html.match(/aria-controls="([^"]+)"/)?.[1];
+    expect(bodyId).toBeTruthy();
+    expect(html).toContain(`id="${bodyId}" class="learning-restart__body" hidden=""`);
     expect(html).not.toContain('class="learning-restart__exercise"');
+    expect(html).toContain(learningRestartCopy[locale].prerequisite[language]);
     expect(html).toContain('value="es"'); expect(html).toContain('value="en"'); expect(html).toContain('value="ko"');
     expect(html).toContain(`${language === "en" ? 6 : 3}/132`);
     expect(html).toContain(`href="/tests/${language}"`);
@@ -41,6 +45,8 @@ describe.each(["es", "en", "ko"] as const)("restart module with %s help", (local
       const intro = renderToStaticMarkup(<MemoryRouter initialEntries={[route]}><LanguageRestartModule language={language} /></MemoryRouter>);
       const tool = renderToStaticMarkup(<RestartToolCard lesson={lesson} locale={locale} language={language} />);
       expect(intro).toContain(tool);
+      expect(intro).toContain('aria-expanded="true"');
+      expect(intro).not.toContain('class="learning-restart__body" hidden=""');
       expect(intro).toContain(lesson.help[locale].title);
       expect(intro).toContain(lesson.targetTitle);
       const score = getLanguageStageMetadata(language, restartTargetId(language, lesson))!.passScore;
@@ -71,6 +77,17 @@ it("ignores an invalid deep-link lesson instead of mounting unknown content", ()
   const html = renderToStaticMarkup(<MemoryRouter initialEntries={["/study/english?intro=unknown"]}><LanguageRestartModule language="en" /></MemoryRouter>);
   expect(html).toContain('aria-expanded="false"');
   expect(html).not.toContain('class="learning-restart__exercise"');
+});
+it.each(["en", "ko"] as const)("does not copy saved %s completion into test results or preselect a practice answer", (language) => {
+  scenario.locale = language; scenario.baseLocale = "es";
+  const values = new Map([[`learnv-restart-v1:${language}`, '["meaning","form","use"]']]);
+  vi.stubGlobal("localStorage", { getItem: (key: string) => values.get(key) ?? null });
+  const html = renderToStaticMarkup(<MemoryRouter initialEntries={[`/study/${language === "en" ? "english" : "korean"}?intro=use`]}><LanguageRestartModule language={language} /></MemoryRouter>);
+  expect(html).toContain("3/3");
+  expect(html).toContain(learningRestartCopy.es.done);
+  expect(html).not.toMatch(/type="radio"[^>]*checked/);
+  expect(html).toContain('disabled=""');
+  expect(scenario.progress).toEqual({ en: {}, ko: {} });
 });
 it("restores independent completion and offers review instead of deleting progress", () => {
   scenario.locale = "ko"; scenario.baseLocale = "es";
