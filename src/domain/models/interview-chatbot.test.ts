@@ -191,4 +191,14 @@ describe("interview chatbot", () => {
     expect(advice.nextTarget).toContain("al menos");
     expect(advice.nextTarget).toContain(`de ${summary.answered} respuestas`);
   });
+
+  it.each(["es", "en", "ko"] as const)("does not describe complete coverage as a missing signal in %s", (locale) => {
+    const evaluation = evaluateInterviewAnswer("Elegí esta carrera porque lideré un proyecto con 12 estudiantes. Aprendí a medir resultados concretos y conecté ese trabajo con mi plan académico para GKS en Corea, donde quiero continuar mi preparación con objetivos verificables.", "es");
+    expect(evaluation.score).toBe(100);
+    const summary = summarizeInterviewSession(Array.from({ length: 8 }, () => evaluation));
+    const advice = createInterviewSessionAdvice(summary, locale);
+    expect(advice.priority).not.toMatch(/solo en|only|개에만/);
+    expect(advice.trend).not.toMatch(/débil|weakest|약한/);
+    expect(advice.priority.length).toBeGreaterThan(30);
+  });
 });

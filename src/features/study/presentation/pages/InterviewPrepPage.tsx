@@ -11,6 +11,8 @@ import { interviewQuestions, interviewTips } from "@/infrastructure/data/intervi
 import { recordLearningError } from "@/infrastructure/data/learning-error-log";
 import { AppIcon } from "@/shared/ui/AppIcon";
 import { LiteYouTube } from "@/shared/ui/LiteYouTube";
+import { InterviewPreparation2027 } from "@/shared/ui/InterviewPreparation2027";
+import { interview2027 } from "@/infrastructure/data/interview-2027";
 
 type Category = "all" | "motivation" | "academic" | "adaptation" | "contribution";
 type SavedPractice = Record<string, { answer: string; checked: boolean[] }>;
@@ -137,6 +139,8 @@ export function InterviewPrepPage({ learning }: { learning: LearningJourneyContr
         </div>
       </section>
 
+      <InterviewPreparation2027 locale={locale} />
+
       <section className="interview-method" aria-labelledby="interview-method-title">
         <div className="section-heading"><div><span className="eyebrow">{copy.interview.methodKicker}</span><h2 id="interview-method-title">{copy.interview.methodTitle}</h2></div></div>
         <div className="interview-method-grid">
@@ -177,7 +181,7 @@ export function InterviewPrepPage({ learning }: { learning: LearningJourneyContr
 
       <section className="interview-sources">
         <span className="eyebrow">{copy.interview.sourcesTitle}</span>
-        <a href="https://www.studyinkorea.go.kr/ko/notice/scholarshipsRead.do?bbsId=BBSMSTR_000000000461&boardSort=3&nttId=4385" target="_blank" rel="noreferrer">Study in Korea · GKS-U 2026 ↗</a>
+        <a href={interview2027.noticeUrl} target="_blank" rel="noopener noreferrer">Study in Korea · GKS-U 2027 ↗</a>
         <a href="https://overseas.mofa.go.kr/es-es/brd/m_8065/list.do" target="_blank" rel="noreferrer">Embajada de Corea en España · avisos ↗</a>
       </section>
     </div>

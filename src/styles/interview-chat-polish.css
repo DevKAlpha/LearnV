@@ -1,0 +1,101 @@
+/* Route-loaded only. Solid surfaces and real font sizes, no scaled text or bitmap assets. */
+:root .interview-chat {
+  --ink: #302535; --muted: #66566b; --line: #d5c6d4; --paper: #fffcf7; --cream: #f6f0e7;
+  width: min(100%,560px); height: min(92dvh,840px); min-height: 0;
+  font-family: var(--font-body); font-size: 1rem; -webkit-font-smoothing: auto; -moz-osx-font-smoothing: auto;
+  background: var(--cream); color: var(--ink); backdrop-filter: none; -webkit-backdrop-filter: none;
+  animation: interview-chat-reveal 160ms ease-out;
+}
+:root[data-theme="dark"] .interview-chat { --ink: #f9f2fa; --muted: #d5c7db; --line: #66536f; --paper: #302638; --cream: #231d29; background: var(--cream); }
+:root .interview-chat-backdrop { backdrop-filter: none; -webkit-backdrop-filter: none; }
+:root .interview-chat__header { flex-shrink: 0; grid-template-columns: 50px minmax(0,1fr) 44px; padding: 14px 18px; gap: 14px; background: var(--paper); }
+:root .interview-chat__avatar { width: 48px; height: 52px; box-shadow: 2px 2px 0 var(--line); }
+:root .interview-chat__avatar .brand-tulip { display: block; width: 34px; height: 40px; }
+:root .interview-chat__header strong { font-size: 1.1rem; line-height: 1.4; }
+:root .interview-chat__header small { font-size: .8rem; line-height: 1.45; font-weight: 600; }
+.interview-chat__edition { display: block; font-size: .7rem; letter-spacing: .08em; color: var(--muted); font-weight: 800; }
+:root .interview-chat__close { width: 44px; height: 44px; color: #302535; }
+:root .interview-chat__language { flex-shrink: 0; min-height: 56px; padding: 6px 18px; background: var(--paper); }
+:root .interview-chat__language > span { font-size: .8rem; }
+:root .interview-chat__language button { min-width: 44px; height: 38px; font-size: .8rem; }
+:root .interview-chat__language button[aria-pressed="true"] { background: #493255; color: #fff; }
+:root .interview-chat__welcome, :root .interview-chat__report { min-height: 0; padding: 24px; }
+:root .interview-chat__welcome .interview-scene { max-width: 320px; margin: 0 auto 20px; }
+.interview-report-art { display: block; width: 76px; height: 76px; margin: 0 0 16px; color: var(--ink); }
+:root .interview-chat :is(.interview-chat__welcome,.interview-chat__report) h2 { font-size: clamp(1.5rem,5vw,2rem); line-height: 1.2; }
+:root .interview-chat :is(.interview-chat__welcome,.interview-chat__report) > p { font-size: .95rem; font-weight: 500; line-height: 1.65; color: var(--muted); }
+:root .interview-chat__welcome > strong { font-size: .9rem; }
+:root .interview-chat__welcome .interview-chat__notice { font-size: .9rem !important; line-height: 1.6; }
+:root .interview-chat__privacy > span { color: #302535; }
+:root .interview-chat__primary { min-height: 48px; background: #493255; color: #fff; font-size: .95rem; }
+:root .interview-chat__status { flex-shrink: 0; min-height: 44px; padding: 8px 18px; font-size: .8rem; background: var(--paper); }
+.interview-chat__status > span { display: flex; align-items: center; gap: 8px; }
+.interview-chat__status .app-icon { width: 20px; height: 20px; }
+:root .interview-chat__status time { font-size: .85rem; font-variant-numeric: tabular-nums; }
+:root .interview-chat__status time small { font-size: .75rem; }
+.interview-chat__context { flex-shrink: 0; padding: 6px 18px; border-bottom: 1px solid var(--line); background: var(--paper); font-size: .85rem; }
+.interview-chat__context summary { display: flex; align-items: center; gap: 8px; min-height: 38px; font-weight: 750; cursor: pointer; }
+.interview-chat__context summary::after { content: "+"; margin-left: auto; }
+.interview-chat__context[open] summary::after { content: "−"; }
+.interview-chat__context[open] { max-height: min(30dvh,200px); overflow: auto; }
+.interview-chat__context .app-icon { width: 20px; height: 20px; }
+.interview-chat__context p { margin: 6px 0; line-height: 1.55; }
+.interview-chat__context a { display: inline-block; padding: 8px 0; color: inherit; }
+:root .interview-chat__conversation { min-height: 0; padding: 20px 18px; background: var(--cream); }
+:root .interview-chat__message { max-width: 94%; padding: 16px; border-color: var(--line); background: var(--paper); box-shadow: 0 2px 0 var(--line); }
+:root .interview-chat__message > small { display: flex; align-items: center; gap: 7px; font-size: .75rem; font-weight: 750; letter-spacing: .03em; color: var(--muted); }
+.interview-chat__message > small .app-icon { width: 17px; height: 17px; }
+:root .interview-chat__message > p { font-size: 1rem; font-weight: 500; line-height: 1.65; color: var(--ink); overflow-wrap: anywhere; }
+:root .interview-chat__message--candidate { background: color-mix(in srgb,var(--purple) 12%,var(--paper)); }
+:root .interview-chat__message--coach { max-width: 100%; background: color-mix(in srgb,var(--yellow) 8%,var(--paper)); }
+:root .interview-chat__feedback > b { background: #493255; color: #fff; font-size: .9rem; }
+:root .interview-chat__feedback li { font-size: .9rem; line-height: 1.55; color: var(--muted); }
+:root .interview-chat__feedback-copy strong { font-size: .9rem; line-height: 1.5; color: var(--ink); }
+:root .interview-chat__feedback-copy small { font-size: .85rem; line-height: 1.55; color: var(--muted); }
+:root .interview-chat__feedback li.is-present > span:first-child { background: #3f7048; color: #fff; }
+:root .interview-chat__composer { flex-shrink: 0; padding: 12px 18px max(12px,env(safe-area-inset-bottom)); gap: 8px; background: var(--paper); }
+:root .interview-chat__composer label { font-size: .8rem; }
+:root .interview-chat__composer textarea { min-height: 86px; max-height: 140px; font: 500 1rem/1.6 var(--font-body); background: var(--paper); color: var(--ink); }
+:root .interview-chat__composer textarea::placeholder { color: var(--muted); opacity: 1; }
+:root .interview-chat__composer button { min-height: 60px; width: 48px; color: #302535; }
+:root .interview-chat__composer button .app-icon { transform: none; width: 24px; height: 24px; }
+:root .interview-chat__report :is(dt,.interview-chat__next-target small,.interview-chat__study-bridge small) { font-size: .75rem; line-height: 1.5; }
+:root .interview-chat__report :is(dd,.interview-chat__report-section h3,.interview-chat__next-target strong,.interview-chat__study-bridge h3,.interview-chat__study-bridge button) { font-size: .95rem; line-height: 1.5; }
+:root .interview-chat__report :is(.interview-chat__coverage span,.interview-chat__coverage b,.interview-chat__study-bridge p,.interview-chat__score span) { font-size: .85rem; line-height: 1.55; }
+:root .interview-chat__report :is(.interview-chat__action-plan li,.interview-chat__formula li,.interview-chat__trend,.interview-chat__notice) { font-size: .9rem !important; line-height: 1.6; }
+:root .interview-chat__report .interview-chat__formula { grid-template-columns: minmax(0,1fr); }
+.interview-chat__language-warning { padding: 12px 18px; background: var(--paper); border-bottom: 2px solid var(--orange); font-size: .9rem; max-height: 40%; min-height: 0; overflow: auto; flex-shrink: 1; }
+.interview-chat__language-warning p { margin: 0 0 8px; line-height: 1.5; }
+.interview-chat__language-warning > div { display: flex; flex-wrap: wrap; gap: 10px; }
+.interview-chat__language-warning button { min-height: 44px; padding: 8px 12px; background: var(--paper); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; font: inherit; cursor: pointer; }
+:root .interview-chat :is(button,a,textarea,summary):focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+:root .interview-chat :is(h2,h3,p,span,strong,small,a,summary) { overflow-wrap: anywhere; }
+@keyframes interview-chat-reveal { from { opacity: 0; } to { opacity: 1; } }
+@media (max-width: 430px) {
+  :root .interview-chat { height: 96dvh; }
+  :root .interview-chat__header { padding: 10px 12px; gap: 10px; }
+  :root .interview-chat__language { padding-inline: 12px; }
+  :root .interview-chat__welcome, :root .interview-chat__report { padding: 20px 16px; }
+  :root .interview-chat__conversation { padding: 16px 12px; }
+  :root .interview-chat__message { padding: 13px; }
+}
+@media (max-height: 520px) {
+  :root .interview-chat-layer { padding: 0; }
+  :root .interview-chat { height: 100dvh; }
+  :root .interview-chat__header { min-height: 52px; padding: 4px 12px; grid-template-columns: 36px minmax(0,1fr) 44px; }
+  :root .interview-chat__avatar { width: 34px; height: 38px; }
+  :root .interview-chat__avatar .brand-tulip { width: 28px; height: 32px; }
+  :root .interview-chat__edition, :root .interview-chat__header small { display: none; }
+  :root .interview-chat__language { min-height: 44px; padding-block: 0; }
+  :root .interview-chat__status { min-height: 36px; padding: 4px 12px; }
+  :root .interview-chat__context { padding: 0 12px; }
+  :root .interview-chat__context summary { min-height: 36px; }
+  :root .interview-chat__context[open] { max-height: 72px; }
+  :root .interview-chat__conversation { padding: 8px 12px; }
+  :root .interview-chat__composer { padding: 6px 12px; gap: 4px; }
+  :root .interview-chat__composer label { font-size: .75rem; }
+  :root .interview-chat__composer textarea { min-height: 48px; height: 48px; }
+  :root .interview-chat__composer button { min-height: 48px; }
+}
+@media (prefers-reduced-motion: reduce) { :root .interview-chat { animation: none; } }
+@media (forced-colors: active) { :root .interview-chat { border: 2px solid CanvasText; } }

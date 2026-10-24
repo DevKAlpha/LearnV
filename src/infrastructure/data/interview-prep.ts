@@ -23,9 +23,9 @@ export const interviewQuestions: InterviewQuestion[] = [
   },
   {
     id: "why-major", category: "academic",
-    question: { es: "¿Por qué Negocios Internacionales o el campo de Medicina/Salud que finalmente valides?", en: "Why International Business or the Medicine/Health field you ultimately validate?", ko: "최종 확인한 국제경영 또는 의학·보건 분야를 선택한 이유는 무엇입니까?" },
+    question: { es: "¿Qué carrera y universidad confirmaste en University Information 2027 y por qué encajan con tu preparación?", en: "Which major and university did you confirm in University Information 2027, and how do they fit your preparation?", ko: "2027 대학 정보에서 확인한 전공과 대학은 무엇이며 자신의 준비와 어떻게 맞습니까?" },
     purpose: { es: "Encaje entre preparación previa, capacidades y plan futuro.", en: "Fit between prior preparation, abilities and future plan.", ko: "기존 준비, 역량과 미래 계획의 적합성을 확인합니다." },
-    followUp: { es: "¿Qué evidencia demuestra que conoces las exigencias de ese campo?", en: "What evidence shows that you understand the demands of that field?", ko: "그 분야의 요구를 이해한다는 것을 어떤 근거로 보여 줄 수 있습니까?" },
+    followUp: { es: "Cita un curso o requisito del departamento que verificaste; si no lo has confirmado, explica dónde lo comprobarás.", en: "Name a course or departmental requirement you verified; if unconfirmed, explain where you will check it.", ko: "확인한 과목이나 학과 요건을 하나 말하세요. 아직 확인하지 않았다면 어디서 확인할지 설명하세요." },
   },
   {
     id: "academic-weakness", category: "academic",
@@ -37,7 +37,7 @@ export const interviewQuestions: InterviewQuestion[] = [
     id: "study-plan", category: "academic",
     question: { es: "Resume tu plan de idioma y tu primer año académico en tres hitos.", en: "Summarise your language plan and first academic year in three milestones.", ko: "언어 학습 계획과 첫 학년 계획을 세 가지 이정표로 요약하세요." },
     purpose: { es: "Secuencia, realismo y conocimiento del programa.", en: "Sequence, realism and knowledge of the programme.", ko: "계획의 순서, 현실성과 과정 이해도를 확인합니다." },
-    followUp: { es: "¿Qué harías si no alcanzas el primer hito a tiempo?", en: "What would you do if you did not reach the first milestone on time?", ko: "첫 번째 목표를 제때 달성하지 못하면 어떻게 하겠습니까?" },
+    followUp: { es: "¿Cómo coincide con tu Study Plan de la candidatura 2027 y qué ajustarías si no alcanzas el primer hito?", en: "How does this match your 2027 application Study Plan, and what would you adjust if you miss the first milestone?", ko: "2027 지원 학업계획서와 어떻게 일치하며 첫 목표를 달성하지 못하면 무엇을 조정하겠습니까?" },
   },
   {
     id: "language-plan", category: "academic",
