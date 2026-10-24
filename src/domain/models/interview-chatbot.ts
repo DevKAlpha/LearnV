@@ -631,6 +631,7 @@ export function createInterviewSessionAdvice(summary: InterviewSessionSummary, l
   const actions = SESSION_ACTIONS[locale];
   const strongestCoverage = summary.coverage[summary.strongest];
   const priorityCoverage = summary.coverage[summary.priority];
+  const completeCoverage = summary.answered > 0 && Object.values(summary.coverage).every((item) => item.total === summary.answered);
   const targetTotal = summary.answered
     ? Math.min(summary.answered, Math.max(priorityCoverage.total + 2, Math.ceil(summary.answered * 0.75)))
     : 0;
@@ -649,8 +650,8 @@ export function createInterviewSessionAdvice(summary: InterviewSessionSummary, l
     return {
       assessment,
       strength: `${names[summary.strongest]} appeared in ${strongestCoverage.total} of ${summary.answered} answers. Keep it while improving the other criteria.`,
-      priority: `${names[summary.priority]} appeared in only ${priorityCoverage.total} of ${summary.answered} answers and should lead your next practice.`,
-      trend,
+      priority: completeCoverage ? "All four structural signals appeared in every answer. Now verify factual accuracy, specificity and natural delivery; this score does not assess them." : `${names[summary.priority]} appeared in only ${priorityCoverage.total} of ${summary.answered} answers and should lead your next practice.`,
+      trend: completeCoverage ? "Structural coverage stayed complete. Try a new example without repeating memorised wording." : trend,
       actionPlan: [actions[summary.priority], actions[summary.secondaryPriority], "Record one 75-second answer, listen once for structure and repeat it without memorising wording."],
       formula: ["Answer the question in one sentence", "Give situation, personal action and result", "Connect the evidence to GKS or your study plan", "Close with learning and the next decision"],
       nextTarget: `In your next session, include ${names[summary.priority]} in at least ${targetTotal} of ${summary.answered} answers.`,
@@ -671,8 +672,8 @@ export function createInterviewSessionAdvice(summary: InterviewSessionSummary, l
     return {
       assessment,
       strength: `${names[summary.strongest]}이(가) ${summary.answered}개 답변 중 ${strongestCoverage.total}개에 나타났습니다. 다른 기준을 보완할 때도 이 강점을 유지하세요.`,
-      priority: `${names[summary.priority]}이(가) ${summary.answered}개 답변 중 ${priorityCoverage.total}개에만 나타나 다음 연습의 최우선 과제입니다.`,
-      trend,
+      priority: completeCoverage ? "모든 답변에 네 가지 구조 신호가 나타났습니다. 이제 사실의 정확성, 구체성과 자연스러운 전달을 확인하세요. 이 점수는 이를 평가하지 않습니다." : `${names[summary.priority]}이(가) ${summary.answered}개 답변 중 ${priorityCoverage.total}개에만 나타나 다음 연습의 최우선 과제입니다.`,
+      trend: completeCoverage ? "구조 기준을 계속 충족했습니다. 외운 문장을 반복하지 말고 새로운 경험으로 연습하세요." : trend,
       actionPlan: [actions[summary.priority], actions[summary.secondaryPriority], "75초 답변 하나를 녹음하고 구조만 한 번 확인한 뒤 문장을 외우지 않고 다시 말하세요."],
       formula: ["한 문장으로 질문에 답하기", "상황, 직접 한 행동과 결과 제시하기", "근거를 GKS 또는 학업 계획과 연결하기", "배운 점과 다음 결정으로 마무리하기"],
       nextTarget: `다음 연습에서는 ${summary.answered}개 답변 중 최소 ${targetTotal}개에 ${names[summary.priority]}을(를) 포함하세요.`,
@@ -692,8 +693,8 @@ export function createInterviewSessionAdvice(summary: InterviewSessionSummary, l
   return {
     assessment,
     strength: `${names[summary.strongest]} apareció en ${strongestCoverage.total} de ${summary.answered} respuestas. Consérvala mientras mejoras los demás criterios.`,
-    priority: `${names[summary.priority]} apareció solo en ${priorityCoverage.total} de ${summary.answered} respuestas y debe liderar tu próxima práctica.`,
-    trend,
+    priority: completeCoverage ? "Las cuatro señales estructurales aparecieron en todas las respuestas. Ahora verifica veracidad, precisión y naturalidad: esta puntuación no las evalúa." : `${names[summary.priority]} apareció solo en ${priorityCoverage.total} de ${summary.answered} respuestas y debe liderar tu próxima práctica.`,
+    trend: completeCoverage ? "Mantuviste la cobertura estructural completa. Prueba otro ejemplo sin repetir un texto memorizado." : trend,
     actionPlan: [actions[summary.priority], actions[summary.secondaryPriority], "Graba una respuesta de 75 segundos, escúchala una vez buscando la estructura y repítela sin memorizar las palabras."],
     formula: ["Responder la pregunta en una frase", "Dar situación, acción propia y resultado", "Conectar la evidencia con GKS o el plan académico", "Cerrar con aprendizaje y siguiente decisión"],
     nextTarget: `En tu próxima sesión, incluye ${names[summary.priority]} en al menos ${targetTotal} de ${summary.answered} respuestas.`,
