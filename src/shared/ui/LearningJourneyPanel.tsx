@@ -6,20 +6,21 @@ import { isLearningQa, resolveAppRoute } from "@/application/qa/qa-learning-scop
 type Props = {
   learning: LearningJourneyController;
   compact?: boolean;
+  headingId?: string;
 };
 
-export function LearningJourneyPanel({ learning, compact = false }: Props) {
+export function LearningJourneyPanel({ learning, compact = false, headingId = `learning-journey-title${compact ? "-compact" : ""}` }: Props) {
   const { copy } = useI18n();
   const { journey, recommendation, activeMinutes, practicedSkills } = learning;
   const streakUnit = journey.currentStreak === 1 ? copy.journey.day : copy.journey.days;
   const recommendationText = copy.journey.recommendations[isLearningQa && recommendation.id === "documents" ? "continue" : recommendation.id];
 
   return (
-    <section className={`learning-journey${compact ? " learning-journey--compact" : ""}`} aria-labelledby={`learning-journey-title${compact ? "-compact" : ""}`}>
+    <section className={`learning-journey${compact ? " learning-journey--compact" : ""}`} aria-labelledby={headingId}>
       <div className="learning-journey__heading">
         <div>
           <span className="eyebrow">{copy.journey.kicker}</span>
-          <h2 id={`learning-journey-title${compact ? "-compact" : ""}`}>{copy.journey.title}</h2>
+          <h2 id={headingId}>{copy.journey.title}</h2>
           {!compact && <p>{copy.journey.intro}</p>}
         </div>
         <span className="learning-journey__flame" aria-hidden="true">{journey.currentStreak > 0 ? "🔥" : "✦"}</span>

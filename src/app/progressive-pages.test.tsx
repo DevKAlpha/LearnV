@@ -12,6 +12,8 @@ import { storybookCopy } from "@/infrastructure/i18n/storybook-copy";
 import { getDefinition } from "@/app/layout/SectionTour";
 import { documentStages } from "@/domain/models/document-plan";
 import { TESTS_PER_LANGUAGE, TESTS_PER_SKILL } from "@/infrastructure/data/practice-tests";
+import { LearningQuickAccess } from "@/app/layout/LearningQuickAccess";
+import { LearningJourneyPanel } from "@/shared/ui/LearningJourneyPanel";
 
 const scenario = vi.hoisted(() => ({ qa: false, locale: "es" as "es" | "en" | "ko" }));
 vi.mock("@/application/i18n/I18nContext", () => ({
@@ -74,7 +76,9 @@ describe.each(["es", "en", "ko"] as const)("progressive first visit in %s", (loc
   it("orders study from starter actions to languages and advanced practice; no hidden heavy content is mounted", () => {
     scenario.locale = locale; scenario.qa = false;
     const html = render(<StudyPage learning={learning} />);
-    hasOrder(html, ["study-start-card", "study-language-spaces", "study-next-step", "study-support-drawer", "study-practice-labs"]);
+    hasOrder(html, ["study-start-card", "study-language-spaces", "study-support-drawer", "study-practice-labs"]);
+    expect(html).not.toContain('class="study-next-step"');
+    expect(html).not.toContain('class="learning-journey');
     expect(html).not.toContain("study-support-drawer__content");
     expect(html).toContain(`0/${TESTS_PER_LANGUAGE}`);
     expect(html).toContain('href="/study/interviews"');
@@ -86,6 +90,25 @@ describe.each(["es", "en", "ko"] as const)("progressive first visit in %s", (loc
     for (const route of ["/gks", "/checklist", "/profile"]) expect(html).not.toContain(`href="${route}"`);
     expect(html).toContain(translations[locale].study.qaWeekText);
     expect(html).toContain(translations[locale].journey.recommendations.continue);
+  });
+  it("keeps the profile summary intact and the global learning shortcut quiet until opened", () => {
+    scenario.locale = locale; scenario.qa = false;
+    const profile = render(<ProfilePage score={37} learning={learning} />);
+    const panel = render(<LearningJourneyPanel learning={learning} />);
+    expect(profile).toContain(panel);
+    expect(panel).toContain(translations[locale].journey.practicedSkills);
+    expect(panel).toContain(translations[locale].journey.privacy);
+    const shortcut = render(<LearningQuickAccess learning={learning} />);
+    expect(shortcut).toContain(`aria-label="${translations[locale].journey.kicker}"`);
+    expect(shortcut).toContain('aria-expanded="false"');
+    expect(shortcut).toContain('hidden=""');
+    expect(shortcut).not.toContain('class="learning-journey');
+    const target = shortcut.match(/aria-controls="([^"]+)"/)?.[1];
+    expect(target).toBeTruthy();
+    expect(shortcut).toContain(`id="${target}"`);
+    const together = render(<><LearningJourneyPanel learning={learning} compact /><LearningJourneyPanel learning={learning} compact headingId="floating-learning-title" /></>);
+    const ids = [...together.matchAll(/ id="([^"]+)"/g)].map((match) => match[1]);
+    expect(new Set(ids).size).toBe(ids.length);
   });
   it("keeps scholarship essentials ahead of optional certificates and video; advanced content starts unmounted", () => {
     scenario.locale = locale; scenario.qa = false;

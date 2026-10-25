@@ -1,0 +1,51 @@
+/* One dock keeps the learning disclosure above the existing interview button. */
+.learning-floating-tools {
+  --floating-right: 26px;
+  --floating-bottom: max(122px, calc(110px + env(safe-area-inset-bottom)));
+  --floating-chat-size: 62px;
+  --floating-learning-size: 48px;
+  --floating-gap: 12px;
+  position: fixed;
+  z-index: 90;
+  right: var(--floating-right);
+  bottom: var(--floating-bottom);
+  display: grid;
+  grid-template-rows: var(--floating-learning-size) var(--floating-chat-size);
+  justify-items: center;
+  gap: var(--floating-gap);
+  width: var(--floating-chat-size);
+  pointer-events: none;
+}
+.learning-floating-tools .interview-chat-launcher { position: static; grid-row: 2; pointer-events: auto; }
+.learning-quick-access { grid-row: 1; pointer-events: auto; }
+.learning-quick-trigger { display: grid; place-items: center; width: var(--floating-learning-size); height: var(--floating-learning-size); padding: 10px; border: 1.5px solid var(--story-edge); border-radius: 50%; background: var(--paper); color: var(--story-ink); box-shadow: 2px 3px 0 var(--story-edge); cursor: pointer; }
+.learning-quick-trigger .app-icon { width: 23px; height: 23px; }
+.learning-quick-trigger:is(:hover,[aria-expanded="true"]) { border-color: var(--story-ink); background: color-mix(in srgb,var(--yellow) 20%,var(--paper)); }
+.learning-quick-panel { position: fixed; right: var(--floating-right); bottom: calc(var(--floating-bottom) + var(--floating-chat-size) + var(--floating-gap) + var(--floating-learning-size) + 12px); display: flex; flex-direction: column; width: min(420px,calc(100% - 24px)); max-height: calc(100dvh - var(--floating-bottom) - var(--floating-chat-size) - var(--floating-gap) - var(--floating-learning-size) - 24px); overflow: hidden; border: 1.5px solid var(--story-edge); border-radius: 22px; background: var(--paper); color: var(--story-ink); box-shadow: 0 8px 28px #0003; }
+.learning-quick-panel[hidden] { display: none; }
+.learning-quick-panel__header { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px 8px 18px; border-bottom: 1px solid var(--story-edge); }
+.learning-quick-panel__header strong { font-size: .8rem; }
+.learning-quick-panel__header button { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid var(--story-edge); border-radius: 12px; background: var(--paper); color: inherit; font: inherit; font-size: 1.5rem; cursor: pointer; }
+.learning-quick-panel__body { overflow-y: auto; overscroll-behavior: contain; padding: 18px; }
+:root .app-shell--storybook .learning-quick-panel .learning-journey { display: block; margin: 0; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.learning-quick-panel .learning-journey__heading h2 { font-size: 1.3rem; line-height: 1.25; margin: 0; }
+.learning-quick-panel .learning-journey__heading :is(.eyebrow,.learning-journey__flame) { display: none; }
+:root .learning-quick-panel .learning-journey__stats { grid-template-columns: repeat(2,minmax(0,1fr)); margin-top: 16px; }
+.learning-quick-panel .learning-journey__stat { padding: 10px; }
+.learning-quick-panel .learning-journey__stat strong { font-size: 1.2rem; }
+.learning-quick-panel .learning-journey__stat > span { font-size: .75rem; }
+.learning-quick-panel .learning-journey__stat small { font-size: .7rem; white-space: normal; line-height: 1.4; }
+:root .learning-quick-panel .learning-recommendation { grid-template-columns: minmax(0,1fr); gap: 12px; }
+.learning-quick-panel .learning-recommendation p { font-size: .85rem; line-height: 1.5; }
+.learning-quick-panel .learning-recommendation > div > span { font-size: .65rem; }
+.learning-quick-panel .learning-recommendation a { min-width: 0; min-height: 44px; font-size: .8rem; }
+.learning-quick-panel__privacy { margin: 14px 0 0; font-size: .7rem; color: var(--muted); line-height: 1.5; }
+.learning-quick-panel :is(p,h2,strong,span) { overflow-wrap: anywhere; }
+.learning-quick-access :is(button,a):focus-visible { outline: 3px solid var(--story-ink); outline-offset: 3px; }
+@media (min-width: 560px) { .learning-floating-tools { --floating-right: 42px; --floating-chat-size: 66px; } }
+@media (min-width: 900px) { .learning-floating-tools { --floating-right: max(48px,calc((100vw - 1320px) / 2 + 48px)); --floating-bottom: 48px; } }
+@media (max-width: 559px) { .learning-quick-panel { right: 12px; } }
+@media (max-height: 400px), (max-height: 600px) and (min-width: 560px) {
+  .learning-quick-panel { right: calc(var(--floating-right) + var(--floating-chat-size) + 12px); bottom: 12px; width: min(420px,calc(100% - var(--floating-right) - var(--floating-chat-size) - 24px)); max-height: calc(100dvh - 24px); }
+}
+@media (forced-colors: active) { .learning-quick-trigger, .learning-quick-panel { border-color: ButtonText; } }

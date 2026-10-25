@@ -3642,14 +3642,6 @@ html[data-theme="dark"] .document-stage > summary > i { border-color: rgba(255,2
   margin-top: clamp(34px, 3.2vw, 46px);
 }
 
-.study-next-step {
-  margin-top: clamp(34px, 3.2vw, 46px);
-}
-
-.study-next-step .learning-journey {
-  margin-top: 0;
-}
-
 .study-support-drawer {
   margin-top: clamp(34px, 3.2vw, 46px);
   overflow: clip;
