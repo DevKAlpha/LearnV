@@ -20,6 +20,7 @@ import { InterviewChatbotLauncher } from "@/features/interview-chatbot/presentat
 import { isLearningQa } from "@/infrastructure/config/app-scope";
 import { QaPreviewNotice } from "@/app/layout/QaPreviewNotice";
 import { StoryFolio } from "@/shared/ui/StoryFolio";
+import { LearningQuickAccess } from "@/app/layout/LearningQuickAccess";
 
 const SectionTour = lazy(() => import("@/app/layout/SectionTour").then((module) => ({ default: module.SectionTour })));
 
@@ -92,12 +93,15 @@ export function App() {
         </VisualReadinessGate>
       </main>
 
-      {!isImmersiveLearningExperience && (
-        <InterviewChatbotLauncher
-          prioritySkill={learning.analysis.priority?.skill}
-          adaptiveFocus={learning.interviewAdaptation.focus}
-        />
-      )}
+      <div className="learning-floating-tools">
+        <LearningQuickAccess key={location.pathname} learning={learning} />
+        {!isImmersiveLearningExperience && (
+          <InterviewChatbotLauncher
+            prioritySkill={learning.analysis.priority?.skill}
+            adaptiveFocus={learning.interviewAdaptation.focus}
+          />
+        )}
+      </div>
 
       {tourReady && visuallyReadyRoute === location.pathname && <Suspense fallback={null}><SectionTour /></Suspense>}
     </div>

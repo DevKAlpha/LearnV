@@ -7,7 +7,6 @@ import { getLanguagePathSummary as getLanguagePath } from "@/infrastructure/data
 import { advancedPathCopy } from "@/infrastructure/i18n/advanced-path-copy";
 import { PageEmblem } from "@/shared/ui/PageEmblem";
 import type { LearningJourneyController } from "@/application/controllers/useLearningJourney";
-import { LearningJourneyPanel } from "@/shared/ui/LearningJourneyPanel";
 import { isLearningQa } from "@/application/qa/qa-learning-scope";
 import { LanguageCulture } from "@/shared/ui/LanguageCulture";
 import { SceneArt } from "@/shared/ui/SceneArt";
@@ -106,10 +105,6 @@ export function StudyPage({ learning }: { learning: LearningJourneyController })
           })}
         </div>
       </section>
-
-      <div className="study-next-step">
-        <LearningJourneyPanel learning={learning} compact />
-      </div>
 
       <details
         className="study-support-drawer"
