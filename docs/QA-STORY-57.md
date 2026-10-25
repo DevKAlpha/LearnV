@@ -89,3 +89,13 @@ Servidor Pages-like local con base `/LearnV/qa/` y origen de pruebas separado, s
 - Móvil 320 px (ayudas española, inglesa y coreana), tableta 768 px y escritorio 1280 px, temas claro y oscuro: sin desbordamiento horizontal en las vistas revisadas. Consolas de ambas pestañas sin errores ni advertencias.
 
 Límites: almacenamiento denegado/cuota agotada y reintentos se verificaron automáticamente; no se cambió la configuración de privacidad del navegador. La revisión de teclado y estructura semántica no sustituye una auditoría con lector de pantalla ni una certificación pedagógica completa.
+
+## Ajuste del 24 de octubre · tarjeta de introducción y separación del menú
+
+Rama `intro-path-cards`, desde `11ae70b`. Entrega en producción mediante integración en `main`; el QA remoto mantiene su rama independiente y no se actualiza con esta entrega.
+
+- La introducción pasa a ser la primera tarjeta de la misma cuadrícula que la ruta completa, en inglés y coreano. Comparte ancho, altura, bordes redondeados y acción amarilla; mantiene sus ilustraciones SVG, ayudas y progreso independiente. En móvil las tarjetas se apilan.
+- Abrir el repaso amplía su tarjeta a toda la cuadrícula para leer y practicar con espacio. Las aclaraciones de alcance aparecen al abrirlo y las tres microlecciones siguen montándose solo entonces. Se conservan requisitos previos, enlaces y almacenamiento.
+- El menú tiene divisores, mayor espacio entre acciones y margen inferior. Los anclajes dejan espacio bajo el menú fijo y el recorrido guiado señala específicamente la tarjeta de la ruta.
+- `pnpm run validate`: arquitectura, 555 pruebas en 54 archivos, TypeScript, compilación y presupuesto correctos. `pnpm run build:qa` con base `/LearnV/qa/` también pasa. JavaScript inicial: completo 418 305 B / 137 698 B gzip; QA 418 263 B / 137 863 B gzip. Sin dependencias ni recursos visuales nuevos.
+- Navegador sobre servidor de desarrollo local aislado: ambos idiomas, escritorio 1280 × 900 y móvil 320 × 740, claro y oscuro; sin desbordamiento horizontal. Apertura, respuesta correcta, cierre y regreso conservan 1/3 por idioma y 0/132 en la ruta. Selección de ayuda española, botones de cambio de idioma y anclaje de pruebas operativos. Consola sin errores ni advertencias.

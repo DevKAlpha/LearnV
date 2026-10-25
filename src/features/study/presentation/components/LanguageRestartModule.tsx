@@ -66,30 +66,30 @@ export function LanguageRestartModule({ language }: { language: TestLanguage }) 
     }
   };
 
-  return <section className={`learning-restart learning-restart--${language}`} lang={helpLocale} aria-labelledby={`${id}-title`}>
+  return <section className={`learning-restart learning-restart--${language}${open ? " is-open" : ""}`} lang={helpLocale} aria-labelledby={`${id}-title`}>
     <div className="learning-restart__cover">
       <div>
         <span className="eyebrow">{copy.kicker}</span>
-        <h2 id={`${id}-title`}>{copy.title[language]}</h2>
-        <p>{copy.intro}</p>
         <span className="learning-restart__level">{copy.level[language]}</span>
       </div>
       <div className="learning-restart__art"><SceneArt scene={language === "en" ? "reader" : "seoul"} /></div>
     </div>
+    <h2 id={`${id}-title`}>{copy.title[language]}</h2>
+    <p className="learning-restart__intro">{copy.intro}</p>
+    <p className="learning-restart__scope">{copy.prerequisite[language]}</p>
+    <span className="learning-restart__progress"><progress max={lessons.length} value={completed.length} aria-label={copy.completed} /><b>{completed.length}/{lessons.length}</b><small>{copy.completed}</small></span>
     <div className="learning-restart__toolbar">
       <label>{copy.help}<select value={helpLocale} onChange={(event) => { const next = event.target.value as Locale; setHelpLocale(next); setHelpSaved(saveRestartHelpLocale(language, next)); }}>
         <option value="es">Español</option><option value="en">English</option><option value="ko">한국어</option>
       </select></label>
-      <span className="learning-restart__progress"><progress max={lessons.length} value={completed.length} aria-label={copy.completed} /><b>{completed.length}/{lessons.length}</b> {copy.completed}</span>
       <button className="learning-restart__action" type="button" aria-expanded={open} aria-controls={`${id}-body`} onClick={() => { opening.current = !open; focusLesson.current = !open; setOpen(!open); }}>
         {open ? copy.close : complete ? copy.review : completed.length ? copy.resume : copy.start}<span aria-hidden="true">{open ? "−" : "→"}</span>
       </button>
     </div>
     {!helpSaved && <p className="learning-restart__scope" role="status">{copy.helpUnsaved}</p>}
-    <p className="learning-restart__scope">{copy.scope}</p>
-    <p className="learning-restart__scope">{copy.prerequisite[language]}</p>
     <div id={`${id}-body`} className="learning-restart__body" hidden={!open}>
     {open && <>
+      <p className="learning-restart__scope">{copy.scope}</p>
       <aside className="learning-restart__method" aria-labelledby={`${id}-method`}>
         <h3 id={`${id}-method`} ref={methodHeading} tabIndex={-1}>{copy.how}</h3>
         <ol>{copy.method.map((step) => <li key={step}>{step.replace("{score}", String(passScore))}</li>)}</ol>

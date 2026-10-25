@@ -116,7 +116,7 @@ describe.each(["es", "en", "ko"] as const)("progressive first visit in %s", (loc
   it("describes six skills and derives activity counts from the actual catalogue", () => {
     const skills = getDefinition("/tests/en").steps.find((step) => step.selector === ".test-skill-tabs");
     expect(skills?.title[locale]).toBe({ es: "Seis habilidades", en: "Six skills", ko: "여섯 가지 기능" }[locale]);
-    const path = getDefinition("/study/korean").steps.find((step) => step.selector === ".test-hub");
+    const path = getDefinition("/study/korean").steps.find((step) => step.selector === ".test-track-card");
     expect(path?.text[locale]).toContain(String(TESTS_PER_LANGUAGE));
     expect(path?.text[locale]).toContain(String(TESTS_PER_SKILL));
   });

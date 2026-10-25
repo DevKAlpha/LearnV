@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import type { ReactNode } from "react";
 import { useLanguageTestProgress } from "@/application/controllers/useLanguageTestProgress";
 import { useI18n } from "@/application/i18n/I18nContext";
 import type { TestLanguage } from "@/domain/models/language-test";
@@ -8,9 +9,10 @@ import { LanguageCulture } from "@/shared/ui/LanguageCulture";
 
 type TestTrackCardsProps = {
   languages?: TestLanguage[];
+  introduction?: ReactNode;
 };
 
-export function TestTrackCards({ languages = ["en", "ko"] }: TestTrackCardsProps) {
+export function TestTrackCards({ languages = ["en", "ko"], introduction }: TestTrackCardsProps) {
   const { copy, locale, setLocale } = useI18n();
   const { totals, progress } = useLanguageTestProgress();
   const advancedCopy = advancedPathCopy[locale];
@@ -36,6 +38,7 @@ export function TestTrackCards({ languages = ["en", "ko"] }: TestTrackCardsProps
       <p className="section-intro">{copy.tests.hubIntro}</p>
 
       <div className="test-track-grid">
+        {introduction}
         {tracks.filter((track) => languages.includes(track.language)).map((track) => {
           const path = getLanguagePath(track.language, progress[track.language]);
           const advanced = path.phase === "advanced";
