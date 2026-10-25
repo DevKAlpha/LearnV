@@ -24,7 +24,10 @@ describe.each(["es", "en", "ko"] as const)("restart module with %s help", (local
   it.each(["en", "ko"] as const)("appears before the existing %s track without resetting progress or eagerly mounting the exercise", (language) => {
     scenario.locale = language; scenario.baseLocale = locale;
     const html = render(<LanguageStudyPage language={language} />);
-    expect(html.indexOf('class="learning-restart ')).toBeLessThan(html.indexOf('class="test-hub"'));
+    const grid = html.indexOf('class="test-track-grid"');
+    const introduction = html.indexOf('class="learning-restart ');
+    expect(grid).toBeLessThan(introduction);
+    expect(introduction).toBeLessThan(html.indexOf('class="test-track-card '));
     expect(html).toContain(learningRestartCopy[locale].title[language]);
     expect(html).toContain(`lang="${locale}"`);
     expect(html).toContain('aria-expanded="false"');
@@ -98,7 +101,7 @@ it("restores independent completion and offers review instead of deleting progre
 it("introduces the refresher before the full track in the contextual tour", () => {
   for (const route of ["/study/english", "/study/korean"]) {
     const steps = getDefinition(route).steps;
-    expect(steps.findIndex((step) => step.selector === ".learning-restart")).toBeLessThan(steps.findIndex((step) => step.selector === ".test-hub"));
+    expect(steps.findIndex((step) => step.selector === ".learning-restart")).toBeLessThan(steps.findIndex((step) => step.selector === ".test-track-card"));
   }
 });
 it("keeps the component off startup imports, with no new QA routes or heavy visual effects", () => {

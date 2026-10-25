@@ -78,8 +78,7 @@ export function LanguageStudyPage({ language }: LanguageStudyPageProps) {
       </nav>
 
       <div id="language-tests">
-        <LanguageRestartModule key={language} language={language} />
-        <TestTrackCards languages={[language]} />
+        <TestTrackCards languages={[language]} introduction={<LanguageRestartModule key={language} language={language} />} />
       </div>
       <ResourceLibrary language={language} />
     </div>
