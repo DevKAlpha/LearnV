@@ -2,14 +2,16 @@ import { Link } from "react-router-dom";
 import type { LearningJourneyController } from "@/application/controllers/useLearningJourney";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { isLearningQa, resolveAppRoute } from "@/application/qa/qa-learning-scope";
+import { JourneyCoverArt, JourneyStatArt } from "./JourneyArtwork";
 
 type Props = {
   learning: LearningJourneyController;
   compact?: boolean;
   headingId?: string;
+  illustrated?: boolean;
 };
 
-export function LearningJourneyPanel({ learning, compact = false, headingId = `learning-journey-title${compact ? "-compact" : ""}` }: Props) {
+export function LearningJourneyPanel({ learning, compact = false, illustrated = false, headingId = `learning-journey-title${compact ? "-compact" : ""}` }: Props) {
   const { copy } = useI18n();
   const { journey, recommendation, activeMinutes, practicedSkills } = learning;
   const streakUnit = journey.currentStreak === 1 ? copy.journey.day : copy.journey.days;
@@ -23,14 +25,15 @@ export function LearningJourneyPanel({ learning, compact = false, headingId = `l
           <h2 id={headingId}>{copy.journey.title}</h2>
           {!compact && <p>{copy.journey.intro}</p>}
         </div>
+        {illustrated && <JourneyCoverArt />}
         <span className="learning-journey__flame" aria-hidden="true">{journey.currentStreak > 0 ? "🔥" : "✦"}</span>
       </div>
 
       <div className="learning-journey__stats">
-        <div className="learning-journey__stat learning-journey__stat--streak"><strong>{journey.currentStreak}</strong><span>{streakUnit}<small>{copy.journey.currentStreak}</small></span></div>
-        <div className="learning-journey__stat"><strong>{journey.longestStreak}</strong><span>{copy.journey.days}<small>{copy.journey.longestStreak}</small></span></div>
-        <div className="learning-journey__stat"><strong>{journey.sessionCount}</strong><span><small>{copy.journey.sessions}</small></span></div>
-        <div className="learning-journey__stat"><strong>{activeMinutes}</strong><span><small>{copy.journey.activeMinutes}</small></span></div>
+        <div className="learning-journey__stat learning-journey__stat--streak">{illustrated && <JourneyStatArt kind="streak" />}<strong>{journey.currentStreak}</strong><span>{streakUnit}<small>{copy.journey.currentStreak}</small></span></div>
+        <div className="learning-journey__stat">{illustrated && <JourneyStatArt kind="best" />}<strong>{journey.longestStreak}</strong><span>{copy.journey.days}<small>{copy.journey.longestStreak}</small></span></div>
+        <div className="learning-journey__stat">{illustrated && <JourneyStatArt kind="sessions" />}<strong>{journey.sessionCount}</strong><span><small>{copy.journey.sessions}</small></span></div>
+        <div className="learning-journey__stat">{illustrated && <JourneyStatArt kind="time" />}<strong>{activeMinutes}</strong><span><small>{copy.journey.activeMinutes}</small></span></div>
         {!compact && <div className="learning-journey__stat"><strong>{practicedSkills}</strong><span><small>{copy.journey.practicedSkills}</small></span></div>}
       </div>
 
