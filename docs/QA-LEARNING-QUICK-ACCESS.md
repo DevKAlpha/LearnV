@@ -20,3 +20,14 @@ Revisión del 25 de octubre de 2026. Base `878c129`, rama `learning-quick-access
 - Se corrigió el recorte del panel a 320 px causado por el ancho de la barra de desplazamiento y se verificó margen entre entrevistas y navegación inferior en móvil y horizontal. No se modificaron respuestas, resultados, documentos ni datos de producción.
 
 La revisión de teclado y semántica no sustituye una auditoría completa con lector de pantalla. QA se verificó mediante compilación y regresiones de rutas; no se desplegó en el entorno remoto.
+
+## Pulida visual del 26 de octubre
+
+Base `ea4908e`, rama `learning-panel-depth`. Entrega en producción mediante integración en `main`; el QA remoto conserva su rama independiente y no se actualiza con esta entrega.
+
+- Emblema original de libro y tulipán en el botón, ilustración de cabecera y cuatro símbolos SVG para racha, mejor racha, sesiones y tiempo. Vectores decorativos, sin IDs, filtros, imágenes externas ni animación; el botón conserva sus 48 px.
+- Papel superpuesto, bordes dobles, sombras de apoyo, cabecera cálida y tarjetas con relieve. La recomendación y su acción usan superficies de mayor contraste. Variables propias para crema/lila en claro y ciruela en oscuro; los tulipanes conservan pétalos violetas y hojas verdes.
+- La ilustración se activa únicamente desde el acceso flotante. El perfil conserva cinco indicadores, privacidad y apariencia original; no se muestran allí los nuevos SVG. Inicio también conserva su presentación.
+- `pnpm run validate`: arquitectura, 558 pruebas en 54 archivos, TypeScript y compilación correctos. Build QA con base `/LearnV/qa/` correcto. JavaScript inicial completo: 422 946 B / 139 094 B gzip; QA: 422 904 B / 139 253 B gzip. Ambos dentro del presupuesto; no se añadieron dependencias ni fuentes.
+- Navegador local: claro/oscuro en escritorio 1280 × 900 y móvil 320 × 640, contenido sin desbordamiento horizontal, cuatro tarjetas sin recorte interno y cinco SVG decorativos en el panel. El contenido completo cabe en el escritorio revisado; en móvil conserva el desplazamiento del cuerpo y el cierre visible. Escape devuelve el foco al botón. Perfil con cinco indicadores y cero ilustraciones nuevas; consola sin errores ni advertencias.
+- Comprobación de pares de color aplicados y extremos de sus degradados: título claro 12,70:1, título oscuro 13,03:1; indicadores 11,58:1 y 8,09:1; texto de recomendación 7,64:1 y 10,95:1; etiqueta de recomendación 6,38:1 y 9,14:1; acción 9,94:1. Son muestras de contraste del componente, no una auditoría completa de accesibilidad de toda la aplicación.

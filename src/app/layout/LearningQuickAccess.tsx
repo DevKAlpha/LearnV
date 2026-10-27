@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import type { LearningJourneyController } from "@/application/controllers/useLearningJourney";
 import { useI18n } from "@/application/i18n/I18nContext";
-import { AppIcon } from "@/shared/ui/AppIcon";
+import { JourneyEmblem } from "@/shared/ui/JourneyArtwork";
 import { LearningJourneyPanel } from "@/shared/ui/LearningJourneyPanel";
 import "@/styles/learning-quick-access.css";
 
@@ -43,7 +43,7 @@ export function LearningQuickAccess({ learning }: { learning: LearningJourneyCon
     <button className="learning-quick-trigger" type="button" ref={trigger}
       aria-label={copy.journey.kicker} title={copy.journey.kicker} aria-haspopup="dialog"
       aria-expanded={open} aria-controls={`${id}-panel`} onClick={() => setOpen(!open)}>
-      <AppIcon name="sparkle" />
+      <JourneyEmblem />
     </button>
     <div id={`${id}-panel`} className="learning-quick-panel" role="dialog" aria-modal="false"
       aria-label={copy.journey.kicker} hidden={!open} onClick={(event) => {
@@ -55,7 +55,7 @@ export function LearningQuickAccess({ learning }: { learning: LearningJourneyCon
           <button type="button" ref={closeButton} aria-label={closeLabels[locale]} onClick={close}>×</button>
         </header>
         <div className="learning-quick-panel__body">
-          <LearningJourneyPanel learning={learning} compact headingId={`${id}-title`} />
+          <LearningJourneyPanel learning={learning} compact illustrated headingId={`${id}-title`} />
           <p className="learning-quick-panel__privacy">{copy.journey.privacy}</p>
         </div>
       </>}
