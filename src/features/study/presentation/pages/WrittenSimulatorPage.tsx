@@ -43,7 +43,7 @@ export function WrittenSimulatorPage() {
   }, [simulator.reset]);
 
   return (
-    <div className="page written-simulator-page">
+    <div className="page written-simulator-page" data-help-written={state.step} data-help-timed-running={!!state.startedAt && !state.completedAt && simulator.secondsLeft > 0}>
       <header className="written-simulator-hero">
         <Link className="test-back-link" to="/study"><span aria-hidden="true">←</span>{copy.written.back}</Link>
         <span className="sticker sticker--pink">{copy.written.sticker}</span>

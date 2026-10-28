@@ -109,7 +109,7 @@ export function InterviewPrepPage({ learning }: { learning: LearningJourneyContr
   };
 
   return (
-    <div className="page interview-page">
+    <div className="page interview-page" data-help-timed-running={timerRunning && secondsLeft > 0}>
       <header className="interview-hero">
         <div className="interview-hero__topline">
           <Link className="test-back-link" to="/study"><span aria-hidden="true">←</span>{copy.interview.back}</Link>

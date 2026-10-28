@@ -1,0 +1,14 @@
+.page-help-current { margin: 18px 0; padding: 18px; border: 1px solid var(--line); border-left: 4px solid var(--purple); border-radius: 14px; background: var(--paper); }
+.page-help-current h3 { margin: 6px 0 14px; font-size: 1.15rem; line-height: 1.3; }
+.page-help-current ol { display: grid; gap: 14px; margin: 0; padding-left: 22px; }
+.page-help-current li { padding-left: 4px; }
+.page-help-current li::marker { color: var(--muted); font-weight: 800; }
+.page-help-current li strong { font-size: .85rem; line-height: 1.4; }
+.page-help-current li p { margin: 4px 0 0; color: var(--muted); font-size: .85rem; line-height: 1.6; }
+.page-help-current__timer { padding: 10px; border: 1px solid var(--line); border-radius: 8px; font-size: .85rem; line-height: 1.5; background: color-mix(in srgb,var(--yellow) 18%,var(--paper)); }
+.app-guide-overview { margin-top: 18px; }
+.app-guide-overview > summary { cursor: pointer; font-weight: 800; font-size: .85rem; min-height: 44px; padding-block: 10px; }
+.app-guide-dialog { overscroll-behavior: contain; }
+.app-guide-dialog :is(button,a,summary):focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
+.section-tour__card { overflow-y: auto; touch-action: pan-y; overscroll-behavior: contain; }
+.section-tour__card :is(button):focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }

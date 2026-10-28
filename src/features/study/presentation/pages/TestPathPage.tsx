@@ -61,7 +61,7 @@ export function TestPathPage() {
   if (invalidLanguage) return <Navigate to="/study" replace />;
 
   return (
-    <div className={`page test-path-page test-path-page--${language} test-path-page--${path.phase}`}>
+    <div className={`page test-path-page test-path-page--${language} test-path-page--${path.phase}`} data-help-phase={path.phase}>
       <header className="test-path-header">
         <Link className="test-back-link" to={`/study/${language === "en" ? "english" : "korean"}`}><span aria-hidden="true">←</span>{copy.tests.backLibrary}</Link>
         <LanguageCulture language={language} variant="badge" />
