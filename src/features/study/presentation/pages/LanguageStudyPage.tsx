@@ -53,7 +53,7 @@ export function LanguageStudyPage({ language }: LanguageStudyPageProps) {
   }, [language]);
 
   return (
-    <div className={`page language-study-page language-study-page--${language}`}>
+    <div className={`page language-study-page language-study-page--${language}`} data-help-phase={path.phase}>
       <header className="language-study-hero">
         <Link className="test-back-link" to="/study"><span aria-hidden="true">←</span>{copy.study.backStudy}</Link>
         <div className="language-study-hero__main">

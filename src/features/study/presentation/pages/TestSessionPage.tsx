@@ -255,7 +255,7 @@ export function TestSessionPage() {
     const promoted = result.passed && !isAdvancedStage && path.advancedUnlocked;
 
     return (
-      <div className={`page test-result-page test-result-page--${language}`} id="test-session-top">
+      <div className={`page test-result-page test-result-page--${language}`} id="test-session-top" data-help-practice="result" data-help-phase={isAdvancedStage ? "advanced" : "foundation"}>
         <header className="result-hero">
           <LanguageCulture language={language} variant="badge" />
           <span className="eyebrow">{copy.tests.resultKicker}</span>
@@ -345,7 +345,7 @@ export function TestSessionPage() {
   }
 
   return (
-    <div className={`page test-session-page test-session-page--${language}`} id="test-session-top">
+    <div className={`page test-session-page test-session-page--${language}`} id="test-session-top" data-help-practice={productionDone ? "questions" : "production"} data-help-mode={stage.productionTask.mode} data-help-retake={timed} data-help-phase={isAdvancedStage ? "advanced" : "foundation"} data-help-timed-running={timed && productionDone}>
       <LanguageCulture language={language} variant="badge" />
       {isAdvancedStage && !productionDone && <aside className="advanced-path-notice"><strong>{language === "en" ? advancedCopy.title : advancedCopy.koreanTitle}</strong><p>{advancedCopy.criteria}</p><details><summary>{advancedCopy.scope}</summary><small>{advancedCopy.notice}</small></details></aside>}
       <header className="session-topbar">

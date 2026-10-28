@@ -2,113 +2,30 @@ import { scopedStorageKey } from "@/infrastructure/config/app-scope";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import { useLocation } from "react-router-dom";
-import type { Locale, LocalizedText } from "@/domain/models/i18n";
+import type { Locale } from "@/domain/models/i18n";
 import { localize } from "@/domain/models/i18n";
-import { isLearningQa } from "@/application/qa/qa-learning-scope";
-import { TESTS_PER_LANGUAGE, TESTS_PER_SKILL } from "@/infrastructure/data/practice-test-metadata";
+import { getDefinition, type TourStep } from "./section-help";
+import { useI18n } from "@/application/i18n/I18nContext";
+import { consumePageTourRequest, START_PAGE_TOUR_EVENT } from "@/application/controllers/pageHelpEvents";
+import { findHelpTarget, isFixedHelpTarget, readPageHelpContext } from "./page-help-context";
+import "@/styles/page-help.css";
+export { getDefinition } from "./section-help";
 
-type TourStep = { selector: string; title: LocalizedText; text: LocalizedText };
-type TourDefinition = { key: string; title: LocalizedText; steps: TourStep[] };
 type HighlightRect = { top: number; left: number; width: number; height: number };
-
-const t = (es: string, en: string, ko: string): LocalizedText => ({ es, en, ko });
-const step = (selector: string, title: LocalizedText, text: LocalizedText): TourStep => ({ selector, title, text });
 const STORAGE_KEY = scopedStorageKey("learnv-section-tours-v1");
-
-export function getDefinition(pathname: string): TourDefinition {
-  if (/^\/tests\/(en|ko)\/.+/.test(pathname)) return {
-    key: "practice", title: t("Cómo completar una práctica", "How to complete a practice", "연습 완료 방법"), steps: [
-      step(".session-topbar", t("Progreso de sesión", "Session progress", "세션 진행"), t("Aquí ves el avance, el intento y el tiempo. El cronómetro solo aparece desde el segundo intento.", "See progress, attempt and time here. The timer starts from the second attempt.", "진행도, 응시 횟수와 시간을 확인합니다. 타이머는 두 번째 응시부터 시작됩니다.")),
-      step(".question-stage", t("Primero produce", "Produce first", "먼저 수행하세요"), t("Escribe, escucha o graba según la habilidad. Esta evidencia es necesaria para desbloquear la siguiente prueba.", "Write, listen or record for the skill. This evidence is required to unlock the next test.", "기능에 따라 쓰고, 듣거나 녹음하세요. 다음 시험을 열려면 이 수행 증거가 필요합니다.")),
-      step(".production-checklist", t("Comprueba con honestidad", "Check honestly", "솔직하게 확인하세요"), t("Marca cada criterio únicamente después de revisarlo en tu respuesta.", "Tick each criterion only after checking it in your response.", "답변에서 실제로 확인한 기준만 체크하세요.")),
-      step(".session-action-bar", t("Continúa cuando esté listo", "Continue when ready", "준비되면 계속하세요"), t("El botón se activa cuando la tarea y sus comprobaciones están completas.", "The button activates when the task and its checks are complete.", "과제와 확인 항목을 완료하면 버튼이 활성화됩니다.")),
-    ],
-  };
-  if (/^\/tests\/(en|ko)$/.test(pathname)) return {
-    key: "test-path", title: t("Tu recorrido de pruebas", "Your test path", "시험 학습 경로"), steps: [
-      step(".test-path-header", t("Objetivo y progreso", "Target and progress", "목표와 진행도"), t("Resume el nivel de partida, la meta, pruebas superadas e intentos realizados.", "This summarises your starting point, target, passed tests and attempts.", "시작 수준, 목표, 통과한 시험과 응시 횟수를 요약합니다.")),
-      step(".test-skill-tabs", t("Seis habilidades", "Six skills", "여섯 가지 기능"), t("Elige Lectura, Gramática, Vocabulario, Escritura, Listening o Pronunciación. Trabaja una habilidad cada vez.", "Choose Reading, Grammar, Vocabulary, Writing, Listening or Pronunciation. Work on one skill at a time.", "읽기, 문법, 어휘, 쓰기, 듣기 또는 발음을 선택하고 한 번에 한 기능을 연습하세요.")),
-      step(".test-skill-section", t("Avance procedural", "Procedural progress", "단계별 진행"), t("Completa la prueba disponible para abrir la siguiente. Puedes repetir cualquier etapa desbloqueada.", "Complete the available test to unlock the next one. Any unlocked stage can be repeated.", "현재 시험을 완료하면 다음 단계가 열립니다. 열린 단계는 다시 연습할 수 있습니다.")),
-    ],
-  };
-  if (/^\/study\/(english|korean)$/.test(pathname)) return {
-    key: pathname.endsWith("english") ? "english-space" : "korean-space", title: t("Tu espacio de idioma", "Your language space", "언어 학습 공간"), steps: [
-      step(".language-study-hero", t("Resumen del espacio", "Space summary", "학습 공간 요약"), t("Aquí ves el objetivo, las pruebas superadas y los recursos disponibles para este idioma.", "See the target, passed tests and available resources for this language.", "이 언어의 목표, 통과한 시험과 사용 가능한 자료를 확인합니다.")),
-      step(".language-study-jump-nav", t("Navegación rápida", "Quick navigation", "빠른 이동"), t("El sombreado sigue la sección visible: pruebas o materiales. También puedes cambiar de idioma.", "The highlight follows the visible section: tests or materials. You can also switch language.", "현재 보이는 시험 또는 자료 메뉴가 강조됩니다. 언어도 바꿀 수 있습니다.")),
-      step(".learning-restart", t("Retoma la base primero", "Refresh the basics first", "기초부터 다시 시작"), t("Aprende tres herramientas breves de lectura, gramática y escritura. Cada una enlaza con una actividad real y su ficha reaparece al revisar tu primer borrador. El repaso es opcional y no cambia tu ruta.", "Learn three short reading, grammar and writing tools. Each links to a real activity, where the same card is available when reviewing your first draft. The refresher is optional and does not change your path.", "짧은 읽기·문법·쓰기 도구 세 개를 익히세요. 각각 실제 활동과 연결되며 첫 초안 검토 때 같은 도구를 다시 볼 수 있습니다. 선택 복습이며 기존 경로는 바뀌지 않습니다.")),
-      step(".test-track-card", t("Prácticas guiadas", "Guided practice", "안내형 연습"), t(`Abre el recorrido de ${TESTS_PER_LANGUAGE} actividades: ${TESTS_PER_SKILL} por cada una de las seis habilidades. Empieza por una, sin intentar hacerlas todas de golpe.`, `Open the ${TESTS_PER_LANGUAGE}-activity path: ${TESTS_PER_SKILL} for each of six skills. Start with one, not all at once.`, `여섯 기능별 ${TESTS_PER_SKILL}개씩 총 ${TESTS_PER_LANGUAGE}개 활동 경로입니다. 한 번에 모두 하지 말고 하나부터 시작하세요.`)),
-      step(".resource-library", t("Biblioteca con tareas", "Task-based library", "과제형 자료실"), t("Cada recurso indica qué hacer, cuánto tiempo reservar, si requiere cuenta y permite marcarlo como completado.", "Each resource tells you what to do, time needed, account access and lets you mark it complete.", "각 자료에는 할 일, 예상 시간, 계정 필요 여부와 완료 표시가 있습니다.")),
-    ],
-  };
-  if (pathname === "/study/interviews") return {
-    key: "interviews", title: t("Preparación de entrevistas", "Interview preparation", "면접 준비"), steps: [
-      step(".interview-hero", t("Qué vas a entrenar", "What you will train", "연습할 내용"), t("La preparación cubre motivación, evidencia académica, adaptación y contribución.", "Preparation covers motivation, academic evidence, adaptation and contribution.", "동기, 학업 근거, 적응과 기여를 준비합니다.")),
-      step(".interview-method", t("Estructura de respuesta", "Answer structure", "답변 구조"), t("Responde primero, demuestra con evidencia y conecta con tu objetivo GKS.", "Answer first, support it with evidence and link it to your GKS goal.", "먼저 답하고 근거를 제시한 뒤 GKS 목표와 연결하세요.")),
-      step(".interview-simulator", t("Simulador personal", "Personal simulator", "개인 시뮬레이터"), t("Usa el temporizador, guarda notas por pregunta y revisa tu respuesta antes de avanzar.", "Use the timer, save notes per question and review your answer before moving on.", "타이머를 사용하고 질문별 메모를 저장한 뒤 답변을 검토하세요.")),
-      step(".interview-video", t("Experiencia en video", "Video experience", "영상 경험"), t("El video se carga solo al reproducirlo. Es orientación personal, no una regla oficial.", "The video loads only when played. It is personal guidance, not an official rule.", "재생할 때만 영상이 로드됩니다. 공식 규정이 아닌 개인 경험입니다.")),
-    ],
-  };
-  if (pathname === "/study/written-simulator") return {
-    key: "written", title: t("Simulador escrito GKS", "GKS written simulator", "GKS 서면 시뮬레이터"), steps: [
-      step(".written-simulator-hero", t("Práctica, no examen oficial", "Practice, not an official exam", "공식 시험이 아닌 연습"), t("Entrena elementos escritos de la candidatura; GKS-U no define una prueba escrita nacional única.", "Train written application elements; GKS-U does not define one national written exam.", "지원서 서면 요소를 연습합니다. GKS-U는 하나의 국가 필기시험을 정하지 않습니다.")),
-      step(".written-official-note", t("Referencia oficial", "Official reference", "공식 참고"), t("Consulta aquí las fuentes que delimitan qué reproduce el simulador.", "Use these sources to understand what the simulator reproduces.", "시뮬레이터가 재현하는 범위를 공식 자료로 확인하세요.")),
-      step(".written-stage", t("Trabajo guardado", "Saved work", "저장되는 작업"), t("El borrador se guarda en este dispositivo. Completa cada etapa y revisa la coherencia al final.", "The draft is saved on this device. Complete each stage and review consistency at the end.", "초안은 이 기기에 저장됩니다. 각 단계를 완료하고 마지막에 일관성을 검토하세요.")),
-    ],
-  };
-  if (pathname === "/gks") return {
-    key: "scholarship", title: t("Tu ruta para entender la beca", "Your path to understanding the scholarship", "장학금 이해 경로"), steps: [
-      step(".page-header--gks", t("Empieza con contexto claro", "Start with clear context", "명확한 맥락부터 시작"), t("El recorrido avanza desde el estado actual hasta los requisitos y apoyos más avanzados.", "The path moves from the current status to requirements and more advanced support.", "현재 상태에서 요건과 심화 지원까지 순서대로 안내합니다.")),
-      step(".gks-daily-radar", t("Radar diario", "Daily radar", "일일 레이더"), t("Prioriza el estado más reciente, la siguiente acción y las fuentes oficiales revisadas.", "It prioritises the latest status, next action and checked official sources.", "최신 상태, 다음 행동과 확인한 공식 출처를 우선 표시합니다.")),
-      step(".gks-pathway", t("Tres pasos para orientarte", "Three steps to get oriented", "세 단계 안내"), t("Comprueba primero la elegibilidad, organiza documentos y después valora certificaciones.", "Check eligibility first, organise documents and then consider certifications.", "먼저 지원 자격을 확인하고 서류를 정리한 뒤 자격증을 검토하세요.")),
-      step(".gks-details", t("Lo esencial antes del detalle", "Essentials before detail", "세부 정보 전 핵심"), t("Abre únicamente la elegibilidad, los datos base, las carreras o las fuentes que necesites.", "Open only the eligibility, core facts, majors or sources you need.", "필요한 지원 자격, 기본 정보, 전공 또는 출처만 펼쳐 보세요.")),
-      step(".gks-certifications-stage", t("Certificaciones bajo demanda", "Certifications on demand", "필요할 때 자격증"), t("La comparación y el catálogo dinámico se cargan solo cuando decides consultarlos.", "The comparison and dynamic catalogue load only when you choose to review them.", "비교와 동적 카탈로그는 확인할 때만 불러옵니다.")),
-      step(".gks-guidance-stage", t("Orientación complementaria", "Optional guidance", "보충 안내"), t("Los videos quedan al final como apoyo y se cargan únicamente al abrir esta etapa.", "Videos stay at the end as support and load only when this stage is opened.", "영상은 보충 자료로 마지막에 있으며 이 단계를 열 때만 불러옵니다.")),
-    ],
-  };
-  if (pathname === "/study") return {
-    key: "study", title: t("Tu ruta de aprendizaje", "Your learning path", "나의 학습 경로"), steps: [
-      step(".page-header--study", t("Un recorrido en orden", "A path in order", "순서가 있는 경로"), t("La pantalla empieza con la ruta inicial y deja el análisis detallado para cuando lo necesites.", "The screen starts with the starter route and leaves detailed analysis for when you need it.", "시작 경로를 먼저 보여 주고 상세 분석은 필요할 때 확인하도록 구성했습니다.")),
-      step(".study-start-card", t("Empieza por aquí", "Start here", "여기서 시작하세요"), t("Sigue estas acciones iniciales para construir una base antes de simular.", "Follow these starter actions to build a foundation before simulating.", "시뮬레이션 전 기초를 만들기 위해 시작 활동을 따르세요.")),
-      step(".study-language-spaces", t("Idiomas separados", "Separate language spaces", "분리된 언어 공간"), t("Inglés y coreano tienen navegación, pruebas, progreso y materiales independientes.", "English and Korean have independent navigation, tests, progress and materials.", "영어와 한국어는 각각 별도의 탐색, 시험, 진행도와 자료를 가집니다.")),
-      step(".learning-quick-trigger", t("Tu aprendizaje, a mano", "Your learning, at hand", "언제든 학습 요약"), t("El botón del libro y el tulipán, encima de la entrevista, abre tu racha y siguiente recomendación cuando quieras consultarlas.", "The book and tulip button above the interview opens your streak and next recommendation whenever you want to check them.", "면접 버튼 위 책과 튤립을 누르면 연속 학습 기록과 다음 추천을 확인할 수 있습니다.")),
-      step(".study-support-drawer", t("Detalle bajo demanda", "Detail on demand", "필요할 때 세부 정보"), t("El análisis y los materiales personalizados se abren solo cuando quieres consultarlos.", "Analysis and personalised materials open only when you want to review them.", "분석과 맞춤 자료는 확인하고 싶을 때만 펼쳐집니다.")),
-      step(".study-practice-labs", t("Aplicación práctica", "Applied practice", "응용 연습"), t("Después de construir la base puedes pasar a la candidatura escrita y la entrevista.", "After building the foundation, move on to the written application and interview.", "기초를 만든 뒤 서면 지원과 면접 연습으로 넘어갑니다.")),
-    ],
-  };
-  if (pathname === "/checklist") return {
-    key: "documents", title: t("Tu ruta documental", "Your document path", "서류 준비 경로"), steps: [
-      step(".page-header", t("Preparación sin subir archivos", "Prepare without uploading files", "파일 업로드 없이 준비"), t("Organiza el estado de cada requisito; la convocatoria vigente siempre tiene prioridad.", "Track each requirement's status; the current guidelines always take priority.", "각 요건의 상태를 정리하며 최신 모집 요강이 항상 우선합니다.")),
-      step(".checklist-progress", t("Progreso local", "Local progress", "기기 내 진행도"), t("El contador cambia cuando marcas documentos y permanece únicamente en este dispositivo.", "The counter changes as documents are checked and stays only on this device.", "서류를 체크하면 수치가 바뀌며 이 기기에만 저장됩니다.")),
-      step(".document-route__heading", t("De lo sencillo a lo complejo", "From simple to complex", "쉬운 것부터 복잡한 것까지"), t("Empieza con borradores propios y deja para después las solicitudes, apostillas, traducciones y pruebas externas.", "Start with your own drafts, then move to requests, apostilles, translations and external tests.", "직접 작성할 초안부터 시작하고 발급, 아포스티유, 번역과 외부 시험은 이후에 준비하세요.")),
-      step(".document-stage", t("Etapas bajo demanda", "Stages on demand", "필요할 때 여는 단계"), t("Solo la etapa actual empieza abierta; las demás se despliegan cuando decides trabajarlas.", "Only the current stage starts open; expand the others when you decide to work on them.", "현재 단계만 먼저 열리며 다른 단계는 필요할 때 펼칠 수 있습니다.")),
-    ],
-  };
-  if (pathname === "/profile") return {
-    key: "profile", title: t("Tu perfil de preparación", "Your preparation profile", "준비 프로필"), steps: [
-      step(".profile-hero", t("Datos base", "Core details", "기본 정보"), t("Nacionalidad y carreras objetivo orientan la ruta personalizada.", "Citizenship and target majors guide the personalised route.", "국적과 목표 전공이 개인화된 경로를 안내합니다.")),
-      step(".profile-score", t("Preparación actual", "Current preparation", "현재 준비도"), t("Este avance resume acciones completadas; no predice la selección GKS.", "This progress summarises completed actions; it does not predict GKS selection.", "완료한 행동을 요약하며 GKS 선발을 예측하지 않습니다.")),
-      step(".profile-fields", t("Información validada", "Validated information", "확인된 정보"), t("Los niveles de idioma se actualizan con evidencia de práctica, no con una etiqueta automática.", "Language levels update from practice evidence, not an automatic label.", "언어 수준은 자동 라벨이 아니라 연습 근거로 갱신됩니다.")),
-      step(".profile-cycle", t("Ciclo objetivo", "Target cycle", "목표 연도"), t("Mantén visible el ciclo previsto y consulta el radar oficial antes de aplicar.", "Keep the intended cycle visible and check the official radar before applying.", "목표 연도를 확인하고 지원 전 공식 레이더를 확인하세요.")),
-    ],
-  };
-  return {
-    key: "home", title: t("Bienvenida a LearnV", "Welcome to LearnV", "LearnV에 오신 것을 환영합니다"), steps: [
-      step(".hero-grid", t("Tu punto de partida", "Your starting point", "시작점"), t("Resume la ruta GKS y te lleva directamente a una sesión educativa.", "It summarises the GKS route and takes you directly to a learning session.", "GKS 경로를 요약하고 바로 학습 세션으로 안내합니다.")),
-      step(".home-today", t("Tu siguiente paso", "Your next step", "다음 단계"), t("La primera tarea pendiente aparece destacada. El resto del plan queda disponible sin recargar la pantalla.", "Your first unfinished task is highlighted. The rest of the plan stays available without crowding the screen.", "첫 번째 미완료 과제를 강조하고 나머지 계획은 화면을 복잡하게 만들지 않도록 접어 둡니다.")),
-      step(".learning-journey", t("Avance y recomendación", "Progress and recommendation", "진행 상황과 추천"), t("Después de la acción principal verás tu constancia y la recomendación que mejor encaja con tu progreso.", "After the main action, you will see your consistency and the recommendation that best fits your progress.", "주요 활동 다음에는 학습 지속 기록과 진행 상황에 맞는 추천을 확인할 수 있습니다.")),
-      step(".alert-card", t("Estado de la beca", "Scholarship status", "장학금 상태"), t("Abre el radar para distinguir información vigente de referencias históricas.", "Open the radar to separate current information from historical reference.", "레이더에서 최신 정보와 과거 참고 자료를 구분하세요.")),
-      step(".bottom-nav", t("Menú siempre disponible", "Always-available menu", "항상 보이는 메뉴"), isLearningQa ? t("Esta versión QA permite navegar entre Inicio y Estudio. Incluye las prácticas, los materiales y el chatbot de entrevista.", "This QA version includes Home and Study, with practice, materials and the interview chatbot.", "QA 버전에서는 홈과 학습, 연습 문제, 자료와 면접 챗봇을 사용할 수 있습니다.") : t("Cambia entre Inicio, Beca, Estudiar, Documentos y Perfil desde cualquier punto.", "Move among Home, Scholarship, Study, Documents and Profile from anywhere.", "어디서든 홈, 장학금, 학습, 서류와 프로필로 이동합니다.")),
-    ],
-  };
-}
-
-function readSeenTours(): Record<string, boolean> {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}"); } catch { return {}; }
+export function readSeenTours(): Record<string, boolean> {
+  try {
+    const parsed: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}");
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+    return Object.fromEntries(Object.entries(parsed).filter(([, value]) => value === true));
+  } catch { return {}; }
 }
 
 export function SectionTour() {
   const { pathname } = useLocation();
+  const { baseLocale, locale } = useI18n();
   const definition = useMemo(() => getDefinition(pathname), [pathname]);
+  const [activeDefinition, setActiveDefinition] = useState(definition);
   const [open, setOpen] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [steps, setSteps] = useState<TourStep[]>([]);
@@ -116,18 +33,25 @@ export function SectionTour() {
   const [targetReady, setTargetReady] = useState(false);
   const [tourLocale, setTourLocale] = useState<Locale>("es");
   const nextButtonRef = useRef<HTMLButtonElement>(null);
+  const cardRef = useRef<HTMLElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const startedForRef = useRef<string | null>(null);
   const frozenScrollRef = useRef({ x: 0, y: 0 });
   const contentHeightRef = useRef(0);
 
-  const startTour = useCallback(() => {
-    const available = definition.steps.filter((item) => document.querySelector(item.selector));
+  const startTour = useCallback((preferredLocale: Locale = baseLocale ?? locale) => {
+    const currentDefinition = getDefinition(pathname, readPageHelpContext());
+    const available = currentDefinition.steps.filter((item) => findHelpTarget(item.selector));
     if (available.length === 0) return;
+    previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    startedForRef.current = definition.key;
+    setActiveDefinition(currentDefinition);
     setSteps(available);
     setStepIndex(0);
     setTargetReady(false);
-    setTourLocale("es");
+    setTourLocale(preferredLocale);
     setOpen(true);
-  }, [definition]);
+  }, [definition.key, pathname, baseLocale, locale]);
 
   const closeTour = useCallback(() => {
     const seen = readSeenTours();
@@ -142,20 +66,23 @@ export function SectionTour() {
     setRect(null);
     setTargetReady(false);
     const timer = window.setTimeout(() => {
-      if (!readSeenTours()[definition.key]) startTour();
+      if (startedForRef.current !== definition.key && !readSeenTours()[definition.key] && !readPageHelpContext().timerRunning && !document.querySelector('.app-guide-dialog,[role="dialog"][aria-modal="true"]')) startTour();
     }, 950);
     return () => window.clearTimeout(timer);
   }, [definition.key, startTour]);
 
   useEffect(() => {
-    const restart = () => startTour();
-    window.addEventListener("learnv:start-tour", restart);
-    return () => window.removeEventListener("learnv:start-tour", restart);
+    const restart = () => startTour(consumePageTourRequest() ?? baseLocale ?? locale);
+    window.addEventListener(START_PAGE_TOUR_EVENT, restart);
+    const pending = consumePageTourRequest();
+    if (pending) startTour(pending);
+    return () => window.removeEventListener(START_PAGE_TOUR_EVENT, restart);
   }, [startTour]);
 
   useLayoutEffect(() => {
     if (!open) return;
     const appRoot = document.getElementById("root");
+    const wasInert = appRoot?.hasAttribute("inert");
     const lockedScrollX = window.scrollX;
     const lockedScrollY = window.scrollY;
     frozenScrollRef.current = { x: lockedScrollX, y: lockedScrollY };
@@ -196,6 +123,7 @@ export function SectionTour() {
     nextButtonRef.current?.focus();
 
     const blockBackgroundMovement = (event: Event) => {
+      if (event.target instanceof Element && event.target.closest(".section-tour__card")) return;
       event.preventDefault();
     };
     const blockBackgroundPointer = (event: Event) => {
@@ -208,8 +136,16 @@ export function SectionTour() {
       if (event.pointerType === "touch" || event.pointerType === "pen") blockBackgroundMovement(event);
     };
     const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { event.preventDefault(); closeTour(); return; }
+      if (event.key === "Tab") {
+        const controls = [...(cardRef.current?.querySelectorAll<HTMLButtonElement>("button:not([disabled])") ?? [])];
+        const first = controls[0]; const last = controls.at(-1);
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      }
       const activatesControl = event.key === " " && event.target instanceof HTMLElement && event.target.matches("button, a");
-      if (!activatesControl && ["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].includes(event.key)) event.preventDefault();
+      const inCard = event.target instanceof Element && event.target.closest(".section-tour__card");
+      if (!inCard && !activatesControl && ["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].includes(event.key)) event.preventDefault();
     };
     document.addEventListener("keydown", onKeyDown, true);
     document.addEventListener("wheel", blockBackgroundMovement, { capture: true, passive: false });
@@ -246,13 +182,23 @@ export function SectionTour() {
       document.body.style.overscrollBehavior = previousBodyStyles.overscrollBehavior;
       document.body.style.touchAction = previousBodyStyles.touchAction;
       window.scrollTo(lockedScrollX, lockedScrollY);
-      appRoot?.removeAttribute("inert");
+      if (!wasInert) appRoot?.removeAttribute("inert");
+      if (previousFocusRef.current?.isConnected) previousFocusRef.current.focus({ preventScroll: true });
     };
-  }, [open]);
+  }, [open, closeTour]);
+
+  useEffect(() => {
+    if (!open) return;
+    const main = document.getElementById("main-content");
+    if (!main) return;
+    const observer = new MutationObserver(closeTour);
+    observer.observe(main, { subtree: true, attributes: true, attributeFilter: ["data-help-practice", "data-help-written", "data-help-phase"] });
+    return () => observer.disconnect();
+  }, [open, closeTour]);
 
   useLayoutEffect(() => {
     if (!open || !steps[stepIndex]) return;
-    const target = document.querySelector<HTMLElement>(steps[stepIndex].selector);
+    const target = findHelpTarget(steps[stepIndex].selector);
     if (!target) return;
     let cancelled = false;
     let settleTimer = 0;
@@ -274,7 +220,7 @@ export function SectionTour() {
       const initialRect = target.getBoundingClientRect();
       const currentY = frozenScrollRef.current.y;
       const targetDocumentTop = currentY + initialRect.top;
-      const anchoredToViewport = getComputedStyle(target).position === "fixed";
+      const anchoredToViewport = isFixedHelpTarget(target);
       const maxScroll = Math.max(0, contentHeightRef.current - window.innerHeight);
       const cardHeight = document.querySelector<HTMLElement>(".section-tour__card")?.getBoundingClientRect().height ?? 230;
       const centeredTop = (window.innerHeight - initialRect.height) / 2;
@@ -350,7 +296,7 @@ export function SectionTour() {
   return createPortal(
     <div className="section-tour" role="dialog" aria-modal="true" aria-labelledby="section-tour-title">
       {rect && <div key={`${definition.key}-${stepIndex}`} className="section-tour__highlight" style={{ top: rect.top, left: rect.left, width: rect.width, height: rect.height } as CSSProperties} />}
-      <section className={cardAtTop ? "section-tour__card section-tour__card--top" : "section-tour__card"} aria-busy={!targetReady}>
+      <section ref={cardRef} className={cardAtTop ? "section-tour__card section-tour__card--top" : "section-tour__card"} aria-busy={!targetReady}>
         <div className="section-tour__meta">
           <span>{labels.guide}</span>
           <div className="section-tour__languages" role="group" aria-label={labels.language}>
@@ -359,7 +305,7 @@ export function SectionTour() {
           <strong>{stepIndex + 1}/{steps.length}</strong>
         </div>
         <div className="section-tour__progress"><i style={{ width: `${((stepIndex + 1) / steps.length) * 100}%` }} /></div>
-        <small>{localize(definition.title, tourLocale)}</small>
+        <small>{localize(activeDefinition.title, tourLocale)}</small>
         <h2 id="section-tour-title">{localize(current.title, tourLocale)}</h2>
         <p>{localize(current.text, tourLocale)}</p>
         <div className="section-tour__actions">
