@@ -309,6 +309,7 @@ export function GksPage() {
               <small>{selectedVideo.creator}</small>
               <p>{selectedVideoCopy.text}</p>
               <a href={selectedVideo.sourceUrl} target="_blank" rel="noreferrer">{copy.gks.openVideo}<span aria-hidden="true">↗</span></a>
+              {selectedVideo.referenceUrl && <a href={selectedVideo.referenceUrl} target="_blank" rel="noreferrer">{copy.gks.verifyVideoSource}<span aria-hidden="true">↗</span></a>}
             </div>
         </article>
 
@@ -322,6 +323,7 @@ export function GksPage() {
                 role="tab"
                 aria-selected={videoIndex === index}
                 aria-controls="gks-video-panel"
+                aria-label={`${index + 1}. ${copy.gks.videoItems[video.id].title}`}
                 onClick={() => setVideoIndex(index)}
                 key={video.id}
               >
