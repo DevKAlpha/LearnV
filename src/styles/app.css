@@ -1783,7 +1783,7 @@ html.app-visual-loading {
 .gks-video-slider__controls { display: grid; grid-template-columns: 42px minmax(0, 1fr) 42px; align-items: center; gap: 8px; }
 .gks-video-slider__controls > button { display: grid; width: 42px; height: 42px; place-items: center; border: 1.5px solid var(--ink); border-radius: 14px; background: var(--paper); box-shadow: 2px 3px 0 var(--ink); color: var(--ink); cursor: pointer; font-size: 0.9rem; font-weight: 950; transition: transform 160ms ease, background 160ms ease; }
 .gks-video-slider__controls > button:active { transform: translate(2px, 2px); box-shadow: none; }
-.gks-video-tabs { display: flex; min-width: 0; align-items: center; justify-content: center; gap: 8px; }
+.gks-video-tabs { display: flex; min-width: 0; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; }
 .gks-video-tabs button { display: grid; width: 36px; height: 36px; flex: 0 0 36px; place-items: center; border: 1.5px solid var(--ink); border-radius: 50%; background: rgba(255,253,249,0.76); color: var(--ink); cursor: pointer; font-size: 0.52rem; font-weight: 950; transition: transform 180ms ease, background 180ms ease; }
 .gks-video-tabs button[aria-selected="true"] { background: var(--hot-pink); color: #fff; transform: translateY(-2px) scale(1.08); }
 .gks-video-slider__notice { margin: 0; padding: 9px 10px; border-left: 4px solid var(--green); border-radius: 0 11px 11px 0; background: rgba(255,255,255,0.48); color: var(--muted); font-size: 0.52rem; font-weight: 750; line-height: 1.45; }
