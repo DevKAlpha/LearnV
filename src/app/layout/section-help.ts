@@ -180,6 +180,7 @@ export function getDefinition(pathname: string, context: HelpContext = {}): Tour
   steps = steps.filter((item) => !(isLearningQa && item.selector === ".alert-card"));
   steps = steps.map((item) => item.selector === learningAccess.selector ? learningAccess : item);
   if (!steps.some((item) => item.selector === learningAccess.selector)) steps.push(learningAccess);
+  steps.push(step(".library-quick-trigger", t("Tu biblioteca de lectura", "Your reading library", "나의 읽기 도서관"), t("El botón de los libros, entre el resumen de aprendizaje y la entrevista, abre lecturas en inglés y coreano. Busca o filtra por tema. Cada portada abre directamente el texto en otra pestaña y conserva tu sesión aquí.", "The books button between your learning summary and interview opens English and Korean readings. Search or filter by topic. Each cover opens the text directly in another tab while keeping this session.", "학습 요약과 면접 사이 책 버튼에서 영어·한국어 자료를 여세요. 제목 검색과 주제 필터를 사용할 수 있습니다. 표지를 누르면 새 탭에서 원문을 열며 현재 학습 세션은 유지됩니다.")));
   if (!isImmersiveLearningRoute(pathname)) steps.push(interviewAccess);
   return { ...base, steps };
 }
