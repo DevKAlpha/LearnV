@@ -21,6 +21,7 @@ import { isLearningQa } from "@/infrastructure/config/app-scope";
 import { QaPreviewNotice } from "@/app/layout/QaPreviewNotice";
 import { StoryFolio } from "@/shared/ui/StoryFolio";
 import { LearningQuickAccess } from "@/app/layout/LearningQuickAccess";
+import { LibraryQuickAccess } from "@/app/layout/LibraryQuickAccess";
 
 const SectionTour = lazy(() => import("@/app/layout/SectionTour").then((module) => ({ default: module.SectionTour })));
 
@@ -95,6 +96,7 @@ export function App() {
 
       <div className="learning-floating-tools">
         <LearningQuickAccess key={location.pathname} learning={learning} />
+        <LibraryQuickAccess key={`library-${location.pathname}`} />
         {!isImmersiveLearningExperience && (
           <InterviewChatbotLauncher
             prioritySkill={learning.analysis.priority?.skill}
