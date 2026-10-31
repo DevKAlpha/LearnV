@@ -9,6 +9,7 @@ import { StatusBadge } from "@/shared/ui/StatusBadge";
 import { Link } from "react-router-dom";
 import { BrandMark } from "@/shared/ui/BrandMark";
 import { SceneArt } from "@/shared/ui/SceneArt";
+import { CulturalGuideEntry } from "./CulturalGuideEntry";
 const CertificationOpportunityCatalog = lazy(() => import("./CertificationOpportunityCatalog").then((module) => ({ default: module.CertificationOpportunityCatalog })));
 
 const dateLocales = { es: "es-ES", en: "en-GB", ko: "ko-KR" } as const;
@@ -200,6 +201,8 @@ export function GksPage() {
           </div>
         </details>
       </section>
+
+      <CulturalGuideEntry />
 
       <details
         className="gks-progressive-stage gks-certifications-stage"
