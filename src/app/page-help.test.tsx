@@ -18,6 +18,7 @@ import { ProfilePage } from "@/features/profile/presentation/ProfilePage";
 import { GksPage } from "@/features/scholarship/presentation/GksPage";
 import { LearningQuickAccess } from "@/app/layout/LearningQuickAccess";
 import { LibraryQuickAccess } from "@/app/layout/LibraryQuickAccess";
+import { TaskBoardQuickAccess } from "@/app/layout/TaskBoardQuickAccess";
 import { InterviewChatbotLauncher } from "@/features/interview-chatbot/presentation/InterviewChatbotLauncher";
 import { createLearningJourney, getLearningRecommendation } from "@/domain/models/learning-journey";
 import { analyzeLearningResults } from "@/domain/models/learning-analysis";
@@ -50,7 +51,7 @@ function renderPage(path: string) {
     : path === "/checklist" ? <ChecklistPage progress={{ completedDocuments: [] }} toggleDocument={() => {}} />
     : path === "/profile" ? <ProfilePage score={0} learning={learning} />
     : <Routes><Route path="/tests/:language" element={<TestPathPage />} /><Route path="/tests/:language/:stageId" element={<TestSessionPage />} /></Routes>;
-  return renderToStaticMarkup(<MemoryRouter initialEntries={[path]}>{element}<LearningQuickAccess learning={learning} /><LibraryQuickAccess />{!isImmersiveLearningRoute(path) && <InterviewChatbotLauncher />}</MemoryRouter>);
+  return renderToStaticMarkup(<MemoryRouter initialEntries={[path]}>{element}<TaskBoardQuickAccess /><LearningQuickAccess learning={learning} /><LibraryQuickAccess />{!isImmersiveLearningRoute(path) && <InterviewChatbotLauncher />}</MemoryRouter>);
 }
 
 function expectTargets(html: string, path: string, context: HelpContext = {}) {
