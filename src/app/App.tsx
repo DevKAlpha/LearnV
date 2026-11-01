@@ -22,6 +22,7 @@ import { QaPreviewNotice } from "@/app/layout/QaPreviewNotice";
 import { StoryFolio } from "@/shared/ui/StoryFolio";
 import { LearningQuickAccess } from "@/app/layout/LearningQuickAccess";
 import { LibraryQuickAccess } from "@/app/layout/LibraryQuickAccess";
+import { TaskBoardQuickAccess } from "@/app/layout/TaskBoardQuickAccess";
 
 const SectionTour = lazy(() => import("@/app/layout/SectionTour").then((module) => ({ default: module.SectionTour })));
 
@@ -95,6 +96,7 @@ export function App() {
       </main>
 
       <div className="learning-floating-tools">
+        <TaskBoardQuickAccess />
         <LearningQuickAccess key={location.pathname} learning={learning} />
         <LibraryQuickAccess key={`library-${location.pathname}`} />
         {!isImmersiveLearningExperience && (
