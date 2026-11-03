@@ -41,8 +41,8 @@ type ChatbotCopy = {
 export const interviewChatbotCopy: Record<Locale, ChatbotCopy> = {
   es: {
     name: "Hanbyeol", role: "Entrevistadora de práctica GKS", close: "Cerrar entrevista",
-    welcome: "Practiquemos como en una entrevista real.",
-    introduction: "Responderás cuatro preguntas y una repregunta por cada una. Analizaré la estructura de tu respuesta para ayudarte a ser más directa, concreta y coherente.",
+    welcome: "Tu historia merece una respuesta con tu propia voz.",
+    introduction: "Ensaya cuatro preguntas y una repregunta por cada una. Escribe como hablarías: revisaré la estructura para ayudarte a responder con claridad y ejemplos. Puedes mejorar una respuesta cada vez.",
     sessionPlan: "4 preguntas · repreguntas adaptativas · resultado final",
     personalityNote: "Cada práctica cambia de entrevistador y enfoque para evitar respuestas memorizadas.",
     privacy: "Tus respuestas no se guardan ni se envían. Solo se registran el resultado estructural y el criterio que debes reforzar.",
@@ -65,8 +65,8 @@ export const interviewChatbotCopy: Record<Locale, ChatbotCopy> = {
   },
   en: {
     name: "Hanbyeol", role: "GKS practice interviewer", close: "Close interview",
-    welcome: "Let us practise as if this were a real interview.",
-    introduction: "You will answer four questions and one follow-up for each. I will analyse the structure of your response to help you become more direct, specific and coherent.",
+    welcome: "Your story deserves an answer in your own voice.",
+    introduction: "Rehearse four questions and one follow-up each. Write as you would speak: I will review the structure to help you answer clearly with examples. Work on one response at a time.",
     sessionPlan: "4 questions · adaptive follow-ups · final report",
     personalityNote: "Each practice changes interviewer and approach to discourage memorised answers.",
     privacy: "Your answers are neither saved nor sent. Only the structural result and the criterion to strengthen are recorded.",
@@ -89,8 +89,8 @@ export const interviewChatbotCopy: Record<Locale, ChatbotCopy> = {
   },
   ko: {
     name: "한별", role: "GKS 모의 면접관", close: "면접 닫기",
-    welcome: "실제 면접처럼 연습해 보겠습니다.",
-    introduction: "네 가지 질문과 각 질문의 추가 질문에 답합니다. 더 직접적이고 구체적이며 일관된 답변을 만들도록 답변 구조를 분석합니다.",
+    welcome: "나의 이야기를 나의 목소리로 전해 보세요.",
+    introduction: "질문 네 개와 각각의 추가 질문을 연습합니다. 말하듯이 쓰세요. 답변 구조를 살펴보며 명확한 설명과 사례를 제시하도록 돕겠습니다. 한 답변씩 다듬어 보세요.",
     sessionPlan: "질문 4개 · 맞춤 추가 질문 · 최종 결과",
     personalityNote: "암기한 답변에 의존하지 않도록 연습마다 면접관과 접근 방식이 달라집니다.",
     privacy: "답변은 저장되거나 전송되지 않습니다. 구조 결과와 보완할 기준만 기록됩니다.",
