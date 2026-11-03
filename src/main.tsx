@@ -16,6 +16,7 @@ import "@/styles/language-motion.css";
 import "@/styles/advanced-path.css";
 import "@/styles/learning-path.css";
 import "@/styles/storybook.css";
+import "@/styles/content-layout.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

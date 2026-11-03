@@ -16,3 +16,18 @@
 @media(orientation:landscape) and (max-height:550px) { .task-board { padding: 7px 10px 5px; gap: 6px; }.board-heading { display: none; }.board-toolbar { justify-content: flex-end; }.board-toolbar__actions { flex-wrap: nowrap; }.board-coach > summary { min-height: 44px; padding: 5px 10px; }.board-coach > summary > span:nth-child(2) { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }.board-coach summary strong { margin: 0; font-size: .75rem; }.board-workspace { gap: 9px; }.board-column > header { padding: 6px 10px; }.board-column > header h2 { font-size: .77rem; }.board-column__notes { padding: 8px 5px 15px; }.task-note { margin: 0 0 12px; padding: 12px 10px 15px; }.task-note__content > h3 { font-size: .8rem; min-height: 0; margin: 8px 0; }.task-note__top > span:first-child { font-size: .57rem; }.task-note__move { margin-top: 8px; }.task-note__date { font-size: .6rem; }.task-note__move > button { flex: 1; }.task-note footer button { min-height: 44px; }.board-save-state { font-size: .6rem; }.board-welcome__art { display: none; }.board-welcome { padding: 8px; }.board-welcome h2 { font-size: 1.1rem; }.board-welcome > p { margin-bottom: 12px; font-size: .73rem; }.board-starters { grid-template-columns: repeat(4,minmax(0,1fr)); }.board-starters button { padding: 10px; }.board-starters strong { font-size: .7rem; }.board-editor { width: min(100%,650px); grid-template-columns: 1fr 1fr; padding: 14px; gap: 9px 15px; }.board-editor > .eyebrow,.board-editor > label:first-of-type,.board-editor > small,.board-editor__actions,.board-draft-note,.board-editor-error { grid-column: 1 / -1; }.board-popover { max-height: 62dvh; }.board-issue { max-height: 60px; }.board-announcement { max-height: 64px; } }
 @media(forced-colors:active) { .task-note-art { forced-color-adjust: none; }.board-column,.board-menu > summary { border-color: CanvasText; }.board-column-tabs button[aria-pressed="true"] { outline: 2px solid Highlight; } }
 @media(max-width:359px) and (orientation:portrait) { .board-heading p { display: none; }.board-toolbar__actions > .board-primary { flex-basis: 100%; white-space: nowrap; }.board-toolbar__actions > .board-menu { flex: 1; } }
+
+/* Larger fonts keep the workspace reachable below its controls. */
+.task-board > *, .board-toolbar__actions { min-inline-size: 0; max-inline-size: 100%; }
+:root .task-board .board-starters { grid-template-columns: repeat(auto-fit,minmax(min(100%,9rem),1fr)); }
+:root .task-board .board-starters button { grid-template-columns: minmax(0,1fr) auto; }
+:root .task-board .board-welcome__art > span { font-size: min(.85rem,18px); }
+:root .task-board .task-note__handle { flex-shrink: 0; font-size: 22px; }
+:root .task-board .board-coach > summary > span:first-child { font-size: 18px; }
+:root .task-board .board-coach > summary > b { flex-shrink: 0; }
+@media (max-width:650px) and (orientation:portrait) {
+  :root .task-board { display: block; overflow-y: auto; overscroll-behavior: contain; }
+  :root .task-board > * + * { margin-block-start: .75rem; }
+  :root .task-board :is(.board-welcome,.board-editor-scroll,.board-column__notes) { overflow: visible; }
+  :root .task-board .board-column { min-block-size: 10rem; }
+}
