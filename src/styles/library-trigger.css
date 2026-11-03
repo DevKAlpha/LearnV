@@ -12,6 +12,7 @@
 .library-dialog__chrome svg { width: 32px; height: 32px; }
 .library-dialog__chrome strong { font-size: .85rem; }
 .library-dialog__chrome > button { width: 44px; height: 44px; flex-shrink: 0; border: 1px solid var(--library-ink); border-radius: 14px; background: #ffda72; color: #382b30; font: inherit; font-size: 1.5rem; box-shadow: 2px 3px 0 #382b30; cursor: pointer; }
+:root .library-dialog__chrome > button { font-size: 26px; line-height: 1; }
 .library-load { padding: 30px; }
 :root[data-theme="dark"] .library-dialog { --library-paper: #27172f; --library-ink: #fff2e9; --library-line: #8f7097; --library-petal: #dab0e6; }
 .library-dialog :is(button,a,input,select):focus-visible { outline: 3px solid var(--library-petal); outline-offset: 4px; }
