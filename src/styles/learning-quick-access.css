@@ -61,6 +61,19 @@
 .journey-art__sun { opacity: .45; }
 @media (min-width: 560px) { .learning-floating-tools { --floating-right: 42px; --floating-chat-size: 66px; } }
 @media (min-width: 900px) { .learning-floating-tools { --floating-right: max(48px,calc((100vw - 1320px) / 2 + 48px)); --floating-bottom: 48px; } }
+/* Centre the desktop dock between the content edge and the inside of the book cover.
+   The 90px minimum leaves 12px on each side of the largest (66px) control. */
+@media (min-width: 900px) and (min-height: 551px) {
+  .app-shell {
+    --desktop-page-width: min(calc(var(--desktop-shell-width) - 2 * var(--desktop-shell-border)), var(--desktop-page-max-width));
+    --desktop-page-margin: calc((var(--desktop-shell-width) - 2 * var(--desktop-shell-border) - var(--desktop-page-width)) / 2);
+    --desktop-tools-gutter: max(90px, calc(var(--desktop-page-margin) + var(--desktop-page-padding)));
+  }
+  .app-shell .page { padding-inline-end: calc(var(--desktop-tools-gutter) - var(--desktop-page-margin)); }
+  .app-shell .learning-floating-tools {
+    --floating-right: calc((100% - var(--desktop-shell-width)) / 2 + var(--desktop-shell-border) + var(--desktop-tools-gutter) / 2 - var(--floating-chat-size) / 2);
+  }
+}
 @media (max-width: 559px) { .learning-quick-panel { right: 12px; } }
 @media (max-width: 359px) {
   .journey-cover-art { flex-basis: 62px; width: 62px; height: 48px; }

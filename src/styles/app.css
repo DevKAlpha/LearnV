@@ -5045,16 +5045,20 @@ html[data-theme="dark"] .document-stage > summary > i { border-color: rgba(255,2
   #root { min-height: 100dvh; padding: 20px 0; box-sizing: border-box; }
   .app-shell {
     --desktop-gutter: clamp(18px, 2.4vw, 34px);
+    --desktop-shell-width: min(calc(100vw - clamp(32px, 4vw, 64px)), 1280px);
+    --desktop-shell-border: 2px;
+    --desktop-page-max-width: 1120px;
+    --desktop-page-padding: 34px;
     display: grid;
     position: relative;
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr);
-    width: min(calc(100% - clamp(32px, 4vw, 64px)), 1280px);
+    width: var(--desktop-shell-width);
     min-height: calc(100vh - 40px);
     min-height: calc(100dvh - 40px);
     margin: 0 auto;
     overflow: visible;
-    border: 2px solid var(--ink);
+    border: var(--desktop-shell-border) solid var(--ink);
     border-radius: 32px;
     background: var(--cream);
     box-shadow: 10px 12px 0 var(--ink);
@@ -5132,11 +5136,11 @@ html[data-theme="dark"] .document-stage > summary > i { border-color: rgba(255,2
   }
   .mobile-brand { display: none; }
   .page {
-    width: min(100%, 1120px);
-    max-width: 1120px;
+    width: min(100%, var(--desktop-page-max-width));
+    max-width: var(--desktop-page-max-width);
     margin-right: auto;
     margin-left: auto;
-    padding: 26px 34px 52px;
+    padding: 26px var(--desktop-page-padding) 52px;
   }
   .mobile-header { margin-bottom: 22px; }
   .bottom-nav {
@@ -5212,8 +5216,10 @@ html[data-theme="dark"] .document-stage > summary > i { border-color: rgba(255,2
 
   .app-shell {
     --muted: #584653;
-    width: min(86vw, 1280px);
-    border-width: 3px;
+    --desktop-shell-width: min(86vw, 1280px);
+    --desktop-shell-border: 3px;
+    width: var(--desktop-shell-width);
+    border-width: var(--desktop-shell-border);
     border-radius: 34px;
     box-shadow: 8px 10px 0 var(--ink), 0 22px 54px rgba(48, 34, 48, 0.14);
   }
