@@ -1,5 +1,7 @@
 # Acceso flotante a Tu aprendizaje
 
+Registro histórico. El ajuste del 6 de noviembre de 2026 traslada la presentación del panel al perfil y retira el botón; véase [la validación del traslado](QA-PROFILE-LEARNING-SUMMARY.md).
+
 Revisión del 25 de octubre de 2026. Base `878c129`, rama `learning-quick-access`. Entrega en producción mediante integración en `main`; el QA remoto conserva su rama independiente y no se actualiza con esta entrega.
 
 ## Alcance

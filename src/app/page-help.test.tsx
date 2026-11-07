@@ -16,7 +16,6 @@ import { TestSessionPage } from "@/features/study/presentation/pages/TestSession
 import { ChecklistPage } from "@/features/documents/presentation/ChecklistPage";
 import { ProfilePage } from "@/features/profile/presentation/ProfilePage";
 import { GksPage } from "@/features/scholarship/presentation/GksPage";
-import { LearningQuickAccess } from "@/app/layout/LearningQuickAccess";
 import { LibraryQuickAccess } from "@/app/layout/LibraryQuickAccess";
 import { TaskBoardQuickAccess } from "@/app/layout/TaskBoardQuickAccess";
 import { InterviewChatbotLauncher } from "@/features/interview-chatbot/presentation/InterviewChatbotLauncher";
@@ -51,7 +50,7 @@ function renderPage(path: string) {
     : path === "/checklist" ? <ChecklistPage progress={{ completedDocuments: [] }} toggleDocument={() => {}} />
     : path === "/profile" ? <ProfilePage score={0} learning={learning} />
     : <Routes><Route path="/tests/:language" element={<TestPathPage />} /><Route path="/tests/:language/:stageId" element={<TestSessionPage />} /></Routes>;
-  return renderToStaticMarkup(<MemoryRouter initialEntries={[path]}>{element}<TaskBoardQuickAccess /><LearningQuickAccess learning={learning} /><LibraryQuickAccess />{!isImmersiveLearningRoute(path) && <InterviewChatbotLauncher />}</MemoryRouter>);
+  return renderToStaticMarkup(<MemoryRouter initialEntries={[path]}>{element}<TaskBoardQuickAccess /><LibraryQuickAccess />{!isImmersiveLearningRoute(path) && <InterviewChatbotLauncher />}</MemoryRouter>);
 }
 
 function expectTargets(html: string, path: string, context: HelpContext = {}) {
@@ -118,7 +117,7 @@ it("does not advertise hidden interview chat or unavailable QA scholarship conte
   expect(getDefinition("/").steps.map((item) => item.selector)).not.toContain(".alert-card");
   for (const path of ["/study/english", "/study/korean", "/tests/en", "/tests/ko/ko-reading-01"]) {
     const selectors = getDefinition(path).steps.map((item) => item.selector);
-    expect(selectors).toContain(".learning-quick-trigger"); expect(selectors).not.toContain(".interview-chat-launcher");
+    expect(selectors).not.toContain(".learning-quick-trigger"); expect(selectors).not.toContain(".interview-chat-launcher");
   }
 });
 
