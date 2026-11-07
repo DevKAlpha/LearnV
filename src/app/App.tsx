@@ -97,12 +97,14 @@ export function App() {
 
       <div className="learning-floating-tools">
         <TaskBoardQuickAccess />
-        <LibraryQuickAccess key={`library-${location.pathname}`} />
         {!isImmersiveLearningExperience && (
-          <InterviewChatbotLauncher
-            prioritySkill={learning.analysis.priority?.skill}
-            adaptiveFocus={learning.interviewAdaptation.focus}
-          />
+          <>
+            <LibraryQuickAccess key={`library-${location.pathname}`} />
+            <InterviewChatbotLauncher
+              prioritySkill={learning.analysis.priority?.skill}
+              adaptiveFocus={learning.interviewAdaptation.focus}
+            />
+          </>
         )}
       </div>
 
