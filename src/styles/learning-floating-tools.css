@@ -1,0 +1,35 @@
+/* Shared positioning for the board, library and interview controls. */
+.learning-floating-tools {
+  --floating-right: 26px;
+  --floating-bottom: max(122px, calc(110px + env(safe-area-inset-bottom)));
+  --floating-chat-size: 62px;
+  --floating-gap: 12px;
+  position: fixed;
+  z-index: 90;
+  right: var(--floating-right);
+  bottom: var(--floating-bottom);
+  display: grid;
+  grid-auto-rows: max-content;
+  justify-items: center;
+  gap: var(--floating-gap);
+  width: var(--floating-chat-size);
+  pointer-events: none;
+}
+.learning-floating-tools .interview-chat-launcher { position: static; grid-row: 3; pointer-events: auto; width: var(--floating-chat-size); min-width: var(--floating-chat-size); height: var(--floating-chat-size); }
+@media (min-width: 560px) { .learning-floating-tools { --floating-right: 42px; --floating-chat-size: 66px; } }
+@media (min-width: 900px) { .learning-floating-tools { --floating-right: max(48px,calc((100vw - 1320px) / 2 + 48px)); --floating-bottom: 48px; } }
+/* Keep the dock centred in the existing desktop gutter. */
+@media (min-width: 900px) and (min-height: 551px) {
+  .app-shell {
+    --desktop-page-width: min(calc(var(--desktop-shell-width) - 2 * var(--desktop-shell-border)), var(--desktop-page-max-width));
+    --desktop-page-margin: calc((var(--desktop-shell-width) - 2 * var(--desktop-shell-border) - var(--desktop-page-width)) / 2);
+    --desktop-tools-gutter: max(90px, calc(var(--desktop-page-margin) + var(--desktop-page-padding)));
+  }
+  .app-shell .page { padding-inline-end: calc(var(--desktop-tools-gutter) - var(--desktop-page-margin)); }
+  .app-shell .learning-floating-tools {
+    --floating-right: calc((100% - var(--desktop-shell-width)) / 2 + var(--desktop-shell-border) + var(--desktop-tools-gutter) / 2 - var(--floating-chat-size) / 2);
+  }
+}
+@media (orientation: landscape) and (max-height: 550px) {
+  .learning-floating-tools { --floating-chat-size: 48px; --floating-right: 12px; display: flex; align-items: center; width: auto; gap: 8px; }
+}

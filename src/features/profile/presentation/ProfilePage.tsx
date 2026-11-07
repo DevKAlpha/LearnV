@@ -9,6 +9,7 @@ import { LearningJourneyPanel } from "@/shared/ui/LearningJourneyPanel";
 import { getLanguagePathSummary as getLanguagePath } from "@/infrastructure/data/language-path-summary";
 import { advancedPathCopy } from "@/infrastructure/i18n/advanced-path-copy";
 import { SceneArt } from "@/shared/ui/SceneArt";
+import "@/styles/profile-learning-summary.css";
 
 export function ProfilePage({ score, learning }: { score: number; learning: LearningJourneyController }) {
   const { copy, locale } = useI18n();
@@ -70,7 +71,7 @@ export function ProfilePage({ score, learning }: { score: number; learning: Lear
       </section>
       {(englishPath.advancedUnlocked || koreanPath.advancedUnlocked) && <p className="advanced-path-notice">{advancedCopy.notice}</p>}
 
-      <LearningJourneyPanel learning={learning} />
+      <LearningJourneyPanel learning={learning} illustrated />
 
       <section className="profile-cycle">
         <span className="eyebrow">{copy.profile.targetCycle}</span><h2>{currentCycle.target}</h2><p>{copy.home.cycleNote}</p>

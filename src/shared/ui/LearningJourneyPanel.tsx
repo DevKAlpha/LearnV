@@ -18,7 +18,7 @@ export function LearningJourneyPanel({ learning, compact = false, illustrated = 
   const recommendationText = copy.journey.recommendations[isLearningQa && recommendation.id === "documents" ? "continue" : recommendation.id];
 
   return (
-    <section className={`learning-journey${compact ? " learning-journey--compact" : ""}`} aria-labelledby={headingId}>
+    <section className={`learning-journey${compact ? " learning-journey--compact" : ""}${illustrated ? " learning-journey--illustrated" : ""}`} aria-labelledby={headingId}>
       <div className="learning-journey__heading">
         <div>
           <span className="eyebrow">{copy.journey.kicker}</span>
@@ -26,7 +26,7 @@ export function LearningJourneyPanel({ learning, compact = false, illustrated = 
           {!compact && <p>{copy.journey.intro}</p>}
         </div>
         {illustrated && <JourneyCoverArt />}
-        <span className="learning-journey__flame" aria-hidden="true">{journey.currentStreak > 0 ? "🔥" : "✦"}</span>
+        {!illustrated && <span className="learning-journey__flame" aria-hidden="true">{journey.currentStreak > 0 ? "🔥" : "✦"}</span>}
       </div>
 
       <div className="learning-journey__stats">
@@ -34,7 +34,7 @@ export function LearningJourneyPanel({ learning, compact = false, illustrated = 
         <div className="learning-journey__stat">{illustrated && <JourneyStatArt kind="best" />}<strong>{journey.longestStreak}</strong><span>{copy.journey.days}<small>{copy.journey.longestStreak}</small></span></div>
         <div className="learning-journey__stat">{illustrated && <JourneyStatArt kind="sessions" />}<strong>{journey.sessionCount}</strong><span><small>{copy.journey.sessions}</small></span></div>
         <div className="learning-journey__stat">{illustrated && <JourneyStatArt kind="time" />}<strong>{activeMinutes}</strong><span><small>{copy.journey.activeMinutes}</small></span></div>
-        {!compact && <div className="learning-journey__stat"><strong>{practicedSkills}</strong><span><small>{copy.journey.practicedSkills}</small></span></div>}
+        {!compact && <div className="learning-journey__stat">{illustrated && <JourneyStatArt kind="skills" />}<strong>{practicedSkills}</strong><span><small>{copy.journey.practicedSkills}</small></span></div>}
       </div>
 
       <div className="learning-recommendation">
