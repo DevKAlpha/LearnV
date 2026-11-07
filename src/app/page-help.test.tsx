@@ -50,7 +50,7 @@ function renderPage(path: string) {
     : path === "/checklist" ? <ChecklistPage progress={{ completedDocuments: [] }} toggleDocument={() => {}} />
     : path === "/profile" ? <ProfilePage score={0} learning={learning} />
     : <Routes><Route path="/tests/:language" element={<TestPathPage />} /><Route path="/tests/:language/:stageId" element={<TestSessionPage />} /></Routes>;
-  return renderToStaticMarkup(<MemoryRouter initialEntries={[path]}>{element}<TaskBoardQuickAccess /><LibraryQuickAccess />{!isImmersiveLearningRoute(path) && <InterviewChatbotLauncher />}</MemoryRouter>);
+  return renderToStaticMarkup(<MemoryRouter initialEntries={[path]}>{element}<TaskBoardQuickAccess />{!isImmersiveLearningRoute(path) && <><LibraryQuickAccess /><InterviewChatbotLauncher /></>}</MemoryRouter>);
 }
 
 function expectTargets(html: string, path: string, context: HelpContext = {}) {
@@ -112,12 +112,23 @@ it("changes practice help for questions, timed retakes and results instead of sh
   }
 });
 
-it("does not advertise hidden interview chat or unavailable QA scholarship content", () => {
-  scenario.qa = true;
-  expect(getDefinition("/").steps.map((item) => item.selector)).not.toContain(".alert-card");
-  for (const path of ["/study/english", "/study/korean", "/tests/en", "/tests/ko/ko-reading-01"]) {
-    const selectors = getDefinition(path).steps.map((item) => item.selector);
-    expect(selectors).not.toContain(".learning-quick-trigger"); expect(selectors).not.toContain(".interview-chat-launcher");
+it("keeps only board help during immersive learning in production and QA", () => {
+  for (const qa of [false, true]) {
+    scenario.qa = qa;
+    if (qa) expect(getDefinition("/").steps.map((item) => item.selector)).not.toContain(".alert-card");
+    for (const path of ["/study/english", "/study/korean", "/tests/en", "/tests/ko", "/tests/en/en-reading-01", "/tests/ko/ko-reading-01"]) {
+      const selectors = getDefinition(path).steps.map((item) => item.selector);
+      expect(selectors).toContain(".task-board-trigger");
+      expect(selectors).not.toContain(".library-quick-trigger");
+      expect(selectors).not.toContain(".learning-quick-trigger");
+      expect(selectors).not.toContain(".interview-chat-launcher");
+    }
+    for (const path of ["/", "/study", "/study/interviews", "/study/written-simulator"]) {
+      const selectors = getDefinition(path).steps.map((item) => item.selector);
+      expect(selectors).toContain(".task-board-trigger");
+      expect(selectors).toContain(".library-quick-trigger");
+      expect(selectors).toContain(".interview-chat-launcher");
+    }
   }
 });
 

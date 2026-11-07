@@ -54,6 +54,7 @@ describe.each(["es", "en", "ko"] as const)("library in %s", (locale) => {
   });
   it("keeps deferred and trigger copy consistent and documents the floating library in help", () => {
     for (const key of Object.keys(libraryTriggerLabels[locale]) as Array<keyof typeof libraryTriggerLabels[typeof locale]>) expect(libraryLabels[locale][key]).toBe(libraryTriggerLabels[locale][key]);
-    expect(getDefinition("/study/english").steps.find((step) => step.selector === ".library-quick-trigger")?.text[locale]).toBeTruthy();
+    expect(getDefinition("/study").steps.find((step) => step.selector === ".library-quick-trigger")?.text[locale]).toBeTruthy();
+    expect(getDefinition("/study/english").steps.some((step) => step.selector === ".library-quick-trigger")).toBe(false);
   });
 });
