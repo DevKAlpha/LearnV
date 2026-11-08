@@ -1,4 +1,3 @@
-import { scopedStorageKey } from "@/infrastructure/config/app-scope";
 import { useMemo, useState } from "react";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { localize } from "@/domain/models/i18n";
@@ -10,6 +9,7 @@ import {
 import { AppIcon, type AppIconName } from "@/shared/ui/AppIcon";
 import { trackLearning } from "@/application/controllers/learningJourneyEvents";
 import { recordLearningError } from "@/infrastructure/data/learning-error-log";
+import { resourceProgressKey, writeResourceProgress } from "@/infrastructure/data/resource-progress";
 
 type TypeFilter = "all" | ResourceType;
 
@@ -20,9 +20,10 @@ type ResourceLibraryProps = {
 export function ResourceLibrary({ language }: ResourceLibraryProps) {
   const { locale, copy } = useI18n();
   const [type, setType] = useState<TypeFilter>("all");
+  const [saveFailed, setSaveFailed] = useState<string | null>(null);
   const [completed, setCompleted] = useState<string[]>(() => {
     try {
-      const parsed: unknown = JSON.parse(localStorage.getItem(scopedStorageKey("learnv-resource-progress-v1")) ?? "[]");
+      const parsed: unknown = JSON.parse(localStorage.getItem(resourceProgressKey) ?? "[]");
       if (!Array.isArray(parsed) || !parsed.every((item) => typeof item === "string")) throw new Error("Invalid resource progress shape");
       return parsed;
     } catch (error) {
@@ -67,21 +68,16 @@ export function ResourceLibrary({ language }: ResourceLibraryProps) {
   const toggleComplete = (id: string) => {
     const completing = !completed.includes(id);
     if (completing) trackLearning({ kind: "resource", itemId: id, language, passed: true });
-    setCompleted((current) => {
-      const next = current.includes(id) ? current.filter((item) => item !== id) : [...current, id];
-      try {
-        localStorage.setItem(scopedStorageKey("learnv-resource-progress-v1"), JSON.stringify(next));
-      } catch (error) {
-        recordLearningError({
-          area: language === "ko" ? "korean-learning" : "english-learning",
-          code: "resource-progress-write-failed",
-          error,
-          context: { resourceId: id, completing },
-        });
-      }
-      window.dispatchEvent(new CustomEvent("learnv:progress"));
-      return next;
+    const next = completing ? [...completed, id] : completed.filter((item) => item !== id);
+    const result = writeResourceProgress(next);
+    setCompleted(next); setSaveFailed(result.saved ? null : id);
+    if (!result.saved) recordLearningError({
+      area: language === "ko" ? "korean-learning" : "english-learning",
+      code: "resource-progress-write-failed",
+      error: result.error,
+      context: { resourceId: id, completing },
     });
+    window.dispatchEvent(new CustomEvent("learnv:progress"));
   };
 
   return (
@@ -136,6 +132,7 @@ export function ResourceLibrary({ language }: ResourceLibraryProps) {
                 <small>{locale === "ko" ? "자료 카드 검토" : locale === "en" ? "Resource card reviewed" : "Ficha del recurso revisada"} · {resource.verifiedAt}</small>
               </div>
               <div className="resource-actions"><a href={resource.url} target="_blank" rel="noreferrer" onClick={() => trackLearning({ kind: "resource", itemId: resource.id, language })}>{copy.study.openResource}<span aria-hidden="true">↗</span></a><button type="button" aria-pressed={completed.includes(resource.id)} onClick={() => toggleComplete(resource.id)}>{completed.includes(resource.id) ? "✓ " : ""}{locale === "ko" ? "완료" : locale === "en" ? "Complete" : "Completar"}</button></div>
+              {saveFailed === resource.id && <p className="section-intro" role="status">{locale === "ko" ? "진행도를 저장하지 못했어요. 현재 화면에서는 유지되지만 새로고침하면 사라질 수 있어요. 저장 공간을 확인한 뒤 다시 체크해 주세요." : locale === "en" ? "Progress could not be saved. It remains on this screen but may be lost on reload. Check available storage, then try marking it again." : "No se pudo guardar el avance. Se mantiene en esta pantalla, pero podría perderse al recargar. Comprueba el almacenamiento y vuelve a marcarlo."}</p>}
             </article>
           ))}
         </div>
