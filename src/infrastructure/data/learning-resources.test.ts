@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Locale } from "../../domain/models/i18n";
 import { learningResources, type MaterialLanguage, type ResourceTrack, type ResourceType } from "./learning-resources";
+import { currentCycle, sources } from "./gks-2026";
 
 const locales: Locale[] = ["es", "en", "ko"];
 const tracks: ResourceTrack[] = ["gks", "en", "ko"];
@@ -42,13 +43,31 @@ describe("learning resources", () => {
 
       expect(resource.url).toMatch(/^https:\/\//);
       expect(resource.official).toBe(true);
-      expect(resource.verifiedAt).toMatch(/^2026-08-(18|19)$/);
+      expect(resource.verifiedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     });
   });
 
   it("uses unique stable identifiers", () => {
     const ids = learningResources.map((resource) => resource.id);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("aligns application resources with the published call and does not reuse completion from older forms", () => {
+    const official = sources.find((source) => source.id === "study-in-korea-2027")!;
+    expect(currentCycle.status).toBe("published");
+    const application = learningResources.filter((resource) => resource.track === "gks");
+    const previousCompletion = ["gks-guidelines-en", "gks-guidelines-ko", "gks-forms"];
+    expect(application.map((resource) => resource.id)).toEqual(["gks-guidelines-en-2027", "gks-guidelines-ko-2027", "gks-forms-2027"]);
+    for (const resource of application) {
+      expect(resource.url).toBe(official.url);
+      expect(previousCompletion).not.toContain(resource.id);
+      expect(resource.verifiedAt).toBe("2026-11-08");
+      for (const locale of locales) {
+        expect(resource.title[locale]).toContain("2027");
+        expect(resource.description[locale]).toContain("0914");
+        expect(resource.title[locale] + resource.description[locale]).not.toContain("2026");
+      }
+    }
   });
 
   it("starts the Korean route at TOPIK I before TOPIK II bridge material", () => {

@@ -5,6 +5,7 @@ import { cultureCases, cultureSources, cultureStories } from "@/infrastructure/d
 import { culturePreparationKey, readCulturePreparation, saveCulturePreparation } from "@/infrastructure/data/cultural-preparation";
 import { culturalGuideCopy } from "@/infrastructure/i18n/cultural-guide-copy";
 import "@/styles/cultural-guide.css";
+import { copyText } from "@/shared/browser/copy-text";
 
 export function CulturalGuide() {
   const { locale } = useI18n();
@@ -40,7 +41,7 @@ export function CulturalGuide() {
   };
   const copyPhrase = async () => {
     const copying = active;
-    try { await navigator.clipboard.writeText(item.phrase.ko); if (activeRef.current === copying) setCopyState("copied"); }
+    try { await copyText(item.phrase.ko); if (activeRef.current === copying) setCopyState("copied"); }
     catch { if (activeRef.current === copying) setCopyState("failed"); }
   };
   return <section className="cultural-guide" aria-labelledby="culture-guide-title">

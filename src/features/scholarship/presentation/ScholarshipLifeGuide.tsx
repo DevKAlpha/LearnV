@@ -5,6 +5,7 @@ import { scholarshipLifeCases, scholarshipLifeSources, scholarshipLifeReviewedAt
 import { readScholarshipPreparation, saveScholarshipPreparation, scholarshipPreparationKey } from "@/infrastructure/data/scholarship-life-preparation";
 import { scholarshipLifeCopy } from "@/infrastructure/i18n/scholarship-life-copy";
 import "@/styles/scholarship-life.css";
+import { copyText } from "@/shared/browser/copy-text";
 
 export function ScholarshipLifeGuide() {
   const { locale } = useI18n();
@@ -48,7 +49,7 @@ export function ScholarshipLifeGuide() {
   }
   async function copyOutline() {
     const request = ++clipboardRequest.current;
-    try { await navigator.clipboard.writeText(template); if (request === clipboardRequest.current) setCopied(true); }
+    try { await copyText(template); if (request === clipboardRequest.current) setCopied(true); }
     catch { if (request === clipboardRequest.current) setCopied(false); }
   }
 

@@ -1,4 +1,7 @@
 import type { LocalizedText } from "../../domain/models/i18n";
+import { currentCycle, sources } from "./gks-2026";
+
+const applicationSource = sources.find((source) => source.id === "study-in-korea-2027")!;
 
 export type ResourceTrack = "gks" | "en" | "ko";
 export type ResourceType = "document" | "book" | "test" | "video";
@@ -24,67 +27,67 @@ export type LearningResource = {
 
 export const learningResources: LearningResource[] = [
   {
-    id: "gks-guidelines-en",
+    id: "gks-guidelines-en-2027",
     languages: ["en"],
     title: {
-      es: "Guía oficial GKS-U 2026 · English",
-      en: "Official GKS-U 2026 Guidelines · English",
-      ko: "2026 GKS-U 공식 모집 요강 · 영어",
+      es: `Guía oficial ${currentCycle.target} · English`,
+      en: `Official ${currentCycle.target} Guidelines · English`,
+      ko: "2027 GKS-U 공식 모집 요강 · 영어",
     },
     description: {
-      es: "Requisitos, calendario, documentos y proceso. Úsala como referencia histórica hasta que se publique 2027.",
-      en: "Eligibility, timeline, documents and process. Use it as historical reference until the 2027 cycle is published.",
-      ko: "지원 자격, 일정, 제출 서류와 절차를 확인합니다. 2027 요강 발표 전까지 참고용으로 사용하세요.",
+      es: "Convocatoria publicada de 2027. Abre el adjunto English 0914 para comprobar requisitos, documentos y calendario; confirma también los plazos de tu vía y universidad.",
+      en: "Published 2027 call. Open the English 0914 attachment to check requirements, documents and schedules; also confirm your track and university deadlines.",
+      ko: "발표된 2027 모집 공지입니다. English 0914 첨부 요강에서 자격·서류·일정을 확인하고 지원 경로와 대학의 기한도 확인하세요.",
     },
     level: { es: "Aplicación", en: "Application", ko: "지원 준비" },
     organization: "Study in Korea · NIIED",
     track: "gks",
     type: "document",
-    url: "https://www.studyinkorea.go.kr/ko/notice/scholarshipsRead.do?bbsId=BBSMSTR_000000000461&boardSort=3&nttId=4385",
+    url: applicationSource.url,
     icon: "文",
     official: true,
-    verifiedAt: "2026-08-18",
+    verifiedAt: "2026-11-08",
   },
   {
-    id: "gks-guidelines-ko",
+    id: "gks-guidelines-ko-2027",
     languages: ["ko"],
     title: {
-      es: "Guía oficial GKS-U 2026 · 한국어",
-      en: "Official GKS-U 2026 Guidelines · Korean",
-      ko: "2026 GKS-U 공식 모집 요강 · 한국어",
+      es: `Guía oficial ${currentCycle.target} · 한국어`,
+      en: `Official ${currentCycle.target} Guidelines · Korean`,
+      ko: "2027 GKS-U 공식 모집 요강 · 한국어",
     },
     description: {
-      es: "Versión coreana del mismo ciclo para aprender vocabulario real de convocatoria y contrastar términos.",
-      en: "Korean version of the same cycle for learning authentic application vocabulary and comparing terms.",
-      ko: "같은 모집의 한국어판으로 실제 지원 용어를 익히고 영어판과 비교할 수 있습니다.",
+      es: "Abre el adjunto Korean 0914 de la convocatoria 2027. Contrasta el vocabulario con la versión inglesa y los requisitos de tu universidad.",
+      en: "Open the Korean 0914 attachment for the 2027 call. Compare its terminology with the English version and your university requirements.",
+      ko: "2027 공지의 Korean 0914 첨부 요강을 여세요. 실제 지원 용어를 영어판과 비교하고 대학별 요건을 확인하세요.",
     },
     level: { es: "Referencia · usar con apoyo", en: "Reference · use with support", ko: "참고 자료 · 도움과 함께 사용" },
     organization: "Study in Korea · NIIED",
     track: "gks",
     type: "document",
-    url: "https://www.studyinkorea.go.kr/ko/notice/scholarshipsRead.do?bbsId=BBSMSTR_000000000461&boardSort=3&nttId=4385",
+    url: applicationSource.url,
     icon: "한",
     official: true,
-    verifiedAt: "2026-08-18",
+    verifiedAt: "2026-11-08",
     learningOrder: 20,
   },
   {
-    id: "gks-forms",
+    id: "gks-forms-2027",
     languages: ["en", "ko"],
-    title: { es: "Formularios oficiales de solicitud GKS-U", en: "Official GKS-U application forms", ko: "GKS-U 공식 지원 서식" },
+    title: { es: "Formularios oficiales de solicitud GKS-U 2027", en: "Official GKS-U 2027 application forms", ko: "2027 GKS-U 공식 지원 서식" },
     description: {
-      es: "Incluye el Application Form, Personal Statement, Study Plan y acuerdos del ciclo 2026.",
-      en: "Includes the Application Form, Personal Statement, Study Plan and agreements for the 2026 cycle.",
-      ko: "2026 지원서, 자기소개서, 학업계획서와 동의서 양식이 포함됩니다.",
+      es: "Descarga Application Forms 0914 del anuncio 2027 y comprueba los formularios vigentes antes de redactar. El paquete incluye la solicitud, Personal Statement y Study Plan.",
+      en: "Download Application Forms 0914 from the 2027 announcement and check the current forms before drafting. The package includes the application, Personal Statement and Study Plan.",
+      ko: "2027 공지의 Application Forms 0914를 내려받고 작성 전에 최신 서식을 확인하세요. 지원서·자기소개서·학업계획서가 포함되어 있습니다.",
     },
     level: { es: "Aplicación", en: "Application", ko: "지원 준비" },
     organization: "Study in Korea · NIIED",
     track: "gks",
     type: "document",
-    url: "https://www.studyinkorea.go.kr/ko/notice/scholarshipsRead.do?bbsId=BBSMSTR_000000000461&boardSort=3&nttId=4385",
+    url: applicationSource.url,
     icon: "▤",
     official: true,
-    verifiedAt: "2026-08-18",
+    verifiedAt: "2026-11-08",
   },
   {
     id: "topik-basic-public-test",
