@@ -134,3 +134,17 @@ test("Korean practice keeps instructions in the learner's language until full im
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("lang", "ko");
 });
+
+test("a practice session exposes progress and a safe exit dialog", async ({ page }) => {
+  await prepare(page);
+  await openReady(page, "/tests/en/en-reading-01");
+  await expect(page.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "1");
+  const exit = page.locator(".session-exit-button");
+  await exit.click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("button")).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(exit).toBeFocused();
+});

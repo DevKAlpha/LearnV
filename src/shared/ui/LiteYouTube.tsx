@@ -6,6 +6,8 @@ type LiteYouTubeProps = {
   title: string;
   startSeconds?: number;
   endSeconds?: number;
+  /** Above-the-fold video (e.g. a listening practice): load the thumbnail eagerly. */
+  priority?: boolean;
 };
 
 function warmYouTubeConnection() {
@@ -18,7 +20,7 @@ function warmYouTubeConnection() {
   document.head.append(link);
 }
 
-export function LiteYouTube({ videoId, title, startSeconds = 0, endSeconds }: LiteYouTubeProps) {
+export function LiteYouTube({ videoId, title, startSeconds = 0, endSeconds, priority = false }: LiteYouTubeProps) {
   const { locale } = useI18n();
   const [active, setActive] = useState(false);
 
@@ -48,9 +50,9 @@ export function LiteYouTube({ videoId, title, startSeconds = 0, endSeconds }: Li
       <img
         src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`}
         alt=""
-        loading="eager"
+        loading={priority ? "eager" : "lazy"}
         decoding="async"
-        fetchPriority="high"
+        fetchPriority={priority ? "high" : "auto"}
         width="480"
         height="360"
       />

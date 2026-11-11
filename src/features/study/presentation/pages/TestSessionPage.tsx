@@ -31,7 +31,11 @@ function formatTime(seconds: number) {
   return `${String(minutes).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
 }
 
-export function TestSessionPage() {
+/**
+ * One practice attempt. Changing stage or retrying remounts it (see TestSessionPage), so
+ * every piece of attempt state starts fresh without manual reset code.
+ */
+function TestSession({ onRestart }: { onRestart: () => void }) {
   const { language: languageParam, stageId } = useParams();
   const language = languageParam === "ko" ? "ko" : "en";
   const invalidLanguage = languageParam !== "en" && languageParam !== "ko";
@@ -46,7 +50,8 @@ export function TestSessionPage() {
   const path = getLanguagePath(language, trackProgress);
   const advancedCopy = advancedPathCopy[locale];
   const isAdvancedStage = stage.id.startsWith(`${language}-c1-`);
-  const [runNumber, setRunNumber] = useState(() => (stageProgress?.attempts ?? 0) + 1);
+  // Attempt number is fixed for this mount; a retry remounts with the next one.
+  const [runNumber] = useState(() => (stageProgress?.attempts ?? 0) + 1);
   const questions = useMemo(() => getAttemptQuestions(stage, runNumber), [stage, runNumber]);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
@@ -95,31 +100,6 @@ export function TestSessionPage() {
   const totalSteps = questions.length + 1;
   const currentStep = productionDone ? questionIndex + 2 : 1;
 
-  useEffect(() => {
-    setRunNumber((trackProgress[stage.id]?.attempts ?? 0) + 1);
-    setQuestionIndex(0);
-    setAnswers({});
-    setResult(null);
-    setSecondsLeft(stage.estimatedMinutes * 60);
-    setProductionDone(false);
-    setWrittenResponse("");
-    setSpeakingPractised(false);
-    setMediaReviewed(false);
-    setScriptPlayed(false);
-    setScriptTranscript(false);
-    setRecordingReviewed(false);
-    setChecklistChecks(stage.productionTask.checklist.map(() => false));
-    setShowExitDialog(false);
-    setMicrophoneError(false);
-    setIsRecording(false);
-    setRecordingPending(false);
-    setRecordingUrl((current) => {
-      if (current) URL.revokeObjectURL(current);
-      return null;
-    });
-    recordingRef.current?.dispose();
-    finishedRef.current = false;
-  }, [stage.id]);
 
   useEffect(() => {
     const recorder = createLearningRecording({
@@ -227,31 +207,7 @@ export function TestSessionPage() {
     document.getElementById("test-session-top")?.scrollIntoView({ behavior: getMotionScrollBehavior() });
   };
 
-  const restartTest = () => {
-    setRunNumber((current) => current + 1);
-    setQuestionIndex(0);
-    setAnswers({});
-    setResult(null);
-    setSecondsLeft(stage.estimatedMinutes * 60);
-    setProductionDone(false);
-    setWrittenResponse("");
-    setSpeakingPractised(false);
-    setMediaReviewed(false);
-    setScriptPlayed(false);
-    setScriptTranscript(false);
-    setRecordingReviewed(false);
-    setChecklistChecks(stage.productionTask.checklist.map(() => false));
-    setMicrophoneError(false);
-    setIsRecording(false);
-    setRecordingPending(false);
-    recordingRef.current?.dispose();
-    setRecordingUrl((current) => {
-      if (current) URL.revokeObjectURL(current);
-      return null;
-    });
-    finishedRef.current = false;
-    document.getElementById("test-session-top")?.scrollIntoView({ behavior: getMotionScrollBehavior() });
-  };
+  const restartTest = onRestart;
 
   if (result) {
     const mastered = [...new Set(result.questions.filter((item) => item.correct).map((item) => item.question.skill))];
@@ -358,7 +314,7 @@ export function TestSessionPage() {
       {isAdvancedStage && !productionDone && <aside className="advanced-path-notice"><strong>{language === "en" ? advancedCopy.title : advancedCopy.koreanTitle}</strong><p>{advancedCopy.criteria}</p><details><summary>{advancedCopy.scope}</summary><small>{advancedCopy.notice}</small></details></aside>}
       <header className="session-topbar">
         <button ref={exitButtonRef} className="session-exit-button" type="button" aria-label={copy.tests.sessionExit} onClick={() => setShowExitDialog(true)}>×</button>
-        <div className="session-progress" aria-label={`${currentStep} ${copy.tests.of} ${totalSteps}`}><span style={{ width: `${(currentStep / totalSteps) * 100}%` }} /></div>
+        <div className="session-progress" role="progressbar" aria-label={copy.tests.progress} aria-valuemin={1} aria-valuemax={totalSteps} aria-valuenow={currentStep} aria-valuetext={`${currentStep} ${copy.tests.of} ${totalSteps}`}><span style={{ width: `${(currentStep / totalSteps) * 100}%` }} /></div>
         <span className={timed ? "session-timer session-timer--active" : "session-timer"}>
           <small>{timed ? copy.tests.timeLeft : copy.tests.untimed}</small>
           <strong>{timed ? formatTime(secondsLeft) : `#${runNumber}`}</strong>
@@ -386,10 +342,11 @@ export function TestSessionPage() {
             <textarea
               value={writtenResponse}
               placeholder={copy.tests.writingPlaceholder}
-              aria-label={copy.tests.productiveTask}
+              aria-labelledby="production-stage-title"
+              aria-describedby="writing-response-count"
               onChange={(event) => setWrittenResponse(event.target.value)}
             />
-            <div>
+            <div id="writing-response-count">
               <span>{language === "en" ? `${wordCount} words` : `${writtenResponse.trim().length} ${copy.tests.characters}`}</span>
               <strong>{language === "en" && stage.productionTask.minimumWords ? `${stage.productionTask.minimumWords}–${stage.productionTask.maximumWords} words` : stage.productionTask.maximumCharacters ? `${minimumCharacters}–${stage.productionTask.maximumCharacters} ${copy.tests.characters}` : `${copy.tests.minimum} · ${minimumCharacters}`}</strong>
             </div>
@@ -398,7 +355,7 @@ export function TestSessionPage() {
           stage.media ? (
             <article className="listening-media-card">
               <div className="listening-media-card__frame">
-                <LiteYouTube videoId={stage.media.videoId} title={stage.media.title} startSeconds={stage.media.startSeconds} endSeconds={stage.media.endSeconds} />
+                <LiteYouTube priority videoId={stage.media.videoId} title={stage.media.title} startSeconds={stage.media.startSeconds} endSeconds={stage.media.endSeconds} />
               </div>
               <div className="listening-media-card__body">
                 <div className="listening-media-card__badges">
@@ -503,4 +460,14 @@ export function TestSessionPage() {
       )}
     </div>
   );
+}
+
+/** Route entry: a new key per stage and per retry gives each attempt a clean state. */
+export function TestSessionPage() {
+  const { language, stageId } = useParams();
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    if (attempt > 0) document.getElementById("test-session-top")?.scrollIntoView({ behavior: getMotionScrollBehavior() });
+  }, [attempt]);
+  return <TestSession key={`${language}:${stageId}:${attempt}`} onRestart={() => setAttempt((value) => value + 1)} />;
 }
