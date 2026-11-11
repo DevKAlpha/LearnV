@@ -20,7 +20,7 @@
     "typecheck": "tsc -b",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "e2e": "playwright test",
     "check:architecture": "node scripts/check-architecture.mjs",

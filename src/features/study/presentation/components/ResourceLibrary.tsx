@@ -122,16 +122,16 @@ export function ResourceLibrary({ language }: ResourceLibraryProps) {
               <h3>{localize(resource.title, locale)}</h3>
               <p>{localize(resource.description, locale)}</p>
               <div className="resource-task">
-                <strong>{locale === "ko" ? "이번 활동" : locale === "en" ? "Your task" : "Tu actividad"}</strong>
+                <strong>{copy.ui.resourceTask}</strong>
                 <p>{taskFor(resource.type)}</p>
                 <span>◷ {resource.estimatedMinutes ?? (resource.type === "document" ? 20 : resource.type === "video" ? 15 : 30)} min · {resource.access === "account" || accountResources.has(resource.id) ? (locale === "ko" ? "계정 필요" : locale === "en" ? "Account may be required" : "Puede requerir cuenta") : (locale === "ko" ? "공개 링크" : locale === "en" ? "Open link" : "Enlace abierto")}</span>
               </div>
               <div className="resource-meta">
                 <strong>{resource.organization}</strong>
-                <small>{locale === "ko" ? "자료 카드 검토" : locale === "en" ? "Resource card reviewed" : "Ficha del recurso revisada"} · {resource.verifiedAt}</small>
+                <small>{copy.ui.resourceReviewed} · {resource.verifiedAt}</small>
               </div>
               <div className="resource-actions"><a href={resource.url} target="_blank" rel="noreferrer" onClick={() => trackLearning({ kind: "resource", itemId: resource.id, language })}>{copy.study.openResource}<span aria-hidden="true">↗</span></a><button type="button" aria-pressed={completed.includes(resource.id)} onClick={() => toggleComplete(resource.id)}>{completed.includes(resource.id) ? "✓ " : ""}{locale === "ko" ? "완료" : locale === "en" ? "Complete" : "Completar"}</button></div>
-              {saveFailed === resource.id && <p className="section-intro" role="status">{locale === "ko" ? "진행도를 저장하지 못했어요. 현재 화면에서는 유지되지만 새로고침하면 사라질 수 있어요. 저장 공간을 확인한 뒤 다시 체크해 주세요." : locale === "en" ? "Progress could not be saved. It remains on this screen but may be lost on reload. Check available storage, then try marking it again." : "No se pudo guardar el avance. Se mantiene en esta pantalla, pero podría perderse al recargar. Comprueba el almacenamiento y vuelve a marcarlo."}</p>}
+              {saveFailed === resource.id && <p className="section-intro" role="status">{copy.ui.resourceSaveFailed}</p>}
             </article>
           ))}
         </div>

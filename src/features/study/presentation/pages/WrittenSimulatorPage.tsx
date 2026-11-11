@@ -31,15 +31,14 @@ export function WrittenSimulatorPage() {
       ? copy.written.resultDeveloping
       : copy.written.resultRevise;
   const draftChecks = [
-    { ok: state.personalStatement.trim().length >= 600, label: locale === "ko" ? "자기소개서 초안이 최소 연습 길이에 도달했습니다." : locale === "en" ? "The Personal Statement reaches the practice length." : "El Personal Statement alcanza la extensión de práctica." },
-    { ok: state.studyPlan.trim().length >= 600, label: locale === "ko" ? "학업계획서 초안이 최소 연습 길이에 도달했습니다." : locale === "en" ? "The Study Plan reaches the practice length." : "El Study Plan alcanza la extensión de práctica." },
-    { ok: /\d/u.test(`${state.personalStatement} ${state.studyPlan}`), label: locale === "ko" ? "확인 가능한 숫자 또는 기간이 포함되어 있습니다." : locale === "en" ? "A verifiable number or timeline is included." : "Incluye una cifra o plazo verificable." },
-    { ok: state.personalStatement.trim() !== state.studyPlan.trim(), label: locale === "ko" ? "두 글이 서로 다른 목적을 수행합니다." : locale === "en" ? "The two drafts serve different purposes." : "Los dos borradores cumplen propósitos distintos." },
+    { ok: state.personalStatement.trim().length >= 600, label: copy.ui.draftChecks.personalLength },
+    { ok: state.studyPlan.trim().length >= 600, label: copy.ui.draftChecks.planLength },
+    { ok: /\d/u.test(`${state.personalStatement} ${state.studyPlan}`), label: copy.ui.draftChecks.numeric },
+    { ok: state.personalStatement.trim() !== state.studyPlan.trim(), label: copy.ui.draftChecks.distinct },
   ];
 
-  useEffect(() => {
-    return onLearnvEvent("learnv:written-reset", () => simulator.reset());
-  }, [simulator.reset]);
+  const resetSimulator = simulator.reset;
+  useEffect(() => onLearnvEvent("learnv:written-reset", resetSimulator), [resetSimulator]);
 
   return (
     <div className="page written-simulator-page" data-help-written={state.step} data-help-timed-running={!!state.startedAt && !state.completedAt && simulator.secondsLeft > 0}>
@@ -192,9 +191,9 @@ export function WrittenSimulatorPage() {
           </div>
           <p className="written-result__notice">{copy.written.resultNotice}</p>
           <div className="written-result__checks">
-            <h3>{locale === "ko" ? "자동으로 확인한 항목" : locale === "en" ? "Automated completion checks" : "Comprobaciones automáticas"}</h3>
+            <h3>{copy.ui.autoChecksTitle}</h3>
             <ul>{draftChecks.map((check) => <li className={check.ok ? "is-complete" : "is-missing"} key={check.label}><span>{check.ok ? "✓" : "!"}</span>{check.label}</li>)}</ul>
-            <small>{locale === "ko" ? "LearnV는 글의 품질이나 선발 가능성을 자동 평가하지 않습니다." : locale === "en" ? "LearnV does not automatically judge writing quality or selection chances." : "LearnV no califica automáticamente la calidad del texto ni predice la selección."}</small>
+            <small>{copy.ui.autoChecksDisclaimer}</small>
           </div>
           <div className="written-stage__actions">
             <Link className="test-secondary-action" to="/study">{copy.written.backStudy}</Link>

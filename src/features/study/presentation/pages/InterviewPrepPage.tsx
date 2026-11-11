@@ -168,14 +168,14 @@ export function InterviewPrepPage({ learning }: { learning: LearningJourneyContr
           <div className="interview-practice-card__top"><span>{practiceIndex + 1}/{visibleQuestions.length} · {copy.interview.randomQuestion}</span><small>{Math.floor(secondsLeft / 60)}:{String(secondsLeft % 60).padStart(2, "0")}</small></div>
           <h3>{localize(practiceQuestion.question, locale)}</h3>
           <p><strong>{copy.interview.whatItChecks}</strong>{localize(practiceQuestion.purpose, locale)}</p>
-          <div className="interview-timer-controls"><button type="button" onClick={() => setTimerRunning((current) => !current)}>{timerRunning ? (locale === "ko" ? "일시정지" : locale === "en" ? "Pause" : "Pausar") : (locale === "ko" ? "75초 시작" : locale === "en" ? "Start 75 s" : "Iniciar 75 s")}</button><button type="button" onClick={() => { setSecondsLeft(75); setTimerRunning(false); }}>{locale === "ko" ? "초기화" : locale === "en" ? "Reset timer" : "Reiniciar tiempo"}</button></div>
+          <div className="interview-timer-controls"><button type="button" onClick={() => setTimerRunning((current) => !current)}>{timerRunning ? copy.ui.timerPause : copy.ui.timerStart}</button><button type="button" onClick={() => { setSecondsLeft(75); setTimerRunning(false); }}>{copy.ui.timerReset}</button></div>
           <textarea value={answer} onChange={(event) => updateCurrent({ answer: event.target.value })} placeholder={copy.interview.notesPlaceholder} aria-label={copy.interview.notesPlaceholder} />
           <details><summary>{copy.interview.showFollowUp}<span>＋</span></summary><p>{localize(practiceQuestion.followUp, locale)}</p></details>
           <div className="interview-self-check">
             <strong>{copy.interview.selfCheck}</strong>
             {copy.interview.rubric.map((item, index) => <label key={item}><input type="checkbox" checked={checked[index]} onChange={(event) => updateCurrent({ checked: checked.map((value, itemIndex) => itemIndex === index ? event.target.checked : value) })} /><span>{item}</span></label>)}
           </div>
-          <div className="interview-question-navigation"><button type="button" onClick={() => changePractice(-1)}><span>←</span>{locale === "ko" ? "이전" : locale === "en" ? "Previous" : "Anterior"}</button><button className="interview-next-button" type="button" onClick={() => changePractice(1)}>{copy.interview.nextQuestion}<span>→</span></button></div>
+          <div className="interview-question-navigation"><button type="button" onClick={() => changePractice(-1)}><span>←</span>{copy.ui.previous}</button><button className="interview-next-button" type="button" onClick={() => changePractice(1)}>{copy.interview.nextQuestion}<span>→</span></button></div>
         </article>
       </section>
 

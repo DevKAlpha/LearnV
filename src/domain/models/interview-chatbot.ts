@@ -484,7 +484,7 @@ const QUESTION_FRAMES: Record<Locale, Record<InterviewSignal | "neutral", string
       "No busques una frase perfecta; responde con precisión:",
     ],
     direct: [
-      "Ve primero a tu idea central y luego explíquela:",
+      "Ve primero a tu idea central y luego explícala:",
       "Esta vez abre con una respuesta inequívoca:",
       "Practiquemos claridad desde la primera frase:",
     ],
@@ -684,7 +684,7 @@ export function createInterviewSessionAdvice(summary: InterviewSessionSummary, l
     ? "Tu estructura es consistente. La siguiente mejora vendrá de la precisión y la naturalidad, no de añadir más contenido."
     : summary.average >= 60
       ? "Tus respuestas tienen una base útil, pero el panel todavía no escucharía el mismo nivel de claridad en todas."
-      : "Tus ideas están presentes, pero aún dependen de afirmaciones generales. Construye primero la estructura antes de intentar sonar más elaborada.";
+      : "Tus ideas están presentes, pero aún dependen de afirmaciones generales. Construye primero la estructura antes de intentar que suene más elaborado.";
   const trend = summary.trend === "improving"
     ? `La segunda mitad mejoró ${summary.trendDelta} puntos: aplicaste la retroalimentación mientras avanzaba la entrevista.`
     : summary.trend === "declining"

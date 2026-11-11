@@ -76,4 +76,22 @@ export const ko: TranslationCatalog = {
     sessionExit: "시험 나가기", question: "문제", of: "/", selectAnswer: "답을 선택하면 계속할 수 있습니다.", next: "다음", finish: "시험 완료", playAudio: "음성 재생", audioUnavailable: "음성을 사용할 수 없어 대본을 표시합니다:", untimed: "시간 제한 없음", timed: "시간 제한 응시", timeLeft: "남은 시간", attempt: "응시",
     resultKicker: "연습 결과 돌아보기", resultTitle: "시험 완료", resultPass: "수행 과제를 증명하여 다음 단계가 열렸습니다.", resultRetry: "이번 응시에서 다음 연습의 힌트를 얻을 수 있어요. 해설을 읽고 실습 과제를 완료한 뒤 다시 도전하세요.", score: "객관식 정답", estimate: "실습 과제", nonOfficial: "이 정답과 확인 항목은 학습용이며 IELTS, TOPIK 또는 GKS 공식 점수가 아닙니다.", correctAnswers: "정답", whatWentWell: "잘한 점", improveNext: "개선 방법", perfect: "이번 응시의 객관식 답을 모두 맞혔습니다. 배운 내용을 나만의 예문에 사용해 보세요.", noCorrect: "이번 결과를 시작점으로 활용하세요. 다시 풀기 전에 모든 해설을 확인하세요.", selectedAnswer: "선택한 답", correctAnswer: "정답", unanswered: "응답 없음", explanation: "해설", selectedFeedback: "선택에 대한 피드백", correctChoice: "근거 있는 정답", reviewChoice: "이 선택을 다시 확인하세요", microLesson: "핵심 미니 수업", modelExample: "문맥 속 모델", transferChallenge: "새 상황에 적용", sessionTakeaway: "이번 학습에서 기억할 것", sessionTakeawayText: "다음 장으로 넘어가기 전에 규칙 하나를 골라 예시를 보고 한 번 더 사용해 보세요. 다시 활용할 수 있는 배움을 가져가세요.", repeatTest: "심화 재도전", backPath: "경로로 돌아가기", nextTest: "다음 시험으로",
   },
+  ui: {
+    autoChecksTitle: "자동으로 확인한 항목",
+    autoChecksDisclaimer: "LearnV는 글의 품질이나 선발 가능성을 자동 평가하지 않습니다.",
+    draftChecks: {
+      personalLength: "자기소개서 초안이 최소 연습 길이에 도달했습니다.",
+      planLength: "학업계획서 초안이 최소 연습 길이에 도달했습니다.",
+      numeric: "확인 가능한 숫자 또는 기간이 포함되어 있습니다.",
+      distinct: "두 글이 서로 다른 목적을 수행합니다.",
+    },
+    resourceTask: "이번 활동",
+    resourceReviewed: "자료 카드 검토",
+    resourceSaveFailed: "진행도를 저장하지 못했어요. 현재 화면에서는 유지되지만 새로고침하면 사라질 수 있어요. 저장 공간을 확인한 뒤 다시 체크해 주세요.",
+    timerPause: "일시정지",
+    timerStart: "75초 시작",
+    timerReset: "초기화",
+    previous: "이전",
+    play: "{title} 재생",
+  },
 };

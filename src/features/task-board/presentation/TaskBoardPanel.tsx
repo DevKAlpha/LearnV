@@ -26,6 +26,8 @@ export const TaskBoardPanel = memo(function TaskBoardPanel({ active }: { active:
   const editorOpen = !!editor;
   useEffect(() => {
     if (filtered && !visible.some((task) => task.status === column) && visible[0]) setColumn(visible[0].status);
+    // Only when the filter changes: re-running on column changes would undo the person's own column choice.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, area, locale]);
   useEffect(() => {
     if (!active) { dragId.current = null; setDragging(null); setOver(null); return; }

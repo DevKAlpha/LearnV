@@ -452,6 +452,24 @@ export const es = {
     sessionExit: "Salir de la prueba", question: "Pregunta", of: "de", selectAnswer: "Selecciona una respuesta para continuar.", next: "Siguiente", finish: "Finalizar prueba", playAudio: "Reproducir audio", audioUnavailable: "El audio no está disponible; usa esta transcripción:", untimed: "Sin límite de tiempo", timed: "Intento cronometrado", timeLeft: "Tiempo restante", attempt: "Intento",
     resultKicker: "Tu práctica, en perspectiva", resultTitle: "Prueba completada", resultPass: "Has demostrado la tarea productiva y desbloqueado el siguiente paso.", resultRetry: "Este intento te deja pistas. Revisa las explicaciones y completa la tarea práctica antes de volver a intentarlo.", score: "Aciertos objetivos", estimate: "Tarea práctica", nonOfficial: "Estos aciertos y comprobaciones sirven para aprender; no equivalen a una calificación oficial de IELTS, TOPIK o GKS.", correctAnswers: "respuestas correctas", whatWentWell: "Lo que hiciste bien", improveNext: "Cómo mejorarlo", perfect: "Todas las respuestas objetivas son correctas en este intento. Prueba a usar lo aprendido en un ejemplo propio.", noCorrect: "Este intento sirve como diagnóstico inicial: revisa cada explicación antes de repetir.", selectedAnswer: "Tu respuesta", correctAnswer: "Respuesta correcta", unanswered: "Sin responder", explanation: "Por qué", selectedFeedback: "Retroalimentación de tu elección", correctChoice: "Respuesta razonada", reviewChoice: "Revisa esta elección", microLesson: "Microlección", modelExample: "Ejemplo en contexto", transferChallenge: "Llévalo a otra situación", sessionTakeaway: "Aprendizaje de esta sesión", sessionTakeawayText: "Antes de pasar página, elige una regla, mira el ejemplo y úsala una vez más. Así te llevas algo que puedes volver a aplicar.", repeatTest: "Repetir con reto", backPath: "Volver al recorrido", nextTest: "Ir a la siguiente prueba",
   },
+  ui: {
+    autoChecksTitle: "Comprobaciones automáticas",
+    autoChecksDisclaimer: "LearnV no califica automáticamente la calidad del texto ni predice la selección.",
+    draftChecks: {
+      personalLength: "El Personal Statement alcanza la extensión de práctica.",
+      planLength: "El Study Plan alcanza la extensión de práctica.",
+      numeric: "Incluye una cifra o plazo verificable.",
+      distinct: "Los dos borradores cumplen propósitos distintos.",
+    },
+    resourceTask: "Tu actividad",
+    resourceReviewed: "Ficha del recurso revisada",
+    resourceSaveFailed: "No se pudo guardar el avance. Se mantiene en esta pantalla, pero podría perderse al recargar. Comprueba el almacenamiento y vuelve a marcarlo.",
+    timerPause: "Pausar",
+    timerStart: "Iniciar 75 s",
+    timerReset: "Reiniciar tiempo",
+    previous: "Anterior",
+    play: "Reproducir {title}",
+  },
 };
 
 type DeepWiden<T> = T extends string

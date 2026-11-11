@@ -21,12 +21,12 @@ function warmYouTubeConnection() {
 }
 
 export function LiteYouTube({ videoId, title, startSeconds = 0, endSeconds, priority = false }: LiteYouTubeProps) {
-  const { locale } = useI18n();
+  const { copy } = useI18n();
   const [active, setActive] = useState(false);
 
   useEffect(() => setActive(false), [videoId]);
 
-  const playLabel = locale === "ko" ? `${title} 재생` : locale === "en" ? `Play ${title}` : `Reproducir ${title}`;
+  const playLabel = copy.ui.play.replace("{title}", title);
   const end = endSeconds ? `&end=${endSeconds}` : "";
 
   return active ? (

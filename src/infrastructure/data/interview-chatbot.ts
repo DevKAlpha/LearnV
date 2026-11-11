@@ -6,6 +6,8 @@ type ChatbotCopy = {
   name: string;
   role: string;
   close: string;
+  /** Label for the learner's own messages. */
+  you: string;
   welcome: string;
   introduction: string;
   sessionPlan: string;
@@ -40,6 +42,7 @@ type ChatbotCopy = {
 
 export const interviewChatbotCopy: Record<Locale, ChatbotCopy> = {
   es: {
+    you: "Tú",
     name: "Hanbyeol", role: "Entrevistadora de práctica GKS", close: "Cerrar entrevista",
     welcome: "Tu historia merece una respuesta con tu propia voz.",
     introduction: "Ensaya cuatro preguntas y una repregunta por cada una. Escribe como hablarías: revisaré la estructura para ayudarte a responder con claridad y ejemplos. Puedes mejorar una respuesta cada vez.",
@@ -64,6 +67,7 @@ export const interviewChatbotCopy: Record<Locale, ChatbotCopy> = {
     },
   },
   en: {
+    you: "You",
     name: "Hanbyeol", role: "GKS practice interviewer", close: "Close interview",
     welcome: "Your story deserves an answer in your own voice.",
     introduction: "Rehearse four questions and one follow-up each. Write as you would speak: I will review the structure to help you answer clearly with examples. Work on one response at a time.",
@@ -88,6 +92,7 @@ export const interviewChatbotCopy: Record<Locale, ChatbotCopy> = {
     },
   },
   ko: {
+    you: "나",
     name: "한별", role: "GKS 모의 면접관", close: "면접 닫기",
     welcome: "나의 이야기를 나의 목소리로 전해 보세요.",
     introduction: "질문 네 개와 각각의 추가 질문을 연습합니다. 말하듯이 쓰세요. 답변 구조를 살펴보며 명확한 설명과 사례를 제시하도록 돕겠습니다. 한 답변씩 다듬어 보세요.",

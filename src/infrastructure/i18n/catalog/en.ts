@@ -76,4 +76,22 @@ export const en: TranslationCatalog = {
     sessionExit: "Exit test", question: "Question", of: "of", selectAnswer: "Select an answer to continue.", next: "Next", finish: "Finish test", playAudio: "Play audio", audioUnavailable: "Audio is unavailable; use this transcript:", untimed: "No time limit", timed: "Timed attempt", timeLeft: "Time left", attempt: "Attempt",
     resultKicker: "Your practice in perspective", resultTitle: "Test complete", resultPass: "You demonstrated the productive task and unlocked the next step.", resultRetry: "This attempt gives you clues. Read the explanations and complete the practical task before trying again.", score: "Objective answers", estimate: "Practical task", nonOfficial: "These answers and checks support learning; they are not an official IELTS, TOPIK or GKS score.", correctAnswers: "correct answers", whatWentWell: "What you did well", improveNext: "How to improve", perfect: "All objective answers are correct in this attempt. Try using what you learned in an example of your own.", noCorrect: "Use this attempt as your baseline: review every explanation before trying again.", selectedAnswer: "Your answer", correctAnswer: "Correct answer", unanswered: "Unanswered", explanation: "Why", selectedFeedback: "Feedback on your choice", correctChoice: "Reasoned answer", reviewChoice: "Review this choice", microLesson: "Micro-lesson", modelExample: "Example in context", transferChallenge: "Use it in a new situation", sessionTakeaway: "What to retain from this session", sessionTakeawayText: "Before turning the page, choose a rule, look at the example and use it once more. Take away something you can apply again.", repeatTest: "Retake challenge", backPath: "Back to path", nextTest: "Go to next test",
   },
+  ui: {
+    autoChecksTitle: "Automated completion checks",
+    autoChecksDisclaimer: "LearnV does not automatically judge writing quality or selection chances.",
+    draftChecks: {
+      personalLength: "The Personal Statement reaches the practice length.",
+      planLength: "The Study Plan reaches the practice length.",
+      numeric: "A verifiable number or timeline is included.",
+      distinct: "The two drafts serve different purposes.",
+    },
+    resourceTask: "Your task",
+    resourceReviewed: "Resource card reviewed",
+    resourceSaveFailed: "Progress could not be saved. It remains on this screen but may be lost on reload. Check available storage, then try marking it again.",
+    timerPause: "Pause",
+    timerStart: "Start 75 s",
+    timerReset: "Reset timer",
+    previous: "Previous",
+    play: "Play {title}",
+  },
 };

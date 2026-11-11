@@ -87,7 +87,7 @@ export function SectionTour() {
     const pending = consumePageTourRequest();
     if (pending) startTour(pending);
     return offRestart;
-  }, [startTour]);
+  }, [startTour, baseLocale, locale]);
 
   useLayoutEffect(() => {
     if (!open) return;

@@ -301,7 +301,7 @@ export function InterviewChatPanel({ onClose, prioritySkill, focusSignal }: Inte
             {messages.map((message) => (
               <article className={`interview-chat__message interview-chat__message--${message.role}`} key={message.id}>
                 <small><AppIcon name={message.role === "candidate" ? "profile" : message.role === "coach" ? "sparkle" : "chat"} />{message.role === "candidate"
-                  ? (locale === "ko" ? "나" : locale === "en" ? "You" : "Tú")
+                  ? copy.you
                   : message.role === "coach"
                     ? "LearnV Coach"
                     : localize(personality.name, locale)}</small>
