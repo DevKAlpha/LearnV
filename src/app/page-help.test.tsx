@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { getDefinition, type HelpContext } from "@/app/layout/section-help";
 import { readSeenTours } from "@/app/layout/SectionTour";
 import { readPageHelpContext, isFixedHelpTarget } from "@/app/layout/page-help-context";
-import { consumePageTourRequest, requestPageTour, START_PAGE_TOUR_EVENT } from "@/application/controllers/pageHelpEvents";
+import { consumePageTourRequest, requestPageTour } from "@/application/controllers/pageHelpEvents";
 import { translations } from "@/infrastructure/i18n/translations";
 import { HomePage } from "@/features/home/presentation/HomePage";
 import { StudyPage } from "@/features/study/presentation/pages/StudyPage";
@@ -135,7 +135,7 @@ it("keeps only board help during immersive learning in production and QA", () =>
 it("keeps a replay request made before the deferred tour attaches and consumes it only once", () => {
   const dispatchEvent = vi.fn(); vi.stubGlobal("window", { dispatchEvent });
   requestPageTour("ko");
-  expect(dispatchEvent.mock.calls[0][0].type).toBe(START_PAGE_TOUR_EVENT);
+  expect(dispatchEvent.mock.calls[0][0].type).toBe("learnv:start-tour");
   expect(consumePageTourRequest()).toBe("ko"); expect(consumePageTourRequest()).toBeNull();
 });
 

@@ -28,7 +28,8 @@ async function prepare(page: Page, { locale = "es", theme = "light" }: { locale?
 }
 
 async function openReady(page: Page, route: string) {
-  await page.goto(route);
+  // Relative to baseURL so the same suite checks direct opening under /LearnV/ in CI.
+  await page.goto(route === "/" ? "./" : `.${route}`);
   await expect(page.locator("#main-content")).toBeVisible();
   await expect(page.locator("#learnv-bootstrap-loader")).toHaveCount(0, { timeout: 15_000 });
   await expect(page.locator("[data-visual-pending]")).toHaveCount(0, { timeout: 15_000 });

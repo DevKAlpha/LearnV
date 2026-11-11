@@ -6,7 +6,8 @@ import type { Locale } from "@/domain/models/i18n";
 import { localize } from "@/domain/models/i18n";
 import { getDefinition, type TourStep } from "./section-help";
 import { useI18n } from "@/application/i18n/I18nContext";
-import { consumePageTourRequest, START_PAGE_TOUR_EVENT } from "@/application/controllers/pageHelpEvents";
+import { consumePageTourRequest } from "@/application/controllers/pageHelpEvents";
+import { onLearnvEvent } from "@/infrastructure/events/learnv-events";
 import { findHelpTarget, isFixedHelpTarget, readPageHelpContext } from "./page-help-context";
 import "@/styles/page-help.css";
 export { getDefinition } from "./section-help";
@@ -73,10 +74,10 @@ export function SectionTour() {
 
   useEffect(() => {
     const restart = () => startTour(consumePageTourRequest() ?? baseLocale ?? locale);
-    window.addEventListener(START_PAGE_TOUR_EVENT, restart);
+    const offRestart = onLearnvEvent("learnv:start-tour", restart);
     const pending = consumePageTourRequest();
     if (pending) startTour(pending);
-    return () => window.removeEventListener(START_PAGE_TOUR_EVENT, restart);
+    return offRestart;
   }, [startTour]);
 
   useLayoutEffect(() => {

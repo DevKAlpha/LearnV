@@ -1,6 +1,6 @@
 import { scopedStorageKey } from "@/infrastructure/config/app-scope";
+import { emitLearnvEvent } from "@/infrastructure/events/learnv-events";
 export const WRITTEN_SIMULATOR_STORAGE_KEY = scopedStorageKey("learnv-written-simulator-v1");
-export const WRITTEN_SIMULATOR_STATE_EVENT = "learnv:written-state";
 
 export function hasActiveWrittenSimulator() {
   try {
@@ -14,7 +14,5 @@ export function hasActiveWrittenSimulator() {
 }
 
 export function announceWrittenSimulatorState(active: boolean) {
-  window.dispatchEvent(new CustomEvent(WRITTEN_SIMULATOR_STATE_EVENT, {
-    detail: { active },
-  }));
+  emitLearnvEvent("learnv:written-state", { active });
 }

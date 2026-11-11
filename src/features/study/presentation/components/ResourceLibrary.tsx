@@ -77,7 +77,6 @@ export function ResourceLibrary({ language }: ResourceLibraryProps) {
       error: result.error,
       context: { resourceId: id, completing },
     });
-    window.dispatchEvent(new CustomEvent("learnv:progress"));
   };
 
   return (

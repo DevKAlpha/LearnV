@@ -1,6 +1,7 @@
 import { useEffect, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { useWrittenSimulator } from "@/application/controllers/useWrittenSimulator";
+import { onLearnvEvent } from "@/infrastructure/events/learnv-events";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { localize } from "@/domain/models/i18n";
 import { getWrittenCharacterLimit } from "@/domain/models/written-simulator";
@@ -37,9 +38,7 @@ export function WrittenSimulatorPage() {
   ];
 
   useEffect(() => {
-    const reset = () => simulator.reset();
-    window.addEventListener("learnv:written-reset", reset);
-    return () => window.removeEventListener("learnv:written-reset", reset);
+    return onLearnvEvent("learnv:written-reset", () => simulator.reset());
   }, [simulator.reset]);
 
   return (

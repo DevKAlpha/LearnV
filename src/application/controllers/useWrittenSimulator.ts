@@ -104,7 +104,6 @@ export function useWrittenSimulator() {
         lastScore: nextScore.total,
       };
     });
-    window.dispatchEvent(new CustomEvent("learnv:progress"));
   }, []);
 
   const reset = useCallback(() => {

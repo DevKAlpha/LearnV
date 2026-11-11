@@ -31,3 +31,29 @@ export function inspectStartup(manifest, readAsset, limits = STARTUP_LIMITS) {
     throw new Error(`Startup budget exceeded: ${report.bytes} B / ${report.gzip} B gzip.`);
   return report;
 }
+
+/** Render-blocking CSS of the entry graph. The limit only ever moves down. */
+export const STARTUP_CSS_LIMITS = { bytes: 390_000, gzip: 84_000 };
+
+export function inspectStartupCss(manifest, readAsset, limits = STARTUP_CSS_LIMITS) {
+  const entry = Object.values(manifest).find((chunk) => chunk.isEntry);
+  if (!entry) throw new Error("Expected an initial JavaScript entry.");
+  const visited = new Set();
+  const files = new Set();
+  const visit = (chunk) => {
+    if (!chunk || visited.has(chunk.file)) return;
+    visited.add(chunk.file);
+    for (const css of chunk.css ?? []) files.add(css);
+    for (const key of chunk.imports ?? []) visit(manifest[key]);
+  };
+  visit(entry);
+  const report = { files: [...files], bytes: 0, gzip: 0 };
+  for (const file of files) {
+    const contents = readAsset(file);
+    report.bytes += Buffer.byteLength(contents);
+    report.gzip += gzipSync(contents, { level: 9 }).length;
+  }
+  if (report.bytes > limits.bytes || report.gzip > limits.gzip)
+    throw new Error(`Startup CSS budget exceeded: ${report.bytes} B / ${report.gzip} B gzip.`);
+  return report;
+}

@@ -1,9 +1,6 @@
 import { Component, lazy, Suspense, useEffect, useRef, useState, type ErrorInfo, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import {
-  OPEN_INTERVIEW_CHATBOT_EVENT,
-  type OpenInterviewChatbotDetail,
-} from "@/application/controllers/interviewChatbotEvents";
+import { onLearnvEvent } from "@/infrastructure/events/learnv-events";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { isInterviewSignal } from "@/domain/models/interview-learning-link";
 import type { InterviewSignal } from "@/domain/models/interview-chatbot";
@@ -75,13 +72,10 @@ export function InterviewChatbotLauncher({
   };
 
   useEffect(() => {
-    const openFromLearningMaterial = (event: Event) => {
-      const focus = (event as CustomEvent<OpenInterviewChatbotDetail>).detail?.focus;
-      setRequestedFocus(isInterviewSignal(focus) ? focus : null);
+    return onLearnvEvent("learnv:open-interview-chatbot", (detail) => {
+      setRequestedFocus(isInterviewSignal(detail?.focus) ? detail.focus : null);
       setOpen(true);
-    };
-    window.addEventListener(OPEN_INTERVIEW_CHATBOT_EVENT, openFromLearningMaterial);
-    return () => window.removeEventListener(OPEN_INTERVIEW_CHATBOT_EVENT, openFromLearningMaterial);
+    });
   }, []);
 
   return (

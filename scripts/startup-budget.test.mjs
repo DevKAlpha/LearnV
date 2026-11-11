@@ -51,3 +51,16 @@ describe("startup performance gate", () => {
     expect(inspectStartup(manifest, reader(), report)).toEqual(report);
   });
 });
+
+describe("startup CSS gate", async () => {
+  const { inspectStartupCss } = await import("./startup-budget.mjs");
+  const graph = { "index.html": { file: "a.js", isEntry: true, css: ["a.css"], imports: ["s"] }, s: { file: "s.js", css: ["s.css", "a.css"] }, lazy: { file: "l.js", css: ["l.css"] } };
+  const css = { "a.css": "body{color:red}", "s.css": ".x{margin:0}" };
+  it("counts each entry stylesheet once and ignores lazy CSS", () => {
+    const report = inspectStartupCss(graph, (file) => css[file]);
+    expect(report.files.sort()).toEqual(["a.css", "s.css"]);
+  });
+  it("fails when the render-blocking CSS grows past the limit", () => {
+    expect(() => inspectStartupCss(graph, (file) => css[file], { bytes: 10, gzip: 10 })).toThrow("Startup CSS budget exceeded");
+  });
+});

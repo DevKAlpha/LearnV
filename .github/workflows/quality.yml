@@ -2,7 +2,7 @@ name: Validate LearnV
 
 on:
   pull_request:
-    branches: [prerelease]
+    branches: [prerelease, main]
   push:
     branches:
       - home
@@ -12,6 +12,7 @@ on:
       - profile
       - platform
       - architecture-readme
+      - "feature/**"
 
 permissions:
   contents: read
@@ -22,6 +23,7 @@ concurrency:
 
 jobs:
   validate:
+    name: Lint, unit tests and production build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,3 +36,40 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm validate
+      - name: Keep the validated build for end-to-end checks
+        uses: actions/upload-artifact@v4
+        with:
+          name: learnv-dist-${{ github.sha }}
+          path: dist
+          retention-days: 3
+
+  e2e:
+    name: Smoke and accessibility (Playwright + axe)
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          name: learnv-dist-${{ github.sha }}
+          path: dist
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm e2e
+        env:
+          CI: "true"
+          E2E_BASE: /LearnV/
+      - name: Keep the report when a check fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ github.sha }}
+          path: playwright-report
+          retention-days: 7

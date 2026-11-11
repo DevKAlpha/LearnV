@@ -5,9 +5,9 @@ import { NavLink, useLocation } from "react-router-dom";
 import { preloadAppRoute } from "@/app/routing/AppRoutes";
 import {
   hasActiveWrittenSimulator,
-  WRITTEN_SIMULATOR_STATE_EVENT,
 } from "@/application/controllers/writtenSimulatorStatus";
 import { useI18n } from "@/application/i18n/I18nContext";
+import { emitLearnvEvent, onLearnvEvent } from "@/infrastructure/events/learnv-events";
 import { AppIcon, type AppIconName } from "@/shared/ui/AppIcon";
 
 export function BottomNav() {
@@ -27,12 +27,9 @@ export function BottomNav() {
   }, [isWrittenSimulator, location.pathname]);
 
   useEffect(() => {
-    const syncWrittenSimulator = (event: Event) => {
-      const detail = (event as CustomEvent<{ active: boolean }>).detail;
-      setWrittenSimulatorStarted(isWrittenSimulator && detail.active);
-    };
-    window.addEventListener(WRITTEN_SIMULATOR_STATE_EVENT, syncWrittenSimulator);
-    return () => window.removeEventListener(WRITTEN_SIMULATOR_STATE_EVENT, syncWrittenSimulator);
+    return onLearnvEvent("learnv:written-state", (detail) => {
+      setWrittenSimulatorStarted(isWrittenSimulator && detail?.active === true);
+    });
   }, [isWrittenSimulator]);
 
   useEffect(() => {
@@ -141,7 +138,7 @@ export function BottomNav() {
                   className="reset-confirm-dialog__accept"
                   type="button"
                   onClick={() => {
-                    window.dispatchEvent(new CustomEvent("learnv:written-reset"));
+                    emitLearnvEvent("learnv:written-reset");
                     setWrittenSimulatorStarted(false);
                     setResetDialogOpen(false);
                   }}

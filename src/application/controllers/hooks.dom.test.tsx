@@ -70,3 +70,16 @@ describe("useWrittenSimulator", () => {
     expect(result.current.score.total).toBeGreaterThanOrEqual(0);
   });
 });
+
+describe("useLanguageTestProgress", () => {
+  it("shares one validated store between every mounted view", async () => {
+    const { useLanguageTestProgress, languageTestProgressStore } = await import("./useLanguageTestProgress");
+    languageTestProgressStore.refresh();
+    const first = renderHook(() => useLanguageTestProgress());
+    const second = renderHook(() => useLanguageTestProgress());
+    act(() => first.result.current.recordAttempt("en", "en-reading-01", 100, true));
+    expect(second.result.current.progress.en["en-reading-01"]?.passed).toBe(true);
+    expect(second.result.current.totals.en).toBe(1);
+    expect(JSON.parse(localStorage.getItem("learnv-language-tests-v1") ?? "{}").en["en-reading-01"].bestScore).toBe(100);
+  });
+});

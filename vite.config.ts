@@ -40,7 +40,8 @@ export default defineConfig(({ mode }) => {
       manifest: true,
       target: "es2022",
       cssCodeSplit: true,
-      sourcemap: true,
+      // Hidden maps feed the startup budget check, then scripts/strip-sourcemaps.mjs removes them.
+      sourcemap: "hidden",
     },
   };
 });

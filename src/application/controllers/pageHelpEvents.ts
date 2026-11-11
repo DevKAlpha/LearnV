@@ -1,12 +1,12 @@
 import type { Locale } from "@/domain/models/i18n";
+import { emitLearnvEvent } from "@/infrastructure/events/learnv-events";
 
-export const START_PAGE_TOUR_EVENT = "learnv:start-tour";
 let pendingLocale: Locale | null = null;
 
 /** Keep manual replay requests until the deferred tour has attached its listener. */
 export function requestPageTour(locale: Locale) {
   pendingLocale = locale;
-  window.dispatchEvent(new Event(START_PAGE_TOUR_EVENT));
+  emitLearnvEvent("learnv:start-tour");
 }
 
 export function consumePageTourRequest() {

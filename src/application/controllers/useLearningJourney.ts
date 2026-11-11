@@ -14,7 +14,7 @@ import { analyzeLearningResults } from "@/domain/models/learning-analysis";
 import { createInterviewAdaptation } from "@/domain/models/interview-adaptation";
 import { normalizeTestProgress } from "@/domain/models/language-path";
 import { recordLearningError, resolveLearningDiagnosticArea } from "@/infrastructure/data/learning-error-log";
-import { LEARNING_JOURNEY_EVENT } from "./learningJourneyEvents";
+import { onLearnvEvent } from "@/infrastructure/events/learnv-events";
 
 const STORAGE_KEY = scopedStorageKey("learnv-learning-journey-v1");
 const SKILLS = ["reading", "grammar", "vocabulary", "writing", "listening", "pronunciation"] as const;
@@ -110,17 +110,16 @@ export function useLearningJourney(pathname: string) {
       if (document.visibilityState === "hidden") saveActiveTime();
       else activeStartedAt.current = Date.now();
     };
-    const onLearningEvent = (event: Event) => {
-      const detail = normalizeLearningEvent((event as CustomEvent<unknown>).detail);
+    const offLearningEvent = onLearnvEvent("learnv:learning-journey", (raw) => {
+      const detail = normalizeLearningEvent(raw);
       if (detail) record(detail);
-    };
+    });
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("pagehide", saveActiveTime);
-    window.addEventListener(LEARNING_JOURNEY_EVENT, onLearningEvent);
     return () => {
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("pagehide", saveActiveTime);
-      window.removeEventListener(LEARNING_JOURNEY_EVENT, onLearningEvent);
+      offLearningEvent();
     };
   }, [record]);
 

@@ -1,0 +1,19 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    target-branch: prerelease
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      tooling:
+        patterns: ["eslint*", "@eslint/*", "typescript-eslint", "vitest", "@vitest/*", "@playwright/*", "@axe-core/*", "jsdom", "@testing-library/*", "svgo", "globals"]
+      react:
+        patterns: ["react", "react-dom", "@types/react*", "react-router*"]
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: prerelease
+    schedule:
+      interval: monthly

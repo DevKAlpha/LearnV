@@ -115,11 +115,13 @@ Vite mostrará la dirección local disponible, normalmente `http://localhost:517
 | `pnpm dev` | Servidor de desarrollo. |
 | `pnpm test` | Ejecuta las pruebas automatizadas. |
 | `pnpm run typecheck` | Valida TypeScript estricto. |
+| `pnpm lint` | ESLint (TypeScript, hooks de React y accesibilidad JSX). |
+| `pnpm e2e` | Playwright + axe sobre la compilación: rutas a 320/390/1280 px, temas claro/oscuro y ES/EN/KO. Requiere `pnpm build` y `pnpm exec playwright install chromium`. |
 | `pnpm run check:architecture` | Revisa los límites entre módulos y capas. |
 | `pnpm build` | Compila producción y crea el fallback de rutas para Pages. |
 | `pnpm preview` | Sirve localmente la compilación. |
 | `pnpm gks:update` | Actualiza manualmente el radar oficial. |
-| `pnpm validate` | Ejecuta arquitectura, pruebas y compilación completa. |
+| `pnpm validate` | Ejecuta arquitectura, lint, pruebas y compilación completa (con CSP y sin mapas de código publicados). |
 | `pnpm release:check` | Valida el archivo `VERSION` cuando se abre un ciclo de lanzamiento. |
 
 Antes de integrar cualquier historia debe pasar:

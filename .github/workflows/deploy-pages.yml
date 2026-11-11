@@ -53,16 +53,28 @@ jobs:
         run: pnpm build
         env:
           VITE_APP_SCOPE: full
+      # A broken QA candidate must never block a production deploy: the QA preview is skipped instead.
       - name: Install QA dependencies
+        id: qa_install
+        continue-on-error: true
         working-directory: .qa-source
         run: pnpm install --frozen-lockfile
       - name: Validate latest QA candidate
+        id: qa_validate
+        if: steps.qa_install.outcome == 'success'
+        continue-on-error: true
         working-directory: .qa-source
         run: pnpm run check:architecture && pnpm test && pnpm run build:qa
         env:
           VITE_APP_SCOPE: learning-qa
       - name: Assemble production and isolated QA preview
+        if: steps.qa_validate.outcome == 'success'
         run: node scripts/assemble-pages.mjs
+      - name: Report skipped QA preview
+        if: steps.qa_validate.outcome != 'success'
+        run: echo "::warning::QA candidate failed validation; deploying production without the /qa/ preview."
+      - name: Pin inline scripts and drop source maps in every published page
+        run: node scripts/csp.mjs dist && node scripts/strip-sourcemaps.mjs dist
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

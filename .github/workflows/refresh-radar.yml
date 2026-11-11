@@ -1,0 +1,53 @@
+name: Refresh GKS radar snapshot
+
+# The deploy already refreshes the radar it publishes. This job keeps the repository copy
+# (the offline fallback) current by proposing a pull request when official sources change.
+on:
+  schedule:
+    - cron: "41 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: refresh-radar
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm gks:update
+      - name: Propose the new snapshot
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: bot/gks-radar
+        run: |
+          if git diff --quiet -- public/data/gks-radar.json; then
+            echo "Radar snapshot unchanged."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "$BRANCH"
+          git add public/data/gks-radar.json
+          git commit -m "chore(gks): refresh radar snapshot"
+          git push --force origin "$BRANCH"
+          if [ -z "$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')" ]; then
+            gh pr create --base prerelease --head "$BRANCH" \
+              --title "chore(gks): refresh radar snapshot" \
+              --body "Automatic snapshot of official GKS sources. Review any changed source before merging; LearnV never interprets new requirements automatically."
+          fi
