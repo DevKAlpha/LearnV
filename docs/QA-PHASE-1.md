@@ -25,7 +25,7 @@ Implementación y revisión: **10 de noviembre de 2026**. Rama `feature/phase1-q
   - atributo `lang` en ES, EN y KO;
   - descarga de la copia de seguridad.
 - En CI, el E2E se ejecuta bajo `/LearnV/` (`E2E_BASE`), igual que en GitHub Pages.
-- Resultado: Vitest **77 archivos / 789 pruebas**; Playwright **59/59** con base `/` y con base `/LearnV/`.
+- Resultado: Vitest **76 archivos / 789 pruebas**; Playwright **59/59** con base `/` y con base `/LearnV/`.
 
 ## Accesibilidad corregida (detectada por axe)
 - Corregidos los casos en que el nombre accesible no contenía el texto visible (WCAG 2.5.3):
