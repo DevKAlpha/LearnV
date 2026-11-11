@@ -12,3 +12,14 @@
 .app-guide-dialog :is(button,a,summary):focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
 .section-tour__card { overflow-y: auto; touch-action: pan-y; overscroll-behavior: contain; }
 .section-tour__card :is(button):focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
+
+/* Tour invitation: non-blocking, never steals focus, sits above the mobile navigation. */
+.section-tour-invite { position: fixed; z-index: 95; left: 16px; right: 96px; bottom: max(122px, calc(110px + env(safe-area-inset-bottom))); display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; max-width: 460px; padding: 12px 14px; border: 2px solid var(--ink); border-radius: 18px; background: var(--paper); color: inherit; box-shadow: 3px 4px 0 var(--ink); animation: section-tour-invite-in .28s ease-out both; }
+.section-tour-invite > span { color: var(--purple); font-size: 1rem; }
+.section-tour-invite p { flex: 1 1 12rem; margin: 0; font-size: .9rem; font-weight: 750; line-height: 1.4; }
+.section-tour-invite button { min-height: 40px; padding: 8px 14px; border: 2px solid var(--ink); border-radius: 999px; background: var(--yellow); color: #241a24; font: inherit; font-size: .85rem; font-weight: 850; cursor: pointer; }
+.section-tour-invite .section-tour-invite__later { border-color: currentColor; background: transparent; color: inherit; }
+.section-tour-invite button:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+@media (min-width: 900px) { .section-tour-invite { right: auto; bottom: 48px; left: max(48px, calc((100vw - 1320px) / 2 + 48px)); } }
+@keyframes section-tour-invite-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .section-tour-invite { animation: none; } }

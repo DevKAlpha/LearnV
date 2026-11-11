@@ -1,4 +1,5 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState, type ComponentType } from "react";
+import { useEffect, useId, useRef, useState, type ComponentType } from "react";
+import { useModal } from "@/shared/ui/useModal";
 import { createPortal } from "react-dom";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { libraryTriggerLabels } from "@/infrastructure/i18n/library-trigger-copy";
@@ -27,34 +28,7 @@ export function LibraryQuickAccess() {
     return () => { cancelled = true; };
   }, [open, Panel, retry]);
 
-  useLayoutEffect(() => {
-    if (!open) return;
-    const triggerElement = trigger.current;
-    const root = document.getElementById("root");
-    const wasInert = root?.hasAttribute("inert");
-    const overflow = document.body.style.overflow;
-    const htmlOverflow = document.documentElement.style.overflow;
-    root?.setAttribute("inert", "");
-    document.body.style.overflow = "hidden";
-    document.documentElement.style.overflow = "hidden";
-    closeButton.current?.focus({ preventScroll: true });
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") { event.preventDefault(); setOpen(false); }
-      if (event.key !== "Tab") return;
-      const controls = [...(dialog.current?.querySelectorAll<HTMLElement>('button:not([disabled]),a[href],input,select') ?? [])].filter((item) => item.getClientRects().length > 0);
-      const first = controls[0]; const last = controls.at(-1);
-      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
-      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
-    };
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      if (!wasInert) root?.removeAttribute("inert");
-      document.body.style.overflow = overflow;
-      document.documentElement.style.overflow = htmlOverflow;
-      document.removeEventListener("keydown", onKeyDown);
-      if (triggerElement?.isConnected) triggerElement.focus({ preventScroll: true });
-    };
-  }, [open]);
+  useModal({ open, onClose: () => setOpen(false), dialogRef: dialog, initialFocusRef: closeButton, returnFocusRef: trigger });
 
   return <div className="library-quick-access">
     <button ref={trigger} className="library-quick-trigger" type="button" title={text.open} aria-label={text.open} aria-haspopup="dialog" aria-expanded={open} aria-controls={open ? id : undefined} onClick={() => setOpen(true)}><LibraryEmblem /></button>

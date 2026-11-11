@@ -1,4 +1,5 @@
-import { memo, useEffect, useId, useLayoutEffect, useRef, useState, type ComponentType } from "react";
+import { memo, useEffect, useId, useRef, useState, type ComponentType } from "react";
+import { useModal } from "@/shared/ui/useModal";
 import { createPortal } from "react-dom";
 import { useLocation } from "react-router-dom";
 import { useI18n } from "@/application/i18n/I18nContext";
@@ -20,30 +21,7 @@ export const TaskBoardQuickAccess = memo(function TaskBoardQuickAccess() {
     import("@/features/task-board/presentation/TaskBoardPanel").then((module) => { if (!cancelled) setPanel(() => module.TaskBoardPanel); }).catch(() => { if (!cancelled) setFailed(true); });
     return () => { cancelled = true; };
   }, [open, Panel, retry]);
-  useLayoutEffect(() => {
-    if (!open) return;
-    const triggerElement = trigger.current;
-    const root = document.getElementById("root"); const wasInert = root?.hasAttribute("inert");
-    const overflow = document.body.style.overflow; const htmlOverflow = document.documentElement.style.overflow;
-    root?.setAttribute("inert", ""); document.body.style.overflow = "hidden"; document.documentElement.style.overflow = "hidden";
-    closeButton.current?.focus({ preventScroll: true });
-    const keydown = (event: KeyboardEvent) => {
-      if (event.defaultPrevented) return;
-      if (event.key === "Escape") { event.preventDefault(); setOpen(false); return; }
-      if (event.key !== "Tab") return;
-      const controls = [...(dialog.current?.querySelectorAll<HTMLElement>('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),summary') ?? [])].filter((element) => element.getClientRects().length > 0 && element.tabIndex >= 0);
-      const first = controls[0]; const last = controls.at(-1);
-      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
-      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
-    };
-    document.addEventListener("keydown", keydown);
-    return () => {
-      if (!wasInert) root?.removeAttribute("inert");
-      document.body.style.overflow = overflow; document.documentElement.style.overflow = htmlOverflow;
-      document.removeEventListener("keydown", keydown);
-      if (triggerElement?.isConnected) triggerElement.focus({ preventScroll: true });
-    };
-  }, [open]);
+  useModal({ open, onClose: () => setOpen(false), dialogRef: dialog, initialFocusRef: closeButton, returnFocusRef: trigger });
   return <div className="task-board-quick-access">
     <button ref={trigger} type="button" className="task-board-trigger" aria-label={text.open} title={text.open} aria-haspopup="dialog" aria-expanded={open} aria-controls={open ? id : undefined} onClick={() => setOpen(true)}><TaskBoardEmblem /></button>
     {(open || Panel) && createPortal(<div className="task-board-layer" hidden={!open}>

@@ -1,4 +1,5 @@
-import { Component, lazy, Suspense, useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { Component, lazy, Suspense, useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useModal } from "@/shared/ui/useModal";
 import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
 import { useI18n } from "@/application/i18n/I18nContext";
@@ -34,34 +35,7 @@ export function AppGuide() {
   const text = labels[locale];
 
   useEffect(() => { setOpen(false); }, [pathname]);
-  useLayoutEffect(() => {
-    if (!open) return;
-    const trigger = triggerRef.current;
-    const root = document.getElementById("root");
-    const wasInert = root?.hasAttribute("inert");
-    const htmlOverflow = document.documentElement.style.overflow;
-    const bodyOverflow = document.body.style.overflow;
-    root?.setAttribute("inert", "");
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
-    closeRef.current?.focus({ preventScroll: true });
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") { event.preventDefault(); setOpen(false); }
-      if (event.key !== "Tab") return;
-      const controls = [...(dialogRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]),a[href],summary,select,input,[tabindex="0"]') ?? [])].filter((element) => element.getClientRects().length > 0);
-      const first = controls[0]; const last = controls.at(-1);
-      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
-      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
-    };
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      if (!wasInert) root?.removeAttribute("inert");
-      document.documentElement.style.overflow = htmlOverflow;
-      document.body.style.overflow = bodyOverflow;
-      if (trigger?.isConnected) trigger.focus({ preventScroll: true });
-    };
-  }, [open]);
+  useModal({ open, onClose: () => setOpen(false), dialogRef: dialogRef, initialFocusRef: closeRef, returnFocusRef: triggerRef });
 
   return (
     <>

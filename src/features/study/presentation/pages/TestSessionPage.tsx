@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useModal } from "@/shared/ui/useModal";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { useLanguageTestProgress } from "@/application/controllers/useLanguageTestProgress";
 import { useI18n } from "@/application/i18n/I18nContext";
@@ -64,6 +65,11 @@ export function TestSessionPage() {
   const [recordingReviewed, setRecordingReviewed] = useState(false);
   const [checklistChecks, setChecklistChecks] = useState<boolean[]>(() => stage.productionTask.checklist.map(() => false));
   const [showExitDialog, setShowExitDialog] = useState(false);
+  const exitDialogRef = useRef<HTMLElement>(null);
+  const keepPractisingRef = useRef<HTMLButtonElement>(null);
+  const exitButtonRef = useRef<HTMLButtonElement>(null);
+  // The dialog lives inside #root, so the shell is not made inert here.
+  useModal({ open: showExitDialog, onClose: () => setShowExitDialog(false), dialogRef: exitDialogRef, initialFocusRef: keepPractisingRef, returnFocusRef: exitButtonRef, inertRoot: false });
   const finishedRef = useRef(false);
   const recordingRef = useRef<ReturnType<typeof createLearningRecording> | null>(null);
   const timed = runNumber > 1;
@@ -351,7 +357,7 @@ export function TestSessionPage() {
       <LanguageCulture language={language} variant="badge" />
       {isAdvancedStage && !productionDone && <aside className="advanced-path-notice"><strong>{language === "en" ? advancedCopy.title : advancedCopy.koreanTitle}</strong><p>{advancedCopy.criteria}</p><details><summary>{advancedCopy.scope}</summary><small>{advancedCopy.notice}</small></details></aside>}
       <header className="session-topbar">
-        <button className="session-exit-button" type="button" aria-label={copy.tests.sessionExit} onClick={() => setShowExitDialog(true)}>×</button>
+        <button ref={exitButtonRef} className="session-exit-button" type="button" aria-label={copy.tests.sessionExit} onClick={() => setShowExitDialog(true)}>×</button>
         <div className="session-progress" aria-label={`${currentStep} ${copy.tests.of} ${totalSteps}`}><span style={{ width: `${(currentStep / totalSteps) * 100}%` }} /></div>
         <span className={timed ? "session-timer session-timer--active" : "session-timer"}>
           <small>{timed ? copy.tests.timeLeft : copy.tests.untimed}</small>
@@ -488,10 +494,10 @@ export function TestSessionPage() {
       </footer>
       {showExitDialog && (
         <div className="test-exit-modal" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setShowExitDialog(false); }}>
-          <section role="dialog" aria-modal="true" aria-labelledby="test-exit-title">
+          <section ref={exitDialogRef} role="dialog" aria-modal="true" aria-labelledby="test-exit-title" aria-describedby="test-exit-text">
             <h2 id="test-exit-title">{language === "ko" ? "연습을 종료할까요?" : "Leave this practice?"}</h2>
-            <p>{language === "ko" ? "현재 답변과 녹음은 저장되지 않습니다." : "Your current answers and recording are not saved."}</p>
-            <div><button type="button" onClick={() => setShowExitDialog(false)}>{language === "ko" ? "계속 연습" : "Keep practising"}</button><Link to={getLanguagePathHref(language, stage.skill, isAdvancedStage ? "advanced" : "foundation")}>{language === "ko" ? "종료" : "Leave"}</Link></div>
+            <p id="test-exit-text">{language === "ko" ? "현재 답변과 녹음은 저장되지 않습니다." : "Your current answers and recording are not saved."}</p>
+            <div><button ref={keepPractisingRef} type="button" onClick={() => setShowExitDialog(false)}>{language === "ko" ? "계속 연습" : "Keep practising"}</button><Link to={getLanguagePathHref(language, stage.skill, isAdvancedStage ? "advanced" : "foundation")}>{language === "ko" ? "종료" : "Leave"}</Link></div>
           </section>
         </div>
       )}

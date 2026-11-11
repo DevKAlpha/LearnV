@@ -28,6 +28,8 @@ export function SectionTour() {
   const definition = useMemo(() => getDefinition(pathname), [pathname]);
   const [activeDefinition, setActiveDefinition] = useState(definition);
   const [open, setOpen] = useState(false);
+  // First visit to a section shows a small invitation; the tour only opens when the person asks.
+  const [invited, setInvited] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [steps, setSteps] = useState<TourStep[]>([]);
   const [rect, setRect] = useState<HighlightRect | null>(null);
@@ -51,6 +53,7 @@ export function SectionTour() {
     setStepIndex(0);
     setTargetReady(false);
     setTourLocale(preferredLocale);
+    setInvited(false);
     setOpen(true);
   }, [definition.key, pathname, baseLocale, locale]);
 
@@ -64,13 +67,19 @@ export function SectionTour() {
 
   useEffect(() => {
     setOpen(false);
+    setInvited(false);
     setRect(null);
     setTargetReady(false);
     const timer = window.setTimeout(() => {
-      if (startedForRef.current !== definition.key && !readSeenTours()[definition.key] && !readPageHelpContext().timerRunning && !document.querySelector('.app-guide-dialog,[role="dialog"][aria-modal="true"]')) startTour();
-    }, 950);
+      if (startedForRef.current !== definition.key && !readSeenTours()[definition.key] && !readPageHelpContext().timerRunning && !document.querySelector('.app-guide-dialog,[role="dialog"][aria-modal="true"]')) setInvited(true);
+    }, 1200);
     return () => window.clearTimeout(timer);
-  }, [definition.key, startTour]);
+  }, [definition.key]);
+
+  const dismissInvite = useCallback(() => {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...readSeenTours(), [definition.key]: true })); } catch { /* Dismissal must not depend on storage. */ }
+    setInvited(false);
+  }, [definition.key]);
 
   useEffect(() => {
     const restart = () => startTour(consumePageTourRequest() ?? baseLocale ?? locale);
@@ -285,7 +294,25 @@ export function SectionTour() {
     };
   }, [open, stepIndex, steps]);
 
-  if (!open || !steps[stepIndex]) return null;
+  if (!open) {
+    if (!invited) return null;
+    const inviteLocale = baseLocale ?? locale;
+    const invite = inviteLocale === "ko"
+      ? { text: "이 화면을 빠르게 둘러볼까요?", start: "둘러보기", later: "나중에" }
+      : inviteLocale === "en"
+        ? { text: "Want a quick tour of this section?", start: "Show me", later: "Not now" }
+        : { text: "¿Quieres un recorrido rápido por esta sección?", start: "Ver recorrido", later: "Ahora no" };
+    return createPortal(
+      <aside className="section-tour-invite" aria-label={invite.text}>
+        <span aria-hidden="true">✦</span>
+        <p>{invite.text}</p>
+        <button type="button" onClick={() => startTour(inviteLocale)}>{invite.start}</button>
+        <button type="button" className="section-tour-invite__later" onClick={dismissInvite}>{invite.later}</button>
+      </aside>,
+      document.body,
+    );
+  }
+  if (!steps[stepIndex]) return null;
   const current = steps[stepIndex];
   const cardAtTop = Boolean(rect && rect.top + rect.height > window.innerHeight * 0.58);
   const labels = tourLocale === "ko"

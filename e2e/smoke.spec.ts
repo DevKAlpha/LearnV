@@ -90,3 +90,34 @@ test("daily plan, backup export and theme choice survive a reload", async ({ pag
   const file = await download;
   expect(file.suggestedFilename()).toMatch(/^learnv-copia-\d{4}-\d{2}-\d{2}\.json$/);
 });
+
+test("the section tour waits for an invitation instead of covering the page", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("learnv-locale-v1", "es"));
+  await page.goto("./study");
+  const invite = page.getByRole("complementary", { name: "¿Quieres un recorrido rápido por esta sección?" });
+  await expect(invite).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  // The page stays usable while the invitation is visible.
+  await page.mouse.wheel(0, 400);
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+  await invite.getByRole("button", { name: "Ver recorrido" }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await page.getByRole("button", { name: "Omitir todo" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await page.reload();
+  await page.waitForTimeout(1600);
+  await expect(page.getByRole("complementary", { name: /recorrido rápido/ })).toHaveCount(0);
+});
+
+test("modal dialogs trap focus and return it on Escape", async ({ page }) => {
+  await prepare(page);
+  await openReady(page, "/study");
+  const trigger = page.getByRole("button", { name: "Abrir biblioteca" });
+  await trigger.click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  for (let index = 0; index < 25; index += 1) await page.keyboard.press("Tab");
+  expect(await page.evaluate(() => Boolean(document.activeElement?.closest('[role="dialog"]')))).toBe(true);
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+});

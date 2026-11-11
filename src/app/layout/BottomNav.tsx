@@ -1,4 +1,5 @@
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useModal } from "@/shared/ui/useModal";
 import { isAppRouteAvailable } from "@/application/qa/qa-learning-scope";
 import { createPortal } from "react-dom";
 import { NavLink, useLocation } from "react-router-dom";
@@ -15,6 +16,8 @@ export function BottomNav() {
   const location = useLocation();
   const [pendingPath, setPendingPath] = useState<string | null>(null);
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const resetDialogRef = useRef<HTMLElement>(null);
+  const resetCancelRef = useRef<HTMLButtonElement>(null);
   const isWrittenSimulator = location.pathname === "/study/written-simulator";
   const [writtenSimulatorStarted, setWrittenSimulatorStarted] = useState(
     () => isWrittenSimulator && hasActiveWrittenSimulator(),
@@ -32,19 +35,8 @@ export function BottomNav() {
     });
   }, [isWrittenSimulator]);
 
-  useEffect(() => {
-    if (!resetDialogOpen) return;
-    const previousOverflow = document.body.style.overflow;
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setResetDialogOpen(false);
-    };
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", closeOnEscape);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", closeOnEscape);
-    };
-  }, [resetDialogOpen]);
+  // Focus starts on Cancel, never on the destructive action.
+  useModal({ open: resetDialogOpen, onClose: () => setResetDialogOpen(false), dialogRef: resetDialogRef, initialFocusRef: resetCancelRef });
   const items: Array<{ to: string; icon: AppIconName; label: string; end?: boolean }> = [
     { to: "/", icon: "home", label: copy.nav.home, end: true },
     { to: "/gks", icon: "scholarship", label: copy.nav.gks },
@@ -120,6 +112,7 @@ export function BottomNav() {
             }}
           >
             <section
+              ref={resetDialogRef}
               className="reset-confirm-dialog"
               role="dialog"
               aria-modal="true"
@@ -131,9 +124,7 @@ export function BottomNav() {
               <h2 id="reset-dialog-title">{copy.written.resetDialogTitle}</h2>
               <p id="reset-dialog-description">{copy.written.resetDialogText}</p>
               <div className="reset-confirm-dialog__actions">
-                {/* Safe default: focus lands on Cancel, never on the destructive action. */}
-                {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
-                <button type="button" autoFocus onClick={() => setResetDialogOpen(false)}>{copy.written.cancelReset}</button>
+                <button ref={resetCancelRef} type="button" onClick={() => setResetDialogOpen(false)}>{copy.written.cancelReset}</button>
                 <button
                   className="reset-confirm-dialog__accept"
                   type="button"
