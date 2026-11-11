@@ -108,11 +108,14 @@ body {
     var(--cream);
 }
 
-button,
-input,
-textarea,
-select {
-  font: inherit;
+/* Base layer: below Tailwind utilities, below every unlayered component rule. */
+@layer base {
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
 }
 
 .app-icon {

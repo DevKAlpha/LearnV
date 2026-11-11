@@ -2,6 +2,7 @@ import { loadEnv } from "vite";
 import { configDefaults, defineConfig } from "vitest/config";
 import { execFileSync } from "node:child_process";
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 import { fileURLToPath, URL } from "node:url";
 import { pagesBase } from "./scripts/pages-paths.mjs";
 
@@ -19,7 +20,7 @@ export default defineConfig(({ mode }) => {
   try { revision = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(); } catch { /* Source archive. */ }
   return {
     define: { "import.meta.env.VITE_APP_SCOPE": JSON.stringify(scope), "import.meta.env.VITE_BUILD_SHA": JSON.stringify(revision) },
-    plugins: [react(), {
+    plugins: [react(), tailwindcss(), {
       name: "learnv-deployment-identity",
       transformIndexHtml(html) {
         return { html: scope === "learning-qa" ? html.replace("<title>LearnV", "<title>QA · LearnV") : html, tags: [

@@ -1,0 +1,35 @@
+/*
+ * Tailwind CSS v4, adopted incrementally.
+ *
+ * - No preflight: the existing stylesheets keep their own base styles.
+ * - Theme colours point at LearnV's CSS variables, so `bg-paper` or `text-ink` follow the
+ *   light/dark themes automatically.
+ * - Utilities live in a cascade layer. Legacy rules are unlayered and therefore win any
+ *   conflict, so new utility-based components never disturb existing screens.
+ *   Migrate a component fully (markup + delete its legacy CSS) rather than mixing both.
+ */
+/* Order matters: base (element defaults in app.css) < utilities < unlayered legacy rules. */
+@layer theme, base, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+/* source(none): never scan the whole codebase. Legacy markup uses words such as "grid" or
+   "hidden" as class names; scanning it would generate utilities that change old layouts. */
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+
+/* Components migrated to utilities. Add a file here when (and only when) it is migrated. */
+@source "../features/profile/presentation/DeviceBackupPanel.tsx";
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-cream: var(--cream);
+  --color-muted: var(--muted);
+  --color-accent: var(--yellow);
+  --color-brand: var(--purple);
+  --color-brand-deep: var(--brand-deep);
+  --color-success: var(--green);
+  --color-danger: var(--hot-pink);
+  --z-index-raised: var(--z-raised);
+  --z-index-floating: var(--z-floating);
+  --z-index-overlay: var(--z-overlay);
+  --z-index-modal: var(--z-modal);
+}

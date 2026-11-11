@@ -4,6 +4,8 @@ import "@fontsource-variable/manrope/wght.css";
 import "@fontsource-variable/noto-sans-kr/wght.css";
 import { App } from "@/app/App";
 import { AppProviders } from "@/app/providers/AppProviders";
+import "@/styles/tokens.css";
+import "@/styles/tailwind.css";
 import "@/styles/app.css";
 import "@/styles/light-theme.css";
 import "@/styles/desktop-typography.css";

@@ -1,0 +1,32 @@
+/*
+ * Shared design scales. Colour tokens still live in app.css / light-theme.css per theme;
+ * these scales are theme-independent and replace ad-hoc magic numbers as screens migrate.
+ */
+:root {
+  /* Stacking order, lowest to highest. */
+  --z-raised: 1;
+  --z-sticky: 50;
+  --z-floating: 90;
+  --z-overlay: 180;
+  --z-modal: 200;
+  --z-tour: 300;
+  --z-loader: 520;
+
+  /* Type scale (rem). The floor is 0.75rem = 12px, enforced by typography-floor.test.ts. */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+
+  /* Spacing and radii. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+}
