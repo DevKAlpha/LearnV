@@ -6,6 +6,8 @@ import { useLearningJourney } from "@/application/controllers/useLearningJourney
 import { useI18n } from "@/application/i18n/I18nContext";
 import { isImmersiveLearningRoute, resolveLearningLocale } from "@/application/i18n/learning-locale";
 import { AppGuide } from "@/app/layout/AppGuide";
+import { ImmersionToggle } from "@/app/layout/ImmersionToggle";
+import { interfaceLocaleFor, useImmersion } from "@/application/i18n/immersion";
 import { BottomNav } from "@/app/layout/BottomNav";
 import { DynamicFavicon } from "@/app/layout/DynamicFavicon";
 import { LanguageSwitcher } from "@/app/layout/LanguageSwitcher";
@@ -37,10 +39,13 @@ export function App() {
   const [tourReady, setTourReady] = useState(false);
   const [visuallyReadyRoute, setVisuallyReadyRoute] = useState<string | null>(null);
 
+  const { preferences: immersion } = useImmersion();
+  const interfaceLocale = interfaceLocaleFor(learningLocale, immersion);
+
   useEffect(() => {
-    setLearningLocale(learningLocale);
+    setLearningLocale(interfaceLocale);
     return () => setLearningLocale(null);
-  }, [learningLocale, setLearningLocale]);
+  }, [interfaceLocale, setLearningLocale]);
 
   useEffect(() => {
     const requestIdle = (window as unknown as { requestIdleCallback?: Window["requestIdleCallback"] }).requestIdleCallback;
@@ -76,7 +81,7 @@ export function App() {
               <span className="mobile-brand__mark" aria-hidden="true"><BrandMark /></span>
               <strong>LearnV</strong>
             </Link>
-            <div className="test-theme-toolbar__controls"><ThemeToggle compact /><AppGuide /></div>
+            <div className="test-theme-toolbar__controls">{learningLocale && learningLocale !== "es" && <ImmersionToggle practice={learningLocale} />}<ThemeToggle compact /><AppGuide /></div>
           </div>
         )}
       </header>

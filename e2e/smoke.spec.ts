@@ -121,3 +121,16 @@ test("modal dialogs trap focus and return it on Escape", async ({ page }) => {
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(trigger).toBeFocused();
 });
+
+test("Korean practice keeps instructions in the learner's language until full immersion is chosen", async ({ page }) => {
+  await prepare(page);
+  await openReady(page, "/tests/ko");
+  await expect(page.locator("html")).toHaveAttribute("lang", "es");
+  const toggle = page.getByRole("button", { name: "Toda la interfaz en coreano" });
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+  await toggle.click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "ko");
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("lang", "ko");
+});

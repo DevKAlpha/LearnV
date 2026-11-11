@@ -1885,6 +1885,11 @@ html.app-visual-loading {
 .theme-toggle .app-icon { width: 23px; height: 23px; stroke-width: 1.8; }
 .theme-toggle small { font-size: 0.75rem; font-weight: 900; }
 .theme-toggle--compact { width: 44px; padding: 6px; }
+/* Immersion: outlined = instructions in my language; filled = whole interface in the practice language. */
+.immersion-toggle { width: 44px; padding: 6px; }
+.immersion-toggle .immersion-toggle__badge { font-size: 0.9rem; font-weight: 900; }
+.immersion-toggle[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+:root[data-theme="dark"] .immersion-toggle[aria-pressed="true"] { background: #fff8f2; color: #241a24; }
 .theme-toggle:active { transform: scale(0.92) rotate(4deg); }
 .theme-toggle__symbol { animation: theme-symbol-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 

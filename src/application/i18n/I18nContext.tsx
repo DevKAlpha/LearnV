@@ -3,6 +3,7 @@ import type { Locale } from "../../domain/models/i18n";
 import { getLoadedCatalog, loadCatalog, type TranslationCatalog } from "../../infrastructure/i18n/catalog";
 import { appRelativePath } from "@/infrastructure/config/app-scope";
 import { resolveLearningLocale } from "./learning-locale";
+import { immersionStore, interfaceLocaleFor } from "./immersion";
 
 const STORAGE_KEY = "learnv-locale-v1";
 
@@ -30,7 +31,8 @@ export function detectLocale(): Locale {
 /** Loads the start-up language before the first render, so nobody sees a flash of Spanish. */
 export function preloadInitialLocale() {
   // A directly opened immersive route (e.g. /tests/ko) also needs its practice language.
-  const learning = typeof window === "undefined" ? null : resolveLearningLocale(appRelativePath(window.location.pathname));
+  const practice = typeof window === "undefined" ? null : resolveLearningLocale(appRelativePath(window.location.pathname));
+  const learning = interfaceLocaleFor(practice, immersionStore.get());
   const locales = new Set<Locale>([detectLocale(), ...(learning ? [learning] : [])]);
   return Promise.all([...locales].map((locale) => loadCatalog(locale).catch(() => undefined)));
 }

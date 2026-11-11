@@ -24,3 +24,20 @@ describe("learning locale routing", () => {
     expect(isImmersiveLearningRoute("/tests/ko/listening-01")).toBe(true);
   });
 });
+
+describe("immersion preference", async () => {
+  const { interfaceLocaleFor, normalizeImmersion, DEFAULT_IMMERSION } = await import("./immersion");
+  it("keeps Korean instructions in the learner's language by default", () => {
+    expect(interfaceLocaleFor("ko", DEFAULT_IMMERSION)).toBeNull();
+    expect(interfaceLocaleFor("en", DEFAULT_IMMERSION)).toBe("en");
+  });
+  it("switches the whole interface only when full immersion is chosen", () => {
+    expect(interfaceLocaleFor("ko", { en: "guided", ko: "full" })).toBe("ko");
+    expect(interfaceLocaleFor("en", { en: "guided", ko: "full" })).toBeNull();
+    expect(interfaceLocaleFor(null, DEFAULT_IMMERSION)).toBeNull();
+  });
+  it("repairs stored preferences", () => {
+    expect(normalizeImmersion({ en: "nope", ko: "full" })).toEqual({ en: "full", ko: "full" });
+    expect(normalizeImmersion(null)).toEqual(DEFAULT_IMMERSION);
+  });
+});

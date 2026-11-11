@@ -17,6 +17,7 @@
 
 /* Components migrated to utilities. Add a file here when (and only when) it is migrated. */
 @source "../features/profile/presentation/DeviceBackupPanel.tsx";
+@source "../app/layout/ImmersionToggle.tsx";
 
 @theme inline {
   --color-ink: var(--ink);
