@@ -285,7 +285,7 @@ const korean: Record<TestSkill, [Exercise, Exercise]> = {
   ],
 };
 
-function makeQuestion(language: TestLanguage, stageId: string, item: Case, index: number, exercise: Exercise): TestQuestion {
+function makeQuestion(language: TestLanguage, stageId: string, item: Case, index: number, exercise: Exercise, listening = false): TestQuestion {
   const options = [item.answer, ...item.wrong.map(([text]) => text)];
   const feedback = [item.rule, ...item.wrong.map(([, reason]) => `${reason} ${item.rule}`)];
   const offset = index % options.length;
@@ -293,7 +293,9 @@ function makeQuestion(language: TestLanguage, stageId: string, item: Case, index
     id: `${stageId}-context-${index}`,
     skill: exercise.focus,
     prompt: item.prompt,
-    passage: exercise.context,
+    // Listening items must be heard, not read: the script is replayable audio with an on-demand transcript.
+    passage: listening ? undefined : exercise.context,
+    audioText: listening ? exercise.context : undefined,
     options: [...options.slice(offset), ...options.slice(0, offset)],
     optionFeedback: [...feedback.slice(offset), ...feedback.slice(0, offset)],
     correctIndex: (options.length - offset) % options.length,
@@ -326,13 +328,13 @@ export function buildExtensionStages(language: TestLanguage, skill: TestSkill): 
         retakeInstruction: ko ? "같은 상황에서 틀린 점 하나를 수정하세요. 답을 길게 만들 필요는 없습니다." : "In the same situation, revise one point from your feedback; you do not need a longer answer.",
       },
       // The fourth question is a retrieval item supplied by connectPracticeStages.
-      questions: exercise.cases.map((item, questionIndex) => makeQuestion(language, id, item, questionIndex, exercise)),
-      challengeQuestions: revisionQuestions(language, id, exercise),
+      questions: exercise.cases.map((item, questionIndex) => makeQuestion(language, id, item, questionIndex, exercise, mode === "listening")),
+      challengeQuestions: revisionQuestions(language, id, exercise, mode === "listening"),
     };
   });
 }
 
-function revisionQuestions(language: TestLanguage, id: string, exercise: Exercise): TestQuestion[] {
+function revisionQuestions(language: TestLanguage, id: string, exercise: Exercise, listening = false): TestQuestion[] {
   const ko = language === "ko";
   const first = exercise.cases[0];
   const last = exercise.cases[2];
@@ -357,7 +359,7 @@ function revisionQuestions(language: TestLanguage, id: string, exercise: Exercis
     ],
   };
   return [detection, repair].map((item, index) => ({
-    ...makeQuestion(language, id, item, index + 3, exercise),
+    ...makeQuestion(language, id, item, index + 3, exercise, listening),
     id: `${id}-challenge-${index}`,
     example: index === 0 ? first.answer : last.answer,
   }));

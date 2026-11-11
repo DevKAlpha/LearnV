@@ -66,3 +66,32 @@ export function scoreWrittenSimulator(
 
   return { total: knowledge + writing + review, knowledge, writing, review };
 }
+
+const WRITTEN_STEPS = new Set<WrittenSimulatorStep>(["intro", "knowledge", "personal", "plan", "review", "result"]);
+const DRAFT_LIMIT = 12_000;
+
+/** Field-by-field validation of a stored simulator state; invalid parts fall back to defaults. */
+export function normalizeWrittenSimulator(value: unknown): WrittenSimulatorState {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return emptyWrittenSimulator;
+  const record = value as Record<string, unknown>;
+  const text = (input: unknown) => typeof input === "string" ? input.slice(0, DRAFT_LIMIT) : "";
+  const iso = (input: unknown) => typeof input === "string" && Number.isFinite(Date.parse(input)) ? input : null;
+  const answers: Record<string, number> = {};
+  if (typeof record.answers === "object" && record.answers !== null && !Array.isArray(record.answers)) {
+    for (const [id, answer] of Object.entries(record.answers as Record<string, unknown>)) {
+      if (id.length <= 80 && typeof answer === "number" && Number.isInteger(answer) && answer >= 0 && answer < 10) answers[id] = answer;
+    }
+  }
+  return {
+    step: WRITTEN_STEPS.has(record.step as WrittenSimulatorStep) ? record.step as WrittenSimulatorStep : "intro",
+    language: record.language === "ko" ? "ko" : "en",
+    answers,
+    personalStatement: text(record.personalStatement),
+    studyPlan: text(record.studyPlan),
+    rubric: Array.isArray(record.rubric) ? [...new Set(record.rubric.filter((id): id is string => typeof id === "string" && id.length <= 80))] : [],
+    startedAt: iso(record.startedAt),
+    completedAt: iso(record.completedAt),
+    attempts: typeof record.attempts === "number" && Number.isInteger(record.attempts) && record.attempts >= 0 ? record.attempts : 0,
+    lastScore: typeof record.lastScore === "number" && Number.isFinite(record.lastScore) ? Math.min(100, Math.max(0, record.lastScore)) : null,
+  };
+}

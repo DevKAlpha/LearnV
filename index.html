@@ -26,6 +26,7 @@
           : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
         document.documentElement.dataset.theme = theme;
         document.documentElement.style.colorScheme = theme;
+        document.querySelector?.('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#140b19" : "#fffaf1");
       })();
     </script>
     <style>
@@ -72,7 +73,11 @@
     <script>
       (() => {
         let locale;
-        try { locale = localStorage.getItem("learnv-locale-v1"); } catch { /* Fall back to Spanish. */ }
+        try { locale = localStorage.getItem("learnv-locale-v1"); } catch { /* Fall back to the browser language. */ }
+        if (locale !== "es" && locale !== "en" && locale !== "ko") {
+          const browser = (navigator.language || "es").toLowerCase();
+          locale = browser.startsWith("ko") ? "ko" : browser.startsWith("en") ? "en" : "es";
+        }
         const labels = {
           es: { loading: "Cargando LearnV", recovering: "Actualizando LearnV…", stalled: "No pudimos completar la carga", retry: "Reintentar" },
           en: { loading: "Loading LearnV", recovering: "Refreshing LearnV…", stalled: "We could not finish loading", retry: "Retry" },

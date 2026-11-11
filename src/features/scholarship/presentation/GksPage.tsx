@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { useGksRadar } from "@/application/controllers/useGksRadar";
+import { radarFreshness } from "@/domain/models/gks-radar";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { currentCycle, gksCertifications, keyFacts, sources, targetPrograms } from "@/infrastructure/data/gks-2026";
 import { gksFeedbackVideos } from "@/infrastructure/data/gks-feedback-videos";
@@ -50,6 +51,7 @@ export function GksPage() {
   const latestSource = sources.find((source) => source.id === "study-in-korea-2027");
   const spainSource = sources.find((source) => source.id === "spain-embassy-notices");
   const callSourceUrl = latestSource?.url ?? radar.sourceChecks.find((source) => source.detectsCall)?.url;
+  const freshness = radarFreshness(radar.checkedAt);
   const callIsPublished = currentCycle.status === "published";
   const hasUnreviewedCall = radar.callDetected && !callIsPublished;
   const selectedVideo = gksFeedbackVideos[videoIndex];
@@ -72,9 +74,15 @@ export function GksPage() {
 
       <section className="gks-daily-radar" aria-labelledby="daily-radar-title">
         <div className="gks-daily-radar__topline">
-          <span className="live-pill"><i />{copy.gks.dailyLive}</span>
+          <span className={`live-pill${freshness.stale ? " live-pill--stale" : ""}`}><i />{freshness.stale ? copy.gks.dailyStale : copy.gks.dailyLive}</span>
           <span>{copy.gks.dailyChecked} · {checkedAt}</span>
         </div>
+
+        {freshness.stale && (
+          <p className="gks-stale-notice" role="status">
+            {copy.gks.dailyStaleText.replace("{days}", String(freshness.daysAgo ?? "?"))}
+          </p>
+        )}
 
         <div className="gks-daily-radar__heading">
           <div>
@@ -117,7 +125,7 @@ export function GksPage() {
 
         <div className="gks-daily-radar__footer">
           <span><b>{onlineSources}/{radar.sourceChecks.length}</b>{copy.gks.sourcesOnline}</span>
-          <span><b>24 h</b>{copy.gks.refreshFrequency}</span>
+          <span><b>{freshness.stale ? "—" : "24 h"}</b>{copy.gks.refreshFrequency}</span>
           <span><b>{copy.gks.referenceYear}</b>{copy.gks.referenceOnly}</span>
         </div>
       </section>

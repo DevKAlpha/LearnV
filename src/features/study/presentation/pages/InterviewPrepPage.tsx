@@ -22,7 +22,18 @@ function readSavedPractice(): SavedPractice {
   try {
     const parsed: unknown = JSON.parse(localStorage.getItem(INTERVIEW_STORAGE_KEY) ?? "{}");
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("Invalid interview practice shape");
-    return parsed as SavedPractice;
+    // Keep only well-formed entries for known questions; a damaged entry never breaks the page.
+    const known = new Set(interviewQuestions.map((question) => question.id));
+    const safe: SavedPractice = {};
+    for (const [id, entry] of Object.entries(parsed as Record<string, unknown>)) {
+      if (!known.has(id) || !entry || typeof entry !== "object") continue;
+      const { answer, checked } = entry as { answer?: unknown; checked?: unknown };
+      safe[id] = {
+        answer: typeof answer === "string" ? answer.slice(0, 6000) : "",
+        checked: Array.from({ length: 4 }, (_, index) => Array.isArray(checked) && checked[index] === true),
+      };
+    }
+    return safe;
   } catch (error) {
     recordLearningError({ area: "interview-preparation", code: "interview-practice-read-failed", error });
     return {};

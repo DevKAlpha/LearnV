@@ -76,7 +76,6 @@
 
 html {
   min-height: 100%;
-  scroll-behavior: smooth;
   overflow-x: clip;
   background: var(--cream);
   -webkit-font-smoothing: antialiased;
@@ -306,6 +305,8 @@ html.app-visual-loading {
 }
 
 .route-recovery__mark { width: 68px; height: 82px; }
+.route-recovery p { max-width: 34ch; margin: 0; color: var(--muted); }
+.route-recovery a { color: var(--ink); font-weight: 800; text-underline-offset: 3px; }
 .route-recovery button {
   min-height: 44px;
   padding: 10px 18px;
@@ -1478,6 +1479,19 @@ html.app-visual-loading {
   border-radius: 50%;
   background: #4d945f;
   box-shadow: 0 0 0 4px rgba(77,148,95,0.14);
+}
+
+.live-pill--stale i { background: #c47a1c; box-shadow: 0 0 0 4px rgba(196,122,28,0.18); }
+
+.gks-stale-notice {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border: 1px dashed var(--ink);
+  border-radius: 14px;
+  background: var(--paper);
+  font-size: 0.82rem;
+  font-weight: 750;
+  line-height: 1.4;
 }
 
 .gks-daily-radar__heading h2 {

@@ -120,7 +120,7 @@ describe.each(["es", "en", "ko"] as const)("progressive first visit in %s", (loc
     const html = render(<ChecklistPage progress={{ completedDocuments: [] }} toggleDocument={() => {}} />);
     hasOrder(html, documentStages.map((stage) => `id="document-stage-${stage.id}"`));
     expect((html.match(/ open=""/g) ?? [])).toHaveLength(1);
-    expect((html.match(/class="document-card/g) ?? [])).toHaveLength(3);
+    expect((html.match(/class="document-card/g) ?? [])).toHaveLength(4);
     expect(html).toContain(translations[locale].checklist.routeTiming);
   });
   it("handles finished, duplicate and resumed document progress without exceeding 100%", () => {
@@ -129,9 +129,9 @@ describe.each(["es", "en", "ko"] as const)("progressive first visit in %s", (loc
     const done = render(<ChecklistPage progress={{ completedDocuments: [...ids, "application", "obsolete"] }} toggleDocument={() => {}} />);
     expect(done).toContain("100%");
     expect(done).not.toContain('open=""');
-    const resumed = render(<ChecklistPage progress={{ completedDocuments: ids.slice(0, 3) }} toggleDocument={() => {}} />);
+    const resumed = render(<ChecklistPage progress={{ completedDocuments: ids.slice(0, 4) }} toggleDocument={() => {}} />);
     expect(resumed).toContain('id="document-stage-academic" class="document-stage document-stage--academic" open=""');
-    expect((resumed.match(/class="document-card/g) ?? [])).toHaveLength(2);
+    expect((resumed.match(/class="document-card/g) ?? [])).toHaveLength(3);
   });
   it("describes six skills and derives activity counts from the actual catalogue", () => {
     const skills = getDefinition("/tests/en").steps.find((step) => step.selector === ".test-skill-tabs");

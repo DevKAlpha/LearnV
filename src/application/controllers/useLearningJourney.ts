@@ -3,25 +3,28 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   createLearningJourney,
   getLearningRecommendation,
+  normalizeLearningEvent,
+  normalizeLearningJourney,
   recordLearningEvent,
+  sortRecentActivities,
   type LearningEvent,
   type LearningJourneyState,
 } from "@/domain/models/learning-journey";
 import { analyzeLearningResults } from "@/domain/models/learning-analysis";
 import { createInterviewAdaptation } from "@/domain/models/interview-adaptation";
+import { normalizeTestProgress } from "@/domain/models/language-path";
 import { recordLearningError, resolveLearningDiagnosticArea } from "@/infrastructure/data/learning-error-log";
-import type { TestProgressState } from "@/domain/models/language-test";
 import { LEARNING_JOURNEY_EVENT } from "./learningJourneyEvents";
 
 const STORAGE_KEY = scopedStorageKey("learnv-learning-journey-v1");
+const SKILLS = ["reading", "grammar", "vocabulary", "writing", "listening", "pronunciation"] as const;
 
 function currentDiagnosticArea() {
   return resolveLearningDiagnosticArea(window.location.pathname) ?? "study-overview";
 }
 
 function skillFromStageId(stageId: string) {
-  return (["reading", "grammar", "vocabulary", "writing", "listening", "pronunciation"] as const)
-    .find((skill) => stageId.includes(`-${skill}-`));
+  return SKILLS.find((skill) => stageId.includes(`-${skill}-`));
 }
 
 function migrateLanguageResults(state: LearningJourneyState) {
@@ -30,13 +33,13 @@ function migrateLanguageResults(state: LearningJourneyState) {
   try {
     const stored = localStorage.getItem(scopedStorageKey("learnv-language-tests-v1"));
     if (!stored) return migrated;
-    const progress = JSON.parse(stored) as TestProgressState;
+    const progress = normalizeTestProgress(JSON.parse(stored));
     const trackedItems = new Set(state.recentActivities
       .filter((event) => event.kind === "practice")
       .map((event) => event.itemId));
 
     for (const language of ["en", "ko"] as const) {
-      for (const [stageId, result] of Object.entries(progress[language] ?? {})) {
+      for (const [stageId, result] of Object.entries(progress[language])) {
         if (trackedItems.has(stageId)) continue;
         const skill = skillFromStageId(stageId);
         if (!skill) continue;
@@ -54,17 +57,15 @@ function migrateLanguageResults(state: LearningJourneyState) {
     }
   } catch (error) {
     recordLearningError({ area: currentDiagnosticArea(), code: "learning-journey-migration-failed", error });
-    return migrated;
   }
-  return migrated;
+  // Migrated results carry their original dates; keep the window newest-first.
+  return sortRecentActivities(migrated);
 }
 
 function readJourney(): LearningJourneyState {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    const parsed: LearningJourneyState = stored
-      ? { ...createLearningJourney(), ...(JSON.parse(stored) as LearningJourneyState) }
-      : { ...createLearningJourney(), version: 1 };
+    const parsed = stored ? normalizeLearningJourney(JSON.parse(stored)) : { ...createLearningJourney(), version: 1 as const };
     return migrateLanguageResults(parsed);
   } catch (error) {
     recordLearningError({ area: currentDiagnosticArea(), code: "learning-journey-read-failed", error });
@@ -75,22 +76,25 @@ function readJourney(): LearningJourneyState {
 export function useLearningJourney(pathname: string) {
   const [journey, setJourney] = useState<LearningJourneyState>(readJourney);
   const activeStartedAt = useRef(Date.now());
+  const lastEventKind = useRef<LearningEvent["kind"] | null>(null);
+
+  // Persist outside the state updater: updaters must stay pure (StrictMode runs them twice).
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(journey));
+    } catch (error) {
+      recordLearningError({
+        area: currentDiagnosticArea(),
+        code: "learning-journey-write-failed",
+        error,
+        context: { eventKind: lastEventKind.current },
+      });
+    }
+  }, [journey]);
 
   const record = useCallback((event: LearningEvent) => {
-    setJourney((current) => {
-      const next = recordLearningEvent(current, event);
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      } catch (error) {
-        recordLearningError({
-          area: currentDiagnosticArea(),
-          code: "learning-journey-write-failed",
-          error,
-          context: { eventKind: event.kind, skill: event.skill ?? null, language: event.language ?? null },
-        });
-      }
-      return next;
-    });
+    lastEventKind.current = event.kind;
+    setJourney((current) => recordLearningEvent(current, event));
   }, []);
 
   useEffect(() => record({ kind: "route", route: pathname }), [pathname, record]);
@@ -106,7 +110,10 @@ export function useLearningJourney(pathname: string) {
       if (document.visibilityState === "hidden") saveActiveTime();
       else activeStartedAt.current = Date.now();
     };
-    const onLearningEvent = (event: Event) => record((event as CustomEvent<LearningEvent>).detail);
+    const onLearningEvent = (event: Event) => {
+      const detail = normalizeLearningEvent((event as CustomEvent<unknown>).detail);
+      if (detail) record(detail);
+    };
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("pagehide", saveActiveTime);
     window.addEventListener(LEARNING_JOURNEY_EVENT, onLearningEvent);
@@ -122,7 +129,10 @@ export function useLearningJourney(pathname: string) {
   const interviewAdaptation = useMemo(() => createInterviewAdaptation(journey), [journey]);
   const activeMinutes = Math.round(journey.totalActiveSeconds / 60);
   const practicedSkills = Object.keys(journey.skillStats).length;
-  return { journey, recommendation, analysis, interviewAdaptation, activeMinutes, practicedSkills };
+  return useMemo(
+    () => ({ journey, recommendation, analysis, interviewAdaptation, activeMinutes, practicedSkills }),
+    [journey, recommendation, analysis, interviewAdaptation, activeMinutes, practicedSkills],
+  );
 }
 
 export type LearningJourneyController = ReturnType<typeof useLearningJourney>;

@@ -61,7 +61,10 @@ describe("tulip daylight theme", () => {
     const provider = readFileSync(new URL("../application/theme/ThemeContext.tsx", import.meta.url), "utf8");
     expect(html).toContain(`<meta name="theme-color" content="${tokens["--cream"]}"`);
     expect(html).toContain(`[data-theme="light"] #learnv-bootstrap-loader{background:${tokens["--cream"]}`);
-    expect(provider).toContain(`theme === "dark" ? "#101722" : "${tokens["--cream"]}"`);
+    expect(provider).toContain(`light: "${tokens["--cream"]}"`);
+    // Dark browser chrome matches the dark canvas, both before and after React boots.
+    expect(provider).toContain(`dark: "#140b19"`);
+    expect(html).toContain(`theme === "dark" ? "#140b19" : "${tokens["--cream"]}"`);
   });
 
   it("retains semantic feedback and completion accents without hiding selection", () => {

@@ -3,6 +3,7 @@ import {
   WRITTEN_FOCUS_MINUTES,
   emptyWrittenSimulator,
   isWrittenSimulatorStarted,
+  normalizeWrittenSimulator,
   scoreWrittenSimulator,
   type WrittenLanguage,
   type WrittenSimulatorState,
@@ -24,7 +25,7 @@ function readState(): WrittenSimulatorState {
     if (!stored) return emptyWrittenSimulator;
     const parsed: unknown = JSON.parse(stored);
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("Invalid written simulator state shape");
-    return { ...emptyWrittenSimulator, ...parsed };
+    return normalizeWrittenSimulator(parsed);
   } catch (error) {
     recordLearningError({ area: "written-simulator", code: "written-state-read-failed", error });
     return emptyWrittenSimulator;

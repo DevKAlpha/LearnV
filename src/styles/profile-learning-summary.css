@@ -39,3 +39,22 @@
 }
 @media(max-width:359px) { .learning-journey--illustrated .learning-journey__heading { align-items: flex-start; flex-wrap: wrap; }.learning-journey--illustrated .journey-cover-art { order: -1; } }
 @media(forced-colors:active) { .learning-journey--illustrated .journey-cover-art { display: none; }.learning-journey--illustrated :is(.journey-art__line,.journey-art__paper,.journey-art__petal,.journey-art__leaf,.journey-art__back,.journey-art__gold,.journey-stat-art) { stroke: CanvasText; } }
+
+/* Device backup: local export/import of every LearnV dataset. */
+.device-backup { display: grid; gap: 10px; margin-top: 18px; padding: clamp(16px,3vw,24px); border: 1.5px solid color-mix(in srgb, currentColor 35%, transparent); border-radius: 20px; background: var(--paper); color: inherit; text-align: left; }
+.device-backup h2 { margin: 0; font-size: clamp(1.15rem,2.6vw,1.5rem); line-height: 1.2; }
+.device-backup h3 { margin: 0 0 6px; font-size: 1rem; }
+.device-backup p { margin: 0; font-size: .9rem; line-height: 1.55; }
+.device-backup__status { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; padding: 10px 12px; border: 1px dashed currentColor; border-radius: 14px; }
+.device-backup__status > span { display: inline-grid; width: 22px; height: 22px; place-items: center; border-radius: 50%; background: #9a5a10; color: #fff; font-weight: 900; }
+.device-backup__status.is-protected > span { background: #3d7a4d; }
+.device-backup__actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.device-backup__actions button { min-height: 44px; padding: 10px 16px; border: 2px solid var(--ink); border-radius: 999px; background: var(--yellow); color: #241a24; font-weight: 850; cursor: pointer; box-shadow: 2px 3px 0 var(--ink); }
+.device-backup__actions button + button { border-color: currentColor; background: transparent; color: inherit; box-shadow: none; }
+.device-backup__actions button:focus-visible, .device-backup__link:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+.device-backup__link { min-height: 32px; padding: 0 4px; border: 0; background: none; color: inherit; font: inherit; font-weight: 850; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.device-backup__issue { font-weight: 800; color: #b3263e; }
+:root[data-theme="dark"] .device-backup__issue { color: #ff9cad; }
+.device-backup__preview { display: grid; gap: 8px; padding: 14px; border: 1.5px solid color-mix(in srgb, currentColor 45%, transparent); border-radius: 16px; background: color-mix(in srgb, var(--yellow) 18%, var(--paper)); }
+.device-backup__preview ul { display: grid; gap: 4px; margin: 0; padding-left: 18px; font-size: .9rem; }
+.device-backup .device-backup__privacy { font-size: .8rem; opacity: .85; }

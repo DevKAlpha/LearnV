@@ -12,9 +12,9 @@ export const writtenSimulatorQuestions: WrittenQuestion[] = [
   {
     id: "official-format",
     prompt: {
-      es: "¿Qué describe mejor la parte escrita común de GKS-U 2026?",
-      en: "What best describes the common written component of 2026 GKS-U?",
-      ko: "2026 GKS-U의 공통 서면 준비를 가장 정확히 설명한 것은 무엇입니까?",
+      es: "¿Qué describe mejor la parte escrita común de GKS-U 2027?",
+      en: "What best describes the common written component of 2027 GKS-U?",
+      ko: "2027 GKS-U의 공통 서면 준비를 가장 정확히 설명한 것은 무엇입니까?",
     },
     options: [
       { es: "Un examen nacional idéntico para todos", en: "One national exam for every applicant", ko: "모든 지원자가 보는 동일한 국가시험" },

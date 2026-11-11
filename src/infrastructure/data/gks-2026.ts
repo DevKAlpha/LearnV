@@ -195,7 +195,9 @@ export const keyFacts: GksFact[] = [
 export const eligibilityRules = [
   "La estudiante y sus padres no deben tener ciudadanía coreana.",
   "Debe haber terminado bachillerato o graduarse dentro del plazo de la convocatoria.",
-  "Debe cumplir la edad máxima y el rendimiento académico del ciclo vigente.",
+  "Debe cumplir la edad máxima y el rendimiento académico del ciclo vigente (en la guía 2027: menos de 25 años a 1 de marzo del año de ingreso).",
+  "No debe tener ya un título de grado (licenciatura) ni haber recibido antes una beca del Gobierno coreano para grado; revisa las excepciones de la guía.",
+  "Debe gozar de buena salud física y mental para estudiar en Corea durante todo el programa.",
 ];
 
 export const targetPrograms = [
@@ -255,6 +257,18 @@ export const documents: DocumentItem[] = [
     required: true,
     needsApostille: true,
     needsTranslation: true,
+  },
+  {
+    id: "recommendation",
+    label: "Carta de recomendación",
+    detail: "Pídela con semanas de margen a un docente que conozca tu trabajo; usa el formulario oficial y entrégale tu Study Plan como contexto.",
+    required: true,
+  },
+  {
+    id: "pledge-health",
+    label: "Compromiso y autoevaluación médica",
+    detail: "Formularios oficiales de la convocatoria: léelos, complétalos y fírmalos sin modificar su formato.",
+    required: true,
   },
   {
     id: "graduation",

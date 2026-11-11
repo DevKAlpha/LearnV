@@ -17,6 +17,8 @@ import "@/styles/advanced-path.css";
 import "@/styles/learning-path.css";
 import "@/styles/storybook.css";
 import "@/styles/content-layout.css";
+import { requestPersistentStorage } from "@/infrastructure/data/storage-persistence";
+import { scopedStorageKey } from "@/infrastructure/config/app-scope";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -25,3 +27,9 @@ createRoot(document.getElementById("root")!).render(
     </AppProviders>
   </StrictMode>,
 );
+
+// Returning learners get durable storage (avoids eviction, incl. Safari's 7-day rule).
+// New visitors are not asked until they have progress worth keeping.
+try {
+  if (localStorage.getItem(scopedStorageKey("learnv-learning-journey-v1"))) void requestPersistentStorage();
+} catch { /* Storage unavailable: nothing to protect. */ }

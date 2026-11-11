@@ -1,31 +1,23 @@
-import { scopedStorageKey } from "@/infrastructure/config/app-scope";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useTheme } from "@/application/theme/ThemeContext";
-
-const TEST_STORAGE_KEY = scopedStorageKey("learnv-language-tests-v1");
+import { useLanguageTestProgress } from "@/application/controllers/useLanguageTestProgress";
+import { TESTS_PER_LANGUAGE } from "@/infrastructure/data/practice-test-metadata";
 
 type DynamicFaviconProps = {
   readiness: number;
 };
 
-function getPassedTests(language: "en" | "ko") {
-  try {
-    const saved = JSON.parse(localStorage.getItem(TEST_STORAGE_KEY) ?? "{}") as Record<string, Record<string, { passed?: boolean }>>;
-    return Object.values(saved[language] ?? {}).filter((stage) => stage.passed).length;
-  } catch {
-    return 0;
-  }
-}
+type PassedTotals = { en: number; ko: number };
 
-function iconContext(pathname: string, readiness: number) {
+const share = (passed: number) => Math.round((passed / TESTS_PER_LANGUAGE) * 100);
+
+function iconContext(pathname: string, readiness: number, passed: PassedTotals) {
   if (pathname.includes("/tests/en") || pathname.includes("/study/english")) {
-    const passed = getPassedTests("en");
-    return { progress: Math.round((passed / 30) * 100), surface: "#dce8ff", accent: "#315fd6" };
+    return { progress: share(passed.en), surface: "#dce8ff", accent: "#315fd6" };
   }
   if (pathname.includes("/tests/ko") || pathname.includes("/study/korean")) {
-    const passed = getPassedTests("ko");
-    return { progress: Math.round((passed / 30) * 100), surface: "#f3dbea", accent: "#b7276b" };
+    return { progress: share(passed.ko), surface: "#f3dbea", accent: "#b7276b" };
   }
   if (pathname.startsWith("/checklist")) return { progress: readiness, surface: "#e5ecd9", accent: "#4c7137" };
   if (pathname.startsWith("/gks")) return { progress: readiness, surface: "#f1ddeb", accent: "#b7274e" };
@@ -34,8 +26,8 @@ function iconContext(pathname: string, readiness: number) {
   return { progress: readiness, surface: "#ead8f1", accent: "#8d42aa" };
 }
 
-function createFaviconSvg(pathname: string, readiness: number, dark: boolean) {
-  const context = iconContext(pathname, readiness);
+function createFaviconSvg(pathname: string, readiness: number, dark: boolean, passed: PassedTotals) {
+  const context = iconContext(pathname, readiness, passed);
   const progress = Math.max(0, Math.min(100, context.progress));
   const circumference = 150.8;
   const dashOffset = circumference - (circumference * progress) / 100;
@@ -48,16 +40,10 @@ function createFaviconSvg(pathname: string, readiness: number, dark: boolean) {
 export function DynamicFavicon({ readiness }: DynamicFaviconProps) {
   const location = useLocation();
   const { theme } = useTheme();
-  const [progressVersion, setProgressVersion] = useState(0);
+  const { totals } = useLanguageTestProgress();
 
   useEffect(() => {
-    const refresh = () => setProgressVersion((version) => version + 1);
-    window.addEventListener("learnv:progress", refresh);
-    return () => window.removeEventListener("learnv:progress", refresh);
-  }, []);
-
-  useEffect(() => {
-    const svg = createFaviconSvg(location.pathname, readiness, theme === "dark");
+    const svg = createFaviconSvg(location.pathname, readiness, theme === "dark", totals);
     const href = `data:image/svg+xml,${encodeURIComponent(svg)}`;
     let favicon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
     if (!favicon) {
@@ -72,7 +58,7 @@ export function DynamicFavicon({ readiness }: DynamicFaviconProps) {
       : location.pathname.includes("/tests/ko") || location.pathname.includes("/study/korean")
         ? "korean"
         : "general";
-  }, [location.pathname, progressVersion, readiness, theme]);
+  }, [location.pathname, readiness, theme, totals]);
 
   return null;
 }

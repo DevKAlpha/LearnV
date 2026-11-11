@@ -57,7 +57,7 @@ export function WrittenSimulatorPage() {
 
       <aside className="written-official-note" aria-label={copy.written.referenceBadge}>
         <strong>{copy.written.officialNotice}</strong>
-        <div><SourceLink sourceId="study-in-korea-2026" /><SourceLink sourceId="spain-embassy-notices" /></div>
+        <div><SourceLink sourceId="study-in-korea-2027" /><SourceLink sourceId="spain-embassy-notices" /></div>
       </aside>
 
       {state.step !== "intro" && state.step !== "result" && (

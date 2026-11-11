@@ -9,6 +9,7 @@ import { LearningJourneyPanel } from "@/shared/ui/LearningJourneyPanel";
 import { getLanguagePathSummary as getLanguagePath } from "@/infrastructure/data/language-path-summary";
 import { advancedPathCopy } from "@/infrastructure/i18n/advanced-path-copy";
 import { SceneArt } from "@/shared/ui/SceneArt";
+import { DeviceBackupPanel } from "./DeviceBackupPanel";
 import "@/styles/profile-learning-summary.css";
 
 export function ProfilePage({ score, learning }: { score: number; learning: LearningJourneyController }) {
@@ -77,6 +78,8 @@ export function ProfilePage({ score, learning }: { score: number; learning: Lear
         <span className="eyebrow">{copy.profile.targetCycle}</span><h2>{currentCycle.target}</h2><p>{copy.home.cycleNote}</p>
         <Link to="/gks">{copy.profile.radar} →</Link>
       </section>
+
+      <DeviceBackupPanel locale={locale} />
 
       <footer className={easterEggVisible ? "profile-credit is-revealed" : "profile-credit"} onClick={() => setCreditTaps((value) => Math.min(5, value + 1))}>
         <span aria-hidden="true">© 2026 · </span>{copy.profile.developedBy}{" "}

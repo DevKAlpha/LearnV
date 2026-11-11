@@ -1,4 +1,4 @@
-import { scopedStorageKey } from "@/infrastructure/config/app-scope";
+import { appRelativePath, scopedStorageKey } from "@/infrastructure/config/app-scope";
 export const LEARNING_DIAGNOSTIC_AREAS = [
   "study-overview",
   "english-learning",
@@ -6,6 +6,7 @@ export const LEARNING_DIAGNOSTIC_AREAS = [
   "written-simulator",
   "interview-preparation",
   "interview-chatbot",
+  "app-shell",
 ] as const;
 
 export type LearningDiagnosticArea = typeof LEARNING_DIAGNOSTIC_AREAS[number];
@@ -49,7 +50,8 @@ export function learningErrorStorageKey(area: LearningDiagnosticArea) {
   return `${STORAGE_PREFIX}:${area}`;
 }
 
-export function resolveLearningDiagnosticArea(pathname: string): LearningDiagnosticArea | null {
+export function resolveLearningDiagnosticArea(rawPathname: string): LearningDiagnosticArea | null {
+  const pathname = appRelativePath(rawPathname);
   if (pathname === "/study") return "study-overview";
   if (pathname === "/study/english" || pathname === "/tests/en" || pathname.startsWith("/tests/en/")) return "english-learning";
   if (pathname === "/study/korean" || pathname === "/tests/ko" || pathname.startsWith("/tests/ko/")) return "korean-learning";
@@ -138,7 +140,7 @@ export function recordLearningError(
     const previous = readLearningErrorLog(input.area, storage);
     const repeatedIndex = previous.findIndex((entry) =>
       entry.code === compact(input.code, 80)
-      && entry.route === compact(input.route ?? window.location.pathname, 180)
+      && entry.route === compact(input.route ?? appRelativePath(window.location.pathname), 180)
       && entry.message === message
       && entry.errorName === details.name);
     const repeated = repeatedIndex >= 0 ? previous[repeatedIndex] : null;
@@ -153,7 +155,7 @@ export function recordLearningError(
       code: compact(input.code, 80),
       message,
       errorName: details.name,
-      route: compact(input.route ?? window.location.pathname, 180),
+      route: compact(input.route ?? appRelativePath(window.location.pathname), 180),
       context: safeContext(input.context),
       stack: details.stack,
     };

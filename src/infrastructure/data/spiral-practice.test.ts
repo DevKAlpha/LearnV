@@ -151,7 +151,8 @@ describe("original listening evidence", () => {
     scripts.forEach((stage) => {
       expect(stage.media).toBeUndefined();
       expect(stage.productionTask.listeningScript!.length).toBeLessThan(700);
-      expect(stage.questions[0].passage).toBe(stage.productionTask.listeningScript);
+      expect(stage.questions[0].passage).toBeUndefined();
+      expect(stage.questions[0].audioText).toBe(stage.productionTask.listeningScript);
     });
   });
 });

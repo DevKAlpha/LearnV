@@ -1,6 +1,6 @@
 export const documentStages = [
-  { id: "drafts", documentIds: ["application", "personal-statement", "study-plan"] },
-  { id: "academic", documentIds: ["graduation", "transcript"] },
+  { id: "drafts", documentIds: ["application", "personal-statement", "study-plan", "pledge-health"] },
+  { id: "academic", documentIds: ["graduation", "transcript", "recommendation"] },
   { id: "official", documentIds: ["family"] },
   { id: "optional", documentIds: ["language"] },
 ] as const;

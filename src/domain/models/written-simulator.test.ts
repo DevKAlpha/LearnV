@@ -38,3 +38,18 @@ describe("written simulator", () => {
     expect(result.writing).toBe(30);
   });
 });
+
+describe("written simulator storage", () => {
+  it("rebuilds a usable state from corrupted storage", async () => {
+    const { normalizeWrittenSimulator, emptyWrittenSimulator } = await import("./written-simulator");
+    expect(normalizeWrittenSimulator(null)).toEqual(emptyWrittenSimulator);
+    const repaired = normalizeWrittenSimulator({ step: "hack", personalStatement: 42, studyPlan: "Plan", answers: { q: 1, bad: "x" }, rubric: ["a", 3], attempts: -1, lastScore: 400 });
+    expect(repaired.step).toBe("intro");
+    expect(repaired.personalStatement).toBe("");
+    expect(repaired.studyPlan).toBe("Plan");
+    expect(repaired.answers).toEqual({ q: 1 });
+    expect(repaired.rubric).toEqual(["a"]);
+    expect(repaired.attempts).toBe(0);
+    expect(repaired.lastScore).toBe(100);
+  });
+});
