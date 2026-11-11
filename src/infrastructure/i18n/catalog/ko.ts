@@ -92,6 +92,7 @@ export const ko: TranslationCatalog = {
     timerStart: "75초 시작",
     timerReset: "초기화",
     previous: "이전",
+    feedback: "피드백",
     play: "{title} 재생",
   },
 };

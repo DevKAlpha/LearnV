@@ -468,6 +468,7 @@ export const es = {
     timerStart: "Iniciar 75 s",
     timerReset: "Reiniciar tiempo",
     previous: "Anterior",
+    feedback: "Retroalimentación",
     play: "Reproducir {title}",
   },
 };

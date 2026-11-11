@@ -92,6 +92,7 @@ export const en: TranslationCatalog = {
     timerStart: "Start 75 s",
     timerReset: "Reset timer",
     previous: "Previous",
+    feedback: "Feedback",
     play: "Play {title}",
   },
 };
