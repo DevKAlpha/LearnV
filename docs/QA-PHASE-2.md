@@ -10,10 +10,15 @@ Implementación y revisión: **11 de noviembre de 2026**. Rama `feature/phase2-v
   - El idioma de inicio, y el de una ruta de práctica abierta directamente, se cargan antes del primer render, así que no hay parpadeo en español.
   - Al cambiar de idioma, el texto solo cambia cuando el catálogo ha llegado.
   - **JS de arranque:** pasa de 449 621 B a 374 542 B (de 148,7 a 122,7 kB gzip). El límite baja a 400 000 B / 130 000 B.
-- **CSS muerto:** se eliminan 19 familias de clases que ningún componente usa (108 selectores, 96 reglas). Se borraron selector a selector con PostCSS.
+- **CSS muerto:** se eliminan 30 familias de clases que ningún componente usa (95 selectores, 83 reglas).
+  - Un selector solo se borra si no puede coincidir con nada.
+  - Las listas `:is()`, `:where()` y `:has()` se dejan intactas: quitarles un argumento cambiaría su especificidad.
+  - `:not(.clase-muerta)` nunca provoca el borrado.
   - `program-card` se conserva porque `program-card--{tone}` sigue en uso.
-  - **CSS de arranque:** pasa de 381 580 B a 362 972 B. Con Tailwind y el selector de inmersión queda en 369 709 B (límite 370 000 B / 80 000 B).
+  - **Regresión corregida (59270ad):** la primera limpieza (de40412) borró selectores `:is(…)` enteros por un solo argumento muerto. Así se perdieron estilos de tema oscuro de clases vivas (`.study-start-card`, `.type-chip`, `.resource-icon`…). Se rehízo desde las hojas sin limpiar y se comparó píxel a píxel: 31/32 capturas idénticas. Inicio a 1280 px no es determinista ni comparado consigo mismo.
+  - **CSS de arranque:** 377 743 B / 81 013 B gzip (límite 380 000 / 82 000). Antes de la fase eran 381 580 B.
 - Las miniaturas de YouTube se cargan en diferido, salvo el vídeo principal de una práctica.
+- En móvil, en pantallas táctiles o con `prefers-reduced-transparency`, las tarjetas de contenido no usan `backdrop-filter`. Lo conservan la barra inferior, la cabecera, las capas modales y los diálogos. Revisado a 390 px en claro y oscuro.
 
 ### Legibilidad y accesibilidad
 - **Tamaño mínimo de texto de 12 px** en todas las hojas de estilo: 433 declaraciones subidas (antes había textos de unos 6 px en móvil). Lo vigila `typography-floor.test.ts`.
@@ -46,21 +51,31 @@ Implementación y revisión: **11 de noviembre de 2026**. Rama `feature/phase2-v
   - **Regla de migración:** el componente se migra entero (marcado + borrar su CSS antiguo) y se añade a la lista `@source`.
 - **`tokens.css`:** escalas comunes de z-index, tipografía, espaciado y radios.
 - La regla global `button { font: inherit }` pasa a `@layer base`, por debajo de las utilidades.
-- **`TestSessionPage`:** se remonta con una `key` por etapa y por reintento. Sustituye dos bloques duplicados de reinicio manual de unas 20 líneas.
-- Se eliminan los avisos de lint de esa página.
+- **`TestSessionPage`:**
+  - Se remonta con una `key` por etapa y por reintento, lo que sustituye dos bloques duplicados de reinicio manual de unas 20 líneas.
+  - La vista de resultado pasa a `TestResultView`; la página baja de 497 a 390 líneas.
+- **Textos de interfaz:**
+  - Las ternarias de idioma en componentes pasan a la sección `ui` de los catálogos ES/EN/KO: simulador escrito, recursos, entrevista y vídeo.
+  - La etiqueta «Tú» del chat pasa al catálogo del chatbot.
+  - Las razones de puntuación del chatbot son diagnóstico interno (solo en el log, nunca en la interfaz) y quedan en inglés.
+  - Se corrige el español de dos frases del entrevistador («explícala» y un texto que asumía género femenino).
+- **Lint:** 0 avisos, impuesto con `--max-warnings 0`. El único caso intencional de `exhaustive-deps` (filtro del tablero) está documentado.
+- **Alias semánticos de color** en `tokens.css`: `--color-surface`, `--color-accent`, `--color-brand-strong`…
+  - Sustituyen para código nuevo a los nombres heredados engañosos (`--blue` es miel en el tema claro).
+  - El `@theme` de Tailwind apunta a la misma paleta, con una prueba contra variables autorreferentes.
+- **Trinquete de temas** (`theme-overrides.test.ts`): 308 sobrescritos `dark` y 51 `light`, que solo pueden bajar.
+- **Comparación visual** (`e2e/visual.spec.ts`, opcional con `VISUAL=1`): 8 rutas × 2 temas × 390/1280 px. Las referencias dependen del sistema operativo y no se versionan.
+- **Anclas del recorrido:** no se migran a `data-tour-id`. `page-help.test.tsx` ya falla si un paso apunta a una clase que no está en el marcado de su página.
 
 ## Verificación
-- Vitest: **78 archivos / 795 pruebas**. Playwright: **63/63**, con pruebas nuevas para:
+- Vitest: **79 archivos / 798 pruebas**. Playwright: **63/63**, con pruebas nuevas para:
   - invitación del recorrido;
   - trampa de foco de los modales;
   - inmersión en coreano;
   - salida de práctica.
-- `tsc -b`, `check:architecture` y el build pasan, con presupuestos de JS y CSS y la CSP.
+- La suite visual se ejecutó para validar la limpieza de CSS.
+- `tsc -b`, lint (0 avisos), `check:architecture` y el build pasan, con presupuestos de JS y CSS y la CSP.
 
-## Pendiente de la Fase 2 (siguiente iteración)
-- **Tokens de color semánticos únicos por tema:** aún quedan unos 288 + 52 sobrescritos de tema dispersos y nombres engañosos (`--blue` es amarillo en el tema claro). Es el cambio visual de más riesgo; se hará por pantallas, con capturas.
-- Anclar los pasos del recorrido con `data-tour-id` en lugar de clases CSS.
-- Sacar los textos de `domain/models/interview-chatbot.ts` y las ternarias de idioma de los componentes a los catálogos.
-- Dividir `TestSessionPage` en subcomponentes (producción, preguntas, resultado).
-- Reducir `backdrop-filter` (130 usos), costoso en móviles.
-- **El presupuesto de CSS está casi lleno** (369 709 / 370 000 B): la próxima migración a Tailwind debe borrar más CSS antiguo del que añade.
+## Pendiente (decisión consciente)
+- **Consolidar los 308 + 51 sobrescritos de tema** en variables por componente. Se probó en `learning-path.css` y se descartó por ahora: pasar las reglas a variables baja su especificidad y puede cambiar qué regla gana, y la suite visual no cubre los estados bloqueado/avanzado. Debe hacerse pantalla a pantalla, ampliando antes la suite visual a esos estados; el trinquete impide que crezcan mientras tanto.
+- **Dividir más `TestSessionPage`** (etapa de producción y de preguntas).
