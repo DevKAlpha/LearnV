@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { preloadAppRoute } from "@/app/routing/AppRoutes";
+import { prefetchLocale } from "@/application/i18n/I18nContext";
+import { resolveLearningLocale } from "@/application/i18n/learning-locale";
 import { isAppRouteAvailable } from "@/application/qa/qa-learning-scope";
 
 const prefetched = new Set<string>();
@@ -15,6 +17,9 @@ function normalizePath(url: URL) {
 function preload(pathname: string) {
   if (!isAppRouteAvailable(pathname) || prefetched.has(pathname)) return;
   prefetched.add(pathname);
+  // Immersive routes switch language: fetch that catalog with the route so the switch is instant.
+  const learningLocale = resolveLearningLocale(pathname);
+  if (learningLocale) prefetchLocale(learningLocale);
   void preloadAppRoute(pathname).then((loaded) => {
     if (!loaded) prefetched.delete(pathname);
   });

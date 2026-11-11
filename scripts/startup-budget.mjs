@@ -1,6 +1,6 @@
 import { gzipSync } from "node:zlib";
 
-export const STARTUP_LIMITS = { bytes: 450_000, gzip: 150_000 };
+export const STARTUP_LIMITS = { bytes: 400_000, gzip: 130_000 };
 const banks = /(?:^|\/)(?:practice-tests|foundation-practice-tests|extension-practice-tests|advanced-practice-tests)\.ts$/;
 
 /** Count the complete static entry graph, not lazy destinations or unrelated chunks. */

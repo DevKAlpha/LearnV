@@ -18,15 +18,19 @@ import "@/styles/learning-path.css";
 import "@/styles/storybook.css";
 import "@/styles/content-layout.css";
 import { requestPersistentStorage } from "@/infrastructure/data/storage-persistence";
+import { preloadInitialLocale } from "@/application/i18n/I18nContext";
 import { scopedStorageKey } from "@/infrastructure/config/app-scope";
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <AppProviders>
-      <App />
-    </AppProviders>
-  </StrictMode>,
-);
+// Render once the start-up language is available (Spanish is bundled; EN/KO are small chunks).
+void preloadInitialLocale().then(() => {
+  createRoot(document.getElementById("root")!).render(
+    <StrictMode>
+      <AppProviders>
+        <App />
+      </AppProviders>
+    </StrictMode>,
+  );
+});
 
 // Returning learners get durable storage (avoids eviction, incl. Safari's 7-day rule).
 // New visitors are not asked until they have progress worth keeping.
