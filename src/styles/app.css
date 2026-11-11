@@ -5702,3 +5702,16 @@ body :is(
     transition-duration: 0.01ms !important;
   }
 }
+
+/*
+ * Performance: frosted glass (backdrop-filter) re-blurs the page on every scroll frame,
+ * which is the main source of jank on mid-range phones. Content cards drop it on small or
+ * touch screens and when the person asks for reduced transparency; fixed chrome and modal
+ * backdrops keep it because content scrolls underneath them.
+ */
+@media (max-width: 899px), (pointer: coarse), (prefers-reduced-transparency: reduce) {
+  :where(*):not(.bottom-nav, .app-chrome, .app-chrome *, [class*="backdrop"], [class*="-layer"], [class*="-modal"], [role="dialog"]) {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
