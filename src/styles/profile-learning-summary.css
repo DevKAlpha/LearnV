@@ -12,12 +12,12 @@
 :root .app-shell--storybook .learning-journey--illustrated .learning-journey__stat--streak { border-color: color-mix(in srgb,var(--journey-gold) 70%,var(--journey-ink)); background: linear-gradient(140deg,var(--journey-warm),color-mix(in srgb,var(--journey-gold) 18%,var(--journey-paper))); }
 .learning-journey--illustrated .learning-journey__stat strong { grid-column: 2; color: var(--journey-ink); font-size: 1.25rem; line-height: 1.25; font-variant-numeric: tabular-nums; }
 .learning-journey--illustrated .learning-journey__stat > span { grid-column: 2; color: var(--journey-ink); font-size: .75rem; }
-.learning-journey--illustrated .learning-journey__stat small { font-size: .72rem; line-height: 1.5; overflow: visible; text-overflow: clip; }
+.learning-journey--illustrated .learning-journey__stat small { font-size: 0.75rem; line-height: 1.5; overflow: visible; text-overflow: clip; }
 .learning-journey--illustrated .journey-stat-art { grid-row: 1 / 3; width: 28px; height: 28px; padding: 3px; border: 1px solid color-mix(in srgb,var(--journey-edge) 65%,transparent); border-radius: 8px; background: color-mix(in srgb,var(--journey-tint) 60%,var(--journey-paper)); stroke: var(--journey-ink); stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
 :root .app-shell--storybook .learning-journey--illustrated .learning-recommendation { grid-template-columns: minmax(0,1fr); gap: 14px; margin-top: 22px; padding: 18px; border: 1px solid #8c5e43; border-radius: 16px; background: linear-gradient(145deg,#74442e,#4e2c23); box-shadow: inset 0 1px 0 #ffffff26,3px 4px 0 var(--journey-under),0 6px 12px #0002; color: #fff8f0; }
 :root[data-theme="dark"] .app-shell--storybook .learning-journey--illustrated .learning-recommendation { border-color: #9d7aaf; background: linear-gradient(145deg,#483052,#25182e); }
 .learning-journey--illustrated .learning-recommendation p { font-size: .9rem; line-height: 1.6; }
-.learning-journey--illustrated .learning-recommendation > div > span { font-size: .7rem; color: #ffe2a0; }
+.learning-journey--illustrated .learning-recommendation > div > span { font-size: 0.75rem; color: #ffe2a0; }
 .learning-journey--illustrated .learning-recommendation a { min-width: 0; min-height: 44px; border: 1px solid #5b3824; background: linear-gradient(145deg,#ffe393,#ffd05a); box-shadow: inset 0 1px 0 #fff7,0 3px 0 #25182e; color: #38251d; font-size: .85rem; }
 .learning-journey--illustrated .learning-journey__privacy { margin: 18px 0 0; font-size: .75rem; line-height: 1.6; }
 .learning-journey--illustrated a:focus-visible { outline: 3px solid var(--journey-ink); outline-offset: 4px; }
