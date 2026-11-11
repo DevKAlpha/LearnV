@@ -34,8 +34,7 @@
     line-height: 1.45;
   }
 
-  .app-shell .page :is(.eyebrow, .status-badge, .live-pill, .task-content__priority),
-  .app-shell .page :is(
+  .app-shell .page :is(.eyebrow, .status-badge, .live-pill, .task-content__priority), .app-shell .page :is(
     .gks-priority > span, .gks-daily-radar__topline > span:last-child,
     .gks-daily-radar__footer span, .profile-score > span,
     .learning-journey__stat > span, .learning-recommendation > div > span,
@@ -70,6 +69,18 @@
   ) {
     font-size: var(--desktop-detail-size);
     line-height: 1.45;
+  }
+
+  .app-shell .page :is(
+    .primary-button, .learning-recommendation a, .starter-steps a,
+    .study-language-space > a, .resource-card > a,
+    .adaptive-material > a, .adaptive-material > a > span,
+    .interview-entry > a, .written-entry > a,
+    .gks-certificate-option footer a, .gks-certification-card footer a,
+    .filter-chip, .type-chip, .language-study-jump-nav :is(a, button)
+  ) {
+    font-size: var(--desktop-detail-size);
+    line-height: 1.35;
   }
 
   @media (max-width: 1120px) {

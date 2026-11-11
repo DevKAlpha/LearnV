@@ -30,3 +30,22 @@
   --radius-lg: 24px;
   --radius-pill: 999px;
 }
+
+/*
+ * Semantic colour aliases. Legacy palette names describe the original lilac theme and are
+ * misleading in the other themes (--blue is honey-yellow in light, lilac in dark;
+ * --cobalt is brown in light, purple in dark). New code uses these role names; each
+ * resolves through the active theme's palette, so they never need a theme override.
+ */
+:root {
+  --color-page: var(--cream);
+  --color-surface: var(--paper);
+  --color-border-strong: var(--ink);
+  --color-text-muted: var(--muted);
+  --color-accent: var(--yellow);
+  --color-accent-soft: var(--blue);
+  --color-brand: var(--purple);
+  --color-brand-strong: var(--cobalt);
+  --color-danger: var(--hot-pink);
+  --color-success: var(--green);
+}

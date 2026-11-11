@@ -20,12 +20,16 @@
 @source "../app/layout/ImmersionToggle.tsx";
 
 @theme inline {
+  /* Same values as the semantic aliases in tokens.css (never var(--color-x) here: that would
+     make Tailwind's --color-x refer to itself). Every one follows the active theme. */
   --color-ink: var(--ink);
   --color-paper: var(--paper);
   --color-cream: var(--cream);
   --color-muted: var(--muted);
   --color-accent: var(--yellow);
+  --color-accent-soft: var(--blue);
   --color-brand: var(--purple);
+  --color-brand-strong: var(--cobalt);
   --color-brand-deep: var(--brand-deep);
   --color-success: var(--green);
   --color-danger: var(--hot-pink);

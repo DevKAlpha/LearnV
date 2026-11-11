@@ -14,3 +14,10 @@ describe("tailwind adoption guard", () => {
     expect(css).toMatch(/@layer theme, base, utilities;/);
   });
 });
+
+describe("tailwind theme mapping", () => {
+  it("never maps a --color-* theme variable onto itself", () => {
+    const theme = css.slice(css.indexOf("@theme"));
+    for (const [, name, value] of theme.matchAll(/(--[\w-]+):\s*var\((--[\w-]+)\)/g)) expect(value).not.toBe(name);
+  });
+});
