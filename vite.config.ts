@@ -30,7 +30,7 @@ export default defineConfig(({ mode }) => {
       },
     }],
     base,
-    test: { exclude: [...configDefaults.exclude, ".qa-source/**", "dist-qa-pages-validation/**"] },
+    test: { exclude: [...configDefaults.exclude, ".qa-source/**", "dist-qa-pages-validation/**", "e2e/**"] },
     resolve: {
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),

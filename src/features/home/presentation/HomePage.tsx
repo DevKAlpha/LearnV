@@ -45,7 +45,7 @@ export function HomePage({ score, progress, toggleTask, learning }: Props) {
           className="task-card__toggle"
           type="button"
           aria-pressed={completed}
-          aria-label={`${completed ? copy.common.unmark : copy.common.mark} ${taskCopy.title}`}
+          aria-label={`0${originalIndex + 1} · ${completed ? copy.common.unmark : copy.common.mark} ${taskCopy.title}`}
           title={`${completed ? copy.common.unmark : copy.common.mark} ${taskCopy.title}`}
           onClick={() => toggleTask(task.id)}
         >
@@ -132,7 +132,7 @@ export function HomePage({ score, progress, toggleTask, learning }: Props) {
 
       <LearningJourneyPanel learning={learning} compact />
 
-      {!isLearningQa && <Link className="alert-card alert-card--link" to="/gks" aria-label={copy.home.cycleDetails}>
+      {!isLearningQa && <Link className="alert-card alert-card--link" to="/gks" title={copy.home.cycleDetails}>
         <div className="alert-icon" aria-hidden="true">!</div>
         <div>
           <span className="eyebrow">{copy.home.radar}</span>

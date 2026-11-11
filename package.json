@@ -3,6 +3,10 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "vite",
     "dev:qa": "vite --mode qa",
@@ -15,6 +19,10 @@
     "preview:pages": "node scripts/preview-pages.mjs",
     "typecheck": "tsc -b",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "e2e": "playwright test",
     "check:architecture": "node scripts/check-architecture.mjs",
     "release:check": "node scripts/check-release.mjs",
     "release:commits": "node scripts/check-release-commits.mjs",
@@ -28,12 +36,23 @@
     "react-router-dom": "^7.8.2"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@eslint/js": "^9.39.5",
+    "@playwright/test": "^1.65.0",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "^16.3.3",
     "@types/node": "^24.3.0",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.2",
+    "eslint": "^9.39.5",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.14.0",
+    "jsdom": "^31.0.0",
     "svgo": "4.1.0",
     "typescript": "^5.9.2",
+    "typescript-eslint": "^8.72.2",
     "vite": "^7.1.4",
     "vitest": "^3.2.4"
   }

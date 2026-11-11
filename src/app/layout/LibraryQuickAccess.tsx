@@ -29,6 +29,7 @@ export function LibraryQuickAccess() {
 
   useLayoutEffect(() => {
     if (!open) return;
+    const triggerElement = trigger.current;
     const root = document.getElementById("root");
     const wasInert = root?.hasAttribute("inert");
     const overflow = document.body.style.overflow;
@@ -51,7 +52,7 @@ export function LibraryQuickAccess() {
       document.body.style.overflow = overflow;
       document.documentElement.style.overflow = htmlOverflow;
       document.removeEventListener("keydown", onKeyDown);
-      if (trigger.current?.isConnected) trigger.current.focus({ preventScroll: true });
+      if (triggerElement?.isConnected) triggerElement.focus({ preventScroll: true });
     };
   }, [open]);
 

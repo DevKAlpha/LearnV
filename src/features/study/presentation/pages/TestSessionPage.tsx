@@ -305,7 +305,9 @@ export function TestSessionPage() {
             <blockquote><small>{copy.tests.yourDraft}</small>{writtenResponse}</blockquote>
           )}
           {stage.productionTask.mode === "speaking" && recordingUrl && (
-            <div className="production-recording"><small>{copy.tests.recordingReady}</small><audio controls src={recordingUrl} /></div>
+            // The learner's own recording: no caption track exists for it.
+            // eslint-disable-next-line jsx-a11y/media-has-caption
+            <div className="production-recording"><small>{copy.tests.recordingReady}</small><audio controls src={recordingUrl} aria-label={copy.tests.playRecording} /></div>
           )}
           <h3>{copy.tests.productionChecklist}</h3>
           <ul>{stage.productionTask.checklist.map((item) => <li key={item}>{item}</li>)}</ul>
@@ -425,6 +427,8 @@ export function TestSessionPage() {
             ) : (
               <button type="button" className="record-button" disabled={recordingPending} onClick={startRecording}>{recordingPending ? learningVoiceCopy[locale].recordingPending : recordingUrl ? copy.tests.recordAgain : copy.tests.startRecording}</button>
             )}
+            {/* The learner's own recording: no caption track exists for it. */}
+            {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
             {recordingUrl && <audio controls src={recordingUrl} aria-label={copy.tests.playRecording} />}
             {recordingUrl && <label className="practice-without-recording"><input type="checkbox" checked={recordingReviewed} onChange={(event) => setRecordingReviewed(event.target.checked)} /><span>{language === "ko" ? "녹음을 다시 듣고 한 가지 개선점을 찾았습니다." : "I listened back and identified one improvement."}</span></label>}
             {microphoneError && <p role="alert">{copy.tests.microphoneUnavailable}</p>}

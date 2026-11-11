@@ -22,6 +22,7 @@ export const TaskBoardQuickAccess = memo(function TaskBoardQuickAccess() {
   }, [open, Panel, retry]);
   useLayoutEffect(() => {
     if (!open) return;
+    const triggerElement = trigger.current;
     const root = document.getElementById("root"); const wasInert = root?.hasAttribute("inert");
     const overflow = document.body.style.overflow; const htmlOverflow = document.documentElement.style.overflow;
     root?.setAttribute("inert", ""); document.body.style.overflow = "hidden"; document.documentElement.style.overflow = "hidden";
@@ -40,7 +41,7 @@ export const TaskBoardQuickAccess = memo(function TaskBoardQuickAccess() {
       if (!wasInert) root?.removeAttribute("inert");
       document.body.style.overflow = overflow; document.documentElement.style.overflow = htmlOverflow;
       document.removeEventListener("keydown", keydown);
-      if (trigger.current?.isConnected) trigger.current.focus({ preventScroll: true });
+      if (triggerElement?.isConnected) triggerElement.focus({ preventScroll: true });
     };
   }, [open]);
   return <div className="task-board-quick-access">

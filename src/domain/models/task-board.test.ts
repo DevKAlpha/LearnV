@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { changeBoardTasks, cleanTaskTitle, emptyTaskBoard, getBoardSuggestions, isBoardTaskOverdue, localBoardDate, MAX_BOARD_TASKS, parseTaskBoard, taskInputIssue, validBoardDate, type BoardTask, type TaskBoard } from "./task-board";
+import { changeBoardTasks, cleanTaskTitle, emptyTaskBoard, getBoardSuggestions, isBoardTaskOverdue, localBoardDate, MAX_BOARD_TASKS, parseTaskBoard, taskInputIssue, validBoardDate, type BoardTask } from "./task-board";
 
 const now = Date.UTC(2026,10,1,12);
 const task = (id: string, overrides: Partial<BoardTask> = {}): BoardTask => ({ id, title: "Leer un aviso", area: "korean", status: "todo", dueDate: null, createdAt: now-1000, updatedAt: now-1000, ...overrides });

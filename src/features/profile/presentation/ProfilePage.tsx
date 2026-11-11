@@ -60,7 +60,7 @@ export function ProfilePage({ score, learning }: { score: number; learning: Lear
         <div className="story-masthead__art"><SceneArt scene="garden" eager /><span aria-hidden="true">✦ / 05</span></div>
       </header>
 
-      <Link className="profile-score" to="/study" aria-label={copy.home.start}>
+      <Link className="profile-score" to="/study" title={copy.home.start}>
         <span>{copy.profile.readiness}</span><strong>{score}%</strong><div><i style={{ width: `${score}%` }} /></div>
       </Link>
 
@@ -81,11 +81,14 @@ export function ProfilePage({ score, learning }: { score: number; learning: Lear
 
       <DeviceBackupPanel locale={locale} />
 
-      <footer className={easterEggVisible ? "profile-credit is-revealed" : "profile-credit"} onClick={() => setCreditTaps((value) => Math.min(5, value + 1))}>
-        <span aria-hidden="true">© 2026 · </span>{copy.profile.developedBy}{" "}
-        {easterEggVisible
-          ? <strong aria-live="polite">ninininini 😘 💜</strong>
-          : "DevKAlpha"}
+      <footer className={easterEggVisible ? "profile-credit is-revealed" : "profile-credit"}>
+        {/* Easter egg: five taps (or Enter/Space presses) reveal a message. */}
+        <button type="button" className="profile-credit__button" onClick={() => setCreditTaps((value) => Math.min(5, value + 1))}>
+          <span aria-hidden="true">© 2026 · </span>{copy.profile.developedBy}{" "}
+          {easterEggVisible
+            ? <strong aria-live="polite">ninininini 😘 💜</strong>
+            : "DevKAlpha"}
+        </button>
       </footer>
     </div>
   );

@@ -108,7 +108,7 @@ export type TestResult = {
 export const emptyTestProgress: TestProgressState = { en: {}, ko: {} };
 
 export function writingLengthFromPrompt(prompt: string): { minimum: number; maximum: number } | undefined {
-  const match = prompt.match(/(\d+)(?:[–~\-](\d+))?\s*(?:-?words?\b|자)/u);
+  const match = prompt.match(/(\d+)(?:[–~-](\d+))?\s*(?:-?words?\b|자)/u);
   if (!match) return undefined;
   const target = Number(match[1]);
   return match[2]

@@ -117,6 +117,7 @@ export function BottomNav() {
       resetDialogOpen ? (
           <div
             className="reset-confirm-backdrop"
+            role="presentation"
             onMouseDown={(event) => {
               if (event.target === event.currentTarget) setResetDialogOpen(false);
             }}
@@ -133,6 +134,8 @@ export function BottomNav() {
               <h2 id="reset-dialog-title">{copy.written.resetDialogTitle}</h2>
               <p id="reset-dialog-description">{copy.written.resetDialogText}</p>
               <div className="reset-confirm-dialog__actions">
+                {/* Safe default: focus lands on Cancel, never on the destructive action. */}
+                {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
                 <button type="button" autoFocus onClick={() => setResetDialogOpen(false)}>{copy.written.cancelReset}</button>
                 <button
                   className="reset-confirm-dialog__accept"

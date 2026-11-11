@@ -91,7 +91,6 @@ export function ChecklistPage({ progress, toggleDocument }: Props) {
                           className={`document-card${checked ? " document-card--done" : ""}`}
                           onClick={() => toggleDocument(document.id)}
                           aria-pressed={checked}
-                          aria-label={`${checked ? copy.common.unmark : copy.common.mark} ${documentCopy.label}`}
                           key={document.id}
                         >
                           <span className="document-check" aria-hidden="true">{checked ? "✓" : ""}</span>

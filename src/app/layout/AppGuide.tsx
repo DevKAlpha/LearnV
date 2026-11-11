@@ -36,6 +36,7 @@ export function AppGuide() {
   useEffect(() => { setOpen(false); }, [pathname]);
   useLayoutEffect(() => {
     if (!open) return;
+    const trigger = triggerRef.current;
     const root = document.getElementById("root");
     const wasInert = root?.hasAttribute("inert");
     const htmlOverflow = document.documentElement.style.overflow;
@@ -58,7 +59,7 @@ export function AppGuide() {
       if (!wasInert) root?.removeAttribute("inert");
       document.documentElement.style.overflow = htmlOverflow;
       document.body.style.overflow = bodyOverflow;
-      if (triggerRef.current?.isConnected) triggerRef.current.focus({ preventScroll: true });
+      if (trigger?.isConnected) trigger.focus({ preventScroll: true });
     };
   }, [open]);
 
