@@ -14,6 +14,8 @@
 @source "../features/study/presentation/pages/HangulPage.tsx";
 @source "../features/study/presentation/pages/WritingLabPage.tsx";
 @source "../features/study/presentation/components/WritingFeedbackPanel.tsx";
+@source "../features/study/presentation/components/SpeechCheck.tsx";
+@source "../features/study/presentation/pages/PlacementPage.tsx";
 @source "../shared/ui/DailyReviewCard.tsx";
 
 @import "./tailwind-theme.css";

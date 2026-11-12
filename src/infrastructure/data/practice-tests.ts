@@ -55,8 +55,9 @@ function enrichQuestion(language: TestLanguage, seed: LevelSeed, question: RawTe
   };
 }
 
-function varyAnswerPositions(items: RawTestQuestion[], level: number, language: TestLanguage, seed: LevelSeed) {
-  return items.map((item, index) => rotateOptions(enrichQuestion(language, seed, item), level + index));
+/** `source` marks a question taken from another stage, so its feedback quotes that stage's model. */
+function varyAnswerPositions(items: (RawTestQuestion & { source?: LevelSeed })[], level: number, language: TestLanguage, seed: LevelSeed) {
+  return items.map(({ source, ...item }, index) => rotateOptions(enrichQuestion(language, source ?? seed, item), level + index));
 }
 
 const englishWriting: LevelSeed[] = [
@@ -152,26 +153,28 @@ const koreanWriting: LevelSeed[] = [
 ].map(([title, focus, prompt, model, weak, detail, distractors]) => ({ title, focus, prompt, model, weak, detail, distractors } as LevelSeed));
 
 const koreanListening: LevelSeed[] = [
-  { title: "자연스러운 한국어 대화", focus: "대화 · 표준어", prompt: "두 화자의 관계, 대화의 중심 주제와 반응 표현을 메모하세요.", model: "두 화자는 자연스러운 속도로 경험과 의견을 주고받으며 상대의 말에 짧게 반응한다.", weak: "한 사람이 준비한 글을 혼자 읽는다.", detail: "두 화자가 경험과 의견을 자연스럽게 주고받는 대화", distractors: ["뉴스를 한 사람이 낭독함", "노래 가사를 설명함", "시험 날짜만 안내함"], media: { provider: "youtube", videoId: "6Y7VwFR5cDg", title: "1 HOUR Natural Korean Conversation", creator: "Talk To Me In Korean", kind: "story", variety: "서울 표준어 · 자연 대화", sourceUrl: "https://www.youtube.com/watch?v=6Y7VwFR5cDg" } },
-  { title: "온라인 세종학당 안내", focus: "정보 · 학술 표준어", prompt: "기관이 제공하는 학습 방식과 이용 목적을 중심으로 들으세요.", model: "온라인 세종학당은 장소에 구애받지 않고 한국어와 한국 문화를 학습할 수 있는 과정을 소개한다.", weak: "영상은 한국 여행 상품만 판매한다.", detail: "온라인으로 한국어와 문화를 학습할 수 있는 기관 안내", distractors: ["대학 입학 결과 발표", "음악 공연 예고", "사투리만 배우는 강좌"], media: { provider: "youtube", videoId: "DJg3pVLbpSQ", title: "Online King Sejong Institute", creator: "King Sejong Institute Foundation", kind: "story", variety: "표준어 · 공식 안내", sourceUrl: "https://www.youtube.com/watch?v=DJg3pVLbpSQ" } },
-  { title: "공부와 기억에 관한 대화", focus: "팟캐스트 · 빠른 대화", prompt: "화자들이 제시하는 공부 방법과 서로 다른 의견을 구분해 들으세요.", model: "화자들은 암기와 공부 습관을 이야기하며 각 방법의 장점과 한계를 비교한다.", weak: "화자들은 공부와 관련 없는 여행 일정만 정한다.", detail: "공부 습관과 기억 방법을 비교하는 빠른 대화", distractors: ["요리 순서를 설명하는 방송", "한 사람이 동화를 읽는 영상", "음악 장르를 순위로 정함"], media: { provider: "youtube", videoId: "hUixFwqpL18", title: "공부와 기억법 이야기", creator: "우왕좌왕 팟캐스트", kind: "story", variety: "표준어 · 자연 속도 팟캐스트", sourceUrl: "https://www.youtube.com/watch?v=hUixFwqpL18" } },
-  { title: "응급실의 비밀", focus: "오디오드라마 · 감정", prompt: "사건의 출발점, 인물 관계와 긴장감이 커지는 단서를 들으세요.", model: "주인공은 오래전에 죽었다고 생각한 남편과 닮은 의사를 응급실에서 만나며 과거의 비밀을 마주한다.", weak: "주인공은 처음 만난 의사와 평범한 예약을 한다.", detail: "예상하지 못한 재회가 과거의 비밀과 긴장을 만든다", distractors: ["학교 축제가 취소됨", "가족이 여행 계획을 세움", "의사가 음악 대회를 준비함"], media: { provider: "youtube", videoId: "pTSJfq70i4M", title: "응급실의 비밀 · 오디오드라마", creator: "바람소리 이야기", kind: "story", variety: "표준어 · 감성 오디오드라마", sourceUrl: "https://www.youtube.com/watch?v=pTSJfq70i4M" } },
-  { title: "백설공주 이야기", focus: "동화 · 명료한 발음", prompt: "등장인물, 사건의 순서와 반복되는 동화 표현을 중심으로 들으세요.", model: "백설공주는 위험을 피해 새로운 친구들을 만나고 갈등을 겪는 익숙한 동화 구조를 따른다.", weak: "주인공은 처음부터 끝까지 아무 문제도 겪지 않는다.", detail: "위험, 도움과 갈등이 순서대로 이어지는 동화", distractors: ["대학교 면접 안내", "경제 뉴스 요약", "현대 록 공연"], media: { provider: "youtube", videoId: "kjrhzyTeKsY", title: "백설공주 외 · 인기 세계 명작 동화", creator: "핑크퐁", kind: "story", variety: "표준어 · 또렷한 동화 구연", sourceUrl: "https://www.youtube.com/watch?v=kjrhzyTeKsY" } },
-  { title: "Feel the Rhythm of Korea", focus: "음악 · 판소리 퓨전", prompt: "전통적인 창법과 현대적인 리듬이 어떻게 함께 사용되는지 관찰하세요.", model: "판소리의 반복적이고 강한 발성과 현대적인 리듬을 결합해 서울의 이미지를 새롭게 보여 준다.", weak: "전통 요소 없이 조용한 피아노 연주만 들린다.", detail: "판소리 발성과 현대 리듬을 결합한 서울 이미지", distractors: ["학술 강연의 차분한 설명", "서양 고전 음악 독주", "대화 없는 뉴스 화면"], media: { provider: "youtube", videoId: "3P1CnWI62Ik", title: "Feel the Rhythm of KOREA: SEOUL", creator: "한국관광공사", kind: "song", variety: "판소리 발성 · 얼터너티브 팝", sourceUrl: "https://www.youtube.com/watch?v=3P1CnWI62Ik" } },
-  { title: "Palette · acoustic", focus: "음악 · 어쿠스틱 팝", prompt: "화자가 자신의 변화와 취향을 차분하게 설명하는 방식에 집중하세요.", model: "화자는 현재의 취향과 자아를 이전 시기와 비교하며 성장과 자기 이해를 이야기한다.", weak: "화자는 자신의 취향을 전혀 알 수 없다고 말한다.", detail: "현재의 자아와 취향을 과거와 비교하는 성찰", distractors: ["여행 경비를 계산함", "스포츠 경기 결과를 발표함", "역사 사건을 연도별로 설명함"], media: { provider: "youtube", videoId: "w7EnL9ehpfc", title: "Palette · Acoustic Version", creator: "IU Official", kind: "song", variety: "서울 표준어 · 어쿠스틱 팝", sourceUrl: "https://www.youtube.com/watch?v=w7EnL9ehpfc" } },
-  { title: "어떻게 이별까지 사랑하겠어", focus: "음악 · 발라드", prompt: "사랑과 이별을 대조하는 핵심 정서와 느린 발음의 연결을 들으세요.", model: "노래는 사랑하는 사람과 이별이라는 상황을 구분하며 관계를 놓기 어려운 감정을 표현한다.", weak: "화자는 이별에 아무 감정도 느끼지 않는다.", detail: "사랑과 이별을 대조하며 놓기 어려운 감정을 표현함", distractors: ["새 직장을 축하함", "여행지를 추천함", "빠른 랩으로 정책을 비판함"], media: { provider: "youtube", videoId: "m3DZsBw5bnE", title: "어떻게 이별까지 사랑하겠어, 널 사랑하는 거지", creator: "AKMU", kind: "song", variety: "표준어 · 서정 발라드", sourceUrl: "https://www.youtube.com/watch?v=m3DZsBw5bnE" } },
-  { title: "한 페이지가 될 수 있게", focus: "음악 · 밴드 록", prompt: "빠른 밴드 리듬 속에서 반복되는 시간과 추억의 이미지를 찾으세요.", model: "함께한 시간을 한 페이지에 비유하며 현재의 순간이 좋은 기억으로 남기를 바란다.", weak: "화자는 모든 추억을 즉시 잊고 싶어 한다.", detail: "함께한 순간을 기억에 남을 한 페이지로 비유함", distractors: ["시험 답안을 한 장으로 줄임", "과거를 모두 부정함", "도시 교통을 설명함"], media: { provider: "youtube", videoId: "vnS_jn2uibs", title: "한 페이지가 될 수 있게", creator: "DAY6", kind: "song", variety: "표준어 · 팝 록", sourceUrl: "https://www.youtube.com/watch?v=vnS_jn2uibs" } },
-  { title: "봄날", focus: "음악 · K-pop", prompt: "계절 이미지와 기다림의 정서가 어떻게 연결되는지 들으세요.", model: "겨울과 봄의 변화를 사용해 그리움, 거리와 다시 만날 희망을 표현한다.", weak: "계절은 감정과 아무 관련 없이 날씨 정보로만 제시된다.", detail: "겨울에서 봄으로 가는 이미지가 그리움과 재회의 희망을 나타냄", distractors: ["여름 휴가 계획을 확정함", "친구와의 관계를 완전히 부정함", "경제 성장률을 비교함"], media: { provider: "youtube", videoId: "xEeFrLSkMm8", title: "봄날 · Spring Day", creator: "BTS", kind: "song", variety: "표준어 · K-pop 발라드", sourceUrl: "https://www.youtube.com/watch?v=xEeFrLSkMm8" } },
+  // Ordered by difficulty for TOPIK I learners (graded stories and slow dialogues first);
+  // stage IDs follow this order, so a stored pass applies to the stage now at that position.
   { title: "수준별 짧은 이야기", focus: "이야기 · 수준 비교", prompt: "같은 사건이 초급, 중급, 고급 표현으로 어떻게 달라지는지 핵심 정보와 묘사 어휘를 비교하세요.", model: "안경을 찾는 같은 상황도 수준이 높아질수록 원인, 감정과 주변 상황을 더 구체적으로 설명한다.", weak: "네 부분은 서로 관계없는 다른 이야기를 말한다.", detail: "같은 사건을 수준별 어휘와 문장 구조로 확장한 이야기", distractors: ["문법 용어만 설명하는 강의", "노래의 후렴을 반복", "대학 합격자를 발표"], media: { provider: "youtube", videoId: "cWcbK176lQs", title: "Korean Listening Practice for ALL Levels", creator: "Talk To Me In Korean", kind: "story", variety: "서울 표준어 · 수준별 이야기", sourceUrl: "https://www.youtube.com/watch?v=cWcbK176lQs", startSeconds: 15, endSeconds: 210, excerptMinutes: 3.25 } },
   { title: "세종한국어 자기소개", focus: "대화 · 초급 표준어", prompt: "이름, 국적, 직업처럼 자기소개에 사용되는 정보와 질문-대답 순서를 들으세요.", model: "화자들은 인사한 뒤 이름과 기본 정보를 묻고 답하며 처음 만난 상황의 대화를 완성한다.", weak: "두 화자는 이미 아는 사람의 과거 갈등을 토론한다.", detail: "처음 만난 두 사람이 기본 정보를 주고받는 자기소개 대화", distractors: ["병원 예약 변경", "연구 결과 발표", "음악 취향 비교"], media: { provider: "youtube", videoId: "dM1dWUQm3uE", title: "Sejong Korean Conversation 1 · Introducing", creator: "King Sejong Institute Foundation", kind: "story", variety: "표준어 · 교육용 자기소개 대화", sourceUrl: "https://www.youtube.com/watch?v=dM1dWUQm3uE", startSeconds: 35, endSeconds: 275, excerptMinutes: 4 } },
-  { title: "세종한국어 축하 대화", focus: "대화 · 사회적 표현", prompt: "축하의 이유, 상대의 반응과 상황에 맞는 인사 표현을 구분해 들으세요.", model: "화자들은 좋은 소식을 확인하고 축하와 감사의 표현을 주고받으며 관계에 맞는 반응을 보인다.", weak: "화자들은 축하할 일을 비판하며 대화를 끝낸다.", detail: "좋은 소식에 축하와 감사를 자연스럽게 주고받는 대화", distractors: ["길을 묻는 안내", "상품 가격 흥정", "시험 규칙 낭독"], media: { provider: "youtube", videoId: "qsRTVZk70uE", title: "Sejong Korean Conversation 2 · Celebration", creator: "King Sejong Institute Foundation", kind: "story", variety: "표준어 · 축하와 감사 표현", sourceUrl: "https://www.youtube.com/watch?v=qsRTVZk70uE", startSeconds: 40, endSeconds: 280, excerptMinutes: 4 } },
   { title: "세종한국어 인사와 안부", focus: "대화 · 관계와 높임", prompt: "관계에 따라 달라지는 인사, 안부 질문과 높임 표현을 중심으로 들으세요.", model: "화자들은 만나는 상황과 관계를 고려해 인사하고 상대의 상태를 물으며 대화를 이어 간다.", weak: "모든 화자가 관계와 상관없이 같은 반말만 사용한다.", detail: "상황과 관계에 맞는 인사와 안부 표현을 선택하는 대화", distractors: ["회사 예산 보고", "동화 속 갈등", "콘서트 순서 안내"], media: { provider: "youtube", videoId: "QA7G7lkOEHg", title: "Sejong Korean Conversation 2 · Greeting", creator: "King Sejong Institute Foundation", kind: "story", variety: "표준어 · 인사와 높임 대화", sourceUrl: "https://www.youtube.com/watch?v=QA7G7lkOEHg", startSeconds: 35, endSeconds: 275, excerptMinutes: 4 } },
-  { title: "이야기 대화 코스", focus: "대화 · 중급 자연 속도", prompt: "두 화자의 경험, 동의와 다른 관점을 나타내는 반응 표현을 구분해 들으세요.", model: "화자들은 친숙한 주제를 자신의 경험과 연결하고 짧은 반응으로 동의하거나 관점을 보완한다.", weak: "한 사람이 단어 목록을 쉬지 않고 읽는다.", detail: "경험과 관점을 자연스러운 반응 표현으로 이어 가는 중급 대화", distractors: ["문법 문제의 답만 발표", "뉴스 제목만 반복", "노래 없이 춤 동작 설명"], media: { provider: "youtube", videoId: "uNHfC7pbcbU", title: "Korean Listening Practice with Iyagi", creator: "Talk To Me In Korean", kind: "story", variety: "서울 표준어 · 중급 자연 대화", sourceUrl: "https://www.youtube.com/watch?v=uNHfC7pbcbU", startSeconds: 20, endSeconds: 140, excerptMinutes: 2 } },
-  { title: "I", focus: "음악 · 팝과 랩", prompt: "과거의 어려움, 자기 발견과 앞으로 나아가는 이미지가 어떻게 연결되는지 들으세요.", model: "화자는 힘든 시간을 지나 자신의 가능성을 발견하고 더 넓은 곳으로 나아가려는 태도를 표현한다.", weak: "화자는 변화할 가능성을 완전히 포기한다.", detail: "과거의 제약을 넘어 자기 가능성을 확인하는 성장 서사", distractors: ["다른 사람의 성공만 비판", "여행 경비를 계산", "관계의 이별만 묘사"], media: { provider: "youtube", videoId: "4OrCA1OInoo", title: "I", creator: "TAEYEON feat. Verbal Jint", kind: "song", variety: "표준어 · 팝 보컬과 랩", sourceUrl: "https://www.youtube.com/watch?v=4OrCA1OInoo", startSeconds: 0, endSeconds: 230, excerptMinutes: 3.75 } },
-  { title: "DINOSAUR", focus: "음악 · 일렉트로 팝", prompt: "어린 시절의 두려움이 공룡 이미지와 가족의 기억을 통해 어떻게 나타나는지 들으세요.", model: "반복되는 공룡은 어린 시절의 불안과 위협을 상징하고 가족의 장면은 그 기억의 배경을 만든다.", weak: "노래는 공룡의 과학적 특징을 설명한다.", detail: "공룡 이미지로 어린 시절의 두려움과 기억을 표현함", distractors: ["박물관 관람 순서 안내", "가족과의 갈등이 전혀 없음", "현재의 직장 생활을 보고"], media: { provider: "youtube", videoId: "8Oz7DG76ibY", title: "DINOSAUR", creator: "AKMU", kind: "song", variety: "표준어 · 일렉트로 팝", sourceUrl: "https://www.youtube.com/watch?v=8Oz7DG76ibY", startSeconds: 0, endSeconds: 240, excerptMinutes: 4 } },
-  { title: "주저하는 연인들을 위해", focus: "음악 · 인디 록", prompt: "주저함, 고백과 관계가 시작되기를 바라는 마음이 어떤 표현으로 반복되는지 들으세요.", model: "화자는 망설임 속에서도 상대와 같은 마음이기를 바라며 관계를 시작할 용기를 조심스럽게 요청한다.", weak: "화자는 관계를 시작할 생각이 전혀 없다고 단정한다.", detail: "망설임과 기대가 함께 나타나는 조심스러운 고백", distractors: ["이미 끝난 관계를 비난", "학업 계획을 발표", "빠른 결정을 강요"], media: { provider: "youtube", videoId: "GpQ222I1ULc", title: "주저하는 연인들을 위해", creator: "JANNABI", kind: "song", variety: "표준어 · 레트로 인디 록", sourceUrl: "https://www.youtube.com/watch?v=GpQ222I1ULc", startSeconds: 0, endSeconds: 255, excerptMinutes: 4 } },
+  { title: "Palette · acoustic", focus: "음악 · 어쿠스틱 팝", prompt: "화자가 자신의 변화와 취향을 차분하게 설명하는 방식에 집중하세요.", model: "화자는 현재의 취향과 자아를 이전 시기와 비교하며 성장과 자기 이해를 이야기한다.", weak: "화자는 자신의 취향을 전혀 알 수 없다고 말한다.", detail: "현재의 자아와 취향을 과거와 비교하는 성찰", distractors: ["여행 경비를 계산함", "스포츠 경기 결과를 발표함", "역사 사건을 연도별로 설명함"], media: { provider: "youtube", videoId: "w7EnL9ehpfc", title: "Palette · Acoustic Version", creator: "IU Official", kind: "song", variety: "서울 표준어 · 어쿠스틱 팝", sourceUrl: "https://www.youtube.com/watch?v=w7EnL9ehpfc" } },
+  { title: "세종한국어 축하 대화", focus: "대화 · 사회적 표현", prompt: "축하의 이유, 상대의 반응과 상황에 맞는 인사 표현을 구분해 들으세요.", model: "화자들은 좋은 소식을 확인하고 축하와 감사의 표현을 주고받으며 관계에 맞는 반응을 보인다.", weak: "화자들은 축하할 일을 비판하며 대화를 끝낸다.", detail: "좋은 소식에 축하와 감사를 자연스럽게 주고받는 대화", distractors: ["길을 묻는 안내", "상품 가격 흥정", "시험 규칙 낭독"], media: { provider: "youtube", videoId: "qsRTVZk70uE", title: "Sejong Korean Conversation 2 · Celebration", creator: "King Sejong Institute Foundation", kind: "story", variety: "표준어 · 축하와 감사 표현", sourceUrl: "https://www.youtube.com/watch?v=qsRTVZk70uE", startSeconds: 40, endSeconds: 280, excerptMinutes: 4 } },
+  { title: "백설공주 이야기", focus: "동화 · 명료한 발음", prompt: "등장인물, 사건의 순서와 반복되는 동화 표현을 중심으로 들으세요.", model: "백설공주는 위험을 피해 새로운 친구들을 만나고 갈등을 겪는 익숙한 동화 구조를 따른다.", weak: "주인공은 처음부터 끝까지 아무 문제도 겪지 않는다.", detail: "위험, 도움과 갈등이 순서대로 이어지는 동화", distractors: ["대학교 면접 안내", "경제 뉴스 요약", "현대 록 공연"], media: { provider: "youtube", videoId: "kjrhzyTeKsY", title: "백설공주 외 · 인기 세계 명작 동화", creator: "핑크퐁", kind: "story", variety: "표준어 · 또렷한 동화 구연", sourceUrl: "https://www.youtube.com/watch?v=kjrhzyTeKsY" } },
   { title: "여행", focus: "음악 · 밝은 인디 팝", prompt: "일상에서 벗어나고 싶은 마음, 이동 이미지와 밝은 리듬의 관계를 들으세요.", model: "화자는 반복되는 일상을 잠시 떠나 새로운 장소와 자유를 경험하고 싶은 마음을 경쾌하게 표현한다.", weak: "화자는 집 밖으로 나가는 것을 두려워해 모든 계획을 취소한다.", detail: "밝은 리듬과 이동 이미지로 일상 탈출의 기대를 표현함", distractors: ["여행의 위험만 경고", "업무 성과를 평가", "과거의 이별을 후회"], media: { provider: "youtube", videoId: "xRbPAVnqtcs", title: "여행", creator: "BOL4", kind: "song", variety: "표준어 · 인디 팝", sourceUrl: "https://www.youtube.com/watch?v=xRbPAVnqtcs", startSeconds: 0, endSeconds: 215, excerptMinutes: 3.5 } },
+  { title: "온라인 세종학당 안내", focus: "정보 · 학술 표준어", prompt: "기관이 제공하는 학습 방식과 이용 목적을 중심으로 들으세요.", model: "온라인 세종학당은 장소에 구애받지 않고 한국어와 한국 문화를 학습할 수 있는 과정을 소개한다.", weak: "영상은 한국 여행 상품만 판매한다.", detail: "온라인으로 한국어와 문화를 학습할 수 있는 기관 안내", distractors: ["대학 입학 결과 발표", "음악 공연 예고", "사투리만 배우는 강좌"], media: { provider: "youtube", videoId: "DJg3pVLbpSQ", title: "Online King Sejong Institute", creator: "King Sejong Institute Foundation", kind: "story", variety: "표준어 · 공식 안내", sourceUrl: "https://www.youtube.com/watch?v=DJg3pVLbpSQ" } },
+  { title: "어떻게 이별까지 사랑하겠어", focus: "음악 · 발라드", prompt: "사랑과 이별을 대조하는 핵심 정서와 느린 발음의 연결을 들으세요.", model: "노래는 사랑하는 사람과 이별이라는 상황을 구분하며 관계를 놓기 어려운 감정을 표현한다.", weak: "화자는 이별에 아무 감정도 느끼지 않는다.", detail: "사랑과 이별을 대조하며 놓기 어려운 감정을 표현함", distractors: ["새 직장을 축하함", "여행지를 추천함", "빠른 랩으로 정책을 비판함"], media: { provider: "youtube", videoId: "m3DZsBw5bnE", title: "어떻게 이별까지 사랑하겠어, 널 사랑하는 거지", creator: "AKMU", kind: "song", variety: "표준어 · 서정 발라드", sourceUrl: "https://www.youtube.com/watch?v=m3DZsBw5bnE" } },
+  { title: "이야기 대화 코스", focus: "대화 · 중급 자연 속도", prompt: "두 화자의 경험, 동의와 다른 관점을 나타내는 반응 표현을 구분해 들으세요.", model: "화자들은 친숙한 주제를 자신의 경험과 연결하고 짧은 반응으로 동의하거나 관점을 보완한다.", weak: "한 사람이 단어 목록을 쉬지 않고 읽는다.", detail: "경험과 관점을 자연스러운 반응 표현으로 이어 가는 중급 대화", distractors: ["문법 문제의 답만 발표", "뉴스 제목만 반복", "노래 없이 춤 동작 설명"], media: { provider: "youtube", videoId: "uNHfC7pbcbU", title: "Korean Listening Practice with Iyagi", creator: "Talk To Me In Korean", kind: "story", variety: "서울 표준어 · 중급 자연 대화", sourceUrl: "https://www.youtube.com/watch?v=uNHfC7pbcbU", startSeconds: 20, endSeconds: 140, excerptMinutes: 2 } },
+  { title: "봄날", focus: "음악 · K-pop", prompt: "계절 이미지와 기다림의 정서가 어떻게 연결되는지 들으세요.", model: "겨울과 봄의 변화를 사용해 그리움, 거리와 다시 만날 희망을 표현한다.", weak: "계절은 감정과 아무 관련 없이 날씨 정보로만 제시된다.", detail: "겨울에서 봄으로 가는 이미지가 그리움과 재회의 희망을 나타냄", distractors: ["여름 휴가 계획을 확정함", "친구와의 관계를 완전히 부정함", "경제 성장률을 비교함"], media: { provider: "youtube", videoId: "xEeFrLSkMm8", title: "봄날 · Spring Day", creator: "BTS", kind: "song", variety: "표준어 · K-pop 발라드", sourceUrl: "https://www.youtube.com/watch?v=xEeFrLSkMm8" } },
+  { title: "주저하는 연인들을 위해", focus: "음악 · 인디 록", prompt: "주저함, 고백과 관계가 시작되기를 바라는 마음이 어떤 표현으로 반복되는지 들으세요.", model: "화자는 망설임 속에서도 상대와 같은 마음이기를 바라며 관계를 시작할 용기를 조심스럽게 요청한다.", weak: "화자는 관계를 시작할 생각이 전혀 없다고 단정한다.", detail: "망설임과 기대가 함께 나타나는 조심스러운 고백", distractors: ["이미 끝난 관계를 비난", "학업 계획을 발표", "빠른 결정을 강요"], media: { provider: "youtube", videoId: "GpQ222I1ULc", title: "주저하는 연인들을 위해", creator: "JANNABI", kind: "song", variety: "표준어 · 레트로 인디 록", sourceUrl: "https://www.youtube.com/watch?v=GpQ222I1ULc", startSeconds: 0, endSeconds: 255, excerptMinutes: 4 } },
+  { title: "자연스러운 한국어 대화", focus: "대화 · 표준어", prompt: "두 화자의 관계, 대화의 중심 주제와 반응 표현을 메모하세요.", model: "두 화자는 자연스러운 속도로 경험과 의견을 주고받으며 상대의 말에 짧게 반응한다.", weak: "한 사람이 준비한 글을 혼자 읽는다.", detail: "두 화자가 경험과 의견을 자연스럽게 주고받는 대화", distractors: ["뉴스를 한 사람이 낭독함", "노래 가사를 설명함", "시험 날짜만 안내함"], media: { provider: "youtube", videoId: "6Y7VwFR5cDg", title: "1 HOUR Natural Korean Conversation", creator: "Talk To Me In Korean", kind: "story", variety: "서울 표준어 · 자연 대화", sourceUrl: "https://www.youtube.com/watch?v=6Y7VwFR5cDg" } },
+  { title: "한 페이지가 될 수 있게", focus: "음악 · 밴드 록", prompt: "빠른 밴드 리듬 속에서 반복되는 시간과 추억의 이미지를 찾으세요.", model: "함께한 시간을 한 페이지에 비유하며 현재의 순간이 좋은 기억으로 남기를 바란다.", weak: "화자는 모든 추억을 즉시 잊고 싶어 한다.", detail: "함께한 순간을 기억에 남을 한 페이지로 비유함", distractors: ["시험 답안을 한 장으로 줄임", "과거를 모두 부정함", "도시 교통을 설명함"], media: { provider: "youtube", videoId: "vnS_jn2uibs", title: "한 페이지가 될 수 있게", creator: "DAY6", kind: "song", variety: "표준어 · 팝 록", sourceUrl: "https://www.youtube.com/watch?v=vnS_jn2uibs" } },
+  { title: "Feel the Rhythm of Korea", focus: "음악 · 판소리 퓨전", prompt: "전통적인 창법과 현대적인 리듬이 어떻게 함께 사용되는지 관찰하세요.", model: "판소리의 반복적이고 강한 발성과 현대적인 리듬을 결합해 서울의 이미지를 새롭게 보여 준다.", weak: "전통 요소 없이 조용한 피아노 연주만 들린다.", detail: "판소리 발성과 현대 리듬을 결합한 서울 이미지", distractors: ["학술 강연의 차분한 설명", "서양 고전 음악 독주", "대화 없는 뉴스 화면"], media: { provider: "youtube", videoId: "3P1CnWI62Ik", title: "Feel the Rhythm of KOREA: SEOUL", creator: "한국관광공사", kind: "song", variety: "판소리 발성 · 얼터너티브 팝", sourceUrl: "https://www.youtube.com/watch?v=3P1CnWI62Ik" } },
+  { title: "공부와 기억에 관한 대화", focus: "팟캐스트 · 빠른 대화", prompt: "화자들이 제시하는 공부 방법과 서로 다른 의견을 구분해 들으세요.", model: "화자들은 암기와 공부 습관을 이야기하며 각 방법의 장점과 한계를 비교한다.", weak: "화자들은 공부와 관련 없는 여행 일정만 정한다.", detail: "공부 습관과 기억 방법을 비교하는 빠른 대화", distractors: ["요리 순서를 설명하는 방송", "한 사람이 동화를 읽는 영상", "음악 장르를 순위로 정함"], media: { provider: "youtube", videoId: "hUixFwqpL18", title: "공부와 기억법 이야기", creator: "우왕좌왕 팟캐스트", kind: "story", variety: "표준어 · 자연 속도 팟캐스트", sourceUrl: "https://www.youtube.com/watch?v=hUixFwqpL18" } },
   { title: "나는 나비", focus: "음악 · 한국 록", prompt: "애벌레, 날개와 비행의 이미지가 성장과 도전에 어떻게 연결되는지 들으세요.", model: "나비가 되는 과정은 어려움을 견디고 자신의 가능성을 향해 나아가는 성장의 비유로 사용된다.", weak: "노래는 곤충의 생태를 객관적으로만 설명한다.", detail: "나비의 변화와 비행을 성장과 도전의 비유로 사용함", distractors: ["실패하면 바로 포기해야 함", "여행 장소를 추천", "관계의 오해를 해명"], media: { provider: "youtube", videoId: "TGQR63oqFIM", title: "나는 나비", creator: "YB", kind: "song", variety: "표준어 · 한국 록", sourceUrl: "https://www.youtube.com/watch?v=TGQR63oqFIM", startSeconds: 0, endSeconds: 240, excerptMinutes: 4 } },
+  { title: "DINOSAUR", focus: "음악 · 일렉트로 팝", prompt: "어린 시절의 두려움이 공룡 이미지와 가족의 기억을 통해 어떻게 나타나는지 들으세요.", model: "반복되는 공룡은 어린 시절의 불안과 위협을 상징하고 가족의 장면은 그 기억의 배경을 만든다.", weak: "노래는 공룡의 과학적 특징을 설명한다.", detail: "공룡 이미지로 어린 시절의 두려움과 기억을 표현함", distractors: ["박물관 관람 순서 안내", "가족과의 갈등이 전혀 없음", "현재의 직장 생활을 보고"], media: { provider: "youtube", videoId: "8Oz7DG76ibY", title: "DINOSAUR", creator: "AKMU", kind: "song", variety: "표준어 · 일렉트로 팝", sourceUrl: "https://www.youtube.com/watch?v=8Oz7DG76ibY", startSeconds: 0, endSeconds: 240, excerptMinutes: 4 } },
+  { title: "응급실의 비밀", focus: "오디오드라마 · 감정", prompt: "사건의 출발점, 인물 관계와 긴장감이 커지는 단서를 들으세요.", model: "주인공은 오래전에 죽었다고 생각한 남편과 닮은 의사를 응급실에서 만나며 과거의 비밀을 마주한다.", weak: "주인공은 처음 만난 의사와 평범한 예약을 한다.", detail: "예상하지 못한 재회가 과거의 비밀과 긴장을 만든다", distractors: ["학교 축제가 취소됨", "가족이 여행 계획을 세움", "의사가 음악 대회를 준비함"], media: { provider: "youtube", videoId: "pTSJfq70i4M", title: "응급실의 비밀 · 오디오드라마", creator: "바람소리 이야기", kind: "story", variety: "표준어 · 감성 오디오드라마", sourceUrl: "https://www.youtube.com/watch?v=pTSJfq70i4M" } },
+  { title: "I", focus: "음악 · 팝과 랩", prompt: "과거의 어려움, 자기 발견과 앞으로 나아가는 이미지가 어떻게 연결되는지 들으세요.", model: "화자는 힘든 시간을 지나 자신의 가능성을 발견하고 더 넓은 곳으로 나아가려는 태도를 표현한다.", weak: "화자는 변화할 가능성을 완전히 포기한다.", detail: "과거의 제약을 넘어 자기 가능성을 확인하는 성장 서사", distractors: ["다른 사람의 성공만 비판", "여행 경비를 계산", "관계의 이별만 묘사"], media: { provider: "youtube", videoId: "4OrCA1OInoo", title: "I", creator: "TAEYEON feat. Verbal Jint", kind: "song", variety: "표준어 · 팝 보컬과 랩", sourceUrl: "https://www.youtube.com/watch?v=4OrCA1OInoo", startSeconds: 0, endSeconds: 230, excerptMinutes: 3.75 } },
 ];
 
 const koreanPronunciation: LevelSeed[] = [
@@ -197,7 +200,58 @@ const koreanPronunciation: LevelSeed[] = [
   ["GKS 모의 면접 완주", "통합 · 대응력", "자기소개, 동기, 실패, 윤리적 상황과 졸업 후 기여를 포함한 4분 모의 면접을 완료하세요.", "각 질문에 먼저 직접 답하고 관련된 근거 하나를 제시한 뒤 다음 질문 전에 짧게 생각하겠습니다.", "모든 질문을 포함한 하나의 외운 연설을 합니다.", "여러 질문에서 명료도와 자연스러운 대응을 끝까지 유지하는 것", ["고급 어휘 수만 늘림", "생각하는 쉼을 모두 제거", "모든 답에 같은 억양 사용"]],
 ].map(([title, focus, prompt, model, weak, detail, distractors]) => ({ title, focus, prompt, model, weak, detail, distractors } as LevelSeed));
 
-function questions(language: TestLanguage, skill: LegacyTestSkill, level: number, seed: LevelSeed): TestQuestion[] {
+type Raw = RawTestQuestion;
+
+/** Two other stages of the same skill, spread across the path, for realistic distractors. */
+function otherSeeds(seeds: readonly LevelSeed[], index: number): [LevelSeed, LevelSeed] {
+  const pick = (step: number) => seeds[(index + step) % seeds.length];
+  const first = pick(7);
+  const second = pick(13) === first ? pick(3) : pick(13);
+  return [first, second];
+}
+
+/** "Which response answers this task?": the model against good answers to other tasks. */
+function relevance(language: TestLanguage, id: string, seed: LevelSeed, others: readonly LevelSeed[]): Raw {
+  const isKo = language === "ko";
+  return {
+    id, skill: isKo ? "과제 적합성" : "Task fit", passage: seed.prompt,
+    prompt: isKo ? "이 과제에 직접 답하는 것은 무엇입니까?" : "Which response answers this task directly?",
+    options: [seed.model, others[0].model, others[1].model, seed.weak], correctIndex: 0,
+    explanation: isKo ? `좋은 답은 다른 과제가 아니라 이 과제의 요구(${seed.detail})에 답합니다.` : `A strong answer meets this task's requirement (${seed.detail}), not another task's.`,
+    improvement: isKo ? "쓰거나 말하기 전에 과제의 요구를 한 문장으로 정리하세요." : "Restate the task in one sentence before you write or speak.",
+  };
+}
+
+/** "Which response is too general?": spotting the weak answer among real ones. */
+function weakResponse(language: TestLanguage, id: string, seed: LevelSeed, others: readonly LevelSeed[]): Raw {
+  const isKo = language === "ko";
+  return {
+    id, skill: isKo ? "약한 답 찾기" : "Spot the weak answer", passage: seed.prompt,
+    prompt: isKo ? "이 과제의 기준을 충족하지 못하는 답은 무엇입니까?" : "Which response does not meet the task?",
+    options: [seed.weak, seed.model, others[0].model, others[1].model], correctIndex: 0,
+    explanation: isKo ? `이 답은 일반적인 평가에 그쳐 ${seed.detail}을 보여 주지 못합니다.` : `It stays general and does not show ${seed.detail}.`,
+    improvement: isKo ? "일반적인 평가를 행동, 이유 또는 결과로 바꾸세요." : "Replace general evaluation with an action, reason or result.",
+  };
+}
+
+/** Cumulative review: an earlier stage's model question, asked again. */
+function reviewModel(language: TestLanguage, skill: LegacyTestSkill, id: string, earlier: LevelSeed): Raw & { source: LevelSeed } {
+  const isKo = language === "ko";
+  return {
+    source: earlier,
+    id, skill: isKo ? "누적 복습" : "Cumulative review",
+    passage: skill === "listening" ? undefined : earlier.prompt,
+    prompt: skill === "listening" ? (isKo ? `이전 단계(${earlier.title})의 내용을 가장 정확하게 요약한 문장은 무엇입니까?` : `Which sentence best summarises the earlier stage (${earlier.title})?`) : (isKo ? "이 과제에 더 효과적인 답은 무엇입니까?" : "Which response is more effective for this task?"),
+    options: [earlier.model, earlier.weak, ...earlier.distractors.slice(0, 2)], correctIndex: 0,
+    explanation: isKo ? `핵심은 ${earlier.detail}입니다.` : `It shows ${earlier.detail}.`,
+    improvement: isKo ? "이전 단계의 피드백을 이번 답에도 적용하세요." : "Apply the earlier stage's feedback to this answer too.",
+  };
+}
+
+function questions(language: TestLanguage, skill: LegacyTestSkill, index: number, seeds: readonly LevelSeed[]): TestQuestion[] {
+  const level = index + 1;
+  const seed = seeds[index];
+  const others = otherSeeds(seeds, index);
   const id = `${language}-${skill}-${level}`;
   const isKo = language === "ko";
   const common = { passage: skill === "pronunciation" ? seed.model : undefined, audioText: skill === "listening" && !seed.media ? seed.model : undefined };
@@ -212,49 +266,40 @@ function questions(language: TestLanguage, skill: LegacyTestSkill, level: number
     {
       id: `${id}-model`, skill: isKo ? "좋은 모델" : "Effective model",
       prompt: skill === "listening" ? (isKo ? "영상의 내용을 가장 정확하게 요약한 문장을 고르세요." : "Choose the most accurate summary of the video.") : (isKo ? "더 효과적인 표현을 고르세요." : "Choose the more effective response."),
-      options: [seed.weak, seed.model, seed.distractors[0], seed.distractors[1]], correctIndex: 1,
+      passage: skill === "listening" ? undefined : seed.prompt,
+      options: [seed.weak, seed.model, others[0].model, others[1].weak], correctIndex: 1,
       explanation: isKo ? "구체적인 내용과 논리 관계가 드러납니다." : "It gives specific content and makes the relationship between ideas clear.",
       improvement: isKo ? "일반적인 평가 대신 행동, 이유 또는 결과를 제시하세요." : "Replace general evaluation with an action, reason or result.",
     },
-    {
-      id: `${id}-strategy`, skill: isKo ? "전략" : "Strategy",
-      prompt: skill === "pronunciation" ? (isKo ? "녹음 후 가장 먼저 확인할 것은 무엇입니까?" : "What should you check first after recording?") : skill === "listening" ? (isKo ? "이 영상으로 듣기를 연습하는 가장 좋은 방법은 무엇입니까?" : "What is the best way to practise listening with this video?") : (isKo ? "가장 효과적인 수행 전략은 무엇입니까?" : "Which is the most effective strategy?"),
-      options: skill === "listening"
-        ? (isKo ? ["먼저 자막 없이 듣고, 어려운 부분만 다시 확인한다.", "처음부터 번역만 읽는다.", "영상 없이 제목만 외운다.", "모르는 단어마다 즉시 재생을 멈춘다."] : ["Listen once without subtitles, then replay only difficult sections.", "Read a translation before listening.", "Memorise the title without watching.", "Stop after every unfamiliar word."])
-        : (isKo ? ["요구 사항과 핵심어를 확인한다.", "무조건 어려운 표현을 추가한다.", "속도만 높인다.", "첫 답을 검토하지 않는다."] : ["Check the task and the key meaning units.", "Add difficult words regardless of meaning.", "Focus only on speed.", "Never review the first response."]), correctIndex: 0,
-      explanation: isKo ? "정확한 수행은 요구와 핵심 의미를 확인하는 데서 시작합니다." : "Accurate performance starts by checking the task and its key meaning units.",
-      improvement: isKo ? "내용, 구조, 언어를 순서대로 검토하세요." : "Review content, structure and language in that order.",
-    },
-    {
+    // The fourth item becomes a recall of the previous stage (connectPracticeStages).
+    weakResponse(language, `${id}-weak`, seed, others),
+    skill === "listening" && seed.media ? {
       id: `${id}-official`, skill: isKo ? "시험 인식" : "Assessment awareness",
-      prompt: skill === "listening" ? (isKo ? "이번 영상에서 집중해야 할 발화 유형은 무엇입니까?" : "Which delivery variety should you focus on in this video?") : (isKo ? "이 과제를 검토할 때 기록해야 할 핵심 근거는 무엇입니까?" : "Which evidence belongs in the review log for this task?"),
-      options: skill === "listening" && seed.media
-        ? [seed.media.variety, isKo ? "무음 자료" : "Silent material", isKo ? "스페인어 공식 연설" : "Formal speech in Spanish", isKo ? "기계음만 사용" : "Synthetic speech only"]
-        : [seed.detail, ...seed.distractors], correctIndex: 0,
-      explanation: skill === "listening" && seed.media ? (isKo ? `이번 자료는 ${seed.media.variety}에 집중합니다.` : `This resource focuses on ${seed.media.variety}.`) : (isKo ? `검토 기록은 ${seed.detail}을 확인해야 합니다.` : `The review log must verify ${seed.detail}.`),
-      improvement: skill === "listening" ? (isKo ? "발음뿐 아니라 속도, 리듬과 감정도 함께 메모하세요." : "Note pace, rhythm and emotion as well as pronunciation.") : (isKo ? "과제의 핵심 기준을 실제 초안이나 녹음의 근거와 연결하세요." : "Connect the task criterion to evidence in the actual draft or recording."),
-    },
+      prompt: isKo ? "이번 영상에서 집중해야 할 발화 유형은 무엇입니까?" : "Which delivery variety should you focus on in this video?",
+      options: [seed.media.variety, isKo ? "무음 자료" : "Silent material", isKo ? "스페인어 공식 연설" : "Formal speech in Spanish", isKo ? "기계음만 사용" : "Synthetic speech only"], correctIndex: 0,
+      explanation: isKo ? `이번 자료는 ${seed.media.variety}에 집중합니다.` : `This resource focuses on ${seed.media.variety}.`,
+      improvement: isKo ? "발음뿐 아니라 속도, 리듬과 감정도 함께 메모하세요." : "Note pace, rhythm and emotion as well as pronunciation.",
+    } : relevance(language, `${id}-relevance`, seed, others),
   ], level, language, seed);
 }
 
-function challenges(language: TestLanguage, skill: LegacyTestSkill, level: number, seed: LevelSeed): TestQuestion[] {
+function challenges(language: TestLanguage, skill: LegacyTestSkill, index: number, seeds: readonly LevelSeed[]): TestQuestion[] {
+  const level = index + 1;
+  const seed = seeds[index];
+  const others = otherSeeds(seeds, index);
   const id = `${language}-${skill}-${level}`;
   const isKo = language === "ko";
   return varyAnswerPositions([
     {
       id: `${id}-challenge-edit`, skill: isKo ? "정교화" : "Refinement",
-      prompt: isKo ? "첫 답변을 가장 효과적으로 개선하는 방법은 무엇입니까?" : "Which revision most effectively improves the first response?",
-      options: [seed.model, seed.weak, isKo ? "매우, 정말, 항상을 추가한다." : "Add very, really and always.", isKo ? "구체적인 내용을 삭제한다." : "Remove the specific detail."], correctIndex: 0,
+      passage: seed.weak,
+      prompt: isKo ? "위의 첫 답변을 이 과제에 맞게 가장 잘 고친 것은 무엇입니까?" : "Which revision best improves the first response above for this task?",
+      options: [seed.model, seed.weak, others[0].model, others[1].weak], correctIndex: 0,
       explanation: isKo ? `개선된 답은 ${seed.detail}을 보여 줍니다.` : `The revision demonstrates ${seed.detail}.`,
       improvement: isKo ? "추상적인 말을 검증 가능한 내용으로 바꾸세요." : "Turn abstract language into verifiable content.",
     },
-    {
-      id: `${id}-challenge-transfer`, skill: isKo ? "전이" : "Transfer",
-      prompt: isKo ? "더 어려운 재시도에서 유지해야 할 원칙은 무엇입니까?" : "Which principle should remain in a harder timed retake?",
-      options: isKo ? ["정확성을 유지하면서 더 복잡한 내용을 추가한다.", "복잡성을 위해 정확성을 포기한다.", "외운 답을 질문과 관계없이 말한다.", "피드백을 보지 않는다."] : ["Add complexity while preserving accuracy.", "Sacrifice accuracy for complexity.", "Use a memorised response regardless of the prompt.", "Ignore previous feedback."], correctIndex: 0,
-      explanation: isKo ? "재시도는 같은 역량을 더 엄격한 조건에서 확인합니다." : "A retake checks the same skill under stricter conditions.",
-      improvement: isKo ? "이전 피드백 중 한 가지를 재시도 목표로 정하세요." : "Choose one previous feedback point as the retake target.",
-    },
+    // Retakes reach further back: two stages, or a weak-answer check on the first stages.
+    index >= 2 ? reviewModel(language, skill, `${id}-challenge-review`, seeds[index - 2]) : weakResponse(language, `${id}-challenge-weak`, seed, others),
   ], level + 2, language, seed);
 }
 
@@ -301,8 +346,8 @@ function buildStages(language: TestLanguage, skill: LegacyTestSkill, seeds: Leve
           ? (isKo ? "재시도: 자막 없이 듣고 근거가 나온 시간을 메모하세요." : "Retake: listen without subtitles and note the timestamp supporting your answer.")
           : (isKo ? "재시도: 첫 녹음보다 천천히 말하고 한 가지 자연스러운 수정 표현을 사용하세요." : "Retake: speak more slowly than before and include one natural self-correction."),
     },
-    questions: questions(language, skill, index + 1, seed),
-    challengeQuestions: challenges(language, skill, index + 1, seed),
+    questions: questions(language, skill, index, seeds),
+    challengeQuestions: challenges(language, skill, index, seeds),
   }));
 }
 

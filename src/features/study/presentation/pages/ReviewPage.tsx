@@ -285,6 +285,7 @@ export function ReviewPage() {
         <nav className="mt-4 flex flex-wrap gap-2.5" aria-label={copy.tools}>
           <Link className={`${secondary} no-underline`} to="/study/hangul">{copy.hangul} →</Link>
           <Link className={`${secondary} no-underline`} to="/study/writing-lab">{copy.writingLab} →</Link>
+          <Link className={`${secondary} no-underline`} to="/study/level-test">{copy.levelTest} →</Link>
         </nav>
       )}
     </div>

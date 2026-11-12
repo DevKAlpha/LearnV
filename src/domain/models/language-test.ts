@@ -144,16 +144,18 @@ export function getAttemptQuestions(stage: TestStage, attemptNumber: number): Te
   return [...rotated.slice(0, 3), ...stage.challengeQuestions];
 }
 
+/** `placed`: stages per skill unlocked by the level test (see placement.ts). */
 export function isStageUnlocked(
   stages: readonly Pick<TestStage, "id" | "skill">[],
   stageIndex: number,
   progress: Record<string, StageProgress>,
+  placed: Partial<Record<TestSkill, number>> = {},
 ): boolean {
   const stage = stages[stageIndex];
   if (!stage) return false;
   const skillStages = stages.filter((candidate) => candidate.skill === stage.skill);
   const skillIndex = skillStages.findIndex((candidate) => candidate.id === stage.id);
-  if (skillIndex <= 0) return true;
+  if (skillIndex <= 0 || skillIndex < (placed[stage.skill] ?? 0)) return true;
   return progress[skillStages[skillIndex - 1].id]?.passed === true;
 }
 

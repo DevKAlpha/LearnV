@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { placementCopy } from "@/infrastructure/i18n/placement-copy";
 import { Link, Navigate, useParams, useSearchParams } from "react-router-dom";
 import { useLanguageTestProgress } from "@/application/controllers/useLanguageTestProgress";
 import { useI18n } from "@/application/i18n/I18nContext";
@@ -86,6 +87,7 @@ export function TestPathPage() {
           <span><b>◆</b>{track.target}</span>
           <span><b>↻</b>{attemptCount} {copy.tests.attempts}</span>
         </div>
+        {path.phase === "foundation" && path.completed < 12 && <Link className="test-back-link" to={`/study/level-test?lang=${language}`}>{placementCopy[locale].title}<span aria-hidden="true">→</span></Link>}
       </header>
 
       <section className="test-skill-sections" aria-label={copy.tests.pathTitle}>

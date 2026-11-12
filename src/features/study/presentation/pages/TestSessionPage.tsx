@@ -29,6 +29,7 @@ import { getLanguagePathHref } from "../components/learning-path-layout";
 import { RestartToolNote } from "../components/RestartToolNote";
 import { TestResultView } from "../components/TestResultView";
 import { WritingFeedbackPanel } from "../components/WritingFeedbackPanel";
+import { SpeechCheck } from "../components/SpeechCheck";
 
 function formatTime(seconds: number) {
   const minutes = Math.floor(seconds / 60);
@@ -326,6 +327,7 @@ function TestSession({ onRestart }: { onRestart: () => void }) {
             {recordingUrl && <audio controls src={recordingUrl} aria-label={copy.tests.playRecording} />}
             {recordingUrl && <label className="practice-without-recording"><input type="checkbox" checked={recordingReviewed} onChange={(event) => setRecordingReviewed(event.target.checked)} /><span>{language === "ko" ? "녹음을 다시 듣고 한 가지 개선점을 찾았습니다." : "I listened back and identified one improvement."}</span></label>}
             {microphoneError && <p role="alert">{copy.tests.microphoneUnavailable}</p>}
+            {!isRecording && !recordingPending && <SpeechCheck language={language} model={stage.questions[0]?.passage ?? stage.productionTask.prompt} stageId={stage.id} />}
             <label className="practice-without-recording">
               <input type="checkbox" checked={speakingPractised} onChange={(event) => setSpeakingPractised(event.target.checked)} />
               <span>{copy.tests.practiceWithoutRecording}</span>

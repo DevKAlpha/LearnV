@@ -1,0 +1,47 @@
+export const placementCopy = {
+  es: {
+    kicker: "Test de nivel", title: "Empieza en tu nivel",
+    intro: "Si ya sabes inglés o coreano, no hace falta repetir lo básico. Este test adaptativo comprueba lectura, gramática y vocabulario y desbloquea las etapas que ya dominas.",
+    rules: [
+      "Cada nivel tiene dos preguntas reales: si aciertas las dos, subes; al primer fallo esa habilidad termina.",
+      "Solo desbloquea etapas: no las marca como aprobadas ni suma progreso.",
+      "Escritura, escucha y pronunciación no se saltan: necesitan producción real.",
+      "Puedes repetirlo cuando quieras; nunca vuelve a bloquear lo desbloqueado.",
+    ],
+    choose: "¿Qué idioma?", en: "Inglés", ko: "Coreano", start: "Empezar test",
+    skills: { reading: "Lectura", grammar: "Gramática", vocabulary: "Vocabulario" },
+    level: (level: number, total: number) => `Nivel ${level} de ${total}`, next: "Siguiente",
+    resultTitle: "Resultado", unlocked: (count: number) => count ? `Desbloqueadas las primeras ${count} etapas.` : "Empieza desde la primera etapa.",
+    toPath: "Ir a la ruta", again: "Repetir test", note: "El resultado orienta tu inicio; no es un nivel oficial.",
+  },
+  en: {
+    kicker: "Level test", title: "Start at your level",
+    intro: "If you already know some English or Korean, you do not need to repeat the basics. This adaptive test checks reading, grammar and vocabulary and unlocks the stages you already master.",
+    rules: [
+      "Each level has two real questions: get both right to move up; the first miss ends that skill.",
+      "It only unlocks stages: it never marks them as passed or adds progress.",
+      "Writing, listening and speaking are not skipped: they need real production.",
+      "Repeat it whenever you like; it never locks what was unlocked.",
+    ],
+    choose: "Which language?", en: "English", ko: "Korean", start: "Start test",
+    skills: { reading: "Reading", grammar: "Grammar", vocabulary: "Vocabulary" },
+    level: (level: number, total: number) => `Level ${level} of ${total}`, next: "Next",
+    resultTitle: "Result", unlocked: (count: number) => count ? `The first ${count} stages are unlocked.` : "Start from the first stage.",
+    toPath: "Go to the path", again: "Retake test", note: "The result guides where you start; it is not an official level.",
+  },
+  ko: {
+    kicker: "레벨 테스트", title: "내 수준에서 시작하기",
+    intro: "이미 영어나 한국어를 조금 안다면 기초를 반복할 필요가 없습니다. 이 적응형 테스트는 읽기, 문법, 어휘를 확인하고 이미 익힌 단계를 열어 줍니다.",
+    rules: [
+      "각 수준에 실제 문제가 두 개 있습니다. 둘 다 맞히면 올라가고, 처음 틀리면 그 영역은 끝납니다.",
+      "단계를 열기만 하며 통과로 표시하거나 진도를 더하지 않습니다.",
+      "쓰기, 듣기, 말하기는 실제 수행이 필요하므로 건너뛰지 않습니다.",
+      "언제든 다시 볼 수 있으며, 이미 열린 단계는 다시 잠기지 않습니다.",
+    ],
+    choose: "언어 선택", en: "영어", ko: "한국어", start: "테스트 시작",
+    skills: { reading: "읽기", grammar: "문법", vocabulary: "어휘" },
+    level: (level: number, total: number) => `${total}단계 중 ${level}단계`, next: "다음",
+    resultTitle: "결과", unlocked: (count: number) => count ? `처음 ${count}개 단계가 열렸습니다.` : "첫 단계부터 시작하세요.",
+    toPath: "경로로 이동", again: "다시 보기", note: "결과는 시작점을 안내할 뿐 공인 등급이 아닙니다.",
+  },
+} as const;

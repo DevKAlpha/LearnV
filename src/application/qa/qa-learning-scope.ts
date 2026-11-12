@@ -3,7 +3,7 @@ export { isLearningQa };
 
 const QA_STUDY_ROUTES = [
   /^\/study$/,
-  /^\/study\/(english|korean|interviews|written-simulator|review|hangul|writing-lab)$/,
+  /^\/study\/(english|korean|interviews|written-simulator|review|hangul|writing-lab|level-test)$/,
   /^\/tests\/(en|ko)$/,
   /^\/tests\/(en|ko)\/[^/]+$/,
 ];

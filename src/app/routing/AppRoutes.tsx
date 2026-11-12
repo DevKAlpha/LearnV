@@ -22,6 +22,7 @@ const loadWrittenSimulatorPage = recoverable(() => import("@/features/study/pres
 const loadReviewPage = recoverable(() => import("@/features/study/presentation/pages/ReviewPage").then((module) => ({ default: module.ReviewPage })));
 const loadHangulPage = recoverable(() => import("@/features/study/presentation/pages/HangulPage").then((module) => ({ default: module.HangulPage })));
 const loadWritingLabPage = recoverable(() => import("@/features/study/presentation/pages/WritingLabPage").then((module) => ({ default: module.WritingLabPage })));
+const loadPlacementPage = recoverable(() => import("@/features/study/presentation/pages/PlacementPage").then((module) => ({ default: module.PlacementPage })));
 const loadTestPathPage = recoverable(() => import("@/features/study/presentation/pages/TestPathPage").then((module) => ({ default: module.TestPathPage })));
 const loadTestSessionPage = recoverable(() => import("@/features/study/presentation/pages/TestSessionPage").then((module) => ({ default: module.TestSessionPage })));
 const loadChecklistPage = recoverable(() => import("@/features/documents/presentation/ChecklistPage").then((module) => ({ default: module.ChecklistPage })));
@@ -35,6 +36,7 @@ const WrittenSimulatorPage = lazy(loadWrittenSimulatorPage);
 const ReviewPage = lazy(loadReviewPage);
 const HangulPage = lazy(loadHangulPage);
 const WritingLabPage = lazy(loadWritingLabPage);
+const PlacementPage = lazy(loadPlacementPage);
 const TestPathPage = lazy(loadTestPathPage);
 const TestSessionPage = lazy(loadTestSessionPage);
 const ChecklistPage = lazy(loadChecklistPage);
@@ -51,6 +53,7 @@ export async function preloadAppRoute(pathname: string): Promise<boolean> {
     else if (pathname === "/study/review") await loadReviewPage.preload();
     else if (pathname === "/study/hangul") await loadHangulPage.preload();
     else if (pathname === "/study/writing-lab") await loadWritingLabPage.preload();
+    else if (pathname === "/study/level-test") await loadPlacementPage.preload();
     else if (/^\/tests\/(en|ko)$/.test(pathname)) await loadTestPathPage.preload();
     else if (/^\/tests\/(en|ko)\/.+/.test(pathname)) await loadTestSessionPage.preload();
     else if (pathname === "/checklist") await loadChecklistPage.preload();
@@ -83,6 +86,7 @@ export function AppRoutes({ location, progress, learning }: AppRoutesProps) {
       <Route path="/study/review" element={<ReviewPage />} />
       <Route path="/study/hangul" element={<HangulPage />} />
       <Route path="/study/writing-lab" element={<WritingLabPage />} />
+      <Route path="/study/level-test" element={<PlacementPage />} />
       <Route path="/tests/:language" element={<TestPathPage />} />
       <Route path="/tests/:language/:stageId" element={<TestSessionPage />} />
       {!isLearningQa && <Route path="/checklist" element={<ChecklistPage {...progress} />} />}

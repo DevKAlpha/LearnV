@@ -12,6 +12,7 @@ const ROUTES = [
   "/study/review",
   "/study/hangul",
   "/study/writing-lab",
+  "/study/level-test",
   "/tests/en",
   "/tests/ko",
   "/checklist",
@@ -193,4 +194,19 @@ test("the writing lab reviews a draft and keeps saved versions", async ({ page }
   await expect(page.getByText("1 versión guardada")).toBeVisible();
   await page.reload();
   await expect(page.getByLabel("Tu respuesta")).toHaveValue(draft);
+});
+
+test("the level test unlocks stages without marking them as passed", async ({ page }) => {
+  await prepare(page);
+  await openReady(page, "/study/level-test?lang=en");
+  await page.getByRole("button", { name: "Empezar test" }).click();
+  // Answer every question with the first option until the result appears.
+  for (let index = 0; index < 40; index += 1) {
+    if (await page.getByRole("heading", { name: "Resultado" }).isVisible()) break;
+    await page.getByRole("radio").first().check();
+    await page.getByRole("button", { name: /^Siguiente/ }).click();
+  }
+  await expect(page.getByRole("heading", { name: "Resultado" })).toBeVisible();
+  const progress = await page.evaluate(() => localStorage.getItem("learnv-language-tests-v1"));
+  expect(progress).toBeNull();
 });

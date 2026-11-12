@@ -164,10 +164,6 @@ const koreanVocabulary: FoundationSeed[] = [
   seed("GKS 지원 어휘", "지원 · 선발", "서류 심사를 통과한 지원자는 다음 단계인 ___에 참여할 수 있습니다.", "알맞은 선발 절차를 고르세요.", "면접", ["환승", "진료", "환불"], "지원 절차에서는 모집 공고, 지원 자격, 서류 심사, 면접, 최종 선발을 순서대로 구분합니다.", "모집 공고를 확인하고 서류 심사와 면접을 거쳐 최종 결과를 기다립니다.", "지원 절차를 실제 공고와 대조하며 순서대로 설명하세요."),
 ];
 
-const metaDistractors = (language: TestLanguage): [string, string, string] => language === "ko"
-  ? ["가장 긴 선택지는 항상 정답이라는 규칙", "문맥을 보지 않고 단어 하나만 번역하는 규칙", "근거보다 익숙한 표현을 먼저 고르는 규칙"]
-  : ["The longest option is always correct.", "Translate one word and ignore the context.", "Choose the most familiar phrase without checking evidence."];
-
 function addFeedback(
   language: TestLanguage,
   question: Omit<TestQuestion, "optionFeedback" | "lesson" | "example" | "transfer">,
@@ -200,12 +196,75 @@ function rotateQuestion(question: TestQuestion, offset: number): TestQuestion {
   };
 }
 
-function foundationQuestions(language: TestLanguage, skill: FoundationSkill, level: number, seedItem: FoundationSeed) {
+type RawQuestion = Omit<TestQuestion, "optionFeedback" | "lesson" | "example" | "transfer">;
+
+/**
+ * Real distractors from the same skill: rules or examples of other stages. They are all
+ * true statements, so the learner has to match the right one to this item instead of
+ * rejecting an absurd option. Picks are spread across the path and deterministic.
+ */
+function otherSeeds(seeds: readonly FoundationSeed[], index: number, field: "rule" | "example", steps = [7, 13, 3, 17, 5, 11, 1]): [string, string, string] {
+  const picked: string[] = [];
+  for (const step of steps) {
+    const candidate = seeds[(index + step) % seeds.length][field];
+    if (candidate !== seeds[index][field] && !picked.includes(candidate)) picked.push(candidate);
+    if (picked.length === 3) break;
+  }
+  return picked as [string, string, string];
+}
+
+/** "Which sentence is correct?": the gap filled with each option. Only for gap passages. */
+function correctSentence(language: TestLanguage, id: string, seedItem: FoundationSeed): RawQuestion | null {
+  if (!seedItem.passage.includes("___")) return null;
+  const fill = (value: string) => seedItem.passage.replace("___", value);
+  return {
+    id,
+    skill: language === "ko" ? "정확한 문장" : "Accurate sentence",
+    prompt: language === "ko" ? "바른 문장은 무엇입니까?" : "Which sentence is correct?",
+    options: [fill(seedItem.correct), ...seedItem.wrong.map(fill)],
+    correctIndex: 0,
+    explanation: seedItem.rule,
+    improvement: seedItem.transfer,
+  };
+}
+
+/** "Which rule does this example follow?": the reverse of the principle question. */
+function exampleRule(language: TestLanguage, id: string, seeds: readonly FoundationSeed[], index: number): RawQuestion {
+  const seedItem = seeds[index];
+  return {
+    id,
+    skill: language === "ko" ? "규칙 찾기" : "Find the rule",
+    passage: seedItem.example,
+    prompt: language === "ko" ? "이 예문이 따르는 규칙은 무엇입니까?" : "Which rule does this example follow?",
+    options: [seedItem.rule, ...otherSeeds(seeds, index, "rule", [2, 9, 15, 4, 19, 6, 1])],
+    correctIndex: 0,
+    explanation: seedItem.rule,
+    improvement: seedItem.transfer,
+  };
+}
+
+/** Cumulative review: the core item of an earlier stage, asked again (spaced and interleaved). */
+function reviewOf(language: TestLanguage, id: string, earlier: FoundationSeed): RawQuestion {
+  return {
+    id,
+    skill: language === "ko" ? "누적 복습" : "Cumulative review",
+    passage: earlier.passage,
+    prompt: earlier.prompt,
+    options: [earlier.correct, ...earlier.wrong],
+    correctIndex: 0,
+    explanation: earlier.rule,
+    improvement: earlier.transfer,
+  };
+}
+
+function foundationQuestions(language: TestLanguage, skill: FoundationSkill, index: number, seeds: readonly FoundationSeed[]) {
   const isKo = language === "ko";
+  const level = index + 1;
+  const seedItem = seeds[index];
   const id = `${language}-${skill}-${level}`;
   const common = { improvement: seedItem.transfer };
-  const raw: Array<Omit<TestQuestion, "optionFeedback" | "lesson" | "example" | "transfer">> = [
-    {
+  const raw: Array<{ question: RawQuestion; source: FoundationSeed }> = [
+    { source: seedItem, question: {
       id: `${id}-context`,
       skill: isKo ? "문맥 이해" : "Context",
       passage: seedItem.passage,
@@ -214,63 +273,45 @@ function foundationQuestions(language: TestLanguage, skill: FoundationSkill, lev
       correctIndex: 0,
       explanation: seedItem.rule,
       ...common,
-    },
-    {
+    } },
+    { source: seedItem, question: {
       id: `${id}-principle`,
       skill: isKo ? "원리" : "Principle",
       passage: seedItem.passage,
-      prompt: isKo ? "이 답을 설명하는 가장 정확한 원리는 무엇입니까?" : "Which principle most accurately explains the answer?",
-      options: [seedItem.rule, ...metaDistractors(language)],
+      prompt: isKo ? "이 답을 설명하는 원리는 무엇입니까?" : "Which principle explains the answer?",
+      options: [seedItem.rule, ...otherSeeds(seeds, index, "rule")],
       correctIndex: 0,
       explanation: seedItem.rule,
       ...common,
-    },
-    {
+    } },
+    { source: seedItem, question: {
       id: `${id}-model`,
       skill: isKo ? "모델 적용" : "Model application",
-      prompt: isKo ? "같은 원리를 가장 잘 보여 주는 모델은 무엇입니까?" : "Which model best demonstrates the same principle?",
-      options: [seedItem.example, ...seedItem.wrong],
+      prompt: isKo ? `다음 원리를 보여 주는 예는 무엇입니까? ${seedItem.rule}` : `Which example shows this principle? ${seedItem.rule}`,
+      options: [seedItem.example, ...otherSeeds(seeds, index, "example")],
       correctIndex: 0,
       explanation: isKo ? `이 모델은 다음 원리를 실제 문장에 적용합니다: ${seedItem.rule}` : `This model applies the principle in a complete context: ${seedItem.rule}`,
       ...common,
-    },
-    {
-      id: `${id}-transfer`,
-      skill: isKo ? "새 상황 전이" : "Transfer",
-      prompt: isKo ? "다음 학습에서 이 원리를 실제로 적용하는 방법은 무엇입니까?" : "How should you transfer this principle to the next practice?",
-      options: [seedItem.transfer, ...metaDistractors(language)],
-      correctIndex: 0,
-      explanation: isKo ? `전이는 새 문맥에서 직접 사용하는 것입니다. ${seedItem.transfer}` : `Transfer means applying the rule in a new context: ${seedItem.transfer}`,
-      ...common,
-    },
+    } },
   ];
-  return raw.map((question, index) => rotateQuestion(addFeedback(language, question, seedItem), level + index));
+  // From the second stage on, connectPracticeStages replaces this fourth item with a recall
+  // of the previous stage; the first stage keeps it.
+  raw.push({ source: seedItem, question: correctSentence(language, `${id}-sentence`, seedItem) ?? exampleRule(language, `${id}-example-rule`, seeds, index) });
+  return raw.map(({ question, source }, position) => rotateQuestion(addFeedback(language, question, source), level + position));
 }
 
-function foundationChallenges(language: TestLanguage, skill: FoundationSkill, level: number, seedItem: FoundationSeed) {
-  const isKo = language === "ko";
+function foundationChallenges(language: TestLanguage, skill: FoundationSkill, index: number, seeds: readonly FoundationSeed[]) {
+  const level = index + 1;
+  const seedItem = seeds[index];
   const id = `${language}-${skill}-${level}`;
-  const raw: Array<Omit<TestQuestion, "optionFeedback" | "lesson" | "example" | "transfer">> = [
-    {
-      id: `${id}-challenge-application`,
-      skill: isKo ? "심화 적용" : "Advanced application",
-      prompt: isKo ? "시간 제한 재응시에서도 유지해야 할 정확한 모델은 무엇입니까?" : "Which accurate model should remain in a timed retake?",
-      options: [seedItem.example, ...seedItem.wrong],
-      correctIndex: 0,
-      explanation: seedItem.rule,
-      improvement: seedItem.transfer,
-    },
-    {
-      id: `${id}-challenge-log`,
-      skill: isKo ? "오류 기록" : "Error log",
-      prompt: isKo ? "오류 기록에 남길 가장 유용한 내용은 무엇입니까?" : "Which note would be most useful in an error log?",
-      options: [`${seedItem.rule} → ${seedItem.example}`, ...metaDistractors(language)],
-      correctIndex: 0,
-      explanation: isKo ? "좋은 오류 기록은 규칙과 정확한 예시를 함께 남깁니다." : "A useful error log records both the principle and an accurate example.",
-      improvement: seedItem.transfer,
-    },
+  const raw: Array<{ question: RawQuestion; source: FoundationSeed }> = [
+    { source: seedItem, question: correctSentence(language, `${id}-challenge-application`, seedItem) ?? exampleRule(language, `${id}-challenge-rule`, seeds, index) },
   ];
-  return raw.map((question, index) => rotateQuestion(addFeedback(language, question, seedItem), level + index + 2));
+  // Retakes reach further back than the first attempt: two stages back, or the first stage.
+  // The first stage previews the next one instead, as a harder challenge.
+  const other = index >= 2 ? index - 2 : index === 1 ? 0 : 1;
+  raw.push({ source: seeds[other], question: reviewOf(language, other > index ? `${id}-challenge-preview` : `${id}-challenge-review`, seeds[other]) });
+  return raw.map(({ question, source }, position) => rotateQuestion(addFeedback(language, question, source), level + position + 2));
 }
 
 function productionTask(language: TestLanguage, skill: FoundationSkill, seedItem: FoundationSeed): ProductionTask {
@@ -333,8 +374,8 @@ export function buildFoundationStages(language: TestLanguage, skill: FoundationS
     estimatedMinutes: 8 + Math.floor(index / 4),
     passScore: 70,
     productionTask: productionTask(language, skill, seedItem),
-    questions: foundationQuestions(language, skill, index + 1, seedItem),
-    challengeQuestions: foundationChallenges(language, skill, index + 1, seedItem),
+    questions: foundationQuestions(language, skill, index, foundationSeeds[language][skill]),
+    challengeQuestions: foundationChallenges(language, skill, index, foundationSeeds[language][skill]),
   }));
 }
 

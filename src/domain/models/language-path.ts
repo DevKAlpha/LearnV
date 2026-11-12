@@ -1,4 +1,5 @@
 import { isStageUnlocked, type StageProgress, type TestLanguage, type TestProgressState, type TestStage, type TestTrack } from "./language-test";
+import type { PlacedSkills } from "./placement";
 
 export type LanguagePathPhase = "foundation" | "advanced";
 
@@ -18,9 +19,9 @@ export function resolveLanguagePath(foundation: TestTrack, advanced: TestTrack, 
   return { phase, track, advancedUnlocked, completed: completedStages(track, progress), complete: hasCompletedTrack(track, progress) };
 }
 
-export function canOpenLanguageStage(foundation: TestTrack, advanced: TestTrack, stageId: string, progress: Record<string, StageProgress>): boolean {
+export function canOpenLanguageStage(foundation: TestTrack, advanced: TestTrack, stageId: string, progress: Record<string, StageProgress>, placed: PlacedSkills = {}): boolean {
   const foundationIndex = foundation.stages.findIndex((stage) => stage.id === stageId);
-  if (foundationIndex >= 0) return isStageUnlocked(foundation.stages, foundationIndex, progress);
+  if (foundationIndex >= 0) return isStageUnlocked(foundation.stages, foundationIndex, progress, placed);
   const advancedIndex = advanced.stages.findIndex((stage) => stage.id === stageId);
   const stage = advanced.stages[advancedIndex];
   return Boolean(stage && hasCompletedTrack(foundation, progress) && advanced.stages
@@ -29,13 +30,13 @@ export function canOpenLanguageStage(foundation: TestTrack, advanced: TestTrack,
 }
 
 /** The final foundation result leads into advanced practice, even if skills were done out of order. */
-export function nextLanguageStage(foundation: TestTrack, advanced: TestTrack, stage: TestStage, progress: Record<string, StageProgress>): TestStage | undefined {
+export function nextLanguageStage(foundation: TestTrack, advanced: TestTrack, stage: TestStage, progress: Record<string, StageProgress>, placed: PlacedSkills = {}): TestStage | undefined {
   if (progress[stage.id]?.passed !== true) return undefined;
   const track = foundation.stages.some((candidate) => candidate.id === stage.id) ? foundation : advanced;
   const next = track.stages.find((candidate) => candidate.skill === stage.skill && candidate.order === stage.order + 1);
-  if (next && canOpenLanguageStage(foundation, advanced, next.id, progress)) return next;
+  if (next && canOpenLanguageStage(foundation, advanced, next.id, progress, placed)) return next;
   const active = resolveLanguagePath(foundation, advanced, progress).track;
-  return active.stages.find((candidate) => progress[candidate.id]?.passed !== true && canOpenLanguageStage(foundation, advanced, candidate.id, progress));
+  return active.stages.find((candidate) => progress[candidate.id]?.passed !== true && canOpenLanguageStage(foundation, advanced, candidate.id, progress, placed));
 }
 
 /** Keep valid v1 results; discard malformed entries individually instead of resetting a whole language. */

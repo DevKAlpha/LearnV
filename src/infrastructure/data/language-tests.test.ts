@@ -147,3 +147,35 @@ describe("language test paths", () => {
     expect(verified.passed).toBe(true);
   });
 });
+
+describe("question quality", () => {
+  const absurd = /longest option|Never review|Ignore previous feedback|Memorise the title|Add very, really|가장 긴 선택지|피드백을 보지|제목만 외운다/u;
+
+  it("never offers duplicate options or absurd meta distractors", () => {
+    Object.values(languageTestTracks).forEach((track) => track.stages.forEach((stage) => {
+      [...stage.questions, ...stage.challengeQuestions].forEach((question) => {
+        expect(new Set(question.options).size, question.id).toBe(question.options.length);
+        question.options.forEach((option) => expect(option, question.id).not.toMatch(absurd));
+      });
+    }));
+  });
+
+  it("recalls the previous stage, and retakes reach two stages back", () => {
+    const stages = languageTestTracks.ko.stages.filter((stage) => stage.skill === "grammar");
+    const previous = stages[0].questions.find((question) => question.id.endsWith("-context"))!;
+    const review = stages[1].questions.find((question) => question.id.endsWith("-recall"))!;
+    expect(review.options[review.correctIndex]).toBe(previous.options[previous.correctIndex]);
+    const twoBack = stages[0].questions.find((question) => question.id.endsWith("-context"))!;
+    const retake = stages[2].challengeQuestions.find((question) => question.id.endsWith("-challenge-review"))!;
+    expect(retake.options[retake.correctIndex]).toBe(twoBack.options[twoBack.correctIndex]);
+  });
+});
+
+describe("Korean listening order", () => {
+  it("starts with graded and beginner material, not an hour of natural conversation", () => {
+    const listening = languageTestTracks.ko.stages.filter((stage) => stage.skill === "listening");
+    expect(listening[0].title).toBe("수준별 짧은 이야기");
+    expect(listening[1].title).toBe("세종한국어 자기소개");
+    expect(listening.findIndex((stage) => stage.title === "자연스러운 한국어 대화")).toBeGreaterThan(10);
+  });
+});

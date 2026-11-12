@@ -27,6 +27,7 @@ export function DailyReviewCard({ tools = false }: { tools?: boolean }) {
         <Link className={`${link} border-ink bg-accent text-ink`} to="/study/review">{copy.cta} →</Link>
         {tools && <Link className={`${link} border-edge bg-paper text-fg`} to="/study/hangul">{copy.hangul}</Link>}
         {tools && <Link className={`${link} border-edge bg-paper text-fg`} to="/study/writing-lab">{copy.writingLab}</Link>}
+        {tools && <Link className={`${link} border-edge bg-paper text-fg`} to="/study/level-test">{copy.levelTest}</Link>}
       </div>
     </section>
   );

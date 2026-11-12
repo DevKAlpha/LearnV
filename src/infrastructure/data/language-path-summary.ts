@@ -1,6 +1,7 @@
 import { isStageUnlocked, type StageProgress, type TestLanguage } from "../../domain/models/language-test";
 import { hasCompletedTrack, type LanguagePathPhase } from "../../domain/models/language-path";
 import { foundationStageMetadata, advancedStageMetadata } from "./practice-test-metadata";
+import { placementStore } from "./placement-store";
 export { ADVANCED_TESTS_PER_SKILL, advancedStageMetadata } from "./practice-test-metadata";
 
 const stagesById = {
@@ -25,7 +26,7 @@ export function getLanguageStageMetadata(language: TestLanguage, stageId: string
 export function isLanguageStageMetadataUnlocked(language: TestLanguage, stageId: string, progress: Record<string, StageProgress>) {
   const foundation = { stages: foundationStageMetadata[language] };
   const baseIndex = foundation.stages.findIndex((stage) => stage.id === stageId);
-  if (baseIndex >= 0) return isStageUnlocked(foundation.stages, baseIndex, progress);
+  if (baseIndex >= 0) return isStageUnlocked(foundation.stages, baseIndex, progress, placementStore.get()[language]);
   if (!hasCompletedTrack(foundation, progress)) return false;
   const stage = advancedStageMetadata[language].find((candidate) => candidate.id === stageId);
   if (!stage) return false;

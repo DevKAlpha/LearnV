@@ -8,11 +8,12 @@ export type InterviewPersonalityId = typeof INTERVIEW_PERSONALITY_IDS[number];
 
 export const INTERVIEW_STAGES: InterviewStage[] = ["motivation", "academic", "adaptation", "contribution"];
 
-export const INTERVIEW_RUBRIC_VERSION = "structural-v1";
+export const INTERVIEW_RUBRIC_VERSION = "structural-v2";
 
 export type InterviewScoreReasonCode =
   | "word-count-met"
   | "word-count-below-threshold"
+  | "answer-padded"
   | "numeric-detail-detected"
   | "action-or-outcome-detected"
   | "evidence-not-detected"
@@ -66,6 +67,36 @@ export type InterviewSessionAdvice = {
 };
 
 const KOREAN_ACTION_PATTERN = /(배웠|만들|이끌|조사|개선|달성|측정|준비)/;
+const KOREAN_OUTCOME_PATTERN = /(늘었|늘렸|줄었|줄였|높였|낮췄|완성|성공|해결|결과)/;
+
+/** Filler that pads spoken answers; a panel hears it as hesitation, not content. */
+const FILLERS: Record<Locale, string[]> = {
+  es: ["eh", "em", "bueno", "pues", "osea", "vale", "tipo", "nada", "bastante", "muy"],
+  en: ["um", "uh", "like", "basically", "actually", "literally", "really", "very", "stuff", "things"],
+  ko: ["음", "어", "그니까", "그러니까", "약간", "진짜", "그냥", "막"],
+};
+
+/**
+ * A number counts as evidence only with something it measures (12 estudiantes, 30 %, 3 개월).
+ * A bare year ("en 2027 quiero…") is a date, not a result.
+ */
+function numericEvidence(answer: string) {
+  for (const match of answer.matchAll(/(\d+(?:[.,]\d+)?)\s*(%|€|\$|\p{L}+)/gu)) {
+    const value = Number(match[1].replace(",", "."));
+    const unit = match[2];
+    const isYear = /^\d{4}$/u.test(match[1]) && value >= 1900 && value <= 2100;
+    if (unit === "%" || unit === "€" || unit === "$" || !isYear) return match[1];
+  }
+  return "";
+}
+
+/** Repetition and filler: 12 words of "muy muy bueno bueno…" are not a direct answer. */
+function isPadded(answer: string, locale: Locale) {
+  const words = answer.toLocaleLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [];
+  if (words.length < 12) return false;
+  const fillers = words.filter((word) => FILLERS[locale].includes(word)).length;
+  return fillers / words.length > 0.2 || new Set(words).size / words.length < 0.45;
+}
 const KOREAN_CONNECTION_PATTERN = /(한국|전공|학업|대학|계획|장학금)/;
 const KOREAN_REFLECTION_PATTERN = /(배웠|깨달|느꼈|변화|성찰|알게\s*되|교훈)/;
 
@@ -149,7 +180,7 @@ function analyzeInterviewLexicon(answer: string, locale: Locale): InterviewLexic
   if (locale === "ko") {
     return {
       action: matchedText(answer, [KOREAN_ACTION_PATTERN]),
-      outcome: "",
+      outcome: matchedText(answer, [KOREAN_OUTCOME_PATTERN]),
       connection: matchedText(answer, [KOREAN_CONNECTION_PATTERN]),
       reflection: matchedText(answer, [KOREAN_REFLECTION_PATTERN]),
     };
@@ -268,16 +299,19 @@ function createScoreExplanation(
   signals: Record<InterviewSignal, boolean>,
   lexical: InterviewLexicalMatches,
   hasNumericDetail: boolean,
+  padded: boolean,
 ): InterviewScoreExplanation {
   const criteria: InterviewScoreCriterionLog[] = [
     {
       signal: "direct",
       awardedPoints: signals.direct ? 25 : 0,
       maxPoints: 25,
-      reasonCode: signals.direct ? "word-count-met" : "word-count-below-threshold",
+      reasonCode: signals.direct ? "word-count-met" : padded ? "answer-padded" : "word-count-below-threshold",
       reason: signals.direct
         ? `Awarded because the answer contains ${wordCount} words, meeting the 12-word structural threshold.`
-        : `Not awarded because the answer contains ${wordCount} words, below the 12-word structural threshold.`,
+        : padded
+          ? `Not awarded because ${wordCount} words are mostly filler or repetition.`
+          : `Not awarded because the answer contains ${wordCount} words, below the 12-word structural threshold.`,
     },
     {
       signal: "evidence",
@@ -289,7 +323,7 @@ function createScoreExplanation(
           ? "action-or-outcome-detected"
           : "evidence-not-detected",
       reason: hasNumericDetail
-        ? "Awarded because the structural analyser detected a numeric detail."
+        ? "Awarded because the structural analyser detected a measured numeric detail."
         : lexical.action || lexical.outcome
           ? "Awarded because the structural analyser detected action or outcome language."
           : "Not awarded because no numeric detail, action or outcome language was detected.",
@@ -326,14 +360,15 @@ export function evaluateInterviewAnswer(answer: string, locale: Locale): Intervi
   const normalized = answer.trim();
   const wordCount = countWords(normalized, locale);
   const lexical = analyzeInterviewLexicon(normalized, locale);
-  const hasNumericDetail = /\d/.test(normalized);
+  const hasNumericDetail = Boolean(numericEvidence(normalized));
+  const padded = isPadded(normalized, locale);
   const signals = {
-    direct: wordCount >= 12,
+    direct: wordCount >= 12 && !padded,
     evidence: hasNumericDetail || Boolean(lexical.action || lexical.outcome),
     connection: Boolean(lexical.connection),
     reflection: Boolean(lexical.reflection),
   };
-  const scoreLog = createScoreExplanation(wordCount, signals, lexical, hasNumericDetail);
+  const scoreLog = createScoreExplanation(wordCount, signals, lexical, hasNumericDetail, padded);
   const score = scoreLog.score;
   const feedback = createContextualFeedback(normalized, locale, wordCount, signals, lexical);
   return { score, wordCount, signals, feedback, scoreLog };

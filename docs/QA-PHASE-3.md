@@ -88,10 +88,58 @@ Implementación y revisión: **12 de noviembre de 2026**. Rama `feature/phase3-l
   - CSS de arranque: 377 826 B (límite 380 000).
 - **Capturas a 390 px en claro y oscuro** de repaso, Hangul, laboratorio, Estudiar e Inicio.
 
-## Pendiente de la Fase 3
-- Sustituir las preguntas plantilla (estrategia/requisito/meta) de `practice-tests.ts` y `foundation-practice-tests.ts` por ítems reales con distractores plausibles.
-- Test de nivel que desbloquee etapas (hoy `isStageUnlocked` es lineal) y reintentos sacados de un banco mayor.
-- Plan diario generado en Inicio (repaso, etapa nueva y acción GKS). Hoy el repaso aparece como tarjeta propia.
-- Feedback de voz con Web Speech API: palabras por minuto, muletillas y shadowing.
-- Criterios más robustos para el chatbot de entrevista.
-- Reordenar por dificultad las etapas de escucha y pronunciación en coreano.
+## Segunda entrega (12 de noviembre de 2026)
+
+### Preguntas reales en lugar de plantillas
+- **Lectura, gramática y vocabulario** (120 etapas). Antes, 3 de cada 4 preguntas eran meta («¿qué principio…?») con distractores absurdos («la opción más larga siempre es correcta»). Ahora:
+  - **Principio:** la regla del ítem frente a 3 reglas reales de otras etapas de la misma habilidad.
+  - **Modelo:** el ejemplo que aplica la regla frente a ejemplos reales de otras etapas.
+  - **Cuarta pregunta** (solo en la primera etapa): «¿Qué frase es correcta?» con el hueco rellenado con cada opción, o «¿Qué regla sigue este ejemplo?».
+  - Desde la segunda etapa, `connectPracticeStages` ya la sustituía por un repaso del paso anterior; se mantiene.
+  - **Reintentos:** la frase correcta más un repaso de dos etapas atrás (la primera etapa adelanta la siguiente).
+- **Escritura, escucha y pronunciación:**
+  - «Estrategia» (genérica) pasa a ser «¿Qué respuesta no cumple la tarea?».
+  - El cuarto ítem pasa a ser «¿Qué respuesta contesta a esta tarea?» (el modelo frente a buenos modelos de otras tareas). En vídeo se mantiene la variedad de habla.
+  - Las opciones de «modelo» y «reescritura» usan respuestas reales de otras tareas en vez de frases como «añade very, really».
+  - Las preguntas tomadas de otra etapa muestran el modelo de su etapa en el feedback.
+- **Una prueba lo vigila:** no hay opciones repetidas ni los distractores absurdos de antes. Lo comprueba sobre todas las preguntas de las dos rutas.
+
+### Test de nivel (`/study/level-test`)
+- **Adaptativo por habilidad** (lectura, gramática y vocabulario):
+  - Comprueba 5 niveles (etapas 3, 6, 10, 14 y 18), con 2 preguntas reales por nivel.
+  - Hay que acertar las dos para subir; el primer fallo cierra esa habilidad.
+- **Solo desbloquea etapas** (`isStageUnlocked` acepta `placed`). No marca nada como aprobado, ni suma progreso, racha o preparación; el E2E comprueba que no escribe progreso.
+- **Nunca vuelve a bloquear** lo que se desbloqueó.
+- Escritura, escucha y pronunciación no se saltan.
+- Se guarda en `learnv-placement-v1` y se enlaza desde la ruta (si llevas menos de 12 etapas), desde Estudiar y desde Repaso.
+
+### Feedback de voz en la práctica oral
+- **«Transcribir y comparar con el modelo»** es opcional y usa el reconocimiento de voz del navegador. La interfaz avisa de que el audio lo procesa el servicio en línea del navegador; LearnV no guarda nada.
+- **Mide** (`speech-feedback.ts`):
+  - ritmo: palabras por minuto en inglés, sílabas por minuto en coreano;
+  - muletillas;
+  - palabras clave del modelo dichas o que faltan; en coreano se comparan por raíz, así que las partículas pueden cambiar.
+- Muestra la transcripción y avisa de que puede tener errores.
+- Sin soporte en el navegador, remite al grabador.
+
+### Chatbot de entrevista (rúbrica `structural-v2`)
+- Un número solo cuenta como evidencia si mide algo (*12 estudiantes*, *30 %*, *3 개월*); un año suelto no.
+- 12 palabras de relleno o repetición ya no cuentan como respuesta directa (código `answer-padded`).
+- En coreano se detectan los resultados (늘었, 줄였, 성공…).
+
+### Escucha en coreano por dificultad
+- Empieza por historias graduadas y diálogos lentos de Sejong; después, información y habla natural. Las canciones se reparten por la ruta.
+- Antes, la etapa 1 era una conversación natural de una hora.
+- Los ID siguen la posición: una etapa aprobada antes conserva su estado, aunque ahora corresponde al contenido de esa posición.
+
+### Verificación (segunda entrega)
+- **Vitest:** 87 archivos / 841 pruebas. **Playwright:** 87/87, con la ruta del test de nivel y su flujo.
+- Lint (0 avisos), `tsc -b`, arquitectura, build, CSP y presupuestos:
+  - JS de arranque: 377 866 B;
+  - CSS de arranque: 377 826 B.
+- Capturas a 390 px del test de nivel y de la práctica oral, en claro y oscuro.
+
+## Pendiente (pasa a fases posteriores)
+- **Plan diario generado en Inicio** (repaso, etapa nueva y acción GKS). Pasa a la Fase 5, que integra tablero y hábito diario; hoy el repaso tiene su propia tarjeta.
+- **Grabación y transcripción en `InterviewPrepPage`.**
+- **Más ítems redactados a mano por etapa** (hoy se reutilizan reglas, ejemplos y frases del banco). Requiere revisión nativa del coreano.

@@ -14,7 +14,7 @@ export const reviewCopy = {
     transcriptUsed: "Has visto el texto: esta tarjeta volverá pronto.", mistakeOrigin: "Fallaste esta pregunta en una práctica.", remove: "Quitar del mazo",
     doneTitle: "Repaso terminado", doneText: (reviewed: number, correct: number) => `${reviewed} tarjetas · ${correct} a la primera.`, again2: "Repasar otra vez", back: "Volver a Estudiar",
     minutes: "min", hours: "h", days: "d",
-    tools: "Más herramientas", hangul: "Hangul desde cero", writingLab: "Laboratorio de escritura",
+    tools: "Más herramientas", hangul: "Hangul desde cero", writingLab: "Laboratorio de escritura", levelTest: "Test de nivel",
   },
   en: {
     todayKicker: "Today's review", pending: (due: number, fresh: number) => `${due} due · ${fresh} new`, upToDate: "You are up to date. More cards tomorrow.", cta: "Review now", toolsIntro: "Spaced review, the Korean alphabet and real writing formats.",
@@ -31,7 +31,7 @@ export const reviewCopy = {
     transcriptUsed: "You saw the text: this card will come back soon.", mistakeOrigin: "You missed this question in a practice test.", remove: "Remove from deck",
     doneTitle: "Review complete", doneText: (reviewed: number, correct: number) => `${reviewed} cards · ${correct} right first time.`, again2: "Review again", back: "Back to Study",
     minutes: "min", hours: "h", days: "d",
-    tools: "More tools", hangul: "Hangul from zero", writingLab: "Writing lab",
+    tools: "More tools", hangul: "Hangul from zero", writingLab: "Writing lab", levelTest: "Level test",
   },
   ko: {
     todayKicker: "오늘의 복습", pending: (due: number, fresh: number) => `복습 ${due}장 · 새 카드 ${fresh}장`, upToDate: "오늘 복습을 마쳤습니다. 내일 새 카드가 준비됩니다.", cta: "지금 복습", toolsIntro: "간격 반복, 한글 기초, 실제 시험 쓰기 형식.",
@@ -48,7 +48,7 @@ export const reviewCopy = {
     transcriptUsed: "텍스트를 보았으므로 이 카드는 곧 다시 나옵니다.", mistakeOrigin: "연습에서 틀린 문제입니다.", remove: "덱에서 삭제",
     doneTitle: "복습 완료", doneText: (reviewed: number, correct: number) => `카드 ${reviewed}장 · 한 번에 맞힘 ${correct}장`, again2: "다시 복습", back: "학습으로 돌아가기",
     minutes: "분", hours: "시간", days: "일",
-    tools: "다른 도구", hangul: "기초 한글", writingLab: "쓰기 연습실",
+    tools: "다른 도구", hangul: "기초 한글", writingLab: "쓰기 연습실", levelTest: "레벨 테스트",
   },
 } as const;
 

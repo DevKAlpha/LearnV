@@ -32,7 +32,7 @@ describe("interview chatbot", () => {
       "es",
     );
 
-    expect(result.scoreLog.rubricVersion).toBe("structural-v1");
+    expect(result.scoreLog.rubricVersion).toBe("structural-v2");
     expect(result.scoreLog.criteria).toHaveLength(4);
     expect(result.scoreLog.criteria.reduce((total, item) => total + item.awardedPoints, 0)).toBe(result.score);
     expect(result.scoreLog.criteria.find((item) => item.signal === "direct")).toMatchObject({
@@ -44,6 +44,20 @@ describe("interview chatbot", () => {
       reasonCode: "numeric-detail-detected",
     });
     expect(result.scoreLog.criteria.every((item) => item.reason.length > 20)).toBe(true);
+  });
+
+  it("does not reward a bare year or padded filler", () => {
+    const year = evaluateInterviewAnswer("En 2027 quiero ir a Corea porque me gusta mucho su cultura y su comida.", "es");
+    expect(year.signals.evidence).toBe(false);
+    const padded = evaluateInterviewAnswer("Bueno pues muy muy bueno, pues bueno, muy bueno muy bueno pues bueno muy bueno Corea.", "es");
+    expect(padded.signals.direct).toBe(false);
+    expect(padded.scoreLog.criteria.find((item) => item.signal === "direct")?.reasonCode).toBe("answer-padded");
+    const measured = evaluateInterviewAnswer("I reduced waiting time by 30% for 200 students.", "en");
+    expect(measured.signals.evidence).toBe(true);
+  });
+
+  it("detects Korean outcomes", () => {
+    expect(evaluateInterviewAnswer("동아리 회원이 두 배로 늘었습니다.", "ko").signals.evidence).toBe(true);
   });
 
   it("does not copy the candidate answer into the internal score explanation", () => {
