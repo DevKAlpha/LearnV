@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { dailyTasks, currentCycle } from "@/infrastructure/data/gks-2026";
 import { ProgressOrbit } from "@/shared/ui/ProgressOrbit";
@@ -11,6 +12,9 @@ import type { StudyTask } from "@/domain/models/gks";
 import { isLearningQa } from "@/application/qa/qa-learning-scope";
 import { SceneArt } from "@/shared/ui/SceneArt";
 import { storybookCopy } from "@/infrastructure/i18n/storybook-copy";
+
+// Lazy: the card carries the review deck, which must stay out of the startup bundle.
+const DailyReviewCard = lazy(() => import("@/shared/ui/DailyReviewCard").then((module) => ({ default: module.DailyReviewCard })));
 
 type Props = {
   score: number;
@@ -119,6 +123,8 @@ export function HomePage({ score, progress, toggleTask, learning }: Props) {
           <div className="task-list">{taskPlan.remaining.map((entry) => renderTask(entry))}</div>
         </details>
       </section>
+
+      <Suspense fallback={null}><DailyReviewCard /></Suspense>
 
       <section className="story-shelf" aria-labelledby="story-shelf-title">
         <div className="section-heading"><div><span className="eyebrow">{story.shelfKicker}</span><h2 id="story-shelf-title">{story.shelf}</h2></div></div>

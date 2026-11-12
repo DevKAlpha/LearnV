@@ -16,26 +16,38 @@ describe("written simulator", () => {
     expect(getWrittenCharacterLimit("en")).toBe(5000);
   });
 
-  it("scores knowledge, writing completion and review separately", () => {
+  const essay = [
+    "I want to study materials engineering in Korea because my region depends on a battery factory that is growing quickly.",
+    "However, local companies still import most of their research, so engineers who understand both markets are scarce.",
+    "For example, during my internship I compared two recycling methods and presented the results to the plant manager.",
+    "Therefore, the GKS programme would let me learn advanced techniques, build contacts with Korean laboratories and return with practical skills.",
+    "In addition, studying Korean has taught me patience, discipline and respect for a different working culture.",
+  ].join(" ");
+
+  it("scores knowledge, writing and review separately", () => {
     const result = scoreWrittenSimulator({
       ...emptyWrittenSimulator,
       answers: { first: 1, second: 0 },
-      personalStatement: "a".repeat(600),
-      studyPlan: "b".repeat(600),
+      personalStatement: essay,
+      studyPlan: essay,
       rubric: ["one", "two"],
     }, { first: 1, second: 1 }, 4);
 
-    expect(result).toEqual({ total: 65, knowledge: 25, writing: 30, review: 10 });
+    expect(result.knowledge).toBe(25);
+    expect(result.review).toBe(10);
+    expect(result.writing).toBe(30);
+    expect(result.total).toBe(65);
   });
 
-  it("caps writing completion at its maximum contribution", () => {
-    const result = scoreWrittenSimulator({
+  it("does not give full writing marks for length alone", () => {
+    const padded = scoreWrittenSimulator({
       ...emptyWrittenSimulator,
       personalStatement: "a".repeat(5000),
-      studyPlan: "b".repeat(5000),
+      studyPlan: "word ".repeat(1000),
     }, {}, 6);
 
-    expect(result.writing).toBe(30);
+    expect(padded.writing).toBeLessThanOrEqual(15);
+    expect(scoreWrittenSimulator({ ...emptyWrittenSimulator, personalStatement: essay, studyPlan: essay }, {}, 6).writing).toBeGreaterThan(padded.writing);
   });
 });
 

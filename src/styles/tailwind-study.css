@@ -1,0 +1,19 @@
+/*
+ * Tailwind utilities for the study tools (review, Hangul, writing lab, writing feedback).
+ *
+ * Imported by those modules, so Vite ships it with their lazy chunks: the startup
+ * stylesheet does not grow with each new screen. Same rules as tailwind.css: no preflight,
+ * utilities in their layer (legacy unlayered CSS still wins), explicit sources only.
+ * A utility also used at startup appears in both sheets; identical rules are harmless.
+ */
+@layer theme, base, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+
+@source "../features/study/presentation/pages/ReviewPage.tsx";
+@source "../features/study/presentation/pages/HangulPage.tsx";
+@source "../features/study/presentation/pages/WritingLabPage.tsx";
+@source "../features/study/presentation/components/WritingFeedbackPanel.tsx";
+@source "../shared/ui/DailyReviewCard.tsx";
+
+@import "./tailwind-theme.css";

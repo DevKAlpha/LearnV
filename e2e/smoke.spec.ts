@@ -9,6 +9,9 @@ const ROUTES = [
   "/study/korean",
   "/study/interviews",
   "/study/written-simulator",
+  "/study/review",
+  "/study/hangul",
+  "/study/writing-lab",
   "/tests/en",
   "/tests/ko",
   "/checklist",
@@ -147,4 +150,47 @@ test("a practice session exposes progress and a safe exit dialog", async ({ page
   await page.keyboard.press("Escape");
   await expect(dialog).toHaveCount(0);
   await expect(exit).toBeFocused();
+});
+
+test("a review session schedules a card and updates today's count", async ({ page }) => {
+  await prepare(page);
+  await openReady(page, "/study/review");
+  await page.getByRole("radio", { name: "Coreano" }).check({ force: true });
+  await page.getByRole("button", { name: /^Empezar repaso/ }).click();
+  // Recall cards show the answer on request; typed cards are checked against the answer.
+  const show = page.getByRole("button", { name: "Mostrar respuesta" });
+  if (await show.isVisible()) await show.click();
+  else {
+    await page.getByLabel("Tu respuesta").fill("x");
+    await page.getByRole("button", { name: "Comprobar" }).click();
+  }
+  const good = page.getByRole("button", { name: /^Bien/ });
+  if (await good.isVisible()) await good.click();
+  else await page.getByRole("button", { name: "Continuar" }).click();
+  await expect(page.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "2");
+  const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("learnv-review-v1") ?? "{}"));
+  expect(Object.keys(stored.cards ?? {})).toHaveLength(1);
+});
+
+test("the Hangul builder composes syllables from letters", async ({ page }) => {
+  await prepare(page);
+  await openReady(page, "/study/hangul");
+  await page.getByRole("combobox", { name: /^Inicial/ }).selectOption("ㄱ");
+  await page.getByRole("combobox", { name: /^Vocal/ }).selectOption("ㅡ");
+  await page.getByRole("combobox", { name: /^Final/ }).selectOption("ㄹ");
+  await expect(page.getByRole("button", { name: /^글\s*geul/ })).toBeVisible();
+});
+
+test("the writing lab reviews a draft and keeps saved versions", async ({ page }) => {
+  await prepare(page);
+  await openReady(page, "/study/writing-lab?task=ielts-task2-abroad");
+  const draft = "Some people think studying abroad is essential. However, online courses are cheaper. For example, my cousin learned English at home. Therefore, both views have merit.";
+  await page.getByLabel("Tu respuesta").fill(draft);
+  const review = page.getByRole("region", { name: "Revisión de tu borrador" });
+  await expect(review).toBeVisible();
+  await expect(review).toContainText("however");
+  await page.getByRole("button", { name: "Guardar versión" }).click();
+  await expect(page.getByText("1 versión guardada")).toBeVisible();
+  await page.reload();
+  await expect(page.getByLabel("Tu respuesta")).toHaveValue(draft);
 });

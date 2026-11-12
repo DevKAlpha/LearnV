@@ -29,6 +29,9 @@
   --theme-glass-filter: blur(24px) saturate(1.35);
   --radius: 28px;
   --hard-shadow: 7px 8px 0 #171717;
+  /* Theme-following text and strong-border colours for new (utility-based) components. */
+  --fg: var(--ink);
+  --edge: var(--ink);
 }
 
 :root[data-theme="dark"] {
@@ -68,6 +71,8 @@
   --icon-glow-mid: rgba(218, 145, 225, 0.66);
   --icon-glow-wide: rgba(153, 72, 177, 0.32);
   --hard-shadow: 7px 8px 0 #0c0610;
+  --fg: #fff8f2;
+  --edge: rgba(246, 225, 251, 0.42);
 }
 
 * {

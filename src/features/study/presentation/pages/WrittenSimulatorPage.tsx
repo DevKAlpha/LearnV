@@ -1,10 +1,12 @@
-import { useEffect, type CSSProperties } from "react";
+import { useDeferredValue, useEffect, useMemo, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { useWrittenSimulator } from "@/application/controllers/useWrittenSimulator";
 import { onLearnvEvent } from "@/infrastructure/events/learnv-events";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { localize } from "@/domain/models/i18n";
-import { getWrittenCharacterLimit } from "@/domain/models/written-simulator";
+import { getWrittenCharacterLimit, type WrittenLanguage } from "@/domain/models/written-simulator";
+import { analyzeWriting } from "@/domain/models/writing-feedback";
+import { WritingFeedbackPanel } from "../components/WritingFeedbackPanel";
 import {
   writtenSimulatorQuestions,
   writtenSimulatorRubricIds,
@@ -126,6 +128,7 @@ export function WrittenSimulatorPage() {
 
       {state.step === "personal" && (
         <WritingStage
+          language={state.language}
           copy={copy.written}
           step="02"
           title={copy.written.personalTitle}
@@ -141,6 +144,7 @@ export function WrittenSimulatorPage() {
 
       {state.step === "plan" && (
         <WritingStage
+          language={state.language}
           copy={copy.written}
           step="03"
           title={copy.written.planTitle}
@@ -214,13 +218,16 @@ type WritingStageProps = {
   help: string;
   value: string;
   limit: number;
+  language: WrittenLanguage;
   onChange: (value: string) => void;
   onBack: () => void;
   onNext: () => void;
 };
 
-function WritingStage({ copy, step, title, prompt, help, value, limit, onChange, onBack, onNext }: WritingStageProps) {
+function WritingStage({ copy, step, title, prompt, help, value, limit, language, onChange, onBack, onNext }: WritingStageProps) {
   const ready = value.trim().length >= 600;
+  const deferred = useDeferredValue(value);
+  const analysis = useMemo(() => deferred.trim().length >= 120 ? analyzeWriting(deferred, { language }) : null, [deferred, language]);
   return (
     <section className="written-stage written-stage--writing">
       <span className="eyebrow">{step} · {title}</span>
@@ -232,6 +239,7 @@ function WritingStage({ copy, step, title, prompt, help, value, limit, onChange,
         <span>{copy.targetDraft}</span>
         <strong className={value.length > limit * 0.9 ? "is-near-limit" : ""}>{value.length.toLocaleString()} / {limit.toLocaleString()} {copy.characters}</strong>
       </div>
+      {analysis && <WritingFeedbackPanel analysis={analysis} />}
       <div className="written-stage__actions">
         <button className="test-secondary-action" type="button" onClick={onBack}>{copy.previous}</button>
         <button className="test-primary-action" type="button" disabled={!ready} onClick={onNext}>{copy.next}<span aria-hidden="true">→</span></button>

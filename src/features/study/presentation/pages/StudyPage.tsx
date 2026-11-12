@@ -10,6 +10,7 @@ import type { LearningJourneyController } from "@/application/controllers/useLea
 import { isLearningQa } from "@/application/qa/qa-learning-scope";
 import { LanguageCulture } from "@/shared/ui/LanguageCulture";
 import { SceneArt } from "@/shared/ui/SceneArt";
+import { DailyReviewCard } from "@/shared/ui/DailyReviewCard";
 
 const LearningAnalysisPanel = lazy(() => import("@/features/study/presentation/components/LearningAnalysisPanel").then((module) => ({ default: module.LearningAnalysisPanel })));
 const AdaptiveRecommendationCenter = lazy(() => import("@/features/study/presentation/components/AdaptiveRecommendationCenter").then((module) => ({ default: module.AdaptiveRecommendationCenter })));
@@ -74,6 +75,8 @@ export function StudyPage({ learning }: { learning: LearningJourneyController })
         </ol>
         <div className="study-start-illustration"><SceneArt scene="garden" /></div>
       </section>
+
+      <DailyReviewCard tools />
 
       <section className="study-language-spaces" aria-labelledby="language-spaces-title">
         <div className="section-heading">

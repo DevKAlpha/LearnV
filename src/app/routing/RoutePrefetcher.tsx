@@ -29,9 +29,9 @@ function preload(pathname: string) {
 function likelyNextRoutes(pathname: string) {
   let contextualRoutes: string[] = [];
   if (pathname === "/") contextualRoutes = ["/study"];
-  else if (pathname === "/study") contextualRoutes = ["/study/english", "/study/korean", "/study/interviews", "/study/written-simulator"];
+  else if (pathname === "/study") contextualRoutes = ["/study/review", "/study/english", "/study/korean", "/study/interviews", "/study/written-simulator"];
   else if (pathname === "/study/english") contextualRoutes = ["/tests/en", "/study/interviews"];
-  else if (pathname === "/study/korean") contextualRoutes = ["/tests/ko", "/study/interviews"];
+  else if (pathname === "/study/korean") contextualRoutes = ["/tests/ko", "/study/hangul", "/study/interviews"];
   else if (/^\/tests\/(en|ko)/.test(pathname)) contextualRoutes = [pathname.startsWith("/tests/en") ? "/study/english" : "/study/korean"];
 
   return [...new Set([

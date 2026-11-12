@@ -1,3 +1,5 @@
+import { analyzeWriting } from "./writing-feedback";
+
 export type WrittenLanguage = "en" | "ko";
 
 export type WrittenSimulatorStep =
@@ -51,6 +53,21 @@ export function isWrittenSimulatorStarted(state: WrittenSimulatorState) {
   return state.step !== "intro" && state.startedAt !== null;
 }
 
+/**
+ * Up to 15 points per text: 6 for reaching the reference length (600 characters) and 9 for
+ * the objective quality checks (cohesion, vocabulary range, repetition, sentence rhythm).
+ * Length alone can no longer reach full marks.
+ */
+export function writingPoints(text: string, language: WrittenLanguage) {
+  const draft = text.trim();
+  if (!draft) return 0;
+  const length = Math.min(draft.length / 600, 1) * 6;
+  const checks = analyzeWriting(draft, { language }).checks.filter((check) => check.id !== "length");
+  const quality = checks.length ? checks.filter((check) => check.status === "ok").length / checks.length : 0;
+  // Quality only counts once there is enough text for the checks to mean something.
+  return length + quality * 9 * Math.min(draft.length / 300, 1);
+}
+
 export function scoreWrittenSimulator(
   state: WrittenSimulatorState,
   correctAnswers: Record<string, number>,
@@ -59,9 +76,7 @@ export function scoreWrittenSimulator(
   const questionIds = Object.keys(correctAnswers);
   const correct = questionIds.filter((id) => state.answers[id] === correctAnswers[id]).length;
   const knowledge = Math.round((correct / Math.max(questionIds.length, 1)) * 50);
-  const personalProgress = Math.min(state.personalStatement.trim().length / 600, 1);
-  const planProgress = Math.min(state.studyPlan.trim().length / 600, 1);
-  const writing = Math.round((personalProgress + planProgress) * 15);
+  const writing = Math.round(writingPoints(state.personalStatement, state.language) + writingPoints(state.studyPlan, state.language));
   const review = Math.round((state.rubric.length / Math.max(rubricTotal, 1)) * 20);
 
   return { total: knowledge + writing + review, knowledge, writing, review };

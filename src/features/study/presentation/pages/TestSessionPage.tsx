@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useModal } from "@/shared/ui/useModal";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { useLanguageTestProgress } from "@/application/controllers/useLanguageTestProgress";
+import { recordTestMistakes } from "@/application/controllers/useReviewDeck";
+import { analyzeWriting } from "@/domain/models/writing-feedback";
 import { useI18n } from "@/application/i18n/I18nContext";
 import {
   getAttemptQuestions,
@@ -26,6 +28,7 @@ import { createLearningRecording } from "@/infrastructure/audio/learning-recordi
 import { getLanguagePathHref } from "../components/learning-path-layout";
 import { RestartToolNote } from "../components/RestartToolNote";
 import { TestResultView } from "../components/TestResultView";
+import { WritingFeedbackPanel } from "../components/WritingFeedbackPanel";
 
 function formatTime(seconds: number) {
   const minutes = Math.floor(seconds / 60);
@@ -97,6 +100,14 @@ function TestSession({ onRestart }: { onRestart: () => void }) {
     : stage.productionTask.mode === "writing"
     ? meetsWritingLength && checklistComplete
     : Boolean(!isRecording && !recordingPending && ((recordingUrl && recordingReviewed && checklistComplete) || (speakingPractised && checklistComplete)));
+  const writingTask = stage.productionTask;
+  const writingAnalysis = useMemo(() => writingTask.mode === "writing" && writtenResponse.trim().length >= 40
+    ? analyzeWriting(writtenResponse, {
+      language,
+      minimum: language === "en" ? writingTask.minimumWords : writingTask.minimumCharacters,
+      maximum: language === "en" ? writingTask.maximumWords : writingTask.maximumCharacters,
+    })
+    : null, [language, writingTask, writtenResponse]);
   const totalSteps = questions.length + 1;
   const currentStep = productionDone ? questionIndex + 2 : 1;
 
@@ -138,6 +149,8 @@ function TestSession({ onRestart }: { onRestart: () => void }) {
     finishedRef.current = true;
     const graded = gradeAttempt(language, stage, questions, answers, productionVerified);
     recordAttempt(language, stage.id, graded.score, graded.passed);
+    // Wrong answers become review cards: the learner's own mistake log.
+    recordTestMistakes(language, graded.questions);
     setResult(graded);
     document.getElementById("test-session-top")?.scrollIntoView({ behavior: getMotionScrollBehavior() });
   }, [answers, language, productionVerified, questions, recordAttempt, stage]);
@@ -267,6 +280,7 @@ function TestSession({ onRestart }: { onRestart: () => void }) {
               <span>{language === "en" ? `${wordCount} words` : `${writtenResponse.trim().length} ${copy.tests.characters}`}</span>
               <strong>{language === "en" && stage.productionTask.minimumWords ? `${stage.productionTask.minimumWords}–${stage.productionTask.maximumWords} words` : stage.productionTask.maximumCharacters ? `${minimumCharacters}–${stage.productionTask.maximumCharacters} ${copy.tests.characters}` : `${copy.tests.minimum} · ${minimumCharacters}`}</strong>
             </div>
+            {writingAnalysis && <WritingFeedbackPanel analysis={writingAnalysis} minimum={language === "en" ? writingTask.minimumWords : writingTask.minimumCharacters} maximum={language === "en" ? writingTask.maximumWords : writingTask.maximumCharacters} />}
           </div>
         ) : stage.productionTask.mode === "listening" ? (
           stage.media ? (

@@ -1,0 +1,23 @@
+/* Tailwind theme mapping, shared by every Tailwind entry (tailwind.css, tailwind-study.css). */
+@theme inline {
+  /* Same values as the semantic aliases in tokens.css (never var(--color-x) here: that would
+     make Tailwind's --color-x refer to itself). Every one follows the active theme. */
+  --color-ink: var(--ink);
+  /* Text and strong borders that follow the theme; ink stays dark (use it on accent fills). */
+  --color-fg: var(--fg);
+  --color-edge: var(--edge);
+  --color-paper: var(--paper);
+  --color-cream: var(--cream);
+  --color-muted: var(--muted);
+  --color-accent: var(--yellow);
+  --color-accent-soft: var(--blue);
+  --color-brand: var(--purple);
+  --color-brand-strong: var(--cobalt);
+  --color-brand-deep: var(--brand-deep);
+  --color-success: var(--green);
+  --color-danger: var(--hot-pink);
+  --z-index-raised: var(--z-raised);
+  --z-index-floating: var(--z-floating);
+  --z-index-overlay: var(--z-overlay);
+  --z-index-modal: var(--z-modal);
+}
