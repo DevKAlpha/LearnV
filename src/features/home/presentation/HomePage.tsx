@@ -15,6 +15,8 @@ import { storybookCopy } from "@/infrastructure/i18n/storybook-copy";
 
 // Lazy: the card carries the review deck, which must stay out of the startup bundle.
 const DailyReviewCard = lazy(() => import("@/shared/ui/DailyReviewCard").then((module) => ({ default: module.DailyReviewCard })));
+// Lazy for the same reason: the cycle card and its copy stay out of the startup bundle.
+const GksCycleCard = lazy(() => import("@/shared/ui/GksCycleCard").then((module) => ({ default: module.GksCycleCard })));
 
 type Props = {
   score: number;
@@ -124,6 +126,7 @@ export function HomePage({ score, progress, toggleTask, learning }: Props) {
         </details>
       </section>
 
+      {!isLearningQa && <Suspense fallback={null}><GksCycleCard /></Suspense>}
       <Suspense fallback={null}><DailyReviewCard /></Suspense>
 
       <section className="story-shelf" aria-labelledby="story-shelf-title">

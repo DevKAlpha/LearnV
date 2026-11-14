@@ -1,8 +1,8 @@
 export const documentStages = [
   { id: "drafts", documentIds: ["application", "personal-statement", "study-plan", "pledge-health"] },
   { id: "academic", documentIds: ["graduation", "transcript", "recommendation"] },
-  { id: "official", documentIds: ["family"] },
-  { id: "optional", documentIds: ["language"] },
+  { id: "official", documentIds: ["family", "passport"] },
+  { id: "optional", documentIds: ["language", "awards"] },
 ] as const;
 
 export type DocumentStageId = typeof documentStages[number]["id"];

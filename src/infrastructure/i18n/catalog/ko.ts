@@ -45,6 +45,8 @@ export const ko: TranslationCatalog = {
       family: { label: "국적 및 가족관계 서류", detail: "지원자와 부모의 관련 서류입니다." }, recommendation: { label: "추천서", detail: "지원자를 잘 아는 교사에게 몇 주 전에 요청하세요. 공식 양식을 사용하고 학업계획서를 참고 자료로 전달하세요." }, "pledge-health": { label: "서약서 및 건강 자가 진단서", detail: "모집 공고의 공식 양식입니다. 형식을 바꾸지 말고 읽고 작성한 뒤 서명하세요." },
       graduation: { label: "졸업증명서", detail: "요강에서 허용하는 경우 공식 졸업예정증명서를 제출할 수 있습니다." },
       transcript: { label: "성적증명서", detail: "스페인 0–10 성적 체계를 임의로 환산하지 마세요." },
+      passport: { label: "유효한 여권", detail: "비자와 출국에 필요합니다. 몇 달 여유를 두고 예약하고 프로그램 기간 중 만료되지 않는지 확인하세요." },
+      awards: { label: "수상 및 활동 실적", detail: "요강이 허용하는 경우 지원을 뒷받침하는 수상, 봉사, 활동 증명서를 정해진 개수 안에서 제출하세요." },
       language: { label: "TOPIK / IELTS / TOEFL", detail: "2027 일반 요강에서는 선택 서류이지만 점수에 반영되며 대학이나 학과가 최저 기준을 요구할 수 있습니다." },
     },
   },

@@ -1,5 +1,6 @@
 import { scopedStorageKey } from "@/infrastructure/config/app-scope";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useLocalToday } from "./useLocalToday";
 import { dailyTasks, documents } from "../../infrastructure/data/gks-2026";
 import { trackLearning } from "./learningJourneyEvents";
 import { isLearningQa } from "@/application/qa/qa-learning-scope";
@@ -21,25 +22,6 @@ function readProgress(): StoredGksProgress {
   } catch {
     return normalizeGksProgress(null, taskIds, documentIds);
   }
-}
-
-/** Re-renders when the local day changes (midnight, or when a sleeping tab wakes up). */
-function useLocalToday() {
-  const [today, setToday] = useState(() => localDateKey(new Date()));
-  useEffect(() => {
-    const refresh = () => setToday(localDateKey(new Date()));
-    const now = new Date();
-    const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 5).getTime() - now.getTime();
-    const timer = window.setTimeout(refresh, nextMidnight);
-    document.addEventListener("visibilitychange", refresh);
-    window.addEventListener("focus", refresh);
-    return () => {
-      window.clearTimeout(timer);
-      document.removeEventListener("visibilitychange", refresh);
-      window.removeEventListener("focus", refresh);
-    };
-  }, [today]);
-  return today;
 }
 
 export function useGksProgress() {

@@ -4,6 +4,7 @@ import { useI18n } from "@/application/i18n/I18nContext";
 import { PageEmblem } from "@/shared/ui/PageEmblem";
 import { getDocumentPlan, type DocumentStageId } from "@/domain/models/document-plan";
 import { SceneArt } from "@/shared/ui/SceneArt";
+import { DocumentSchedule } from "./DocumentSchedule";
 
 type Props = {
   progress: { completedDocuments: string[] };
@@ -42,6 +43,11 @@ export function ChecklistPage({ progress, toggleDocument }: Props) {
         <div aria-live="polite"><span className="eyebrow">{copy.checklist.referenceFile}</span><strong>{completed} {copy.checklist.of} {plan.total}</strong><p>{copy.checklist.prepared}</p></div>
         <div className="mini-progress" style={{ "--progress": `${percent * 3.6}deg` } as CSSProperties}><span>{percent}%</span></div>
       </section>
+
+      <DocumentSchedule
+        completed={progress.completedDocuments}
+        labels={Object.fromEntries(documents.map((document) => [document.id, copy.checklist.items[document.id as keyof typeof copy.checklist.items].label]))}
+      />
 
       <section className="document-route" aria-labelledby="document-route-title">
         <div className="document-route__heading">

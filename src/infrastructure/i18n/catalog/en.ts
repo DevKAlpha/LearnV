@@ -45,6 +45,8 @@ export const en: TranslationCatalog = {
       family: { label: "Citizenship and family relationship", detail: "Documents for the applicant and both parents." }, recommendation: { label: "Letter of recommendation", detail: "Ask a teacher who knows your work weeks in advance; use the official form and share your Study Plan as context." }, "pledge-health": { label: "Pledge and personal medical assessment", detail: "Official forms from the call: read, complete and sign them without changing their format." },
       graduation: { label: "Graduation certificate", detail: "Or an official expected-graduation certificate when the guidelines allow it." },
       transcript: { label: "Academic transcript", detail: "Do not informally convert the Spanish 0–10 scale." },
+      passport: { label: "Valid passport", detail: "Needed for the visa and travel. Book an appointment months ahead and check it does not expire during the programme." },
+      awards: { label: "Awards and achievements", detail: "Certificates of awards, volunteering or activities that support your application, if the guidelines accept them and within their maximum number." },
       language: { label: "TOPIK / IELTS / TOEFL", detail: "Optional in the general 2027 guidelines, but it earns points and a university or department may require a minimum." },
     },
   },

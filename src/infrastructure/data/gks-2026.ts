@@ -287,6 +287,19 @@ export const documents: DocumentItem[] = [
     needsTranslation: true,
   },
   {
+    id: "passport",
+    label: "Pasaporte vigente",
+    detail: "Necesario para el visado y el viaje. Pide cita con meses de margen y comprueba que no caduque durante el programa.",
+    required: false,
+  },
+  {
+    id: "awards",
+    label: "Méritos y premios",
+    detail: "Certificados de premios, voluntariado o actividades que respalden tu solicitud, si la guía los admite y dentro del número máximo que fije.",
+    required: false,
+    needsTranslation: true,
+  },
+  {
     id: "language",
     label: "TOPIK / IELTS / TOEFL",
     detail: "Opcional en la guía general 2027, pero puntúa y una universidad o carrera puede exigir un mínimo.",

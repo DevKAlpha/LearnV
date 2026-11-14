@@ -210,3 +210,45 @@ test("the level test unlocks stages without marking them as passed", async ({ pa
   const progress = await page.evaluate(() => localStorage.getItem("learnv-language-tests-v1"));
   expect(progress).toBeNull();
 });
+
+test.describe("GKS cycle and applicant profile", () => {
+  test.beforeEach(async ({ page }) => {
+    // A fixed day keeps the cycle phase stable: 13 Nov 2026 is after the 2027 applications closed.
+    await page.clock.setFixedTime(new Date("2026-11-13T10:00:00"));
+    await prepare(page);
+  });
+
+  test("the scholarship page places the applicant in the right cycle and phase", async ({ page }) => {
+    await openReady(page, "/gks");
+    const timeline = page.getByRole("heading", { name: /Línea temporal del ciclo · GKS-U 2028/ });
+    await expect(timeline).toBeVisible();
+    await expect(page.locator('[aria-current="step"]')).toContainText("Preparación");
+    await page.getByText("Ya presenté la solicitud").click();
+    await expect(page.getByRole("heading", { name: /GKS-U 2027/ }).first()).toBeVisible();
+    await expect(page.locator('[aria-current="step"]')).toContainText("Primera ronda");
+    await expect(page.getByRole("heading", { name: "Prepara la entrevista" })).toBeVisible();
+  });
+
+  test("the profile keeps the major and checks the age limit", async ({ page }) => {
+    await openReady(page, "/profile");
+    const major = page.getByLabel("Carrera que quieres estudiar");
+    await major.fill("Ingeniería de materiales");
+    await major.blur();
+    await page.getByLabel("Fecha de nacimiento").fill("2003-02-10");
+    await expect(page.getByRole("status").filter({ hasText: "Superas el límite de edad para GKS-U 2028" })).toBeVisible();
+    await expect(page.getByText("Último ciclo dentro del límite: GKS-U 2027.")).toBeVisible();
+    await page.reload();
+    await expect(page.locator(".profile-fields")).toContainText("Ingeniería de materiales");
+  });
+
+  test("a pending document becomes a dated task on the board", async ({ page }) => {
+    await openReady(page, "/checklist");
+    await expect(page.getByRole("heading", { name: "Calendario para GKS-U 2028" })).toBeVisible();
+    const row = page.getByRole("listitem").filter({ hasText: "Pasaporte vigente" });
+    await row.getByRole("button", { name: "Añadir al tablero" }).click();
+    await expect(row.getByRole("button", { name: /En el tablero/ })).toBeDisabled();
+    const board = await page.evaluate(() => JSON.parse(localStorage.getItem("learnv-task-board-v1") ?? "{}"));
+    expect(board.tasks[0]).toMatchObject({ id: "gks-doc-passport-2028", area: "gks", status: "todo" });
+    expect(board.tasks[0].dueDate).toMatch(/^2027-0[67]-\d{2}$/);
+  });
+});

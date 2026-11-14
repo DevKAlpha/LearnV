@@ -12,6 +12,9 @@ import { BrandMark } from "@/shared/ui/BrandMark";
 import { SceneArt } from "@/shared/ui/SceneArt";
 import { CulturalGuideEntry } from "./CulturalGuideEntry";
 import { ScholarshipLifeEntry } from "./ScholarshipLifeEntry";
+import { GksCycleTimeline } from "./GksCycleTimeline";
+import { RadarSourceStatus } from "./RadarSourceStatus";
+import { gksProfileCopy } from "@/infrastructure/i18n/gks-profile-copy";
 const CertificationOpportunityCatalog = lazy(() => import("./CertificationOpportunityCatalog").then((module) => ({ default: module.CertificationOpportunityCatalog })));
 
 const dateLocales = { es: "es-ES", en: "en-GB", ko: "ko-KR" } as const;
@@ -39,6 +42,7 @@ export function GksPage() {
     return () => cancelAnimationFrame(frame);
   }, [certificationsOpen, eligibilityOpen]);
   const [titleLineOne, titleLineTwo] = copy.gks.title.split("\n");
+  const radarCopy = gksProfileCopy[locale].radar;
   const onlineSources = radar.sourceChecks.filter((source) => source.ok).length;
   const changedSources = radar.sourceChecks.filter((source) => source.changed);
   const checkedAt = new Intl.DateTimeFormat(dateLocales[locale], {
@@ -108,12 +112,6 @@ export function GksPage() {
             <p>{copy.gks.spainText}</p>
             {spainSource && <a href={spainSource.url} target="_blank" rel="noreferrer">{copy.gks.openOfficial}<span aria-hidden="true">↗</span></a>}
           </article>
-          <article className="gks-priority">
-            <span>{copy.gks.nextActionLabel}</span>
-            <strong>{copy.gks.nextActionTitle}</strong>
-            <p>{copy.gks.nextActionText}</p>
-            <Link to="/checklist">{copy.nav.documents}<span aria-hidden="true">→</span></Link>
-          </article>
         </div>
 
         {changedSources.length > 0 && (
@@ -128,6 +126,17 @@ export function GksPage() {
           <span><b>{freshness.stale ? "—" : "24 h"}</b>{copy.gks.refreshFrequency}</span>
           <span><b>{copy.gks.referenceYear}</b>{copy.gks.referenceOnly}</span>
         </div>
+
+        <details className="gks-disclosure">
+          <summary><span>{radarCopy.sourcesTitle}</span><i aria-hidden="true">＋</i></summary>
+          <div className="gks-disclosure__content">
+            <RadarSourceStatus checks={radar.sourceChecks} checkedAt={checkedAt} />
+          </div>
+        </details>
+      </section>
+
+      <section className="gks-cycle" aria-label={gksProfileCopy[locale].cycle.timelineTitle}>
+        <GksCycleTimeline />
       </section>
 
       <section className="gks-pathway" aria-labelledby="gks-pathway-title">
@@ -206,6 +215,7 @@ export function GksPage() {
           <summary><span><b>04</b>{copy.gks.sourcesSummary}</span><i aria-hidden="true">＋</i></summary>
           <div className="gks-disclosure__content">
             <p className="section-intro">{copy.gks.sourcesIntro}</p>
+            <p className="section-intro">{radarCopy.kinds}</p>
             <div className="source-list source-list--compact">{sources.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.id}><span><strong>{source.title}</strong><small>{source.organization}</small></span><span aria-hidden="true">↗</span></a>)}</div>
           </div>
         </details>

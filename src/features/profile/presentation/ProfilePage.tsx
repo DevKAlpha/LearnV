@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguageTestProgress } from "@/application/controllers/useLanguageTestProgress";
-import { currentCycle } from "@/infrastructure/data/gks-2026";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { BrandMark } from "@/shared/ui/BrandMark";
 import type { LearningJourneyController } from "@/application/controllers/useLearningJourney";
@@ -10,6 +9,10 @@ import { getLanguagePathSummary as getLanguagePath } from "@/infrastructure/data
 import { advancedPathCopy } from "@/infrastructure/i18n/advanced-path-copy";
 import { SceneArt } from "@/shared/ui/SceneArt";
 import { DeviceBackupPanel } from "./DeviceBackupPanel";
+import { ApplicantProfileEditor } from "./ApplicantProfileEditor";
+import { useApplicantProfile, useGksCycle } from "@/application/controllers/useApplicantProfile";
+import { useMeasuredLevels } from "@/application/controllers/useMeasuredLevels";
+import { gksProfileCopy } from "@/infrastructure/i18n/gks-profile-copy";
 import "@/styles/profile-learning-summary.css";
 
 export function ProfilePage({ score, learning }: { score: number; learning: LearningJourneyController }) {
@@ -21,32 +24,13 @@ export function ProfilePage({ score, learning }: { score: number; learning: Lear
   const [creditTaps, setCreditTaps] = useState(0);
   const easterEggVisible = creditTaps >= 5;
 
-  const averageBestScore = (language: "en" | "ko") => {
-    const attempts = getLanguagePath(language, progress[language]).track.stages.flatMap((stage) => progress[language][stage.id] ? [progress[language][stage.id]] : []);
-    if (attempts.length === 0) return null;
-    return Math.round(attempts.reduce((total, stage) => total + stage.bestScore, 0) / attempts.length);
-  };
-
-  const englishScore = averageBestScore("en");
-  const koreanScore = averageBestScore("ko");
-  const englishLevel = englishScore === null
-    ? copy.profile.cefrPending
-    : englishScore < 50
-      ? copy.profile.levels.english.foundation
-      : englishScore < 70
-        ? copy.profile.levels.english.developing
-        : englishScore < 90
-          ? copy.profile.levels.english.strong
-          : copy.profile.levels.english.advanced;
-  const koreanLevel = koreanScore === null
-    ? copy.profile.topikPending
-    : koreanScore < 50
-      ? copy.profile.levels.korean.foundation
-      : koreanScore < 70
-        ? copy.profile.levels.korean.level3
-        : koreanScore < 90
-          ? copy.profile.levels.korean.level4
-          : copy.profile.levels.korean.level5;
+  // Levels come from the furthest stage passed or unlocked per skill (not average best scores).
+  const { profile } = useApplicantProfile();
+  const cycle = useGksCycle();
+  const levels = useMeasuredLevels();
+  const profileCopy = gksProfileCopy[locale];
+  const koreanLevel = levels.ko.band === "none" ? copy.profile.topikPending : profileCopy.profile.koreanBands[levels.ko.band];
+  const englishLevel = levels.en.band === "none" ? copy.profile.cefrPending : profileCopy.profile.englishBands[levels.en.band];
 
   return (
     <div className="page profile-page">
@@ -66,16 +50,18 @@ export function ProfilePage({ score, learning }: { score: number; learning: Lear
 
       <section className="profile-fields">
         <div className="profile-field"><small>{copy.profile.nationality}</small><strong>{copy.profile.nationalityValue}</strong></div>
-        <div className="profile-field"><small>{copy.profile.major}</small><strong>{copy.profile.majorValue}</strong></div>
-        <div className="profile-field"><small>{copy.profile.korean}</small><strong>{koreanPath.advancedUnlocked ? advancedCopy.koreanTitle : koreanLevel}{(koreanScore !== null || koreanPath.advancedUnlocked) && <em> · {koreanPath.advancedUnlocked ? koreanPath.completed : totals.ko}/{koreanPath.track.stages.length} {copy.profile.testsCompleted}</em>}</strong></div>
-        <div className="profile-field"><small>{copy.profile.english}</small><strong>{englishPath.advancedUnlocked ? advancedCopy.title : englishLevel}{(englishScore !== null || englishPath.advancedUnlocked) && <em> · {englishPath.advancedUnlocked ? englishPath.completed : totals.en}/{englishPath.track.stages.length} {copy.profile.testsCompleted}</em>}</strong></div>
+        <div className="profile-field"><small>{copy.profile.major}</small><strong>{profile.targetMajor || profileCopy.profile.majorEmpty}</strong></div>
+        <div className="profile-field"><small>{copy.profile.korean}</small><strong>{koreanPath.advancedUnlocked ? advancedCopy.koreanTitle : koreanLevel}{(levels.ko.band !== "none" || koreanPath.advancedUnlocked) && <em> · {koreanPath.advancedUnlocked ? koreanPath.completed : totals.ko}/{koreanPath.track.stages.length} {copy.profile.testsCompleted}</em>}</strong></div>
+        <div className="profile-field"><small>{copy.profile.english}</small><strong>{englishPath.advancedUnlocked ? advancedCopy.title : englishLevel}{(levels.en.band !== "none" || englishPath.advancedUnlocked) && <em> · {englishPath.advancedUnlocked ? englishPath.completed : totals.en}/{englishPath.track.stages.length} {copy.profile.testsCompleted}</em>}</strong></div>
       </section>
       {(englishPath.advancedUnlocked || koreanPath.advancedUnlocked) && <p className="advanced-path-notice">{advancedCopy.notice}</p>}
+
+      <ApplicantProfileEditor />
 
       <LearningJourneyPanel learning={learning} illustrated />
 
       <section className="profile-cycle">
-        <span className="eyebrow">{copy.profile.targetCycle}</span><h2>{currentCycle.target}</h2><p>{copy.home.cycleNote}</p>
+        <span className="eyebrow">{copy.profile.targetCycle}</span><h2>{profileCopy.cycle.cycle(cycle.entryYear)} · {profileCopy.cycle.phases[cycle.phase].title}</h2><p>{copy.home.cycleNote}</p>
         <Link to="/gks">{copy.profile.radar} →</Link>
       </section>
 

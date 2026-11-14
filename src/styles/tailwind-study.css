@@ -1,5 +1,6 @@
 /*
- * Tailwind utilities for the study tools (review, Hangul, writing lab, writing feedback).
+ * Tailwind utilities for lazily loaded screens: study tools (review, Hangul, writing lab,
+ * feedback, level test) and the GKS cycle and applicant profile.
  *
  * Imported by those modules, so Vite ships it with their lazy chunks: the startup
  * stylesheet does not grow with each new screen. Same rules as tailwind.css: no preflight,
@@ -16,6 +17,11 @@
 @source "../features/study/presentation/components/WritingFeedbackPanel.tsx";
 @source "../features/study/presentation/components/SpeechCheck.tsx";
 @source "../features/study/presentation/pages/PlacementPage.tsx";
+@source "../shared/ui/GksCycleCard.tsx";
+@source "../features/scholarship/presentation/GksCycleTimeline.tsx";
+@source "../features/scholarship/presentation/RadarSourceStatus.tsx";
+@source "../features/profile/presentation/ApplicantProfileEditor.tsx";
+@source "../features/documents/presentation/DocumentSchedule.tsx";
 @source "../shared/ui/DailyReviewCard.tsx";
 
 @import "./tailwind-theme.css";
