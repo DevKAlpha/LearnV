@@ -20,6 +20,7 @@ import "@/styles/learning-path.css";
 import "@/styles/storybook.css";
 import "@/styles/content-layout.css";
 import { requestPersistentStorage } from "@/infrastructure/data/storage-persistence";
+import { registerServiceWorker } from "@/infrastructure/pwa/register-service-worker";
 import { preloadInitialLocale } from "@/application/i18n/I18nContext";
 import { scopedStorageKey } from "@/infrastructure/config/app-scope";
 
@@ -33,6 +34,9 @@ void preloadInitialLocale().then(() => {
     </StrictMode>,
   );
 });
+
+// Installable and usable offline (production builds only).
+registerServiceWorker();
 
 // Returning learners get durable storage (avoids eviction, incl. Safari's 7-day rule).
 // New visitors are not asked until they have progress worth keeping.

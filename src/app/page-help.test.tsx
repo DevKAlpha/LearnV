@@ -35,7 +35,7 @@ vi.mock("@/application/controllers/useGksRadar", () => ({ useGksRadar: () => ({ 
 vi.mock("@/application/controllers/useWrittenSimulator", () => ({ useWrittenSimulator: () => ({ state: { ...emptyWrittenSimulator, step: scenario.written, startedAt: scenario.written === "intro" ? null : "2026-10-27T12:00:00Z", completedAt: scenario.written === "result" ? "2026-10-27T12:05:00Z" : null }, secondsLeft: 2600, score: { total: 0, knowledge: 0, writing: 0, review: 0 }, setLanguage: vi.fn(), begin: vi.fn(), goTo: vi.fn(), reset: vi.fn(), answer: vi.fn(), updateDraft: vi.fn(), toggleRubric: vi.fn(), finish: vi.fn() }) }));
 
 const journey = createLearningJourney();
-const learning = { journey, recommendation: getLearningRecommendation(journey), analysis: analyzeLearningResults(journey), interviewAdaptation: createInterviewAdaptation(journey), activeMinutes: 0, practicedSkills: 0 };
+const learning = { journey, recommendation: getLearningRecommendation(journey), analysis: analyzeLearningResults(journey), interviewAdaptation: createInterviewAdaptation(journey), activeMinutes: 0, practicedSkills: 0, shieldUsedThisWeek: false };
 afterEach(() => { vi.unstubAllGlobals(); scenario.progress = { en: {}, ko: {} }; scenario.written = "intro"; scenario.qa = false; consumePageTourRequest(); });
 const pages = ["/", "/study", "/study/english", "/study/korean", "/study/interviews", "/study/written-simulator", "/tests/en", "/tests/ko", "/gks", "/checklist", "/profile"];
 

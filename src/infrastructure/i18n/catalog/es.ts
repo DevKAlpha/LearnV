@@ -57,13 +57,6 @@ export const es = {
       strong: "Tener una buena base no significa saberlo todo. Elige un punto que aún te cueste y dale otra oportunidad.",
     },
   },
-  tasks: {
-    items: {
-      "topik-reading-01": { title: "Puente TOPIK I → II · lectura", meta: "Vocabulario, conectores y 5 preguntas graduadas" },
-      "english-writing-01": { title: "English · argumento académico", meta: "B2 → C1 · cohesión y evidencia" },
-      "gks-story-01": { title: "Banco de evidencias personal", meta: "Logros que respaldan tu Personal Statement" },
-    },
-  },
   gks: {
     sticker: "Datos verificados",
     title: "Entiende la beca.\nSin rumores.",

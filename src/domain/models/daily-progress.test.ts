@@ -23,10 +23,9 @@ describe("daily GKS progress", () => {
     }
   });
 
-  it("weights readiness towards durable evidence rather than today's checkboxes", () => {
-    const todayOnly = readinessScore({ documentsDone: 0, documentsTotal: 10, stagesPassed: 0, stagesTotal: 264, todayDone: 3, todayTotal: 3 });
-    expect(todayOnly).toBe(15);
-    expect(readinessScore({ documentsDone: 10, documentsTotal: 10, stagesPassed: 264, stagesTotal: 264, todayDone: 3, todayTotal: 3 })).toBe(100);
-    expect(readinessScore({ documentsDone: 0, documentsTotal: 0, stagesPassed: 0, stagesTotal: 0, todayDone: 0, todayTotal: 0 })).toBe(0);
+  it("builds readiness only from durable evidence", () => {
+    expect(readinessScore({ documentsDone: 5, documentsTotal: 10, stagesPassed: 0, stagesTotal: 264 })).toBe(25);
+    expect(readinessScore({ documentsDone: 10, documentsTotal: 10, stagesPassed: 264, stagesTotal: 264 })).toBe(100);
+    expect(readinessScore({ documentsDone: 0, documentsTotal: 0, stagesPassed: 0, stagesTotal: 0 })).toBe(0);
   });
 });

@@ -63,14 +63,6 @@ export type CertificationCatalog = {
   opportunities: CertificationOpportunity[];
 };
 
-export type StudyTask = {
-  id: string;
-  title: string;
-  meta: string;
-  category: "topik" | "english" | "application";
-  duration: number;
-};
-
 export type DocumentItem = {
   id: string;
   label: string;

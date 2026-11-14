@@ -10,6 +10,8 @@ import { advancedPathCopy } from "@/infrastructure/i18n/advanced-path-copy";
 import { SceneArt } from "@/shared/ui/SceneArt";
 import { DeviceBackupPanel } from "./DeviceBackupPanel";
 import { ApplicantProfileEditor } from "./ApplicantProfileEditor";
+import { WeeklySummaryCard } from "./WeeklySummaryCard";
+import { RemindersPanel } from "./RemindersPanel";
 import { useApplicantProfile, useGksCycle } from "@/application/controllers/useApplicantProfile";
 import { useMeasuredLevels } from "@/application/controllers/useMeasuredLevels";
 import { gksProfileCopy } from "@/infrastructure/i18n/gks-profile-copy";
@@ -59,6 +61,8 @@ export function ProfilePage({ score, learning }: { score: number; learning: Lear
       <ApplicantProfileEditor />
 
       <LearningJourneyPanel learning={learning} illustrated />
+      <WeeklySummaryCard journey={learning.journey} />
+      <RemindersPanel />
 
       <section className="profile-cycle">
         <span className="eyebrow">{copy.profile.targetCycle}</span><h2>{profileCopy.cycle.cycle(cycle.entryYear)} · {profileCopy.cycle.phases[cycle.phase].title}</h2><p>{copy.home.cycleNote}</p>

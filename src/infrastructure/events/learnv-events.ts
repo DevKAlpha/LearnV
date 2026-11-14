@@ -13,6 +13,7 @@ export type LearnvEventMap = {
   "learnv:open-interview-chatbot": { focus: InterviewSignal | null };
   "learnv:written-state": { active: boolean };
   "learnv:written-reset": undefined;
+  "learnv:open-task-board": { view: "today" | "board" };
 };
 
 export type LearnvEventName = keyof LearnvEventMap;

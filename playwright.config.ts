@@ -14,6 +14,8 @@ export default defineConfig({
   use: {
     baseURL: `http://localhost:${PORT}${BASE}`,
     trace: "retain-on-failure",
+    // The offline worker would serve cached shells across tests; only the PWA test allows it.
+    serviceWorkers: "block",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {

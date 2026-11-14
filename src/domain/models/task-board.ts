@@ -90,3 +90,13 @@ export function getBoardSuggestions(tasks: BoardTask[], today: string, now: numb
   if (open.some((task) => task.area === "culture") && !open.some((task) => task.area === "korean" || task.area === "english")) suggestions.push({ kind: "connect", count: open.filter((task) => task.area === "culture").length });
   return suggestions.length ? suggestions.slice(0,3) : [{ kind: "steady", count: doing.length }];
 }
+/**
+ * The board's "Today" view: open tasks due today or earlier, then tasks in progress without
+ * a due date. Overdue first, oldest due date first.
+ */
+export function todayBoardTasks(tasks: readonly BoardTask[], today: string): BoardTask[] {
+  const open = tasks.filter((task) => task.status !== "done");
+  const due = open.filter((task) => task.dueDate !== null && task.dueDate <= today).sort((a, b) => a.dueDate!.localeCompare(b.dueDate!) || a.createdAt - b.createdAt);
+  const doing = open.filter((task) => task.status === "doing" && !due.includes(task));
+  return [...due, ...doing];
+}

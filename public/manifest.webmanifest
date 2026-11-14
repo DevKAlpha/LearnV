@@ -1,0 +1,25 @@
+{
+  "name": "LearnV · Ruta GKS",
+  "short_name": "LearnV",
+  "description": "Prepara la beca GKS-U: coreano, inglés, documentos y entrevista, en tu móvil y sin conexión.",
+  "lang": "es",
+  "dir": "ltr",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#fffaf1",
+  "theme_color": "#fffaf1",
+  "categories": ["education", "productivity"],
+  "icons": [
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Repaso de hoy", "short_name": "Repaso", "url": "./study/review", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Estudiar", "url": "./study", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildCycleTimeline, currentPhase, daysBetween, documentStartDate, nextAction, targetEntryYear } from "./gks-cycle";
+import { actionDueDate, buildCycleTimeline, currentPhase, daysBetween, documentStartDate, nextAction, targetEntryYear } from "./gks-cycle";
 
 describe("GKS cycle", () => {
   it("targets the next open cycle while preparing, and the applied cycle after applying", () => {
@@ -40,5 +40,15 @@ describe("GKS cycle", () => {
     expect(documentStartDate("family", "2027-10-15", "2026-11-13")).toBe("2027-08-16");
     expect(documentStartDate("recommendation", "2027-10-15", "2026-11-13")).toBe("2027-09-03");
     expect(documentStartDate("family", "2026-12-01", "2026-11-13")).toBe("2026-11-13");
+  });
+});
+
+describe("action due dates", () => {
+  it("points each action at its milestone and never into the past", () => {
+    const timeline = buildCycleTimeline(2028);
+    expect(actionDueDate("language-exam", timeline, "2026-11-14")).toBe("2027-09-01");
+    expect(actionDueDate("submit", timeline, "2026-11-14")).toBe("2027-10-15");
+    expect(actionDueDate("keep-practising", timeline, "2026-11-14")).toBeNull();
+    expect(actionDueDate("read-guide", timeline, "2027-09-25")).toBe("2027-09-25");
   });
 });

@@ -1,20 +1,19 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Link } from "react-router-dom";
-import { dailyTasks, currentCycle } from "@/infrastructure/data/gks-2026";
+import { currentCycle } from "@/infrastructure/data/gks-2026";
 import { ProgressOrbit } from "@/shared/ui/ProgressOrbit";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { LanguageGoals } from "@/features/home/presentation/LanguageGoals";
 import { getReminderStage } from "@/domain/models/learning-reminder";
 import type { LearningJourneyController } from "@/application/controllers/useLearningJourney";
 import { LearningJourneyPanel } from "@/shared/ui/LearningJourneyPanel";
-import { buildHomeTaskPlan, type HomeTaskPlanEntry } from "@/domain/models/home-plan";
-import type { StudyTask } from "@/domain/models/gks";
+import type { PlanStatus } from "@/features/home/presentation/DailyPlanCard";
 import { isLearningQa } from "@/application/qa/qa-learning-scope";
 import { SceneArt } from "@/shared/ui/SceneArt";
 import { storybookCopy } from "@/infrastructure/i18n/storybook-copy";
 
-// Lazy: the card carries the review deck, which must stay out of the startup bundle.
-const DailyReviewCard = lazy(() => import("@/shared/ui/DailyReviewCard").then((module) => ({ default: module.DailyReviewCard })));
+// Lazy: the plan carries the review deck, which must stay out of the startup bundle.
+const DailyPlanCard = lazy(() => import("@/features/home/presentation/DailyPlanCard").then((module) => ({ default: module.DailyPlanCard })));
 // Lazy for the same reason: the cycle card and its copy stay out of the startup bundle.
 const GksCycleCard = lazy(() => import("@/shared/ui/GksCycleCard").then((module) => ({ default: module.GksCycleCard })));
 
@@ -28,47 +27,13 @@ type Props = {
 export function HomePage({ score, progress, toggleTask, learning }: Props) {
   const { locale, copy } = useI18n();
   const story = storybookCopy[locale];
-  const taskPlan = buildHomeTaskPlan(dailyTasks, progress.completedTasks);
-  const completedToday = taskPlan.completedCount;
-  const reminderStage = getReminderStage(score, completedToday, dailyTasks.length);
+  const [plan, setPlan] = useState<PlanStatus>({ done: 0, total: 0, route: null });
+  const reminderStage = getReminderStage(score, plan.done, plan.total);
   const reminderText = copy.home.reminderStages[reminderStage];
   const dateLocale = { es: "es-ES", en: "en-GB", ko: "ko-KR" }[locale];
   const today = new Intl.DateTimeFormat(dateLocale, { weekday: "long", day: "numeric", month: "long" }).format(new Date());
   const [titleLineOne, titleLineTwo] = copy.home.title.split("\n");
-  const taskRoutes: Record<string, string> = {
-    "topik-reading-01": "/study/korean",
-    "english-writing-01": "/study/english",
-    "gks-story-01": "/study/interviews",
-  };
-  const primaryRoute = taskPlan.primary ? taskRoutes[taskPlan.primary.task.id] ?? "/study" : "/study";
-
-  const renderTask = ({ task, originalIndex, completed }: HomeTaskPlanEntry<StudyTask>, priority = false) => {
-    const taskCopy = copy.tasks.items[task.id as keyof typeof copy.tasks.items];
-
-    return (
-      <article className={`task-card task-card--${task.category}${completed ? " task-card--done" : ""}${priority ? " task-card--priority" : ""}`} key={task.id}>
-        <button
-          className="task-card__toggle"
-          type="button"
-          aria-pressed={completed}
-          aria-label={`0${originalIndex + 1} · ${completed ? copy.common.unmark : copy.common.mark} ${taskCopy.title}`}
-          title={`${completed ? copy.common.unmark : copy.common.mark} ${taskCopy.title}`}
-          onClick={() => toggleTask(task.id)}
-        >
-          <span className="task-number">{completed ? "✓" : `0${originalIndex + 1}`}</span>
-        </button>
-        <Link className="task-card__body" to={taskRoutes[task.id] ?? "/study"}>
-          <span className="task-content">
-            {priority && <small className="task-content__priority">{copy.home.nextStep}</small>}
-            <strong>{taskCopy.title}</strong>
-            <small>{taskCopy.meta}</small>
-          </span>
-          <span className="task-duration">{task.duration} {copy.common.minutes}</span>
-        </Link>
-        <Link className="task-card__open" to={taskRoutes[task.id] ?? "/study"} aria-label={`${copy.home.start}: ${taskCopy.title}`}>→</Link>
-      </article>
-    );
-  };
+  const planDone = plan.total > 0 && plan.done === plan.total;
 
   return (
     <div className="page page--home">
@@ -89,7 +54,7 @@ export function HomePage({ score, progress, toggleTask, learning }: Props) {
           <span className="sticker sticker--yellow">{copy.home.sticker}</span>
           <h2 id="readiness-title">{titleLineOne}<br />{titleLineTwo}</h2>
           <p>{copy.home.intro}</p>
-          <Link to={primaryRoute} className="primary-button">{taskPlan.primary ? copy.home.start : copy.home.continueLearning} <span>→</span></Link>
+          <Link to={plan.route ?? "/study"} className="primary-button">{planDone ? copy.home.continueLearning : copy.home.start} <span>→</span></Link>
         </div>
         <div className="story-cover">
           <div className="story-panels" aria-hidden="true">
@@ -110,24 +75,13 @@ export function HomePage({ score, progress, toggleTask, learning }: Props) {
             <span className="eyebrow">{copy.home.focus}</span>
             <h2 id="today-title">{copy.home.today}</h2>
           </div>
-          <span className="count-pill">{completedToday}/{dailyTasks.length}</span>
         </div>
-        <p className="section-intro">{copy.home.taskHint}</p>
-        {taskPlan.primary ? renderTask(taskPlan.primary, true) : (
-          <div className="home-plan-complete">
-            <span aria-hidden="true">✓</span>
-            <div><strong>{copy.home.planCompleteTitle}</strong><p>{copy.home.reminderStages.planComplete}</p></div>
-            <Link to="/study">{copy.home.continueLearning}<b aria-hidden="true">→</b></Link>
-          </div>
-        )}
-        <details className="home-plan-drawer">
-          <summary><span>{copy.home.otherTasks}</span><b>{taskPlan.remaining.length}</b><i aria-hidden="true">＋</i></summary>
-          <div className="task-list">{taskPlan.remaining.map((entry) => renderTask(entry))}</div>
-        </details>
+        <Suspense fallback={<p className="section-intro" role="status">{copy.common.loadingContent}</p>}>
+          <DailyPlanCard ticked={progress.completedTasks} toggle={toggleTask} streak={learning.journey.currentStreak} shieldUsed={learning.shieldUsedThisWeek} onStatus={setPlan} />
+        </Suspense>
       </section>
 
       {!isLearningQa && <Suspense fallback={null}><GksCycleCard /></Suspense>}
-      <Suspense fallback={null}><DailyReviewCard /></Suspense>
 
       <section className="story-shelf" aria-labelledby="story-shelf-title">
         <div className="section-heading"><div><span className="eyebrow">{story.shelfKicker}</span><h2 id="story-shelf-title">{story.shelf}</h2></div></div>

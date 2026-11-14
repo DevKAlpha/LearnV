@@ -64,9 +64,29 @@ export function daysBetween(from: string, to: string) {
   return Math.round((Date.parse(`${to}T12:00:00Z`) - Date.parse(`${from}T12:00:00Z`)) / 86_400_000);
 }
 
-export type NextActionId =
-  | "language-exam" | "documents" | "drafts" | "read-guide" | "submit"
-  | "interview" | "keep-practising" | "check-results" | "pre-departure";
+export const NEXT_ACTIONS = [
+  "language-exam", "documents", "drafts", "read-guide", "submit",
+  "interview", "keep-practising", "check-results", "pre-departure",
+] as const;
+export type NextActionId = typeof NEXT_ACTIONS[number];
+
+/** The milestone date each action works towards; never earlier than today. Null: no date. */
+export function actionDueDate(action: NextActionId, timeline: readonly CycleMilestone[], today: string): string | null {
+  const at = (phase: CyclePhaseId, edge: "start" | "end") => timeline.find((milestone) => milestone.phase === phase)?.[edge] ?? null;
+  const dates: Record<NextActionId, string | null> = {
+    "language-exam": at("call", "start"),
+    documents: at("call", "start"),
+    drafts: at("call", "start"),
+    "read-guide": at("call", "end"),
+    submit: at("application", "end"),
+    interview: at("first-round", "start"),
+    "keep-practising": null,
+    "check-results": at("results", "start"),
+    "pre-departure": at("pre-departure", "start"),
+  };
+  const date = dates[action];
+  return date === null ? null : date < today ? today : date;
+}
 
 /**
  * What to do now. During preparation the advice depends on the time left before the

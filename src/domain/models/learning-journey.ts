@@ -34,6 +34,8 @@ export type LearningJourneyState = {
   longestStreak: number;
   sessionCount: number;
   totalActiveSeconds: number;
+  /** Active seconds per local day, last 35 days (see DAILY_SECONDS_DAYS). */
+  dailySeconds: Record<string, number>;
   routeVisits: Record<string, number>;
   resourceOpens: Record<string, number>;
   skillStats: Partial<Record<LearningSkill, SkillTrace>>;
@@ -46,7 +48,14 @@ export type LearningRecommendation = {
 };
 
 const DAY_MS = 86_400_000;
-const MEANINGFUL_EVENTS = new Set<LearningEventKind>(["practice", "resource", "task", "document"]);
+/**
+ * Only real practice keeps the streak alive: tests, reviews, quizzes, simulators. Ticking a
+ * task, a document or a resource as done is recorded, but it does not count as a study day.
+ */
+const MEANINGFUL_EVENTS = new Set<LearningEventKind>(["practice"]);
+/** Active seconds are kept per local day for this many days (weekly summaries compare two weeks). */
+const DAILY_SECONDS_DAYS = 35;
+const DATE_KEY = /^\d{4}-\d{2}-\d{2}$/;
 
 export function localDateKey(value: string | Date) {
   const date = typeof value === "string" ? new Date(value) : value;
@@ -56,31 +65,59 @@ export function localDateKey(value: string | Date) {
   return `${year}-${month}-${day}`;
 }
 
-function dayNumber(dateKey: string) {
+export function dayNumber(dateKey: string) {
   const [year, month, day] = dateKey.split("-").map(Number);
   return Math.floor(Date.UTC(year, month - 1, day) / DAY_MS);
 }
 
-export function calculateStreak(activeDates: string[], today = new Date()) {
-  const days = [...new Set(activeDates)].sort((a, b) => dayNumber(b) - dayNumber(a));
-  if (days.length === 0) return { current: 0, longest: 0 };
+/** Monday-based week index (day 4 since the epoch, 1970-01-05, was a Monday). */
+const weekOf = (day: number) => Math.floor((day - 4) / 7);
 
-  let longest = 1;
-  let run = 1;
-  for (let index = 1; index < days.length; index += 1) {
-    if (dayNumber(days[index - 1]) - dayNumber(days[index]) === 1) run += 1;
-    else run = 1;
+export type StreakOptions = {
+  /**
+   * The weekly shield: one missed day per calendar week (Monday to Sunday) does not break
+   * the streak. A shielded day keeps the run alive but does not add to it.
+   */
+  weeklyShield?: boolean;
+};
+
+export type StreakResult = { current: number; longest: number; shieldUsedThisWeek?: boolean };
+
+export function calculateStreak(activeDates: string[], today = new Date(), options: StreakOptions = {}): StreakResult {
+  const days = [...new Set(activeDates)].map(dayNumber).sort((a, b) => b - a);
+  const todayNumber = dayNumber(localDateKey(today));
+  const shield = options.weeklyShield === true;
+  const usedWeeks = new Set<number>();
+  const bridge = (missedDay: number) => {
+    if (!shield || usedWeeks.has(weekOf(missedDay))) return false;
+    usedWeeks.add(weekOf(missedDay));
+    return true;
+  };
+  const result = (current: number, longest: number): StreakResult => shield
+    ? { current, longest, shieldUsedThisWeek: usedWeeks.has(weekOf(todayNumber)) }
+    : { current, longest };
+  if (days.length === 0) return result(0, 0);
+
+  // Today may still be empty: yesterday keeps the streak, and so does the day before
+  // yesterday when the shield covers yesterday.
+  const lead = todayNumber - days[0];
+  const alive = lead <= 1 || (lead === 2 && bridge(todayNumber - 1));
+
+  let longest = 0;
+  let current = 0;
+  let index = 0;
+  while (index < days.length) {
+    let run = 1;
+    let next = index + 1;
+    while (next < days.length) {
+      const gap = days[next - 1] - days[next];
+      if (gap === 1 || (gap === 2 && bridge(days[next - 1] - 1))) { run += 1; next += 1; } else break;
+    }
+    if (index === 0 && alive) current = run;
     longest = Math.max(longest, run);
+    index = next;
   }
-
-  const gap = dayNumber(localDateKey(today)) - dayNumber(days[0]);
-  if (gap > 1) return { current: 0, longest };
-  let current = 1;
-  for (let index = 1; index < days.length; index += 1) {
-    if (dayNumber(days[index - 1]) - dayNumber(days[index]) !== 1) break;
-    current += 1;
-  }
-  return { current, longest };
+  return result(current, longest);
 }
 
 export function createLearningJourney(now = new Date()): LearningJourneyState {
@@ -94,6 +131,7 @@ export function createLearningJourney(now = new Date()): LearningJourneyState {
     longestStreak: 0,
     sessionCount: 0,
     totalActiveSeconds: 0,
+    dailySeconds: {},
     routeVisits: {},
     resourceOpens: {},
     skillStats: {},
@@ -126,6 +164,12 @@ function countMap(value: unknown) {
     if (key.length <= 200 && typeof count === "number" && Number.isFinite(count) && count >= 0) result[key] = count;
   }
   return { ...result };
+}
+
+/** Keeps only valid day keys from the last DAILY_SECONDS_DAYS days. */
+function recentDays(map: Record<string, number>, now: Date) {
+  const oldest = dayNumber(localDateKey(now)) - DAILY_SECONDS_DAYS + 1;
+  return Object.fromEntries(Object.entries(map).filter(([day]) => DATE_KEY.test(day) && dayNumber(day) >= oldest));
 }
 
 /** Returns a structurally valid event, or null if it cannot be trusted. */
@@ -178,7 +222,7 @@ export function normalizeLearningJourney(value: unknown, now = new Date()): Lear
       .filter((event): event is LearningEvent => event !== null && event.kind !== "route" && event.kind !== "session")
       .slice(0, RECENT_LIMIT)
     : [];
-  const streak = calculateStreak(activeDates, now);
+  const streak = calculateStreak(activeDates, now, { weeklyShield: true });
   return {
     version: value.version === 2 ? 2 : 1,
     firstSeenAt: validIso(value.firstSeenAt) ? value.firstSeenAt : fallback.firstSeenAt,
@@ -188,6 +232,7 @@ export function normalizeLearningJourney(value: unknown, now = new Date()): Lear
     longestStreak: Math.max(finiteNumber(value.longestStreak), streak.longest),
     sessionCount: finiteNumber(value.sessionCount),
     totalActiveSeconds: finiteNumber(value.totalActiveSeconds),
+    dailySeconds: recentDays(countMap(value.dailySeconds), now),
     routeVisits: countMap(value.routeVisits),
     resourceOpens: countMap(value.resourceOpens),
     skillStats: normalizeSkillStats(value.skillStats),
@@ -221,7 +266,12 @@ export function recordLearningEvent(state: LearningJourneyState, event: Learning
   const activeDates = MEANINGFUL_EVENTS.has(event.kind)
     ? [...new Set([...state.activeDates, localDateKey(occurredAt)])]
     : state.activeDates;
-  const streak = calculateStreak(activeDates, new Date(occurredAt));
+  const streak = calculateStreak(activeDates, new Date(occurredAt), { weeklyShield: true });
+  const seconds = Math.max(0, event.activeSeconds ?? 0);
+  const day = localDateKey(occurredAt);
+  const dailySeconds = seconds > 0
+    ? recentDays({ ...state.dailySeconds, [day]: (state.dailySeconds[day] ?? 0) + seconds }, new Date(occurredAt))
+    : state.dailySeconds;
   const routeVisits = event.kind === "route" && event.route
     ? { ...state.routeVisits, [event.route]: (state.routeVisits[event.route] ?? 0) + 1 }
     : state.routeVisits;
@@ -252,7 +302,8 @@ export function recordLearningEvent(state: LearningJourneyState, event: Learning
     currentStreak: streak.current,
     longestStreak: Math.max(state.longestStreak, streak.longest),
     sessionCount: state.sessionCount + (event.kind === "session" && !event.activeSeconds ? 1 : 0),
-    totalActiveSeconds: state.totalActiveSeconds + Math.max(0, event.activeSeconds ?? 0),
+    totalActiveSeconds: state.totalActiveSeconds + seconds,
+    dailySeconds,
     routeVisits,
     resourceOpens,
     skillStats,

@@ -1,36 +1,3 @@
-export type HomeTaskPlanEntry<T> = {
-  task: T;
-  originalIndex: number;
-  completed: boolean;
-};
-
-export type HomeTaskPlan<T> = {
-  completedCount: number;
-  primary: HomeTaskPlanEntry<T> | null;
-  remaining: HomeTaskPlanEntry<T>[];
-};
-
-export function buildHomeTaskPlan<T extends { id: string }>(
-  tasks: readonly T[],
-  completedTaskIds: readonly string[],
-): HomeTaskPlan<T> {
-  const completedIds = new Set(completedTaskIds);
-  const entries = tasks.map((task, originalIndex) => ({
-    task,
-    originalIndex,
-    completed: completedIds.has(task.id),
-  }));
-  const primary = entries.find((entry) => !entry.completed) ?? null;
-
-  return {
-    completedCount: entries.filter((entry) => entry.completed).length,
-    primary,
-    remaining: primary
-      ? entries.filter((entry) => entry.task.id !== primary.task.id)
-      : entries,
-  };
-}
-
 /** Persisted GKS plan state. Daily task ticks belong to one local day (`taskDate`). */
 export type StoredGksProgress = {
   taskDate: string | null;
@@ -70,19 +37,16 @@ export type ReadinessInput = {
   documentsTotal: number;
   stagesPassed: number;
   stagesTotal: number;
-  todayDone: number;
-  todayTotal: number;
 };
 
 /**
- * Readiness rewards durable evidence: documents (45%) and passed language stages (40%).
- * Today's plan adds a small daily signal (15%) so ticking three boxes cannot dominate.
+ * Readiness only rewards durable evidence: documents (50%) and passed language stages (50%).
+ * Today's plan is shown on its own and never inflates this score.
  */
 export function readinessScore(input: ReadinessInput) {
   const share = (done: number, total: number) => total > 0 ? Math.min(1, Math.max(0, done / total)) : 0;
   return Math.round((
-    share(input.documentsDone, input.documentsTotal) * 0.45
-    + share(input.stagesPassed, input.stagesTotal) * 0.40
-    + share(input.todayDone, input.todayTotal) * 0.15
+    share(input.documentsDone, input.documentsTotal) * 0.5
+    + share(input.stagesPassed, input.stagesTotal) * 0.5
   ) * 100);
 }

@@ -1,17 +1,18 @@
 import { memo, useEffect, useRef, useState, type FormEvent } from "react";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { useTaskBoard } from "@/application/controllers/useTaskBoard";
-import { boardAreas, boardStatuses, cleanTaskTitle, getBoardSuggestions, localBoardDate, MAX_TASK_TITLE, taskInputIssue, type BoardArea, type BoardIssue, type BoardStatus, type BoardTask, type TaskInput } from "@/domain/models/task-board";
+import { boardAreas, boardStatuses, cleanTaskTitle, getBoardSuggestions, localBoardDate, MAX_TASK_TITLE, taskInputIssue, todayBoardTasks, type BoardArea, type BoardIssue, type BoardStatus, type BoardTask, type TaskInput } from "@/domain/models/task-board";
 import { taskBoardCopy } from "@/infrastructure/i18n/task-board-copy";
 import { TaskNoteCard } from "./TaskNoteCard";
 import { TaskNoteArt } from "./TaskNoteArt";
 import { TaskBoardCopies } from "./TaskBoardCopies";
 import { taskInputFromForm } from "./task-board-editor";
+import { BoardViewSwitch, TaskBoardToday, type BoardView } from "./TaskBoardToday";
 import "@/styles/task-board.css";
 
 type Editor = TaskInput & { id: string | null; expectedUpdatedAt: number; showDate: boolean };
 type Notice = { kind: "created" | "updated" | "moved" | "restored" | "imported"; title?: string; status?: BoardStatus };
-export const TaskBoardPanel = memo(function TaskBoardPanel({ active }: { active: boolean }) {
+export const TaskBoardPanel = memo(function TaskBoardPanel({ active, initialView = "board" }: { active: boolean; initialView?: BoardView }) {
   const { locale } = useI18n(); const text = taskBoardCopy[locale]; const board = useTaskBoard();
   const [editor, setEditor] = useState<Editor | null>(null); const [validation, setValidation] = useState<BoardIssue | null>(null);
   const [notice, setNotice] = useState<Notice | null>(null); const [uiIssue, setUiIssue] = useState<BoardIssue | null>(null);
@@ -24,6 +25,9 @@ export const TaskBoardPanel = memo(function TaskBoardPanel({ active }: { active:
   const visible = tasks.filter((task) => (area === "all" || task.area === area) && `${task.title} ${text.areas[task.area]}`.normalize("NFKC").toLowerCase().includes(normalizedQuery));
   const filtered = !!query.trim() || area !== "all"; const suggestions = getBoardSuggestions(tasks, today, now); const issue = uiIssue ?? board.issue;
   const editorOpen = !!editor;
+  const [view, setView] = useState<BoardView>(initialView);
+  // Each opening starts on the view it was opened for (the daily plan opens "Today").
+  useEffect(() => { if (active) setView(initialView); }, [active, initialView]);
   useEffect(() => {
     if (filtered && !visible.some((task) => task.status === column) && visible[0]) setColumn(visible[0].status);
     // Only when the filter changes: re-running on column changes would undo the person's own column choice.
@@ -69,6 +73,10 @@ export const TaskBoardPanel = memo(function TaskBoardPanel({ active }: { active:
   const remove = (task: BoardTask) => {
     if (board.commit({ type: "remove", id: task.id })) { setRemoved({ task, index: tasks.findIndex((item) => item.id === task.id) }); setNotice(null); setUiIssue(null); addButton.current?.focus(); }
   };
+  const accept = (task: BoardTask) => {
+    if (!board.commit({ type: "add", task })) return false;
+    setNotice({ kind: "created", title: task.title }); setUiIssue(null); pendingFocus.current = task.id; return true;
+  };
   const undo = () => { if (removed && board.commit({ type: "restore", task: removed.task, index: removed.index })) { reveal(removed.task); setRemoved(null); setNotice({ kind: "restored" }); setUiIssue(null); } };
   const clearDrag = () => { dragId.current = null; setDragging(null); setOver(null); };
   return <div className="task-board" ref={container}>
@@ -81,7 +89,8 @@ export const TaskBoardPanel = memo(function TaskBoardPanel({ active }: { active:
     </div>
     {issue && <p className="board-issue" role="alert">{text.issues[issue]}</p>}
     <div className="board-announcement" role="status" aria-live="polite">{notice && <span>{text[notice.kind]} {notice.title}{notice.status ? ` · ${text.statuses[notice.status]}` : ""}</span>}{removed && <span className="board-undo"><span>{text.deleted} {removed.task.title}</span><button type="button" onClick={undo}>{text.undo}</button></span>}</div>
-    {editor ? <div className="board-editor-scroll"><form className="board-editor" onSubmit={saveEditor} noValidate><span className="eyebrow">{editor.id === null ? text.add : text.editTitle}</span><label>{text.task}<input ref={titleInput} type="text" maxLength={MAX_TASK_TITLE} value={editor.title} placeholder={text.placeholder} aria-required="true" aria-invalid={validation === "title"} aria-describedby="board-title-count" onChange={(event) => { setEditor({ ...editor, title: event.target.value }); setValidation(null); }} /></label><small id="board-title-count">{editor.title.length}/{MAX_TASK_TITLE} {text.count}</small><label>{text.area}<select value={editor.area} onChange={(event) => setEditor({ ...editor, area: event.target.value as BoardArea })}>{boardAreas.map((value) => <option key={value} value={value}>{text.areas[value]}</option>)}</select></label><label className="board-date-toggle"><input type="checkbox" checked={editor.showDate} onChange={(event) => setEditor({ ...editor, showDate: event.target.checked, dueDate: event.target.checked ? editor.dueDate : null })} />{text.optionalDate}</label>{editor.showDate && <label>{text.date}<input type="date" name="dueDate" value={editor.dueDate ?? ""} aria-invalid={validation === "date"} onChange={(event) => { setEditor({ ...editor, dueDate: event.target.value || null }); setValidation(null); }} /></label>}{validation && <p role="alert" className="board-editor-error">{text.issues[validation]}</p>}<div className="board-editor__actions"><button type="submit" className="board-primary" disabled={board.damaged}>{editor.id === null ? text.create : text.save}</button><button type="button" onClick={() => { setEditor(null); setValidation(null); setUiIssue(null); if (board.issue === "stale" || board.issue === "missing") board.clearIssue(); requestAnimationFrame(() => addButton.current?.focus()); }}>{text.cancel}</button></div><p className="board-draft-note">{text.draft}</p></form></div> : <>
+    {!editor && <BoardViewSwitch view={view} onChange={setView} todayCount={todayBoardTasks(tasks, today).length} />}
+    {editor ? <div className="board-editor-scroll"><form className="board-editor" onSubmit={saveEditor} noValidate><span className="eyebrow">{editor.id === null ? text.add : text.editTitle}</span><label>{text.task}<input ref={titleInput} type="text" maxLength={MAX_TASK_TITLE} value={editor.title} placeholder={text.placeholder} aria-required="true" aria-invalid={validation === "title"} aria-describedby="board-title-count" onChange={(event) => { setEditor({ ...editor, title: event.target.value }); setValidation(null); }} /></label><small id="board-title-count">{editor.title.length}/{MAX_TASK_TITLE} {text.count}</small><label>{text.area}<select value={editor.area} onChange={(event) => setEditor({ ...editor, area: event.target.value as BoardArea })}>{boardAreas.map((value) => <option key={value} value={value}>{text.areas[value]}</option>)}</select></label><label className="board-date-toggle"><input type="checkbox" checked={editor.showDate} onChange={(event) => setEditor({ ...editor, showDate: event.target.checked, dueDate: event.target.checked ? editor.dueDate : null })} />{text.optionalDate}</label>{editor.showDate && <label>{text.date}<input type="date" name="dueDate" value={editor.dueDate ?? ""} aria-invalid={validation === "date"} onChange={(event) => { setEditor({ ...editor, dueDate: event.target.value || null }); setValidation(null); }} /></label>}{validation && <p role="alert" className="board-editor-error">{text.issues[validation]}</p>}<div className="board-editor__actions"><button type="submit" className="board-primary" disabled={board.damaged}>{editor.id === null ? text.create : text.save}</button><button type="button" onClick={() => { setEditor(null); setValidation(null); setUiIssue(null); if (board.issue === "stale" || board.issue === "missing") board.clearIssue(); requestAnimationFrame(() => addButton.current?.focus()); }}>{text.cancel}</button></div><p className="board-draft-note">{text.draft}</p></form></div> : view === "today" ? <TaskBoardToday tasks={tasks} today={today} damaged={board.damaged} onAccept={accept} onEdit={openEditor} onMove={move} onRemove={remove} /> : <>
       <details className="board-coach" onToggle={(event) => { if (event.currentTarget.open) closeMenus(event.currentTarget); }}><summary><span aria-hidden="true">✦</span><span>{text.coach}<strong>{text.suggestions[suggestions[0].kind][0]}</strong></span><b aria-hidden="true">＋</b></summary><div className="board-coach__content"><p>{text.coachScope}</p><div>{suggestions.map((suggestion) => {
         const target = tasks.find((task) => task.id === suggestion.taskId); const copy = text.suggestions[suggestion.kind];
         return <article key={suggestion.kind}><h3>{copy[0]}</h3><p>{copy[1].replace("{count}", String(suggestion.count))}</p>{target && <strong className="board-coach__task">{target.title}</strong>}{target && <button type="button" onClick={() => { if (suggestion.kind === "next") move(target.id,"doing"); else openEditor(target); }}>{suggestion.kind === "next" ? text.start : text.review}</button>}{suggestion.kind === "focus" && <button type="button" onClick={() => { resetFilters(); setColumn("doing"); const first = tasks.find((task) => task.status === "doing"); if (first) pendingFocus.current = first.id; closeMenus(); }}>{text.seeDoing}</button>}{suggestion.kind === "connect" && <button type="button" disabled={board.damaged} onClick={() => addTask({ title: text.templates.korean, area: "korean", dueDate: null })}>{text.addIdea}</button>}{suggestion.kind === "complete" && <button type="button" onClick={() => openEditor()}>{text.add}</button>}</article>;

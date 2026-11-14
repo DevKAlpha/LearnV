@@ -23,5 +23,9 @@
 @source "../features/profile/presentation/ApplicantProfileEditor.tsx";
 @source "../features/documents/presentation/DocumentSchedule.tsx";
 @source "../shared/ui/DailyReviewCard.tsx";
+@source "../features/home/presentation/DailyPlanCard.tsx";
+@source "../features/task-board/presentation/TaskBoardToday.tsx";
+@source "../features/profile/presentation/WeeklySummaryCard.tsx";
+@source "../features/profile/presentation/RemindersPanel.tsx";
 
 @import "./tailwind-theme.css";

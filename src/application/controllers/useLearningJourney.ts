@@ -1,6 +1,7 @@
 import { scopedStorageKey } from "@/infrastructure/config/app-scope";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  calculateStreak,
   createLearningJourney,
   getLearningRecommendation,
   normalizeLearningEvent,
@@ -128,9 +129,10 @@ export function useLearningJourney(pathname: string) {
   const interviewAdaptation = useMemo(() => createInterviewAdaptation(journey), [journey]);
   const activeMinutes = Math.round(journey.totalActiveSeconds / 60);
   const practicedSkills = Object.keys(journey.skillStats).length;
+  const shieldUsedThisWeek = useMemo(() => calculateStreak(journey.activeDates, new Date(), { weeklyShield: true }).shieldUsedThisWeek === true, [journey.activeDates]);
   return useMemo(
-    () => ({ journey, recommendation, analysis, interviewAdaptation, activeMinutes, practicedSkills }),
-    [journey, recommendation, analysis, interviewAdaptation, activeMinutes, practicedSkills],
+    () => ({ journey, recommendation, analysis, interviewAdaptation, activeMinutes, practicedSkills, shieldUsedThisWeek }),
+    [journey, recommendation, analysis, interviewAdaptation, activeMinutes, practicedSkills, shieldUsedThisWeek],
   );
 }
 

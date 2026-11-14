@@ -5,7 +5,7 @@ import { useGksProgress } from "./useGksProgress";
 import { useLearningJourney } from "./useLearningJourney";
 import { useWrittenSimulator } from "./useWrittenSimulator";
 import { trackLearning } from "./learningJourneyEvents";
-import { dailyTasks } from "@/infrastructure/data/gks-2026";
+import { gksPlanId } from "@/domain/models/daily-plan";
 
 const JOURNEY_KEY = "learnv-learning-journey-v1";
 const PROGRESS_KEY = "learnv-progress-v1";
@@ -18,7 +18,7 @@ describe("useGksProgress", () => {
   it("starts an empty plan on a new local day without losing documents", () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(new Date(2026, 10, 10, 9, 0));
-    const firstTask = dailyTasks[0]!.id;
+    const firstTask = gksPlanId("documents");
     const { result, rerender } = renderHook(() => useGksProgress());
     act(() => result.current.toggleTask(firstTask));
     act(() => result.current.toggleDocument("application"));

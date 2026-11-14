@@ -13,6 +13,8 @@ import { getDefinition } from "@/app/layout/SectionTour";
 import { documentStages } from "@/domain/models/document-plan";
 import { TESTS_PER_LANGUAGE, TESTS_PER_SKILL } from "@/infrastructure/data/practice-tests";
 import { LearningJourneyPanel } from "@/shared/ui/LearningJourneyPanel";
+import { DailyPlanCard } from "@/features/home/presentation/DailyPlanCard";
+import { createLearningJourney } from "@/domain/models/learning-journey";
 
 const scenario = vi.hoisted(() => ({ qa: false, locale: "es" as "es" | "en" | "ko" }));
 vi.mock("@/application/i18n/I18nContext", () => ({
@@ -26,8 +28,8 @@ vi.mock("@/application/controllers/useLanguageTestProgress", () => ({ useLanguag
 vi.mock("@/application/controllers/useGksRadar", () => ({ useGksRadar: () => ({ checkedAt: "2026-10-07T12:00:00Z", sourceChecks: [], callDetected: false, isLoading: false }) }));
 
 const learning = {
-  journey: { currentStreak: 0, longestStreak: 0, sessionCount: 1 },
-  recommendation: { id: "documents", route: "/checklist" }, activeMinutes: 0, practicedSkills: 0,
+  journey: { ...createLearningJourney(), sessionCount: 1 },
+  recommendation: { id: "documents", route: "/checklist" }, activeMinutes: 0, practicedSkills: 0, shieldUsedThisWeek: false,
   analysis: { totalAttempts: 0 },
 } as unknown as LearningJourneyController;
 const render = (element: React.ReactNode) => renderToStaticMarkup(<MemoryRouter>{element}</MemoryRouter>);
@@ -58,19 +60,21 @@ describe.each(["es", "en", "ko"] as const)("progressive first visit in %s", (loc
     scenario.locale = locale; scenario.qa = false;
     const html = render(<HomePage score={0} progress={{ completedTasks: [] }} toggleTask={() => {}} learning={learning} />);
     hasOrder(html, ["hero-grid", "home-today", "learning-journey", "alert-card", "objectives-drawer", "quote-card"]);
-    expect(html).toContain('class="task-card__body"');
-    expect(html).toContain('aria-pressed="false"');
-    expect(html).toContain('class="home-plan-drawer"');
-    expect(html).not.toContain('class="home-plan-drawer" open');
+    // The generated plan loads lazily inside its section, after the hero.
+    expect(html).toContain('id="today-title"');
+    const plan = render(<DailyPlanCard ticked={[]} toggle={() => {}} streak={0} shieldUsed={false} onStatus={() => {}} />);
+    expect(plan).toContain('class="task-card__body"');
+    expect(plan).toContain('aria-pressed="false"');
+    expect(plan).not.toContain("home-plan-drawer");
   });
   it("preserves all-complete and resumed home plans", () => {
     scenario.locale = locale; scenario.qa = false;
-    const all = ["topik-reading-01", "english-writing-01", "gks-story-01"];
-    const completed = render(<HomePage score={100} progress={{ completedTasks: all }} toggleTask={() => {}} learning={learning} />);
-    expect(completed).toContain("home-plan-complete");
-    expect(completed).not.toContain("task-card--priority");
-    const resumed = render(<HomePage score={30} progress={{ completedTasks: all.slice(0, 1) }} toggleTask={() => {}} learning={learning} />);
-    expect(resumed).toContain('class="primary-button" href="/study/english"');
+    // Only the GKS step is ticked by hand; review and stage wait for real practice.
+    const ticked = render(<DailyPlanCard ticked={["gks-language-exam"]} toggle={() => {}} streak={2} shieldUsed={false} onStatus={() => {}} />);
+    expect(ticked).toContain('aria-pressed="true"');
+    expect(ticked).not.toContain("home-plan-complete");
+    expect(ticked).toMatch(/task-card--priority" data-plan-item="review"/);
+    expect(ticked).toContain('href="/study/review"');
   });
   it("orders study from starter actions to languages and advanced practice; no hidden heavy content is mounted", () => {
     scenario.locale = locale; scenario.qa = false;

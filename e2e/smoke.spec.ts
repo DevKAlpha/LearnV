@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
@@ -250,5 +251,100 @@ test.describe("GKS cycle and applicant profile", () => {
     const board = await page.evaluate(() => JSON.parse(localStorage.getItem("learnv-task-board-v1") ?? "{}"));
     expect(board.tasks[0]).toMatchObject({ id: "gks-doc-passport-2028", area: "gks", status: "todo" });
     expect(board.tasks[0].dueDate).toMatch(/^2027-0[67]-\d{2}$/);
+  });
+});
+
+test.describe("Daily plan, board Today view and weekly summary", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.clock.setFixedTime(new Date("2026-11-14T10:00:00"));
+    await prepare(page);
+  });
+
+  test("home builds today's plan and only the GKS step is ticked by hand", async ({ page }) => {
+    await openReady(page, "/");
+    const section = page.locator(".home-today");
+    await expect(section.locator("[data-plan-item]")).toHaveCount(3);
+    await expect(section.locator(".count-pill")).toHaveText("0/3");
+    await expect(section.locator('[data-plan-item="review"] .task-card__body')).toHaveAttribute("href", /\/study\/review$/);
+    await expect(section.locator('[data-plan-item="review"] button')).toHaveCount(0);
+    const tick = section.getByRole("button", { name: /Marcar como hecho: Prioridad: tu certificado de idioma/ });
+    await tick.click();
+    await expect(section.getByRole("button", { name: /Desmarcar: / })).toHaveAttribute("aria-pressed", "true");
+    await expect(section.locator(".count-pill")).toHaveText("1/3");
+    await page.reload();
+    await expect(page.locator(".home-today .count-pill")).toHaveText("1/3");
+    const journey = await page.evaluate(() => JSON.parse(localStorage.getItem("learnv-learning-journey-v1") ?? "{}"));
+    expect(journey.activeDates ?? []).toEqual([]);
+  });
+
+  test("the board's Today view accepts and sets aside suggestions", async ({ page }) => {
+    await openReady(page, "/");
+    await page.getByRole("button", { name: "Abrir mi tablero" }).click();
+    const dialog = page.getByRole("dialog", { name: "Mi tablero" });
+    await dialog.getByRole("button", { name: /^Hoy/ }).click();
+    await expect(dialog.getByText("Nada vence hoy.", { exact: false })).toBeVisible();
+    const suggestions = dialog.getByRole("region", { name: "Sugerencias para tu tablero" });
+    await suggestions.getByRole("button", { name: /^Añadir: Repasar \d+ tarjetas de hoy/ }).click();
+    await expect(dialog.getByRole("heading", { level: 3, name: /^Repasar \d+ tarjetas de hoy/ })).toBeVisible();
+    await suggestions.getByRole("button", { name: /^Ahora no: GKS · / }).click();
+    await expect(suggestions.getByRole("button", { name: /^Ahora no: GKS · / })).toHaveCount(0);
+    const stored = await page.evaluate(() => ({
+      board: JSON.parse(localStorage.getItem("learnv-task-board-v1") ?? "{}"),
+      dismissed: JSON.parse(localStorage.getItem("learnv-board-suggestions-v1") ?? "[]"),
+    }));
+    expect(stored.board.tasks[0]).toMatchObject({ id: "srs-review-2026-11-14", dueDate: "2026-11-14", status: "todo" });
+    expect(stored.dismissed).toEqual(["gks-step-language-exam-2028"]);
+  });
+
+  test("profile shows the weekly summary built from evidence", async ({ page }) => {
+    await openReady(page, "/profile");
+    const week = page.getByRole("region", { name: "Tu semana" });
+    await expect(week).toBeVisible();
+    await expect(week).toContainText("Del 8 de noviembre al 14 de noviembre");
+    await expect(week).toContainText("Aún no hay prácticas puntuadas esta semana.");
+  });
+});
+
+test.describe("Reminders and calendar export", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.clock.setFixedTime(new Date("2026-11-14T10:00:00"));
+    await prepare(page);
+  });
+
+  test("reminders need explicit permission and the calendar file carries GKS dates and the study session", async ({ page, context }) => {
+    await context.grantPermissions(["notifications"]);
+    await openReady(page, "/profile");
+    const panel = page.getByRole("region", { name: "Recordatorios y calendario" });
+    await panel.getByLabel("Hora de estudio").fill("07:30");
+    await panel.getByRole("button", { name: "Activar avisos" }).click();
+    await expect(panel.getByRole("status")).toHaveText("Avisos activados a las 07:30.");
+    expect(await page.evaluate(() => JSON.parse(localStorage.getItem("learnv-reminders-v1") ?? "{}"))).toMatchObject({ enabled: true, time: "07:30" });
+    const [download] = await Promise.all([page.waitForEvent("download"), panel.getByRole("button", { name: "Descargar calendario" }).click()]);
+    expect(download.suggestedFilename()).toBe("learnv-calendario-2026-11-14.ics");
+    const ics = fs.readFileSync(await download.path(), "utf8");
+    expect(ics).toContain("BEGIN:VCALENDAR");
+    expect(ics).toContain("SUMMARY:GKS-U 2028 · Convocatoria");
+    expect(ics).toContain("DTSTART:20261114T073000");
+    expect(ics).toContain("RRULE:FREQ=DAILY");
+  });
+});
+
+test.describe("Installable app", () => {
+  test.use({ serviceWorkers: "allow" });
+
+  test("ships a manifest and opens offline once the worker is installed", async ({ page, context }) => {
+    await prepare(page);
+    await openReady(page, "/");
+    const href = await page.locator('link[rel="manifest"]').getAttribute("href");
+    const manifest = await (await page.request.get(new URL(href!, page.url()).href)).json();
+    expect(manifest).toMatchObject({ short_name: "LearnV", display: "standalone", start_url: "./" });
+    expect(manifest.icons.map((icon: { sizes: string }) => icon.sizes)).toEqual(expect.arrayContaining(["192x192", "512x512"]));
+    await page.evaluate(async () => { await navigator.serviceWorker.ready; });
+    await page.reload();
+    await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
+    await context.setOffline(true);
+    await openReady(page, "/study/review");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await context.setOffline(false);
   });
 });

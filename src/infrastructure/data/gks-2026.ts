@@ -1,4 +1,4 @@
-import type { DocumentItem, GksCertification, GksFact, Source, StudyTask } from "../../domain/models/gks";
+import type { DocumentItem, GksCertification, GksFact, Source } from "../../domain/models/gks";
 
 export const currentCycle = {
   reference: "GKS-U 2027",
@@ -206,30 +206,6 @@ export const targetPrograms = [
   { id: "medical-it", category: "health", tone: "pink" },
   { id: "health-sciences", category: "health", tone: "green" },
 ] as const;
-
-export const dailyTasks: StudyTask[] = [
-  {
-    id: "topik-reading-01",
-    title: "Puente TOPIK I → II · lectura",
-    meta: "Vocabulario, conectores y 5 preguntas graduadas",
-    category: "topik",
-    duration: 20,
-  },
-  {
-    id: "english-writing-01",
-    title: "English · argumento académico",
-    meta: "B2 → C1 · cohesión y evidencia",
-    category: "english",
-    duration: 25,
-  },
-  {
-    id: "gks-story-01",
-    title: "Banco de evidencias personal",
-    meta: "Logros que respaldan tu Personal Statement",
-    category: "application",
-    duration: 15,
-  },
-];
 
 export const documents: DocumentItem[] = [
   {

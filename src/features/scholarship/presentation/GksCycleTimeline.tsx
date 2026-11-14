@@ -1,6 +1,10 @@
 import "@/styles/tailwind-study.css";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { useApplicantProfile, useGksCycle } from "@/application/controllers/useApplicantProfile";
+import { useCalendarExport } from "@/application/controllers/useCalendarExport";
+import { localDateKey } from "@/domain/models/learning-journey";
+import { dailyHabitCopy } from "@/infrastructure/i18n/daily-habit-copy";
+import { downloadText } from "@/shared/ui/download-text";
 import { gksProfileCopy } from "@/infrastructure/i18n/gks-profile-copy";
 import { GksCycleCard } from "@/shared/ui/GksCycleCard";
 
@@ -12,6 +16,8 @@ export function GksCycleTimeline() {
   const copy = gksProfileCopy[locale].cycle;
   const cycle = useGksCycle();
   const { update } = useApplicantProfile();
+  const buildCalendar = useCalendarExport(locale);
+  const addToCalendar = () => downloadText(buildCalendar({ gks: true, board: false, study: false }), `learnv-gks-${cycle.entryYear}-${localDateKey(new Date())}.ics`, "text/calendar");
   const format = (date: string) => new Intl.DateTimeFormat(dateLocales[locale], { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(`${date}T12:00:00Z`));
 
   return (
@@ -44,6 +50,7 @@ export function GksCycleTimeline() {
           })}
         </ol>
         <small>{copy.estimateNote}</small>
+        <button type="button" className="min-h-11 w-fit cursor-pointer rounded-full border-2 border-edge bg-paper px-4 font-extrabold text-fg focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-current" onClick={addToCalendar}>{dailyHabitCopy[locale].reminders.gksButton} (.ics)</button>
       </div>
     </section>
   );

@@ -2,22 +2,8 @@ import "@/styles/tailwind-study.css";
 import { Link } from "react-router-dom";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { useGksCycle } from "@/application/controllers/useApplicantProfile";
-import type { NextActionId } from "@/domain/models/gks-cycle";
-import { sources } from "@/infrastructure/data/gks-2026";
+import { ACTION_ROUTES } from "./gks-action-routes";
 import { gksProfileCopy } from "@/infrastructure/i18n/gks-profile-copy";
-
-const OFFICIAL_NOTICES = sources.find((source) => source.id === "study-in-korea-notices")?.url ?? "https://www.studyinkorea.go.kr/";
-const ACTION_ROUTES: Record<NextActionId, string> = {
-  "language-exam": "/study",
-  documents: "/checklist",
-  drafts: "/study/written-simulator",
-  "read-guide": OFFICIAL_NOTICES,
-  submit: "/checklist",
-  interview: "/study/interviews",
-  "keep-practising": "/study/review",
-  "check-results": OFFICIAL_NOTICES,
-  "pre-departure": "/gks",
-};
 
 const link = "inline-flex min-h-11 w-fit items-center rounded-full border-2 border-ink bg-accent px-5 py-2 font-extrabold text-ink no-underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-current";
 

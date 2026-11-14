@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useGksProgress } from "@/application/controllers/useGksProgress";
 import { useLearningErrorDiagnostics } from "@/application/controllers/useLearningErrorDiagnostics";
 import { useLearningJourney } from "@/application/controllers/useLearningJourney";
+import { useStudyReminder } from "@/application/controllers/useStudyReminder";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { isImmersiveLearningRoute, resolveLearningLocale } from "@/application/i18n/learning-locale";
 import { AppGuide } from "@/app/layout/AppGuide";
@@ -30,10 +31,11 @@ const SectionTour = lazy(() => import("@/app/layout/SectionTour").then((module) 
 
 export function App() {
   const progress = useGksProgress();
-  const { copy, setLearningLocale } = useI18n();
+  const { copy, locale, setLearningLocale } = useI18n();
   const location = useLocation();
   useLearningErrorDiagnostics(location.pathname);
   const learning = useLearningJourney(location.pathname);
+  useStudyReminder(learning.journey.activeDates, locale);
   const learningLocale = resolveLearningLocale(location.pathname);
   const isImmersiveLearningExperience = isImmersiveLearningRoute(location.pathname);
   const [tourReady, setTourReady] = useState(false);
