@@ -4,6 +4,7 @@ import { useGksProgress } from "@/application/controllers/useGksProgress";
 import { useLearningErrorDiagnostics } from "@/application/controllers/useLearningErrorDiagnostics";
 import { useLearningJourney } from "@/application/controllers/useLearningJourney";
 import { useStudyReminder } from "@/application/controllers/useStudyReminder";
+import { useAccountAutoSync } from "@/application/controllers/useAccountAutoSync";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { isImmersiveLearningRoute, resolveLearningLocale } from "@/application/i18n/learning-locale";
 import { AppGuide } from "@/app/layout/AppGuide";
@@ -36,6 +37,7 @@ export function App() {
   useLearningErrorDiagnostics(location.pathname);
   const learning = useLearningJourney(location.pathname);
   useStudyReminder(learning.journey.activeDates, locale);
+  useAccountAutoSync();
   const learningLocale = resolveLearningLocale(location.pathname);
   const isImmersiveLearningExperience = isImmersiveLearningRoute(location.pathname);
   const [tourReady, setTourReady] = useState(false);

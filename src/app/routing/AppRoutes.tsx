@@ -5,6 +5,7 @@ import type { LearningJourneyController } from "@/application/controllers/useLea
 import { loadWithAssetRecovery } from "@/app/routing/asset-recovery";
 import { HomePage } from "@/features/home/presentation/HomePage";
 import { isLearningQa, isAppRouteAvailable } from "@/application/qa/qa-learning-scope";
+import { syncApiBase } from "@/infrastructure/sync/sync-config";
 
 const recoverable = <T,>(loader: () => Promise<T>) => {
   let pending: Promise<T> | undefined;
@@ -27,6 +28,7 @@ const loadTestPathPage = recoverable(() => import("@/features/study/presentation
 const loadTestSessionPage = recoverable(() => import("@/features/study/presentation/pages/TestSessionPage").then((module) => ({ default: module.TestSessionPage })));
 const loadChecklistPage = recoverable(() => import("@/features/documents/presentation/ChecklistPage").then((module) => ({ default: module.ChecklistPage })));
 const loadProfilePage = recoverable(() => import("@/features/profile/presentation/ProfilePage").then((module) => ({ default: module.ProfilePage })));
+const loadAccountVerifyPage = recoverable(() => import("@/features/profile/presentation/AccountVerifyPage").then((module) => ({ default: module.AccountVerifyPage })));
 
 const GksPage = lazy(loadGksPage);
 const StudyPage = lazy(loadStudyPage);
@@ -41,6 +43,7 @@ const TestPathPage = lazy(loadTestPathPage);
 const TestSessionPage = lazy(loadTestSessionPage);
 const ChecklistPage = lazy(loadChecklistPage);
 const ProfilePage = lazy(loadProfilePage);
+const AccountVerifyPage = lazy(loadAccountVerifyPage);
 
 export async function preloadAppRoute(pathname: string): Promise<boolean> {
   if (!isAppRouteAvailable(pathname)) return false;
@@ -91,6 +94,7 @@ export function AppRoutes({ location, progress, learning }: AppRoutesProps) {
       <Route path="/tests/:language/:stageId" element={<TestSessionPage />} />
       {!isLearningQa && <Route path="/checklist" element={<ChecklistPage {...progress} />} />}
       {!isLearningQa && <Route path="/profile" element={<ProfilePage score={progress.score} learning={learning} />} />}
+      {syncApiBase && <Route path="/account/verify" element={<AccountVerifyPage />} />}
       <Route path="*" element={<Navigate to={isLearningQa ? "/study" : "/"} replace />} />
     </Routes>
   );

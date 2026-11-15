@@ -9,6 +9,7 @@ import { localize } from "@/domain/models/i18n";
 import { interviewLearningLinkCopy } from "@/infrastructure/data/interview-learning-link";
 import { interviewQuestions, interviewTips } from "@/infrastructure/data/interview-prep";
 import { recordLearningError } from "@/infrastructure/data/learning-error-log";
+import { onStorageKeyChange } from "@/infrastructure/storage/storage-events";
 import { AppIcon } from "@/shared/ui/AppIcon";
 import { LiteYouTube } from "@/shared/ui/LiteYouTube";
 import { InterviewPreparation2027 } from "@/shared/ui/InterviewPreparation2027";
@@ -65,6 +66,7 @@ export function InterviewPrepPage({ learning }: { learning: LearningJourneyContr
   const learningLinkCopy = interviewLearningLinkCopy[locale];
   const scrollToSection = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
+  useEffect(() => onStorageKeyChange(INTERVIEW_STORAGE_KEY, () => setSavedPractice(readSavedPractice())), []);
   useEffect(() => {
     try {
       localStorage.setItem(INTERVIEW_STORAGE_KEY, JSON.stringify(savedPractice));

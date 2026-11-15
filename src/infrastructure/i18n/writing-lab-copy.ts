@@ -5,7 +5,7 @@ export const writingLabCopy = {
     choose: "Elige una tarea", minutes: "min", length: (min: number, max: number, unit: string) => `${min}–${max} ${unit}`,
     words: "palabras", characters: "caracteres", outline: "Cómo organizar la respuesta", model: "Ver una respuesta posible",
     draft: "Tu respuesta", save: "Guardar versión", saved: (count: number) => count === 1 ? "1 versión guardada" : `${count} versiones guardadas`,
-    feedbackHint: "Escribe al menos unas frases para ver la revisión.", privacy: "Tu texto se guarda solo en este dispositivo.",
+    feedbackHint: "Escribe al menos unas frases para ver la revisión.", privacy: "Tu texto se guarda en este dispositivo. Solo se sube si activas «Sincronizar borradores» en tu cuenta.",
     chartTable: "Datos del gráfico", disclaimer: "Temas y datos creados para practicar; no son exámenes oficiales.",
   },
   en: {
@@ -14,7 +14,7 @@ export const writingLabCopy = {
     choose: "Choose a task", minutes: "min", length: (min: number, max: number, unit: string) => `${min}–${max} ${unit}`,
     words: "words", characters: "characters", outline: "How to organise the answer", model: "See a possible answer",
     draft: "Your answer", save: "Save version", saved: (count: number) => count === 1 ? "1 version saved" : `${count} versions saved`,
-    feedbackHint: "Write a few sentences to see the review.", privacy: "Your text is saved on this device only.",
+    feedbackHint: "Write a few sentences to see the review.", privacy: "Your text is saved on this device. It is only uploaded if you turn on “Sync drafts” in your account.",
     chartTable: "Chart data", disclaimer: "Topics and data written for practice; these are not official papers.",
   },
   ko: {
@@ -23,7 +23,7 @@ export const writingLabCopy = {
     choose: "과제 선택", minutes: "분", length: (min: number, max: number, unit: string) => `${min}~${max}${unit}`,
     words: "단어", characters: "자", outline: "답안 구성 방법", model: "예시 답안 보기",
     draft: "내 답안", save: "버전 저장", saved: (count: number) => `저장된 버전 ${count}개`,
-    feedbackHint: "몇 문장을 쓰면 점검 결과가 나타납니다.", privacy: "글은 이 기기에만 저장됩니다.",
+    feedbackHint: "몇 문장을 쓰면 점검 결과가 나타납니다.", privacy: "글은 이 기기에 저장됩니다. 계정에서 ‘초안 동기화’를 켤 때만 업로드됩니다.",
     chartTable: "그래프 자료", disclaimer: "연습용으로 만든 주제와 자료이며 공식 기출 문제가 아닙니다.",
   },
 } as const;

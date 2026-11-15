@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { onStorageKeyChange } from "../../infrastructure/storage/storage-events";
 import {
   WRITTEN_FOCUS_MINUTES,
   emptyWrittenSimulator,
@@ -35,6 +36,8 @@ function readState(): WrittenSimulatorState {
 export function useWrittenSimulator() {
   const [state, setState] = useState<WrittenSimulatorState>(readState);
   const [now, setNow] = useState(Date.now());
+
+  useEffect(() => onStorageKeyChange(WRITTEN_SIMULATOR_STORAGE_KEY, () => setState(readState())), []);
 
   useEffect(() => {
     try {

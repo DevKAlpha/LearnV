@@ -16,6 +16,9 @@ export default defineConfig(({ mode }) => {
   const scope = process.env.VITE_APP_SCOPE || env.VITE_APP_SCOPE || (mode === "full" ? "full" : mode === "qa" || branch === "qa" ? "learning-qa" : "full");
   if (scope !== "full" && scope !== "learning-qa") throw new Error(`Invalid VITE_APP_SCOPE: ${scope}`);
   const base = pagesBase({ actions: process.env.GITHUB_ACTIONS, repository: process.env.GITHUB_REPOSITORY, owner: process.env.GITHUB_REPOSITORY_OWNER, scope, override: process.env.VITE_BASE_PATH || env.VITE_BASE_PATH });
+  // `pnpm api:dev` listens here; dev and preview servers forward /api like Nginx does.
+  const syncApi = process.env.VITE_SYNC_API || env.VITE_SYNC_API;
+  const apiProxy = syncApi ? { "/api": { target: process.env.API_PROXY_TARGET || "http://localhost:3001", changeOrigin: false } } : undefined;
   let revision = "local";
   try { revision = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(); } catch { /* Source archive. */ }
   return {
@@ -31,6 +34,8 @@ export default defineConfig(({ mode }) => {
       },
     }],
     base,
+    server: { proxy: apiProxy },
+    preview: { proxy: apiProxy },
     test: { exclude: [...configDefaults.exclude, ".qa-source/**", "dist-qa-pages-validation/**", "e2e/**"] },
     resolve: {
       alias: {

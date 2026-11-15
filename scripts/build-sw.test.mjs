@@ -20,6 +20,7 @@ describe("service worker build", () => {
     expect(source).toContain('if (request.method !== "GET") return;');
     expect(source).toContain("url.pathname.startsWith(scope.pathname)");
     expect(source).toContain('url.pathname.startsWith(scope.pathname + "qa/")');
+    expect(source).toContain('url.pathname.startsWith("/api/")');
     expect(() => new Function(source)).not.toThrow();
   });
 });

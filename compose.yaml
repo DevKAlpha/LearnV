@@ -1,5 +1,47 @@
+# Same-origin deployment: Nginx serves the app and proxies /api to the API, so the session
+# cookie is first-party. Secrets come from .env (see apps/api/.env.example).
 services:
   web:
-    build: .
+    build:
+      context: .
+      args:
+        VITE_SYNC_API: /api/v1/
     ports:
       - "8080:80"
+    depends_on:
+      - api
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      DATABASE_URL: postgres://learnv:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/learnv
+      PUBLIC_APP_URL: ${PUBLIC_APP_URL:?set PUBLIC_APP_URL in .env}
+      DATA_KEY: ${DATA_KEY:?set DATA_KEY in .env}
+      MAIL_TRANSPORT: smtp
+      SMTP_URL: ${SMTP_URL:?set SMTP_URL in .env}
+      MAIL_FROM: ${MAIL_FROM:?set MAIL_FROM in .env}
+      TRUST_PROXY: "1"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: learnv
+      POSTGRES_USER: learnv
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - learnv-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U learnv -d learnv"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  learnv-db:

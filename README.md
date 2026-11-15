@@ -34,6 +34,7 @@ La interfaz funciona en español, inglés y coreano, incluye temas claro/oscuro,
 - Vitest para reglas de dominio y validación de datos.
 - CSS propio con variables temáticas y paleta inspirada en tulipanes.
 - Docker + Nginx para ejecución autocontenida.
+- API opcional (`apps/api`): Express 5, zod, helmet, express-rate-limit, PostgreSQL con Drizzle ORM (PGlite en desarrollo y pruebas).
 - GitHub Actions + GitHub Pages para actualización y despliegue.
 
 ## Arquitectura
@@ -60,7 +61,11 @@ flowchart LR
 
 ### Estructura
 
+El repositorio es un workspace pnpm: la SPA está en la raíz, la API en `apps/api` y el contrato compartido (claves sincronizables, límites, esquemas zod) en `packages/schemas`.
+
 ```text
+apps/api/                       # API de cuenta y sincronización (opcional)
+packages/schemas/               # contrato web ↔ API
 src/
 ├── app/
 │   ├── App.tsx                 # shell principal
@@ -92,6 +97,8 @@ Los imports internos pueden usar el alias `@/`, definido en `tsconfig.app.json` 
 
 LearnV no necesita backend. El progreso, borradores del simulador, preferencias y casillas se guardan en `localStorage` del dispositivo. Las grabaciones de práctica permanecen en el navegador y no se suben.
 
+La cuenta es opcional y solo existe en builds con `VITE_SYNC_API` (Docker). Con sesión iniciada se sincroniza una copia cifrada (AES-256-GCM) de cada entrada de `localStorage`, salvo las propias del dispositivo (tema, idioma, voces, recordatorios, diagnósticos). Los textos libres solo se suben si se activa «Sincronizar borradores». Nunca se suben documentos. GitHub Pages no tiene cuenta. Detalles: `docs/QA-PHASE-6.md`.
+
 Los videos usan carga diferida desde `youtube-nocookie.com` y conservan un enlace externo alternativo. La síntesis de voz y las funciones de grabación dependen de las capacidades y permisos del navegador.
 
 No deben añadirse al repositorio certificados, documentos de identidad, expedientes, direcciones, credenciales ni información personal real.
@@ -113,6 +120,9 @@ Vite mostrará la dirección local disponible, normalmente `http://localhost:517
 | Comando | Función |
 | --- | --- |
 | `pnpm dev` | Servidor de desarrollo. |
+| `pnpm dev:sync` | Servidor de desarrollo con la cuenta activada (`/api` se reenvía a `localhost:3001`). |
+| `pnpm api:dev` | API en desarrollo: PGlite en `apps/api/.data` y enlaces de acceso impresos en la consola. |
+| `pnpm api:build` | Empaqueta la API en `apps/api/dist/server.mjs`. |
 | `pnpm test` | Ejecuta las pruebas automatizadas. |
 | `pnpm run typecheck` | Valida TypeScript estricto. |
 | `pnpm lint` | ESLint (TypeScript, hooks de React y accesibilidad JSX). |
@@ -136,7 +146,9 @@ pnpm validate
 docker compose up --build
 ```
 
-La aplicación quedará disponible en `http://localhost:8080`. Nginx sirve los archivos estáticos y resuelve las rutas de la SPA.
+La aplicación quedará disponible en `http://localhost:8080`. Nginx sirve los archivos estáticos, resuelve las rutas de la SPA y reenvía `/api/` a la API (mismo origen, así la cookie de sesión es de primera parte). `compose.yaml` levanta web, API y PostgreSQL 17; antes copia `apps/api/.env.example` a `.env` en la raíz y rellena `POSTGRES_PASSWORD`, `DATA_KEY` (`openssl rand -base64 32`), `PUBLIC_APP_URL` (https), `SMTP_URL` y `MAIL_FROM`.
+
+Solo la web, sin cuenta: `docker build -t learnv . && docker run -p 8080:80 learnv`.
 
 ## GitHub Pages y radar GKS
 

@@ -27,5 +27,7 @@
 @source "../features/task-board/presentation/TaskBoardToday.tsx";
 @source "../features/profile/presentation/WeeklySummaryCard.tsx";
 @source "../features/profile/presentation/RemindersPanel.tsx";
+@source "../features/profile/presentation/AccountSyncPanel.tsx";
+@source "../features/profile/presentation/AccountVerifyPage.tsx";
 
 @import "./tailwind-theme.css";

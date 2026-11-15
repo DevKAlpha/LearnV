@@ -1,0 +1,15 @@
+{
+  "name": "@learnv/schemas",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Sync contract shared by the LearnV web client and API: syncable keys, limits and zod schemas.",
+  "exports": {
+    "./sync-keys": "./src/sync-keys.ts",
+    "./sync-api": "./src/sync-api.ts"
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "zod": "^4.6.7"
+  }
+}

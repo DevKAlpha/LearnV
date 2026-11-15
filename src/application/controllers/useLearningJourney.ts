@@ -16,6 +16,7 @@ import { createInterviewAdaptation } from "@/domain/models/interview-adaptation"
 import { normalizeTestProgress } from "@/domain/models/language-path";
 import { recordLearningError, resolveLearningDiagnosticArea } from "@/infrastructure/data/learning-error-log";
 import { onLearnvEvent } from "@/infrastructure/events/learnv-events";
+import { onStorageKeyChange } from "@/infrastructure/storage/storage-events";
 
 const STORAGE_KEY = scopedStorageKey("learnv-learning-journey-v1");
 const SKILLS = ["reading", "grammar", "vocabulary", "writing", "listening", "pronunciation"] as const;
@@ -92,6 +93,9 @@ export function useLearningJourney(pathname: string) {
       });
     }
   }, [journey]);
+
+  // Another tab or the account sync rewrote the journey: continue from that copy.
+  useEffect(() => onStorageKeyChange(STORAGE_KEY, () => setJourney(readJourney())), []);
 
   const record = useCallback((event: LearningEvent) => {
     lastEventKind.current = event.kind;

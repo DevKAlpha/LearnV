@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguageTestProgress } from "@/application/controllers/useLanguageTestProgress";
 import { useI18n } from "@/application/i18n/I18nContext";
@@ -15,7 +15,11 @@ import { RemindersPanel } from "./RemindersPanel";
 import { useApplicantProfile, useGksCycle } from "@/application/controllers/useApplicantProfile";
 import { useMeasuredLevels } from "@/application/controllers/useMeasuredLevels";
 import { gksProfileCopy } from "@/infrastructure/i18n/gks-profile-copy";
+import { syncApiBase } from "@/infrastructure/sync/sync-config";
 import "@/styles/profile-learning-summary.css";
+
+// Only builds with an account API ship the panel (it brings the API client and zod).
+const AccountSyncPanel = lazy(() => import("./AccountSyncPanel").then((module) => ({ default: module.AccountSyncPanel })));
 
 export function ProfilePage({ score, learning }: { score: number; learning: LearningJourneyController }) {
   const { copy, locale } = useI18n();
@@ -68,6 +72,8 @@ export function ProfilePage({ score, learning }: { score: number; learning: Lear
         <span className="eyebrow">{copy.profile.targetCycle}</span><h2>{profileCopy.cycle.cycle(cycle.entryYear)} · {profileCopy.cycle.phases[cycle.phase].title}</h2><p>{copy.home.cycleNote}</p>
         <Link to="/gks">{copy.profile.radar} →</Link>
       </section>
+
+      {syncApiBase && <Suspense fallback={null}><AccountSyncPanel locale={locale} /></Suspense>}
 
       <DeviceBackupPanel locale={locale} />
 

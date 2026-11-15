@@ -348,3 +348,17 @@ test.describe("Installable app", () => {
     await context.setOffline(false);
   });
 });
+
+test.describe("Account sync is opt-in per build", () => {
+  test("a build without an account API shows no account features and makes no API calls", async ({ page }) => {
+    const apiCalls: string[] = [];
+    page.on("request", (request) => { if (request.url().includes("/api/")) apiCalls.push(request.url()); });
+    await prepare(page);
+    await openReady(page, "/profile");
+    await expect(page.getByRole("region", { name: "Copia de seguridad del dispositivo" }).or(page.getByRole("heading", { name: /Copia de seguridad/ })).first()).toBeVisible();
+    await expect(page.getByRole("region", { name: "Cuenta y sincronización" })).toHaveCount(0);
+    await openReady(page, "/account/verify");
+    await expect(page).toHaveURL(/\/$/);
+    expect(apiCalls).toEqual([]);
+  });
+});

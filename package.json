@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "vite",
     "dev:qa": "vite --mode qa",
+    "dev:sync": "vite --mode sync",
     "build:qa": "tsc -b && vite build --mode qa && node scripts/create-spa-fallback.mjs && node scripts/check-startup-budget.mjs && node scripts/csp.mjs dist && node scripts/strip-sourcemaps.mjs dist && node scripts/build-sw.mjs dist",
     "build": "tsc -b && vite build && node scripts/create-spa-fallback.mjs && node scripts/check-startup-budget.mjs && node scripts/csp.mjs dist && node scripts/strip-sourcemaps.mjs dist && node scripts/build-sw.mjs dist",
     "gks:update": "node scripts/update-gks-radar.mjs",
@@ -17,20 +18,24 @@
     "library:check-links": "node --experimental-strip-types scripts/check-reading-library.mjs",
     "preview": "vite preview --host 0.0.0.0",
     "preview:pages": "node scripts/preview-pages.mjs",
-    "typecheck": "tsc -b",
+    "typecheck": "tsc -b && pnpm --filter @learnv/api typecheck",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "e2e": "playwright test",
     "check:architecture": "node scripts/check-architecture.mjs",
+    "api:dev": "pnpm --filter @learnv/api dev",
+    "api:build": "pnpm --filter @learnv/api build",
+    "api:typecheck": "pnpm --filter @learnv/api typecheck",
     "release:check": "node scripts/check-release.mjs",
     "release:commits": "node scripts/check-release-commits.mjs",
-    "validate": "pnpm run check:architecture && pnpm run lint && pnpm test && pnpm run build"
+    "validate": "pnpm run check:architecture && pnpm run lint && pnpm run api:typecheck && pnpm test && pnpm run build && pnpm run api:build"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "^5.3.0",
     "@fontsource-variable/noto-sans-kr": "^5.3.0",
+    "@learnv/schemas": "workspace:*",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.8.2"

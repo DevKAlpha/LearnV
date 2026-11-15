@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { localize } from "@/domain/models/i18n";
 import {
@@ -10,6 +10,7 @@ import { AppIcon, type AppIconName } from "@/shared/ui/AppIcon";
 import { trackLearning } from "@/application/controllers/learningJourneyEvents";
 import { recordLearningError } from "@/infrastructure/data/learning-error-log";
 import { resourceProgressKey, writeResourceProgress } from "@/infrastructure/data/resource-progress";
+import { onStorageKeyChange } from "@/infrastructure/storage/storage-events";
 
 type TypeFilter = "all" | ResourceType;
 
@@ -21,7 +22,7 @@ export function ResourceLibrary({ language }: ResourceLibraryProps) {
   const { locale, copy } = useI18n();
   const [type, setType] = useState<TypeFilter>("all");
   const [saveFailed, setSaveFailed] = useState<string | null>(null);
-  const [completed, setCompleted] = useState<string[]>(() => {
+  const read = () => {
     try {
       const parsed: unknown = JSON.parse(localStorage.getItem(resourceProgressKey) ?? "[]");
       if (!Array.isArray(parsed) || !parsed.every((item) => typeof item === "string")) throw new Error("Invalid resource progress shape");
@@ -34,7 +35,10 @@ export function ResourceLibrary({ language }: ResourceLibraryProps) {
       });
       return [];
     }
-  });
+  };
+  const [completed, setCompleted] = useState<string[]>(read);
+  // Another tab or the account sync changed the list: show that copy.
+  useEffect(() => onStorageKeyChange(resourceProgressKey, () => setCompleted(read())));
   const resources = useMemo(
     () => learningResources.filter((resource) =>
       resource.languages.includes(language) &&

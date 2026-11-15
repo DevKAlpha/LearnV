@@ -1,5 +1,13 @@
-node_modules
+**/node_modules
 dist
+apps/api/dist
+apps/api/.data
 .git
+.agents
+.claude
 examples
 coverage
+test-results
+playwright-report
+.env
+**/.env

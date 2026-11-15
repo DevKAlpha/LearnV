@@ -113,6 +113,8 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== scope.origin || !url.pathname.startsWith(scope.pathname)) return;
   // GitHub Pages nests the learning QA build under qa/: it has its own worker and shell.
   if (url.pathname.startsWith(scope.pathname + "qa/")) return;
+  // The account API is always live and per person: never cached, never served offline.
+  if (url.pathname.startsWith("/api/") || url.pathname.startsWith(scope.pathname + "api/")) return;
   if (request.mode === "navigate") event.respondWith(page(request));
   else if (url.pathname.startsWith(scope.pathname + "assets/")) event.respondWith(hashed(request));
   else if (url.pathname.endsWith(".json")) event.respondWith(data(request));

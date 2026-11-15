@@ -11,7 +11,8 @@ const LOGICAL_KEY = /^learnv-[a-z0-9-]+(?::[a-z0-9-]+)*$/;
 /** Shared, unscoped preferences (see ThemeContext / I18nContext). */
 const UNSCOPED_KEYS = new Set(["learnv-theme-v1", "learnv-locale-v1"]);
 /** Diagnostics and transient recovery state are not learner data. */
-const EXCLUDED_PREFIXES = ["learnv-learning-error-log-v1", "learnv-asset-recovery-v1", "learnv-gks-certification-log-v1", "learnv-gks-certification-backup-v1"];
+/** Account sync bookkeeping belongs to this device and its account, not to a backup. */
+const EXCLUDED_PREFIXES = ["learnv-learning-error-log-v1", "learnv-asset-recovery-v1", "learnv-gks-certification-log-v1", "learnv-gks-certification-backup-v1", "learnv-sync-v1"];
 
 type BackupStorage = Pick<Storage, "getItem" | "setItem" | "removeItem" | "key" | "length">;
 
