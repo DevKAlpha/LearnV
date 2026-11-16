@@ -35,6 +35,7 @@ class FakeServer {
     const unused = async () => { throw new Error("not used"); };
     return {
       requestMagicLink: unused, verify: unused, logout: unused, me: unused, exportAccount: unused, deleteAccount: unused, deleteDrafts: unused,
+      feedbackStatus: unused, acceptAiConsent: unused, withdrawAiConsent: unused, writingFeedback: unused, interviewFeedback: unused,
       manifest: async (): Promise<ManifestResponse> => {
         guard();
         return { documents: [...this.docs].map(([key, doc]) => ({ key, revision: doc.revision, updatedAt: doc.updatedAt, deleted: doc.value === null })), usage: { chars: 0, limit: 5_000_000 } };

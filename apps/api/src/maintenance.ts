@@ -11,7 +11,8 @@ const TOMBSTONE_DAYS = 180;
  * - spent or expired sign-in links after one day;
  * - expired sessions;
  * - accounts idle for RETENTION_DAYS (default two years), with all their documents;
- * - deletion markers older than TOMBSTONE_DAYS.
+ * - deletion markers older than TOMBSTONE_DAYS;
+ * - AI feedback request counts older than 60 days.
  */
 export async function purgeExpired(db: Database, config: Config, now = new Date()) {
   const ago = (days: number) => new Date(now.getTime() - days * DAY_MS);
@@ -19,4 +20,5 @@ export async function purgeExpired(db: Database, config: Config, now = new Date(
   await db.delete(schema.sessions).where(lt(schema.sessions.expiresAt, now));
   await db.delete(schema.users).where(lt(schema.users.lastSeenAt, ago(config.retentionDays)));
   await db.delete(schema.documents).where(and(isNull(schema.documents.value), lt(schema.documents.updatedAt, ago(TOMBSTONE_DAYS))));
+  await db.delete(schema.aiUsage).where(lt(schema.aiUsage.day, ago(60).toISOString().slice(0, 10)));
 }

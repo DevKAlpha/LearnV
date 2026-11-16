@@ -35,6 +35,7 @@ La interfaz funciona en español, inglés y coreano, incluye temas claro/oscuro,
 - CSS propio con variables temáticas y paleta inspirada en tulipanes.
 - Docker + Nginx para ejecución autocontenida.
 - API opcional (`apps/api`): Express 5, zod, helmet, express-rate-limit, PostgreSQL con Drizzle ORM (PGlite en desarrollo y pruebas).
+- Comentario con IA opcional: Claude (`@anthropic-ai/sdk`) desde la API, con salida estructurada validada con zod.
 - GitHub Actions + GitHub Pages para actualización y despliegue.
 
 ## Arquitectura
@@ -99,6 +100,8 @@ LearnV no necesita backend. El progreso, borradores del simulador, preferencias 
 
 La cuenta es opcional y solo existe en builds con `VITE_SYNC_API` (Docker). Con sesión iniciada se sincroniza una copia cifrada (AES-256-GCM) de cada entrada de `localStorage`, salvo las propias del dispositivo (tema, idioma, voces, recordatorios, diagnósticos). Los textos libres solo se suben si se activa «Sincronizar borradores». Nunca se suben documentos. GitHub Pages no tiene cuenta. Detalles: `docs/QA-PHASE-6.md`.
 
+Con `ANTHROPIC_API_KEY` en la API, quien tenga cuenta puede pedir un comentario con IA en el laboratorio de escritura (TOPIK II 51–54, IELTS Task 1/2) y en las respuestas de entrevista. Hace falta un consentimiento explícito, que se puede retirar en cualquier momento. Hay un límite diario por persona y otro global. Solo se envían a Anthropic el enunciado y el texto, cuando la persona lo pide, y LearnV no los guarda. Detalles: `docs/QA-PHASE-8.md`.
+
 Los videos usan carga diferida desde `youtube-nocookie.com` y conservan un enlace externo alternativo. La síntesis de voz y las funciones de grabación dependen de las capacidades y permisos del navegador.
 
 No deben añadirse al repositorio certificados, documentos de identidad, expedientes, direcciones, credenciales ni información personal real.
@@ -146,7 +149,7 @@ pnpm validate
 docker compose up --build
 ```
 
-La aplicación quedará disponible en `http://localhost:8080`. Nginx sirve los archivos estáticos, resuelve las rutas de la SPA y reenvía `/api/` a la API (mismo origen, así la cookie de sesión es de primera parte). `compose.yaml` levanta web, API y PostgreSQL 17; antes copia `apps/api/.env.example` a `.env` en la raíz y rellena `POSTGRES_PASSWORD`, `DATA_KEY` (`openssl rand -base64 32`), `PUBLIC_APP_URL` (https), `SMTP_URL` y `MAIL_FROM`.
+La aplicación quedará disponible en `http://localhost:8080`. Nginx sirve los archivos estáticos, resuelve las rutas de la SPA y reenvía `/api/` a la API (mismo origen, así la cookie de sesión es de primera parte). `compose.yaml` levanta web, API y PostgreSQL 17; antes copia `apps/api/.env.example` a `.env` en la raíz y rellena `POSTGRES_PASSWORD`, `DATA_KEY` (`openssl rand -base64 32`), `PUBLIC_APP_URL` (https), `SMTP_URL` y `MAIL_FROM`. Para el comentario con IA, añade `ANTHROPIC_API_KEY` (opcional) y, si quieres, `AI_DAILY_LIMIT` y `AI_GLOBAL_DAILY_LIMIT`.
 
 Solo la web, sin cuenta: `docker build -t learnv . && docker run -p 8080:80 learnv`.
 

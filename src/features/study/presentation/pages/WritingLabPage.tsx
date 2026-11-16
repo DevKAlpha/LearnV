@@ -1,5 +1,5 @@
 import "@/styles/tailwind-study.css";
-import { useDeferredValue, useId, useMemo } from "react";
+import { lazy, Suspense, useDeferredValue, useId, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { useWritingLab } from "@/application/controllers/useWritingLab";
@@ -8,6 +8,18 @@ import { writingLabTasks, type ChartData, type WritingLabTask } from "@/infrastr
 import { writingLabCopy } from "@/infrastructure/i18n/writing-lab-copy";
 import { PageEmblem } from "@/shared/ui/PageEmblem";
 import { WritingFeedbackPanel } from "../components/WritingFeedbackPanel";
+import { syncApiBase } from "@/infrastructure/sync/sync-config";
+
+// Only builds with an account API ship it (it brings the API client and zod).
+const AiFeedbackPanel = lazy(() => import("@/shared/ui/AiFeedbackPanel").then((module) => ({ default: module.AiFeedbackPanel })));
+
+/** The task as the learner sees it, as plain text for the AI: instruction, gapped text and chart data. */
+function taskText(task: WritingLabTask): string {
+  const chart = task.chart
+    ? [`${task.chart.title} (${task.chart.unit})`, `- | ${task.chart.categories.join(" | ")}`, ...task.chart.series.map((series) => `${series.label} | ${series.values.join(" | ")}`)].join("\n")
+    : "";
+  return [task.prompt, task.context ?? "", chart].filter(Boolean).join("\n\n");
+}
 
 type Copy = (typeof writingLabCopy)[keyof typeof writingLabCopy];
 
@@ -91,6 +103,16 @@ function TaskWorkspace({ task, copy, locale }: { task: WritingLabTask; copy: Cop
       {enough
         ? <WritingFeedbackPanel analysis={analysis} minimum={task.minimum} maximum={task.maximum} targetGrammar={task.targetGrammar} improved={improved} />
         : <p className="m-0 text-sm" role="status">{copy.feedbackHint}</p>}
+
+      {syncApiBase && (
+        <Suspense fallback={null}>
+          <AiFeedbackPanel
+            text={entry.draft}
+            textLanguage={task.language}
+            request={() => enough && entry.draft.trim() ? { kind: "writing", body: { format: task.format, task: taskText(task), text: entry.draft.trim(), locale } } : null}
+          />
+        </Suspense>
+      )}
 
       {task.model && (
         <details className="rounded-2xl border-2 border-current/30 p-3">

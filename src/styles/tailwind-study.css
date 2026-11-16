@@ -34,5 +34,6 @@
 @source "../features/home/presentation/MilestoneVolumes.tsx";
 @source "../features/profile/presentation/StickerCollection.tsx";
 @source "../features/profile/presentation/EffectsPanel.tsx";
+@source "../shared/ui/AiFeedbackPanel.tsx";
 
 @import "./tailwind-theme.css";

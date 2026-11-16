@@ -1,5 +1,5 @@
 import { scopedStorageKey } from "@/infrastructure/config/app-scope";
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { openInterviewChatbot } from "@/application/controllers/interviewChatbotEvents";
 import { trackLearning } from "@/application/controllers/learningJourneyEvents";
@@ -14,6 +14,12 @@ import { AppIcon } from "@/shared/ui/AppIcon";
 import { LiteYouTube } from "@/shared/ui/LiteYouTube";
 import { InterviewPreparation2027 } from "@/shared/ui/InterviewPreparation2027";
 import { interview2027 } from "@/infrastructure/data/interview-2027";
+import { syncApiBase } from "@/infrastructure/sync/sync-config";
+
+// Only builds with an account API ship it (it brings the API client and zod).
+const AiFeedbackPanel = lazy(() => import("@/shared/ui/AiFeedbackPanel").then((module) => ({ default: module.AiFeedbackPanel })));
+/** Shorter answers get the self-check only: there is not enough to comment on. */
+const MIN_AI_ANSWER = 40;
 
 type Category = "all" | "motivation" | "academic" | "adaptation" | "contribution";
 type SavedPractice = Record<string, { answer: string; checked: boolean[] }>;
@@ -179,6 +185,17 @@ export function InterviewPrepPage({ learning }: { learning: LearningJourneyContr
           </div>
           <div className="interview-question-navigation"><button type="button" onClick={() => changePractice(-1)}><span>←</span>{copy.ui.previous}</button><button className="interview-next-button" type="button" onClick={() => changePractice(1)}>{copy.interview.nextQuestion}<span>→</span></button></div>
         </article>
+        {syncApiBase && (
+          <Suspense fallback={null}>
+            <AiFeedbackPanel
+              key={practiceQuestion.id}
+              text={answer}
+              request={() => answer.trim().length >= MIN_AI_ANSWER
+                ? { kind: "interview", body: { question: localize(practiceQuestion.question, locale), purpose: localize(practiceQuestion.purpose, locale), answer: answer.trim(), locale } }
+                : null}
+            />
+          </Suspense>
+        )}
       </section>
 
       <section className="interview-tips" aria-labelledby="tips-title">

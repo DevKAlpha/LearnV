@@ -10,6 +10,15 @@ import {
   type PushResult,
   type SyncDocument,
 } from "@learnv/schemas/sync-api";
+import {
+  AI_CONSENT_VERSION,
+  feedbackResponseSchema,
+  feedbackStatusSchema,
+  type FeedbackResult,
+  type FeedbackStatus,
+  type InterviewFeedbackRequest,
+  type WritingFeedbackRequest,
+} from "@learnv/schemas/feedback-api";
 import type { Locale } from "@/domain/models/i18n";
 
 /**
@@ -41,12 +50,21 @@ export type SyncApi = {
   pull(keys: string[]): Promise<SyncDocument[]>;
   push(changes: PushChange[], options?: { keepalive?: boolean }): Promise<PushResult[]>;
   deleteDrafts(): Promise<void>;
+  feedbackStatus(): Promise<FeedbackStatus>;
+  acceptAiConsent(): Promise<FeedbackStatus>;
+  withdrawAiConsent(): Promise<void>;
+  writingFeedback(request: WritingFeedbackRequest): Promise<AiFeedback>;
+  interviewFeedback(request: InterviewFeedbackRequest): Promise<AiFeedback>;
 };
 
+export type AiFeedback = { feedback: FeedbackResult; quota: { used: number; limit: number } };
+
 const TIMEOUT_MS = 20_000;
+/** AI feedback takes seconds to a minute: the server allows the provider up to 90 s. */
+const AI_TIMEOUT_MS = 100_000;
 
 export function createSyncApi(base: string, fetcher: typeof fetch = (...args) => fetch(...args)): SyncApi {
-  async function call(path: string, init: { method?: string; body?: unknown; keepalive?: boolean } = {}): Promise<Response> {
+  async function call(path: string, init: { method?: string; body?: unknown; keepalive?: boolean; timeout?: number } = {}): Promise<Response> {
     let response: Response;
     try {
       response = await fetcher(`${base}${path}`, {
@@ -56,7 +74,7 @@ export function createSyncApi(base: string, fetcher: typeof fetch = (...args) =>
         headers: { "X-LearnV-Client": "web", ...(init.body === undefined ? {} : { "Content-Type": "application/json" }) },
         body: init.body === undefined ? undefined : JSON.stringify(init.body),
         keepalive: init.keepalive,
-        signal: typeof AbortSignal.timeout === "function" ? AbortSignal.timeout(TIMEOUT_MS) : undefined,
+        signal: typeof AbortSignal.timeout === "function" ? AbortSignal.timeout(init.timeout ?? TIMEOUT_MS) : undefined,
       });
     } catch {
       throw new SyncApiError(0, "offline");
@@ -115,5 +133,12 @@ export function createSyncApi(base: string, fetcher: typeof fetch = (...args) =>
     async deleteDrafts() {
       await call("sync/drafts", { method: "DELETE" });
     },
+    feedbackStatus: () => json(feedbackStatusSchema, "feedback"),
+    acceptAiConsent: () => json(feedbackStatusSchema, "feedback/consent", { method: "PUT", body: { version: AI_CONSENT_VERSION } }),
+    async withdrawAiConsent() {
+      await call("feedback/consent", { method: "DELETE" });
+    },
+    writingFeedback: (request) => json(feedbackResponseSchema, "feedback/writing", { method: "POST", body: request, timeout: AI_TIMEOUT_MS }),
+    interviewFeedback: (request) => json(feedbackResponseSchema, "feedback/interview", { method: "POST", body: request, timeout: AI_TIMEOUT_MS }),
   };
 }

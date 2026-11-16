@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { index, integer, pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { date, index, integer, pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 const time = (name: string) => timestamp(name, { withTimezone: true, mode: "date" });
 
@@ -17,6 +17,9 @@ export const users = pgTable("users", {
   createdAt: time("created_at").notNull().defaultNow(),
   /** Drives the retention policy: accounts idle for RETENTION_DAYS are deleted. */
   lastSeenAt: time("last_seen_at").notNull().defaultNow(),
+  /** Explicit consent to send texts to the AI provider for feedback (AI_CONSENT_VERSION), or null. */
+  aiConsentVersion: text("ai_consent_version"),
+  aiConsentAt: time("ai_consent_at"),
 });
 
 /** Single-use sign-in links. Only a SHA-256 hash of the token is stored. */
@@ -52,3 +55,13 @@ export const documents = pgTable("documents", {
   chars: integer("chars").notNull().default(0),
   updatedAt: time("updated_at").notNull().defaultNow(),
 }, (table) => [primaryKey({ columns: [table.userId, table.key] })]);
+
+/**
+ * AI feedback requests per learner and UTC day, for the daily quota. Counts only: the texts
+ * and the feedback are never stored. Rows older than 60 days are purged.
+ */
+export const aiUsage = pgTable("ai_usage", {
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  day: date("day", { mode: "string" }).notNull(),
+  requests: integer("requests").notNull().default(0),
+}, (table) => [primaryKey({ columns: [table.userId, table.day] }), index("ai_usage_day_idx").on(table.day)]);

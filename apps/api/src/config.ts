@@ -23,6 +23,18 @@ export type Config = {
   /** Accounts without any activity for this many days are deleted. */
   retentionDays: number;
   mail: { transport: "console" } | { transport: "smtp"; url: string; from: string } | { transport: "memory" };
+  /** Optional AI feedback. Null when no provider key is configured: the feature is off. */
+  ai: AiConfig | null;
+};
+
+export type AiConfig = {
+  apiKey: string;
+  model: string;
+  effort: "low" | "medium" | "high" | "xhigh" | "max";
+  /** Requests per learner per UTC day. */
+  dailyLimit: number;
+  /** Requests per UTC day for the whole service: a hard cap on spend. */
+  globalDailyLimit: number;
 };
 
 const boolean = z.enum(["true", "false", "1", "0"]).transform((value) => value === "true" || value === "1");
@@ -43,6 +55,11 @@ const env = z.object({
   MAIL_TRANSPORT: z.enum(["console", "smtp"]).optional(),
   SMTP_URL: z.string().optional(),
   MAIL_FROM: z.string().optional(),
+  ANTHROPIC_API_KEY: z.string().optional(),
+  AI_MODEL: z.string().regex(/^claude-[a-z0-9-]+$/).default("claude-opus-5-5"),
+  AI_EFFORT: z.enum(["low", "medium", "high", "xhigh", "max"]).default("medium"),
+  AI_DAILY_LIMIT: positive(10),
+  AI_GLOBAL_DAILY_LIMIT: positive(300),
 });
 
 function origin(url: string) {
@@ -101,5 +118,8 @@ export function loadConfig(source: Record<string, string | undefined> = process.
     loginTokenMinutes: values.LOGIN_TOKEN_MINUTES,
     retentionDays: values.RETENTION_DAYS,
     mail: transport === "smtp" ? { transport, url: values.SMTP_URL!, from: values.MAIL_FROM! } : { transport },
+    ai: values.ANTHROPIC_API_KEY?.trim()
+      ? { apiKey: values.ANTHROPIC_API_KEY.trim(), model: values.AI_MODEL, effort: values.AI_EFFORT, dailyLimit: values.AI_DAILY_LIMIT, globalDailyLimit: values.AI_GLOBAL_DAILY_LIMIT }
+      : null,
   };
 }

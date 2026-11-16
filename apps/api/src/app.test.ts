@@ -19,7 +19,7 @@ const config = loadConfig({
   COOKIE_SECURE: "true",
 });
 const pass = (_request: unknown, _response: unknown, next: () => void) => next();
-const noLimits: RateLimits = { api: pass, magicLink: pass, verify: pass };
+const noLimits: RateLimits = { api: pass, magicLink: pass, verify: pass, feedback: pass };
 
 let handle: DatabaseHandle;
 let mailer: MemoryMailer;

@@ -6,7 +6,8 @@
   "description": "Sync contract shared by the LearnV web client and API: syncable keys, limits and zod schemas.",
   "exports": {
     "./sync-keys": "./src/sync-keys.ts",
-    "./sync-api": "./src/sync-api.ts"
+    "./sync-api": "./src/sync-api.ts",
+    "./feedback-api": "./src/feedback-api.ts"
   },
   "sideEffects": false,
   "dependencies": {

@@ -4,6 +4,7 @@ import { loadConfig } from "./config.ts";
 import { openPglite, openPostgres } from "./db/database.ts";
 import { createMailer } from "./mail/mailer.ts";
 import { purgeExpired } from "./maintenance.ts";
+import { AnthropicFeedbackModel } from "./ai/feedback-model.ts";
 
 // Same relative path from src/server.ts (development) and dist/server.mjs (bundle).
 const migrationsFolder = fileURLToPath(new URL("../drizzle", import.meta.url));
@@ -16,7 +17,9 @@ const { db, close } = config.databaseUrl
 if (!config.databaseUrl) console.warn("[api] DATABASE_URL is not set: using the embedded development database in apps/api/.data");
 if (config.mail.transport === "console") console.warn("[api] MAIL_TRANSPORT=console: sign-in links are printed here, not emailed");
 
-const app = createApp({ db, config, mailer: createMailer(config.mail) });
+if (!config.ai) console.warn("[api] ANTHROPIC_API_KEY is not set: AI feedback is off");
+const feedback = config.ai ? new AnthropicFeedbackModel(config.ai) : null;
+const app = createApp({ db, config, mailer: createMailer(config.mail), feedback });
 const server = app.listen(config.port, () => console.warn(`[api] listening on :${config.port}`));
 
 const purge = () => purgeExpired(db, config).catch((error: unknown) => console.error(`[api] purge failed: ${error instanceof Error ? error.name : typeof error}`));

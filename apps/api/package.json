@@ -15,6 +15,7 @@
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0",
     "@learnv/schemas": "workspace:*",
     "drizzle-orm": "^0.45.4",
     "express": "^5.3.0",
