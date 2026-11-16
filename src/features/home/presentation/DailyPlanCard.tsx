@@ -11,6 +11,10 @@ import { emitLearnvEvent } from "@/infrastructure/events/learnv-events";
 import { dailyHabitCopy } from "@/infrastructure/i18n/daily-habit-copy";
 import { gksProfileCopy } from "@/infrastructure/i18n/gks-profile-copy";
 import { ACTION_ROUTES } from "@/shared/ui/gks-action-routes";
+import { celebrate } from "@/shared/effects/celebrate";
+
+/** Session-only: the plan is celebrated once per day and tab session, not on every visit to Home. */
+const CELEBRATED_KEY = "learnv-plan-celebrated";
 
 export type PlanStatus = { done: number; total: number; route: string | null };
 
@@ -42,6 +46,16 @@ export function DailyPlanCard({ ticked, toggle, streak, shieldUsed, onStatus }: 
     : ACTION_ROUTES[item.action];
   const primary = plan.items.find((item) => !item.done) ?? null;
   const primaryRoute = primary ? route(primary) : null;
+
+  const complete = plan.total > 0 && plan.done === plan.total;
+  useEffect(() => {
+    if (!complete) return;
+    try {
+      if (sessionStorage.getItem(CELEBRATED_KEY) === today) return;
+      sessionStorage.setItem(CELEBRATED_KEY, today);
+    } catch { return; }
+    void celebrate("plan", locale);
+  }, [complete, today, locale]);
 
   useEffect(() => {
     onStatus({ done: plan.done, total: plan.total, route: primaryRoute && !primaryRoute.startsWith("https://") ? primaryRoute : null });

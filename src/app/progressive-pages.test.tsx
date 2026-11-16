@@ -54,7 +54,7 @@ describe.each(["es", "en", "ko"] as const)("progressive first visit in %s", (loc
     expect(render(<ChecklistPage progress={{ completedDocuments: [] }} toggleDocument={() => {}} />)).toContain('illustrations/storybook/desk.svg');
     const profile = render(<ProfilePage score={37} learning={learning} />);
     expect(profile).toContain('illustrations/storybook/garden.svg');
-    expect(profile).toContain('class="profile-avatar"');
+    expect(profile).toContain('class="profile-avatar profile-avatar--button"');
   });
   it("keeps the home action ahead of support, scholarship status and objectives", () => {
     scenario.locale = locale; scenario.qa = false;

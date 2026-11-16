@@ -39,3 +39,6 @@
 }
 @media(max-width:359px) { .learning-journey--illustrated .learning-journey__heading { align-items: flex-start; flex-wrap: wrap; }.learning-journey--illustrated .journey-cover-art { order: -1; } }
 @media(forced-colors:active) { .learning-journey--illustrated .journey-cover-art { display: none; }.learning-journey--illustrated :is(.journey-art__line,.journey-art__paper,.journey-art__petal,.journey-art__leaf,.journey-art__back,.journey-art__gold,.journey-stat-art) { stroke: CanvasText; } }
+/* Phase 7: the profile tulip is a button (touch alternative to the "tulip" secret word). */
+.profile-avatar--button { padding: 0; color: inherit; font: inherit; cursor: pointer; }
+.profile-avatar--button:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; border-radius: 12px; }

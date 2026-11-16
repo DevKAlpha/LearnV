@@ -25,6 +25,8 @@ import { isLearningQa } from "@/infrastructure/config/app-scope";
 import { QaPreviewNotice } from "@/app/layout/QaPreviewNotice";
 import { StoryFolio } from "@/shared/ui/StoryFolio";
 import { LibraryQuickAccess } from "@/app/layout/LibraryQuickAccess";
+import { SeasonalTheme } from "@/app/layout/SeasonalTheme";
+import { SecretWords } from "@/app/layout/SecretWords";
 import { TaskBoardQuickAccess } from "@/app/layout/TaskBoardQuickAccess";
 import "@/styles/learning-floating-tools.css";
 
@@ -66,6 +68,8 @@ export function App() {
       <ScrollToTop />
       <RoutePrefetcher />
       <DynamicFavicon readiness={progress.score} />
+      <SeasonalTheme />
+      <SecretWords />
       <a className="skip-link" href="#main-content">{copy.app.skipLink}</a>
 
       <header className="app-chrome">

@@ -16,6 +16,10 @@ import { storybookCopy } from "@/infrastructure/i18n/storybook-copy";
 const DailyPlanCard = lazy(() => import("@/features/home/presentation/DailyPlanCard").then((module) => ({ default: module.DailyPlanCard })));
 // Lazy for the same reason: the cycle card and its copy stay out of the startup bundle.
 const GksCycleCard = lazy(() => import("@/shared/ui/GksCycleCard").then((module) => ({ default: module.GksCycleCard })));
+// Immersion cards: lazy, the word list and festival lessons never reach the startup bundle.
+const WordOfDayCard = lazy(() => import("@/features/home/presentation/WordOfDayCard").then((module) => ({ default: module.WordOfDayCard })));
+const CulturalCalendarCard = lazy(() => import("@/features/home/presentation/CulturalCalendarCard").then((module) => ({ default: module.CulturalCalendarCard })));
+const MilestoneVolumes = lazy(() => import("@/features/home/presentation/MilestoneVolumes").then((module) => ({ default: module.MilestoneVolumes })));
 
 type Props = {
   score: number;
@@ -83,6 +87,9 @@ export function HomePage({ score, progress, toggleTask, learning }: Props) {
 
       {!isLearningQa && <Suspense fallback={null}><GksCycleCard /></Suspense>}
 
+      <Suspense fallback={null}><WordOfDayCard /></Suspense>
+      <Suspense fallback={null}><CulturalCalendarCard /></Suspense>
+
       <section className="story-shelf" aria-labelledby="story-shelf-title">
         <div className="section-heading"><div><span className="eyebrow">{story.shelfKicker}</span><h2 id="story-shelf-title">{story.shelf}</h2></div></div>
         <div className="story-shelf__grid">
@@ -91,6 +98,7 @@ export function HomePage({ score, progress, toggleTask, learning }: Props) {
             <div className="story-volume__copy"><span lang={language}>{language === "en" ? "English" : "한국어"}</span><strong>{language === "en" ? copy.study.englishSpaceTitle : copy.study.koreanSpaceTitle}</strong><small>{language === "en" ? copy.study.englishSpaceTarget : copy.study.koreanSpaceTarget}</small><b>{copy.study.openSpace}<i aria-hidden="true">↗</i></b></div>
           </Link>)}
         </div>
+        <Suspense fallback={null}><MilestoneVolumes longestStreak={learning.journey.longestStreak} /></Suspense>
       </section>
 
       <LearningJourneyPanel learning={learning} compact />

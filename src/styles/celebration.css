@@ -1,0 +1,87 @@
+/* Celebrations: loaded with the first celebration, never at startup. Colours come from tokens. */
+.celebration-confetti {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-loader);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.celebration-confetti i {
+  position: absolute;
+  top: -16px;
+  left: var(--x, 50vw);
+  width: 8px;
+  height: 14px;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  background: var(--yellow);
+  opacity: 0;
+  animation: learnv-confetti var(--fall, 2s) cubic-bezier(0.2, 0.6, 0.4, 1) var(--delay, 0s) forwards;
+}
+
+.celebration-confetti i:nth-child(5n + 1) { background: var(--purple); }
+.celebration-confetti i:nth-child(5n + 2) { background: var(--hot-pink); }
+.celebration-confetti i:nth-child(5n + 3) { background: var(--green); }
+.celebration-confetti i:nth-child(5n + 4) { width: 10px; height: 10px; border-radius: 50%; background: var(--cobalt); }
+
+@keyframes learnv-confetti {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(var(--spin, 0deg)); }
+  85% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(var(--drift, 0), 105vh, 0) rotate(calc(var(--spin, 0deg) + 540deg)); }
+}
+
+.celebration-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 104px);
+  z-index: var(--z-loader);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: max-content;
+  max-width: min(calc(100vw - 32px), 440px);
+  padding: 10px 18px;
+  border: 2px solid var(--edge);
+  border-radius: var(--radius-pill);
+  background: var(--paper);
+  color: var(--fg);
+  box-shadow: 4px 4px 0 var(--edge);
+  font-size: var(--text-sm);
+  font-weight: 800;
+  line-height: 1.35;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, 16px);
+  transition: opacity 0.2s ease, transform 0.25s ease, visibility 0s linear 0.25s;
+}
+
+.celebration-toast.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+  transition: opacity 0.2s ease, transform 0.25s ease, visibility 0s;
+}
+
+.celebration-toast__mark { font-size: var(--text-lg); }
+
+.brand-tulip.is-blooming {
+  transform-origin: 50% 90%;
+  animation: learnv-bloom 1.4s ease-in-out;
+}
+
+@keyframes learnv-bloom {
+  0%, 100% { transform: none; }
+  30% { transform: rotate(-12deg) scale(1.15); }
+  60% { transform: rotate(10deg) scale(1.22); }
+}
+
+@media (min-width: 900px) {
+  .celebration-toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 32px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .celebration-confetti { display: none; }
+  .celebration-toast, .celebration-toast.is-visible { transform: translate(-50%, 0); transition: none; }
+  .brand-tulip.is-blooming { animation: none; }
+}

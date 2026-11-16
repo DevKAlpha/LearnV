@@ -1,5 +1,5 @@
 import "@/styles/tailwind-study.css";
-import { useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useI18n } from "@/application/i18n/I18nContext";
 import { trackLearning } from "@/application/controllers/learningJourneyEvents";
@@ -10,6 +10,7 @@ import { seededRandom, shuffle } from "@/domain/models/random";
 import { reviewDeck } from "@/infrastructure/data/review-deck-cards";
 import { formatInterval, reviewCopy } from "@/infrastructure/i18n/review-copy";
 import { PageEmblem } from "@/shared/ui/PageEmblem";
+import { celebrate } from "@/shared/effects/celebrate";
 import { LearningAudioPlayer } from "../components/LearningAudioPlayer";
 
 type Copy = (typeof reviewCopy)[keyof typeof reviewCopy];
@@ -202,6 +203,11 @@ function Session({ cards, copy, locale, filter, onExit }: { cards: ReviewCard[];
     }
     setIndex((current) => current + 1);
   };
+
+  const sessionDone = !card && stats.reviewed > 0;
+  useEffect(() => {
+    if (sessionDone) void celebrate("review", locale);
+  }, [sessionDone, locale]);
 
   if (!card) {
     return (

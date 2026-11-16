@@ -1,0 +1,29 @@
+/*
+ * Seasonal theme: a thin decorative ribbon during Korean festivals. Loaded only while a
+ * festival is active and the learner keeps the seasonal theme on. It never changes text
+ * colours, so contrast stays the one the themes were tested with.
+ */
+.season-ribbon {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-floating);
+  height: 6px;
+  pointer-events: none;
+  background: repeating-linear-gradient(90deg, var(--season-a) 0 28px, var(--season-b) 28px 56px, var(--season-c) 56px 84px, var(--season-d) 84px 112px);
+}
+
+/* 색동 (saekdong): the rainbow stripes of children's hanbok on New Year and Children's Day. */
+.season-ribbon--seollal,
+.season-ribbon--childrens-day { --season-a: #d8394c; --season-b: #f4c430; --season-c: #2f8f5b; --season-d: #2f6db5; }
+/* Harvest moon and autumn rice fields. */
+.season-ribbon--chuseok { --season-a: #f2b134; --season-b: #fff1be; --season-c: #b4552f; --season-d: #6f7c3a; }
+/* Ink and hanji paper for the alphabet. */
+.season-ribbon--hangeul-day { --season-a: #241a24; --season-b: #f6ead4; --season-c: #8342a5; --season-d: #f6ead4; }
+/* 태극기 colours. */
+.season-ribbon--samiljeol { --season-a: #cd2e3a; --season-b: #ffffff; --season-c: #0047a0; --season-d: #ffffff; }
+.season-ribbon--suneung { --season-a: #7c409b; --season-b: #f2d36b; --season-c: #7c409b; --season-d: #fffaf6; }
+.season-ribbon--pepero-day { --season-a: #6b3e26; --season-b: #f5d7a1; --season-c: #6b3e26; --season-d: #f8b8c8; }
+/* Red bean porridge on the longest night. */
+.season-ribbon--dongji { --season-a: #8b2d2d; --season-b: #1f2a44; --season-c: #e9eef5; --season-d: #1f2a44; }

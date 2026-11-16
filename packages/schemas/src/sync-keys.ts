@@ -29,6 +29,7 @@ const DEVICE_ONLY = [
   "learnv-locale-v1",
   "learnv-study-voice-v1",
   "learnv-reminders-v1",
+  "learnv-effects-v1",
   "learnv-sync-v1",
   "learnv-learning-error-log-v1",
   "learnv-asset-recovery-v1",

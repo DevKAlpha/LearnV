@@ -1,6 +1,7 @@
 import { normalizeTestProgress } from "./language-path";
 import { normalizeLearningJourney, sortRecentActivities } from "./learning-journey";
 import { normalizeReviewState } from "./review-deck";
+import { normalizeStickers } from "./milestones";
 
 /**
  * Pure rules of account synchronisation: what to do with each stored entry, and how to merge
@@ -173,6 +174,11 @@ export const syncMergeSpecs: Record<string, MergeSpec> = {
     // A card's memory state only makes sense as a whole: keep the most recently reviewed one.
     rules: [[/^cards\.[^.]+$/, latestBy("lastReview")], [/^(days|introduced)\.[^.]+$/, "sum"]],
     finalize: (merged) => normalizeReviewState(merged) as unknown as Json,
+  },
+  "learnv-stickers-v1": {
+    // A sticker earned on two devices keeps the first date.
+    rules: [[/^earned\.[^.]+$/, "min"]],
+    finalize: (merged) => normalizeStickers(merged) as unknown as Json,
   },
   "learnv-task-board-v1": {
     rules: [[/^tasks\.[^.]+$/, latestBy("updatedAt")]],

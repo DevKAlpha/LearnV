@@ -3,6 +3,8 @@ import { useI18n } from "@/application/i18n/I18nContext";
 import { useTaskBoard } from "@/application/controllers/useTaskBoard";
 import { boardAreas, boardStatuses, cleanTaskTitle, getBoardSuggestions, localBoardDate, MAX_TASK_TITLE, taskInputIssue, todayBoardTasks, type BoardArea, type BoardIssue, type BoardStatus, type BoardTask, type TaskInput } from "@/domain/models/task-board";
 import { taskBoardCopy } from "@/infrastructure/i18n/task-board-copy";
+import { hasCheer } from "@/domain/models/milestones";
+import { earnStoredSticker } from "@/shared/effects/celebrate";
 import { TaskNoteCard } from "./TaskNoteCard";
 import { TaskNoteArt } from "./TaskNoteArt";
 import { TaskBoardCopies } from "./TaskBoardCopies";
@@ -60,11 +62,14 @@ export const TaskBoardPanel = memo(function TaskBoardPanel({ active, initialView
     event.preventDefault(); if (!editor) return;
     const input = taskInputFromForm(editor, new FormData(event.currentTarget));
     const error = taskInputIssue(input); if (error) { setValidation(error); return; }
-    if (editor.id === null) { if (addTask(input)) setEditor(null); }
+    let saved = false;
+    if (editor.id === null) { if (addTask(input)) { setEditor(null); saved = true; } }
     else if (board.commit({ type: "edit", id: editor.id, input, expectedUpdatedAt: editor.expectedUpdatedAt })) {
       const task = tasks.find((task) => task.id === editor.id); if (task) reveal(task);
-      setNotice({ kind: "updated", title: cleanTaskTitle(input.title) }); setUiIssue(null); setEditor(null);
+      setNotice({ kind: "updated", title: cleanTaskTitle(input.title) }); setUiIssue(null); setEditor(null); saved = true;
     }
+    // Easter egg: a task that says 화이팅 / fighting cheers the learner on.
+    if (saved && hasCheer(input.title)) earnStoredSticker("hwaiting", locale, "cheer");
   };
   const move = (id: string, status: BoardStatus) => {
     const task = tasks.find((task) => task.id === id); if (!task || task.status === status) return;

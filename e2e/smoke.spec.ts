@@ -362,3 +362,51 @@ test.describe("Account sync is opt-in per build", () => {
     expect(apiCalls).toEqual([]);
   });
 });
+
+test.describe("Immersion, celebrations and easter eggs", () => {
+  test.beforeEach(async ({ page }) => {
+    // Suneung day 2026: an active festival, so the calendar, ribbon and sticker are all in play.
+    await page.clock.setFixedTime(new Date("2026-11-19T10:00:00"));
+    await prepare(page);
+  });
+
+  test("home shows the word of the day, today's festival and locked milestone volumes", async ({ page }) => {
+    await openReady(page, "/");
+    const words = page.locator("[data-word-of-day]");
+    await expect(words.locator('strong[lang="ko"]')).toHaveCount(1);
+    await expect(words.locator('strong[lang="en"]')).toHaveCount(1);
+    await expect(page.getByTestId("season-ribbon")).toHaveClass(/season-ribbon--suneung/);
+    const calendar = page.locator('[data-culture-calendar="suneung"]');
+    await expect(calendar.getByRole("heading", { name: /수능/ })).toBeVisible();
+    await expect(page.locator('[data-milestone-volumes] [data-locked="true"]')).toHaveCount(3);
+    await calendar.getByText("Mini-lección: tres expresiones").click();
+    await expect(calendar.getByText("수능 대박 나세요")).toBeVisible();
+    await expect(page.locator("#learnv-celebration-status")).toContainText("Pegatina nueva: 수능");
+    const stickers = await page.evaluate(() => JSON.parse(localStorage.getItem("learnv-stickers-v1") ?? "{}"));
+    expect(Object.keys(stickers.earned)).toEqual(["suneung"]);
+  });
+
+  test("typing the secret word blooms the logo and the profile shows the sticker", async ({ page }) => {
+    await openReady(page, "/profile");
+    await page.locator("body").click({ position: { x: 5, y: 300 } });
+    await page.keyboard.type("tulip");
+    await expect(page.locator("#learnv-celebration-status")).toContainText("Pegatina nueva: Tulipán");
+    await expect(page.locator('[data-sticker="tulip"]')).toHaveAttribute("data-held", "true");
+    await expect(page.locator('[data-sticker="credit"]')).toHaveAttribute("data-held", "false");
+    const effects = page.locator("[data-effects-panel]");
+    await effects.getByRole("checkbox", { name: "Tema de temporada en fechas coreanas" }).uncheck();
+    await expect(page.getByTestId("season-ribbon")).toHaveCount(0);
+  });
+
+  test("a 화이팅 task cheers the learner on, without confetti under reduced motion", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await openReady(page, "/");
+    await page.getByRole("button", { name: "Abrir mi tablero" }).click();
+    const dialog = page.getByRole("dialog", { name: "Mi tablero" });
+    await dialog.getByRole("button", { name: "Nueva nota" }).first().click();
+    await dialog.getByLabel("¿Qué quieres hacer?").fill("TOPIK 화이팅");
+    await dialog.getByRole("button", { name: "Crear nota" }).click();
+    await expect(page.locator("#learnv-celebration-status")).toContainText("화이팅! Tú puedes.");
+    await expect(page.locator(".celebration-confetti")).toHaveCount(0);
+  });
+});

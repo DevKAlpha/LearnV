@@ -12,6 +12,10 @@ import { DeviceBackupPanel } from "./DeviceBackupPanel";
 import { ApplicantProfileEditor } from "./ApplicantProfileEditor";
 import { WeeklySummaryCard } from "./WeeklySummaryCard";
 import { RemindersPanel } from "./RemindersPanel";
+import { StickerCollection } from "./StickerCollection";
+import { EffectsPanel } from "./EffectsPanel";
+import { immersionCopy } from "@/infrastructure/i18n/immersion-copy";
+import { earnStoredSticker } from "@/shared/effects/celebrate";
 import { useApplicantProfile, useGksCycle } from "@/application/controllers/useApplicantProfile";
 import { useMeasuredLevels } from "@/application/controllers/useMeasuredLevels";
 import { gksProfileCopy } from "@/infrastructure/i18n/gks-profile-copy";
@@ -28,7 +32,19 @@ export function ProfilePage({ score, learning }: { score: number; learning: Lear
   const koreanPath = getLanguagePath("ko", progress.ko);
   const advancedCopy = advancedPathCopy[locale];
   const [creditTaps, setCreditTaps] = useState(0);
+  const [tulipTaps, setTulipTaps] = useState(0);
   const easterEggVisible = creditTaps >= 5;
+  const tapCredit = () => {
+    const next = Math.min(5, creditTaps + 1);
+    setCreditTaps(next);
+    if (next === 5 && creditTaps < 5) earnStoredSticker("credit", locale);
+  };
+  // Touch alternative to typing "tulip": three taps on the profile tulip make it bloom.
+  const tapTulip = () => {
+    const next = tulipTaps + 1;
+    setTulipTaps(next % 3);
+    if (next === 3) earnStoredSticker("tulip", locale, "bloom");
+  };
 
   // Levels come from the furthest stage passed or unlocked per skill (not average best scores).
   const { profile } = useApplicantProfile();
@@ -42,7 +58,7 @@ export function ProfilePage({ score, learning }: { score: number; learning: Lear
     <div className="page profile-page">
       <header className="profile-hero story-masthead">
         <div className="story-masthead__copy">
-          <div className="profile-avatar"><BrandMark /></div>
+          <button type="button" className="profile-avatar profile-avatar--button" aria-label={immersionCopy[locale].stickers.items.tulip.name} onClick={tapTulip}><BrandMark /></button>
           <span className="eyebrow">{copy.profile.local}</span>
           <h1>{copy.profile.title}</h1>
           <p>{copy.profile.intro}</p>
@@ -66,7 +82,9 @@ export function ProfilePage({ score, learning }: { score: number; learning: Lear
 
       <LearningJourneyPanel learning={learning} illustrated />
       <WeeklySummaryCard journey={learning.journey} />
+      <StickerCollection longestStreak={learning.journey.longestStreak} />
       <RemindersPanel />
+      <EffectsPanel />
 
       <section className="profile-cycle">
         <span className="eyebrow">{copy.profile.targetCycle}</span><h2>{profileCopy.cycle.cycle(cycle.entryYear)} · {profileCopy.cycle.phases[cycle.phase].title}</h2><p>{copy.home.cycleNote}</p>
@@ -79,7 +97,7 @@ export function ProfilePage({ score, learning }: { score: number; learning: Lear
 
       <footer className={easterEggVisible ? "profile-credit is-revealed" : "profile-credit"}>
         {/* Easter egg: five taps (or Enter/Space presses) reveal a message. */}
-        <button type="button" className="profile-credit__button" onClick={() => setCreditTaps((value) => Math.min(5, value + 1))}>
+        <button type="button" className="profile-credit__button" onClick={tapCredit}>
           <span aria-hidden="true">© 2026 · </span>{copy.profile.developedBy}{" "}
           {easterEggVisible
             ? <strong aria-live="polite">ninininini 😘 💜</strong>

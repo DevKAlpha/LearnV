@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useI18n } from "@/application/i18n/I18nContext";
 import type { StageProgress, TestLanguage, TestResult, TestStage } from "@/domain/models/language-test";
@@ -5,6 +6,7 @@ import { getNextLanguageStage, getLanguagePath } from "@/infrastructure/data/lan
 import { advancedPathCopy } from "@/infrastructure/i18n/advanced-path-copy";
 import { learningVoiceCopy } from "@/infrastructure/i18n/learning-voice-copy";
 import { AppIcon } from "@/shared/ui/AppIcon";
+import { celebrate } from "@/shared/effects/celebrate";
 import { LanguageCulture } from "@/shared/ui/LanguageCulture";
 import { SpiralLearningNote } from "./SpiralLearningNote";
 import { getLanguagePathHref } from "./learning-path-layout";
@@ -33,6 +35,12 @@ export function TestResultView({ language, stage, result, trackProgress, isAdvan
   const sessionLesson = result.questions.find((item) => !item.correct)?.question ?? result.questions[0]?.question;
   const nextStage = getNextLanguageStage(language, stage.id, trackProgress);
   const promoted = result.passed && !isAdvancedStage && path.advancedUnlocked;
+  const celebrated = useRef(false);
+  useEffect(() => {
+    if (!result.passed || celebrated.current) return;
+    celebrated.current = true;
+    void celebrate("pass", locale);
+  }, [result.passed, locale]);
 
 
   return (

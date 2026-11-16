@@ -1,4 +1,4 @@
-export const sceneNames = ["reader", "seoul", "london", "desk", "journey", "garden"] as const;
+export const sceneNames = ["reader", "seoul", "london", "desk", "journey", "garden", "hangul-first", "topik-bridge", "c1-summit"] as const;
 export type SceneName = typeof sceneNames[number];
 
 /** Separate local vectors: route illustrations never increase the initial JS bank. */

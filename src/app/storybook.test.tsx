@@ -52,9 +52,15 @@ describe.each(["/", "/LearnV/", "/LearnV/qa/"])("illustrations deployed under %s
     } finally { vi.unstubAllEnvs(); }
   });
 });
+const milestoneScenes = ["hangul-first", "topik-bridge", "c1-summit"];
+const sceneBytes = (scenes: readonly string[]) => scenes.reduce((total, scene) => total + readFileSync(new URL(`../../public/illustrations/storybook/${scene}.svg`, import.meta.url)).byteLength, 0);
 it("keeps all six scene transfers inside their combined size budget", () => {
-  const bytes = sceneNames.reduce((total, scene) => total + readFileSync(new URL(`../../public/illustrations/storybook/${scene}.svg`, import.meta.url)).byteLength, 0);
-  expect(bytes).toBeLessThan(20_000);
+  const routeScenes = sceneNames.filter((scene) => !milestoneScenes.includes(scene));
+  expect(routeScenes).toHaveLength(6);
+  expect(sceneBytes(routeScenes)).toBeLessThan(20_000);
+});
+it("keeps the milestone volume scenes (loaded only once unlocked) inside their own budget", () => {
+  expect(sceneBytes(milestoneScenes)).toBeLessThan(8_000);
 });
 it("prioritises only explicitly eager illustrations and restores the original display family", () => {
   const html = renderToStaticMarkup(<SceneArt scene="reader" eager />);
